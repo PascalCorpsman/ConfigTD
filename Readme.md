@@ -1,14 +1,14 @@
 # Config Tower Defence (Config TD)
 
-Config TD is a Opensource and free Tower Defence clone with the aim of maximal configurabillity and as easy as possible map creation for Single and multiplayer matches.
+Config TD is a Opensource and free Tower Defence clone with the aim of maximal configurabillity and as easy as possible map creation for single and multiplayer matches.
 
-It supports multiple Themes and is client server based.
+It supports multiple graphical themes and is client server based.
 
 #### Theme color
-![](preview_color .png)
+![](preview_color.png)
 
 #### Theme comic
-![](preview_comic .png)
+![](preview_comic.png)
 
 ### Features
 - 1 to 16 player (theoretical there is no limitiation to the player count, but in reallity the game does not support more than 65535 enemies at the map, which gives a upper limit for the playercount)
