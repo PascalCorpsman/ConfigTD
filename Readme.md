@@ -52,6 +52,16 @@ Read the [Manual](manual.md)
 
 ## What needs to be done to compile the game
 
+To be able to compile the code you need the [Lazarus-IDE](https://www.lazarus-ide.org)
+
+Inside Lazarus you need to install the following packages:
+- [Lnet](https://github.com/almindor/lnet) or use the online Packagemanager to install
+- LazOpenGLContext (comes with lazarus, install it via Package -> Install Packages)
+- TaChartLazarusPkg (comes with lazarus, install it via Package -> Install Packages)
+
+Additional you need to download:
+- [DGLOpenGL](https://github.com/saschawillems/dglopengl)
+
 ### Contributors
 Idea : Christian Wimmer, Uwe Schächterle<br>
 Implementation : Uwe Schächterle<br>
