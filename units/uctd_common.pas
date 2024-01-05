@@ -82,7 +82,7 @@ Const
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
 {$ENDIF}
   ;
-  URL_CheckForUpdate = 'https://corpsman.de/download/ctd.version';
+  URL_CheckForUpdate = ''; // TODO: Need to be defined !
 
   RF_VersionInfo = 'Your version: %s' + LineEnding +
     'Online version: %s' + LineEnding +
