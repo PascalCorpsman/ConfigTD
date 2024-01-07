@@ -1,6 +1,6 @@
-# Config Tower Defence (Config TD)
+# Config Tower Defense (Config TD)
 
-Config TD is a Opensource and free Tower Defence clone with the aim of maximal configurabillity and as easy as possible map creation for single and multiplayer matches.
+Config TD is a Opensource and free Tower Defense clone with the aim of maximal configurabillity and as easy as possible map creation for single and multiplayer matches.
 
 It supports multiple graphical themes and is client server based.
 
