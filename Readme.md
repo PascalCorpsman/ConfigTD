@@ -64,9 +64,9 @@ Read carefully the [manual](manual.md) or
 To be able to compile the code you need the [Lazarus-IDE](https://www.lazarus-ide.org)
 
 Inside Lazarus you need to install the following packages:
-- [Lnet](https://github.com/almindor/lnet) or use the online Packagemanager to install
-- LazOpenGLContext (comes with lazarus, install it via Package -> Install Packages)
-- TaChartLazarusPkg (comes with lazarus, install it via Package -> Install Packages)
+- L-Net from [here](https://github.com/almindor/lnet) or use the online Packagemanager to install
+- LazOpenGLContext (comes with lazarus, install via "Package" -> "Install Packages")
+- TaChartLazarusPkg (comes with lazarus, install via "Package" -> "Install Packages")
 
 Additional you need to download:
 - [DGLOpenGL](https://github.com/saschawillems/dglopengl)
@@ -74,5 +74,5 @@ Additional you need to download:
 ### Contributors
 Idea : Christian Wimmer, Uwe Schächterle<br>
 Implementation : Uwe Schächterle<br>
-Graphics : Uwe Schächterle, Dall e, Christian Wimmer<br>
+Graphics : Christian Wimmer, Dall e, Uwe Schächterle<br>
 Leveldesign : Christian Wimmer, Uwe Schächterle<br>
