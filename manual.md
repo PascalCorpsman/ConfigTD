@@ -20,7 +20,7 @@ textures: Textures needed by the program do not modify its content
   
 ## Application Descriptions
 
-Animation_editor: This is the editor to create and modify .ani files it can be downloaded [here](https://github.com/PascalCorpsman/Examples/tree/master/OpenGL/Animation_Editor)
+Animation_editor: This is the editor to create and modify .ani files it's source can be downloaded [here](https://github.com/PascalCorpsman/Examples/tree/master/OpenGL/Animation_Editor)
 
 config_td: This is the client application and the actual game
 

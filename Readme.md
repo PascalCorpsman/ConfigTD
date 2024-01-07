@@ -48,7 +48,16 @@ It supports multiple graphical themes and is client server based.
 
 ## What needs to be done to play the game
 
-Read the [Manual](manual.md)
+Read carefully the [manual](manual.md) or
+
+1. Clone or download this repository to your harddrive
+2. Start the "config_td" client supposed for your operating system (Linux 64 or Win64 are supported by default, for other OS you need to compile the source by yourself) ![](game_started.png)
+3. Click "Host Game" if you are the first player and do not use a dedicated server, otherwise click "Join Game" ![](host_game.png)
+4. Fill in your Player name and click on "Create" ![](select_map.png)
+5. Select "Load Map" ![](select_G1_map.png)
+6. Select the G1 map (by the way every map that has a description is "defined" and playable, all the other maps are in "development" state) and hit "Play" (Attention, if you want to play with multiple players, only hit load and wait until all players connected to the game) ![](select_difficulty.png)
+7. Select the difficulty you want to play the map. ![](in_game.png)
+8. Hit "P" to pause the game and take a look what the map offers you and how to play. The "G1" map is a defeating map, so you do not need to maze here, place all the buildings you buy onto the blue area and enjoy the game. Can you defeat all 12 waves in hard mode ?
 
 ## What needs to be done to compile the game
 
