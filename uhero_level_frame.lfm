@@ -1,0 +1,325 @@
+object Hero_Level: THero_Level
+  Left = 0
+  Height = 420
+  Top = 0
+  Width = 390
+  ClientHeight = 420
+  ClientWidth = 390
+  TabOrder = 0
+  DesignLeft = 318
+  DesignTop = 127
+  object Label8: TLabel
+    Left = 10
+    Height = 16
+    Top = 0
+    Width = 69
+    Caption = 'Description'
+  end
+  object Memo1: TMemo
+    Left = 10
+    Height = 80
+    Top = 16
+    Width = 214
+    Lines.Strings = (
+      '1234567890123456789012'
+    )
+    ParentFont = False
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+    WordWrap = False
+  end
+  object Label7: TLabel
+    Left = 236
+    Height = 16
+    Top = 16
+    Width = 37
+    Caption = 'Image'
+  end
+  object Button3: TButton
+    Left = 236
+    Height = 21
+    Top = 32
+    Width = 43
+    Caption = 'load'
+    OnClick = Button3Click
+    TabOrder = 1
+  end
+  object Image2: TImage
+    Left = 292
+    Height = 90
+    Top = 16
+    Width = 90
+    AutoSize = True
+    Transparent = True
+  end
+  object Label9: TLabel
+    Left = 10
+    Height = 32
+    Top = 138
+    Width = 79
+    Caption = 'Hitpoints for '#10'next level'
+  end
+  object Edit7: TEdit
+    Left = 112
+    Height = 26
+    Top = 144
+    Width = 80
+    TabOrder = 2
+    Text = 'Edit7'
+  end
+  object Label10: TLabel
+    Left = 10
+    Height = 16
+    Top = 114
+    Width = 37
+    Caption = 'Speed'
+  end
+  object Edit8: TEdit
+    Left = 112
+    Height = 26
+    Top = 104
+    Width = 80
+    TabOrder = 3
+    Text = 'Edit8'
+  end
+  object Label6: TLabel
+    Left = 256
+    Height = 16
+    Top = 122
+    Width = 23
+    Caption = 'Size'
+  end
+  object Edit5: TEdit
+    Left = 292
+    Height = 26
+    Top = 112
+    Width = 90
+    TabOrder = 4
+    Text = 'Edit5'
+  end
+  object GroupBox1: TGroupBox
+    Left = 10
+    Height = 232
+    Top = 184
+    Width = 372
+    Caption = ' Weapon settings '
+    ClientHeight = 215
+    ClientWidth = 370
+    TabOrder = 5
+    object Label11: TLabel
+      Left = 0
+      Height = 16
+      Top = 40
+      Width = 38
+      Caption = 'Range'
+    end
+    object Edit9: TEdit
+      Left = 98
+      Height = 26
+      Top = 32
+      Width = 80
+      TabOrder = 0
+      Text = 'Edit9'
+    end
+    object Label12: TLabel
+      Left = 0
+      Height = 16
+      Top = 64
+      Width = 71
+      Caption = 'Reload time'
+    end
+    object Edit10: TEdit
+      Left = 98
+      Height = 26
+      Top = 56
+      Width = 80
+      TabOrder = 1
+      Text = 'Edit10'
+    end
+    object Label14: TLabel
+      Left = 0
+      Height = 16
+      Top = 88
+      Width = 72
+      Caption = 'bulletspeed'
+    end
+    object Edit12: TEdit
+      Left = 98
+      Height = 26
+      Hint = 'If bulletspeed is <0 than the tower will drop the bullets whithin its range onto the floor.'
+      Top = 80
+      Width = 80
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+      Text = 'Edit12'
+    end
+    object Label15: TLabel
+      Left = 218
+      Height = 16
+      Top = 32
+      Width = 37
+      Caption = 'Image'
+    end
+    object Button4: TButton
+      Left = 218
+      Height = 21
+      Top = 48
+      Width = 43
+      Caption = 'load'
+      OnClick = Button4Click
+      TabOrder = 8
+    end
+    object Image3: TImage
+      Left = 272
+      Height = 90
+      Top = 32
+      Width = 90
+      AutoSize = True
+      Transparent = True
+    end
+    object Label17: TLabel
+      Left = 0
+      Height = 16
+      Top = 121
+      Width = 49
+      Caption = 'Damage'
+    end
+    object Edit14: TEdit
+      Left = 98
+      Height = 26
+      Top = 112
+      Width = 80
+      TabOrder = 3
+      Text = 'Edit14'
+    end
+    object Label18: TLabel
+      Left = 0
+      Height = 16
+      Top = 145
+      Width = 49
+      Caption = 'Damage'
+    end
+    object Edit15: TEdit
+      Left = 98
+      Height = 26
+      Top = 136
+      Width = 80
+      TabOrder = 4
+      Text = 'Edit15'
+    end
+    object Edit16: TEdit
+      Left = 98
+      Height = 26
+      Top = 160
+      Width = 80
+      TabOrder = 5
+      Text = 'Edit16'
+    end
+    object Edit17: TEdit
+      Left = 98
+      Height = 26
+      Top = 184
+      Width = 80
+      TabOrder = 6
+      Text = 'Edit17'
+    end
+    object Label19: TLabel
+      Left = 0
+      Height = 16
+      Top = 193
+      Width = 49
+      Caption = 'Damage'
+    end
+    object Label20: TLabel
+      Left = 0
+      Height = 16
+      Top = 169
+      Width = 49
+      Caption = 'Damage'
+    end
+    object Label27: TLabel
+      Left = 192
+      Height = 16
+      Top = 136
+      Width = 23
+      Caption = 'Size'
+    end
+    object Edit6: TEdit
+      Left = 276
+      Height = 26
+      Top = 128
+      Width = 82
+      TabOrder = 7
+      Text = 'Edit6'
+    end
+    object Button1: TButton
+      Left = 0
+      Height = 24
+      Top = 0
+      Width = 362
+      Caption = 'Load from previous stage'
+      OnClick = Button1Click
+      TabOrder = 9
+    end
+    object Image4: TImage
+      Left = 64
+      Height = 20
+      Top = 117
+      Width = 20
+      Center = True
+      Stretch = True
+    end
+    object Image5: TImage
+      Left = 64
+      Height = 20
+      Top = 141
+      Width = 20
+      Center = True
+      Stretch = True
+    end
+    object Image6: TImage
+      Left = 64
+      Height = 20
+      Top = 165
+      Width = 20
+      Center = True
+      Stretch = True
+    end
+    object Image7: TImage
+      Left = 64
+      Height = 20
+      Top = 189
+      Width = 20
+      Center = True
+      Stretch = True
+    end
+  end
+  object CheckBox4: TCheckBox
+    Left = 200
+    Height = 22
+    Hint = 'Only active if image is not an animation'
+    Top = 144
+    Width = 100
+    Caption = 'rotate image'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 6
+  end
+  object CheckBox1: TCheckBox
+    Left = 200
+    Height = 22
+    Hint = 'Only valid if image is an animation'
+    Top = 161
+    Width = 175
+    Caption = 'stop animation when still'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 7
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Filter = 'Graphic (*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;*.jfif;*.tif;*.tiff;*.gif;*.pbm;*.pgm;*.ppm;*.tga)|*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;*.jfif;*.tif;*.tiff;*.gif;*.pbm;*.pgm;*.ppm;*.tga;*.ani|Portable Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.bmp|Cursor (*.cur)|*.cur|Icon (*.ico)|*.ico|Mac OS X Icon (*.icns)|*.icns|Joint Picture Expert Group (*.jpeg;*.jpg;*.jpe;*.jfif)|*.jpeg;*.jpg;*.jpe;*.jfif|Tagged Image File Format (*.tif;*.tiff)|*.tif;*.tiff|Graphics Interchange Format (*.gif)|*.gif|Portable PixMap (*.pbm;*.pgm;*.ppm)|*.pbm;*.pgm;*.ppm|TGA Image File (*.tga)|*.tga|Animation|*.ani|All files (*)|*'
+    Left = 272
+    Top = 64
+  end
+end

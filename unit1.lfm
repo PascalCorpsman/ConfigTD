@@ -1,0 +1,188 @@
+object Form1: TForm1
+  Left = 331
+  Height = 900
+  Top = 121
+  Width = 1024
+  Caption = 'Form1'
+  ClientHeight = 900
+  ClientWidth = 1024
+  Menu = MainMenu1
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  object OpenGLControl1: TOpenGLControl
+    Left = 16
+    Height = 90
+    Top = 16
+    Width = 160
+    OnKeyDown = OpenGLControl1KeyDown
+    OnKeyUp = OpenGLControl1KeyUp
+    OnMakeCurrent = OpenGLControl1MakeCurrent
+    OnMouseWheelDown = OpenGLControl1MouseWheelDown
+    OnMouseWheelUp = OpenGLControl1MouseWheelUp
+    OnPaint = OpenGLControl1Paint
+    OnResize = OpenGLControl1Resize
+  end
+  object MainMenu1: TMainMenu
+    Left = 32
+    Top = 124
+    object MenuItem1: TMenuItem
+      Caption = '&Main'
+      object MenuItem2: TMenuItem
+        Caption = '&Server'
+        object MenuItem3: TMenuItem
+          Caption = '&Host'
+          OnClick = MenuItem3Click
+        end
+        object MenuItem4: TMenuItem
+          Caption = '&Join'
+          OnClick = MenuItem4Click
+        end
+      end
+      object MenuItem20: TMenuItem
+        Caption = 'Transfer'
+        Enabled = False
+        Visible = False
+        OnClick = MenuItem20Click
+      end
+      object MenuItem5: TMenuItem
+        Caption = '&Close'
+        OnClick = MenuItem5Click
+      end
+    end
+    object MenuItem6: TMenuItem
+      Caption = '&Game'
+      object MenuItem7: TMenuItem
+        Caption = '&New Map'
+        Enabled = False
+        OnClick = MenuItem7Click
+      end
+      object MenuItem8: TMenuItem
+        Caption = '&Load Map'
+        Enabled = False
+        OnClick = MenuItem8Click
+      end
+      object MenuItem9: TMenuItem
+        Caption = 'Load &Game'
+        Enabled = False
+        OnClick = MenuItem9Click
+      end
+      object MenuItem17: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem18: TMenuItem
+        Caption = '&Start / Restart game'
+        Enabled = False
+        OnClick = MenuItem18Click
+      end
+      object MenuItem23: TMenuItem
+        Caption = '&Restart last wave'
+        Enabled = False
+        OnClick = MenuItem23Click
+      end
+      object MenuItem13: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem25: TMenuItem
+        Caption = '&Abort current wave'
+        Enabled = False
+        OnClick = MenuItem25Click
+      end
+      object MenuItem24: TMenuItem
+        Caption = '&Continue game'
+        Enabled = False
+        OnClick = MenuItem24Click
+      end
+      object MenuItem26: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem27: TMenuItem
+        Caption = '&Save game'
+        Enabled = False
+        OnClick = MenuItem27Click
+      end
+      object MenuItem10: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem14: TMenuItem
+        Caption = 'Se&ttings'
+        ShortCut = 121
+        OnClick = MenuItem14Click
+      end
+    end
+    object MenuItem30: TMenuItem
+      Caption = '&Editors'
+      object MenuItem29: TMenuItem
+        Caption = 'Map Te&xture'
+        Enabled = False
+        OnClick = MenuItem29Click
+      end
+      object MenuItem16: TMenuItem
+        Caption = '&Opponents'
+        OnClick = MenuItem16Click
+      end
+      object MenuItem15: TMenuItem
+        Caption = '&Buildings'
+        OnClick = MenuItem15Click
+      end
+      object MenuItem31: TMenuItem
+        Caption = 'Heros'
+        OnClick = MenuItem31Click
+      end
+    end
+    object MenuItem11: TMenuItem
+      Caption = '&View'
+      object MenuItem19: TMenuItem
+        Caption = '&Chat'
+        Enabled = False
+        ShortCut = 122
+        OnClick = MenuItem19Click
+      end
+      object MenuItem28: TMenuItem
+        Caption = '&Players'
+        Enabled = False
+        ShortCut = 123
+        OnClick = MenuItem28Click
+      end
+      object MenuItem12: TMenuItem
+        Caption = 'Show/Hide &Grid'
+        OnClick = MenuItem12Click
+      end
+    end
+    object MenuItem21: TMenuItem
+      Caption = '&Help'
+      object MenuItem22: TMenuItem
+        Caption = '&About'
+        OnClick = MenuItem22Click
+      end
+    end
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    Left = 112
+    Top = 120
+  end
+  object LTCPComponent1: TLTCPComponent
+    Port = 0
+    Timeout = 0
+    ReuseAddress = True
+    Left = 216
+    Top = 120
+  end
+  object LUDPComponent1: TLUDPComponent
+    Port = 0
+    Timeout = 0
+    Left = 216
+    Top = 176
+  end
+  object Timer2: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = Timer2Timer
+    Left = 422
+    Top = 124
+  end
+end

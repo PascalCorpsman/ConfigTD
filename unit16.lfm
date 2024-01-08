@@ -1,0 +1,78 @@
+object Form16: TForm16
+  Left = 329
+  Height = 323
+  Top = 122
+  Width = 455
+  Caption = 'Form16'
+  ClientHeight = 323
+  ClientWidth = 455
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.1.0.0'
+  object ListBox1: TListBox
+    Left = 8
+    Height = 200
+    Top = 8
+    Width = 440
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ItemHeight = 0
+    OnClick = ListBox1Click
+    OnDblClick = ListBox1DblClick
+    PopupMenu = PopupMenu1
+    ScrollWidth = 438
+    TabOrder = 0
+    TopIndex = -1
+  end
+  object Edit1: TEdit
+    Left = 8
+    Height = 25
+    Top = 216
+    Width = 440
+    Anchors = [akLeft, akRight, akBottom]
+    OnKeyPress = Edit1KeyPress
+    TabOrder = 1
+    Text = 'Edit1'
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 248
+    Width = 440
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Save'
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 8
+    Height = 25
+    Top = 288
+    Width = 440
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 3
+  end
+  object CheckBox1: TCheckBox
+    Left = 8
+    Height = 22
+    Top = 216
+    Width = 157
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Show auto savegames'
+    OnChange = CheckBox1Change
+    TabOrder = 4
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 40
+    Top = 32
+    object MenuItem1: TMenuItem
+      Caption = 'Delete savegame'
+      OnClick = MenuItem1Click
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Delete all'
+      OnClick = MenuItem2Click
+    end
+  end
+end

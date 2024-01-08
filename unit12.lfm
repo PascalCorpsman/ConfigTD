@@ -1,0 +1,90 @@
+object Form12: TForm12
+  Left = 331
+  Height = 298
+  Top = 121
+  Width = 512
+  Caption = 'Form12'
+  ClientHeight = 298
+  ClientWidth = 512
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.3.0.0'
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 504
+    Anchors = [akTop, akLeft, akRight]
+    Caption = '&Refresh'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Panel1: TPanel
+    Left = 8
+    Height = 250
+    Top = 40
+    Width = 504
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BevelOuter = bvLowered
+    Caption = 'Panel1'
+    ClientHeight = 250
+    ClientWidth = 504
+    TabOrder = 1
+    object ScrollBar1: TScrollBar
+      Left = 482
+      Height = 232
+      Top = 8
+      Width = 14
+      Anchors = [akTop, akRight, akBottom]
+      Kind = sbVertical
+      PageSize = 0
+      TabOrder = 0
+    end
+    inline PlayerInfoFrame1: TPlayerInfoFrame
+      Left = 8
+      Top = 8
+      TabOrder = 1
+      inherited Label1: TLabel
+        Height = 15
+        Width = 62
+      end
+      inherited Label2: TLabel
+        Height = 15
+        Width = 34
+      end
+      inherited Label3: TLabel
+        Height = 15
+        Width = 26
+      end
+      inherited Label4: TLabel
+        Height = 15
+        Width = 34
+      end
+      inherited Label5: TLabel
+        Height = 15
+        Width = 26
+      end
+      inherited Label6: TLabel
+        Height = 15
+        Width = 34
+      end
+      inherited Label7: TLabel
+        Height = 15
+        Width = 21
+      end
+      inherited Label8: TLabel
+        Height = 15
+        Width = 34
+      end
+      inherited Label9: TLabel
+        Height = 15
+        Width = 26
+      end
+      inherited ComboBox1: TComboBox
+        Height = 23
+        ItemHeight = 15
+      end
+    end
+  end
+end

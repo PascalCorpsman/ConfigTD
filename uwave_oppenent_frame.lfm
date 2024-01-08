@@ -1,0 +1,146 @@
+object WaveOpponentFrame: TWaveOpponentFrame
+  Left = 0
+  Height = 191
+  Top = 0
+  Width = 271
+  ClientHeight = 191
+  ClientWidth = 271
+  TabOrder = 0
+  DesignLeft = 366
+  DesignTop = 803
+  object ComboBox1: TComboBox
+    Left = 88
+    Height = 27
+    Top = 10
+    Width = 176
+    ItemHeight = 0
+    OnChange = ComboBox1Change
+    OnKeyDown = ComboBox1KeyDown
+    TabOrder = 0
+  end
+  object Label4: TLabel
+    Left = 9
+    Height = 27
+    Top = 10
+    Width = 76
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Opponent'
+  end
+  object Label5: TLabel
+    Left = 9
+    Height = 25
+    Top = 39
+    Width = 76
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Count'
+  end
+  object Edit1: TEdit
+    Left = 88
+    Height = 25
+    Hint = 'Total number of opponents to send out '#10'(devide by units per spawn to get the number of spawns)'
+    Top = 39
+    Width = 80
+    OnChange = Edit1Change
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    Text = 'Edit1'
+  end
+  object Label6: TLabel
+    Left = 9
+    Height = 32
+    Top = 64
+    Width = 76
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Cash per'#13#10'Unit'
+  end
+  object Edit2: TEdit
+    Left = 88
+    Height = 25
+    Top = 71
+    Width = 80
+    OnChange = Edit2Change
+    TabOrder = 2
+    Text = 'Edit2'
+  end
+  object Label7: TLabel
+    Left = 9
+    Height = 32
+    Top = 100
+    Width = 76
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Units per'#10'spawn'
+  end
+  object Edit3: TEdit
+    Left = 88
+    Height = 25
+    Top = 100
+    Width = 80
+    OnChange = Edit3Change
+    TabOrder = 3
+    Text = 'Edit3'
+  end
+  object Label8: TLabel
+    Left = 9
+    Height = 16
+    Top = 168
+    Width = 76
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Spawndelta'
+  end
+  object Edit4: TEdit
+    Left = 88
+    Height = 25
+    Hint = 'Time in ms until the first spawn is send out'
+    Top = 130
+    Width = 80
+    OnChange = Edit4Change
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 4
+    Text = 'Edit4'
+  end
+  object Label9: TLabel
+    Left = 9
+    Height = 16
+    Top = 139
+    Width = 76
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = 'Spawndelay'
+  end
+  object Edit5: TEdit
+    Left = 88
+    Height = 25
+    Hint = 'Time in ms between sending two spawns'
+    Top = 159
+    Width = 80
+    OnChange = Edit5Change
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 5
+    Text = 'Edit5'
+  end
+  object Button1: TButton
+    Left = 176
+    Height = 25
+    Top = 160
+    Width = 80
+    Caption = '&Refresh'
+    OnClick = Button1Click
+    TabOrder = 6
+    Visible = False
+  end
+  object SpeedButton1: TSpeedButton
+    Left = 176
+    Height = 145
+    Top = 39
+    Width = 80
+    OnClick = SpeedButton1Click
+  end
+end

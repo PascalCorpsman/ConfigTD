@@ -1,0 +1,762 @@
+object Form4: TForm4
+  Left = 834
+  Height = 465
+  Top = 153
+  Width = 323
+  BorderIcons = []
+  Caption = 'Form4'
+  ClientHeight = 465
+  ClientWidth = 323
+  FormStyle = fsStayOnTop
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '2.3.0.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 465
+    Top = 0
+    Width = 323
+    ActivePage = TabSheet1
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'General'
+      ClientHeight = 431
+      ClientWidth = 317
+      object Label1: TLabel
+        Left = 8
+        Height = 16
+        Top = 8
+        Width = 69
+        Caption = 'Description'
+      end
+      object Memo1: TMemo
+        Left = 144
+        Height = 114
+        Top = 8
+        Width = 168
+        Anchors = [akTop, akLeft, akBottom]
+        Lines.Strings = (
+          'Memo1'
+        )
+        OnChange = Memo1Change
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+        WordWrap = False
+      end
+      object Label2: TLabel
+        Left = 8
+        Height = 16
+        Top = 128
+        Width = 57
+        Caption = 'Map type'
+      end
+      object ComboBox1: TComboBox
+        Left = 144
+        Height = 26
+        Top = 128
+        Width = 168
+        ItemHeight = 0
+        ItemIndex = 0
+        Items.Strings = (
+          'Single'
+          'Coop'
+          'Single Maze'
+          'Coop Maze'
+        )
+        OnChange = ComboBox1Change
+        Style = csDropDownList
+        TabOrder = 1
+        Text = 'Single'
+      end
+      object Label3: TLabel
+        Left = 8
+        Height = 16
+        Top = 160
+        Width = 111
+        Caption = 'Max players count'
+      end
+      object Edit1: TEdit
+        Left = 144
+        Height = 26
+        Top = 160
+        Width = 168
+        OnChange = Edit1Change
+        TabOrder = 2
+        Text = 'Edit1'
+      end
+      object GroupBox1: TGroupBox
+        Left = 8
+        Height = 72
+        Top = 192
+        Width = 304
+        Caption = ' Lives count for every Player'
+        ClientHeight = 55
+        ClientWidth = 302
+        TabOrder = 3
+        object Label4: TLabel
+          Left = 8
+          Height = 16
+          Top = 8
+          Width = 28
+          Caption = 'Easy'
+        end
+        object Label5: TLabel
+          Left = 108
+          Height = 16
+          Top = 8
+          Width = 45
+          Caption = 'Normal'
+        end
+        object Label6: TLabel
+          Left = 208
+          Height = 16
+          Top = 8
+          Width = 29
+          Caption = 'Hard'
+        end
+        object Edit2: TEdit
+          Left = 8
+          Height = 26
+          Hint = 'Set to 0 to deactivate'
+          Top = 24
+          Width = 80
+          OnChange = Edit2Change
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 0
+          Text = 'Edit2'
+        end
+        object Edit3: TEdit
+          Left = 108
+          Height = 26
+          Hint = 'Set to 0 to deactivate'
+          Top = 24
+          Width = 80
+          OnChange = Edit2Change
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 1
+          Text = 'Edit3'
+        end
+        object Edit4: TEdit
+          Left = 208
+          Height = 26
+          Hint = 'Set to 0 to deactivate'
+          Top = 24
+          Width = 80
+          OnChange = Edit2Change
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          Text = 'Edit4'
+        end
+      end
+      object GroupBox2: TGroupBox
+        Left = 8
+        Height = 56
+        Top = 264
+        Width = 305
+        Caption = ' Background Image '
+        ClientHeight = 39
+        ClientWidth = 303
+        TabOrder = 4
+        object CheckBox1: TCheckBox
+          Left = 8
+          Height = 22
+          Top = 8
+          Width = 57
+          Caption = 'Show'
+          OnChange = CheckBox1Change
+          TabOrder = 0
+        end
+        object Button1: TButton
+          Left = 104
+          Height = 25
+          Top = 5
+          Width = 60
+          Caption = 'Load'
+          OnClick = Button1Click
+          TabOrder = 1
+        end
+        object Button2: TButton
+          Left = 235
+          Height = 25
+          Top = 5
+          Width = 60
+          Caption = 'Clear'
+          OnClick = Button2Click
+          TabOrder = 2
+        end
+        object Button18: TButton
+          Left = 168
+          Height = 25
+          Top = 5
+          Width = 60
+          Caption = 'Create'
+          OnClick = Button18Click
+          TabOrder = 3
+        end
+      end
+      object Button5: TButton
+        Left = 8
+        Height = 25
+        Top = 400
+        Width = 136
+        Caption = 'Check and save map'
+        OnClick = Button5Click
+        TabOrder = 5
+      end
+      object Button11: TButton
+        Left = 9
+        Height = 25
+        Top = 376
+        Width = 304
+        Caption = 'Show Highscores'
+        OnClick = Button11Click
+        TabOrder = 6
+      end
+      object Button9: TButton
+        Left = 176
+        Height = 25
+        Top = 400
+        Width = 136
+        Caption = 'Start / Restart game'
+        OnClick = Button9Click
+        TabOrder = 7
+      end
+      object GroupBox6: TGroupBox
+        Left = 8
+        Height = 48
+        Top = 320
+        Width = 305
+        Caption = ' Damage classes '
+        ClientHeight = 31
+        ClientWidth = 303
+        TabOrder = 8
+        object Button13: TButton
+          Left = 36
+          Height = 25
+          Top = 5
+          Width = 35
+          Caption = 'Set'
+          OnClick = Button13Click
+          TabOrder = 0
+        end
+        object Image1: TImage
+          Left = 16
+          Height = 20
+          Top = 8
+          Width = 20
+          Center = True
+          Stretch = True
+        end
+        object Label14: TLabel
+          Left = 8
+          Height = 16
+          Top = 8
+          Width = 8
+          Caption = '1'
+        end
+        object Button14: TButton
+          Left = 114
+          Height = 25
+          Top = 5
+          Width = 35
+          Caption = 'Set'
+          OnClick = Button14Click
+          TabOrder = 1
+        end
+        object Image2: TImage
+          Left = 94
+          Height = 20
+          Top = 8
+          Width = 20
+          Center = True
+          Stretch = True
+        end
+        object Label15: TLabel
+          Left = 86
+          Height = 16
+          Top = 8
+          Width = 8
+          Caption = '2'
+        end
+        object Button15: TButton
+          Left = 188
+          Height = 25
+          Top = 5
+          Width = 35
+          Caption = 'Set'
+          OnClick = Button15Click
+          TabOrder = 2
+        end
+        object Image3: TImage
+          Left = 168
+          Height = 20
+          Top = 8
+          Width = 20
+          Center = True
+          Stretch = True
+        end
+        object Label16: TLabel
+          Left = 160
+          Height = 16
+          Top = 8
+          Width = 8
+          Caption = '3'
+        end
+        object Button16: TButton
+          Left = 260
+          Height = 25
+          Top = 5
+          Width = 35
+          Caption = 'Set'
+          OnClick = Button16Click
+          TabOrder = 3
+        end
+        object Image4: TImage
+          Left = 240
+          Height = 20
+          Top = 8
+          Width = 20
+          Center = True
+          Stretch = True
+        end
+        object Label17: TLabel
+          Left = 232
+          Height = 16
+          Top = 8
+          Width = 8
+          Caption = '4'
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Terrain'
+      ClientHeight = 431
+      ClientWidth = 317
+      object Button3: TButton
+        Left = 8
+        Height = 25
+        Top = 8
+        Width = 304
+        Caption = 'Resize'
+        OnClick = Button3Click
+        TabOrder = 0
+      end
+      object GroupBox3: TGroupBox
+        Left = 8
+        Height = 105
+        Top = 40
+        Width = 304
+        Caption = ' Edit Terrain '
+        ClientHeight = 103
+        ClientWidth = 302
+        TabOrder = 1
+        object CheckBox2: TCheckBox
+          Left = 8
+          Height = 22
+          Top = 7
+          Width = 111
+          Caption = 'Enable editing'
+          OnChange = CheckBox2Change
+          TabOrder = 0
+        end
+        object CheckBox3: TCheckBox
+          Left = 145
+          Height = 22
+          Top = 7
+          Width = 139
+          Caption = 'Creeps can walk on'
+          TabOrder = 1
+        end
+        object CheckBox4: TCheckBox
+          Left = 145
+          Height = 22
+          Top = 31
+          Width = 145
+          Caption = 'Players can build on'
+          TabOrder = 2
+        end
+        object Label7: TLabel
+          Left = 8
+          Height = 16
+          Top = 63
+          Width = 79
+          Caption = 'Cursor size: 1'
+        end
+        object ScrollBar1: TScrollBar
+          Left = 145
+          Height = 14
+          Top = 64
+          Width = 148
+          Max = 5
+          PageSize = 0
+          TabOrder = 3
+          OnChange = ScrollBar1Change
+        end
+      end
+      object GroupBox5: TGroupBox
+        Left = 8
+        Height = 97
+        Top = 160
+        Width = 304
+        Caption = ' Placements '
+        ClientHeight = 95
+        ClientWidth = 302
+        TabOrder = 2
+        object CheckBox6: TCheckBox
+          Left = 8
+          Height = 22
+          Top = 8
+          Width = 111
+          Caption = 'Enable editing'
+          OnChange = CheckBox6Change
+          TabOrder = 0
+        end
+        object RadioButton4: TRadioButton
+          Left = 7
+          Height = 22
+          Top = 40
+          Width = 49
+          Caption = 'Add'
+          Checked = True
+          TabOrder = 1
+          TabStop = True
+        end
+        object RadioButton5: TRadioButton
+          Left = 62
+          Height = 22
+          Top = 40
+          Width = 45
+          Caption = 'Del'
+          TabOrder = 2
+        end
+        object ComboBox2: TComboBox
+          Left = 144
+          Height = 30
+          Top = 8
+          Width = 119
+          ItemHeight = 0
+          OnChange = ComboBox2Change
+          Style = csDropDownList
+          TabOrder = 3
+        end
+        object Button4: TButton
+          Left = 268
+          Height = 25
+          Top = 10
+          Width = 25
+          Caption = 'R'
+          OnClick = Button4Click
+          TabOrder = 4
+        end
+        object Label9: TLabel
+          Left = 145
+          Height = 16
+          Top = 44
+          Width = 34
+          Caption = 'Stage'
+        end
+        object Edit5: TEdit
+          Left = 213
+          Height = 26
+          Top = 40
+          Width = 80
+          TabOrder = 5
+          Text = 'Edit5'
+        end
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'Waypoints'
+      ClientHeight = 431
+      ClientWidth = 317
+      object GroupBox4: TGroupBox
+        Left = 8
+        Height = 97
+        Top = 8
+        Width = 304
+        Caption = ' Waypoints '
+        ClientHeight = 95
+        ClientWidth = 302
+        TabOrder = 0
+        object CheckBox5: TCheckBox
+          Left = 8
+          Height = 22
+          Top = 8
+          Width = 111
+          Caption = 'Enable editing'
+          OnChange = CheckBox5Change
+          TabOrder = 0
+        end
+        object Label8: TLabel
+          Left = 8
+          Height = 16
+          Top = 41
+          Width = 38
+          Caption = 'Player'
+        end
+        object SpinEdit1: TSpinEdit
+          Left = 56
+          Height = 26
+          Top = 33
+          Width = 50
+          MaxValue = 100
+          MinValue = 1
+          OnChange = CheckBox5Change
+          TabOrder = 1
+          Value = 1
+        end
+        object RadioButton1: TRadioButton
+          Left = 165
+          Height = 22
+          Top = 8
+          Width = 139
+          Caption = 'Add new way point'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+        object RadioButton2: TRadioButton
+          Left = 165
+          Height = 22
+          Top = 29
+          Width = 144
+          Caption = 'Remove a way point'
+          TabOrder = 3
+        end
+        object RadioButton3: TRadioButton
+          Left = 165
+          Height = 22
+          Top = 51
+          Width = 118
+          Caption = 'Dec point order'
+          TabOrder = 4
+        end
+      end
+      object GroupBox7: TGroupBox
+        Left = 8
+        Height = 168
+        Top = 160
+        Width = 304
+        Caption = ' Waypoint areas '
+        ClientHeight = 166
+        ClientWidth = 302
+        TabOrder = 1
+        object CheckBox7: TCheckBox
+          Left = 8
+          Height = 22
+          Top = 8
+          Width = 111
+          Caption = 'Enable editing'
+          OnChange = CheckBox7Change
+          TabOrder = 0
+        end
+        object Label18: TLabel
+          Left = 8
+          Height = 16
+          Top = 63
+          Width = 79
+          Caption = 'Cursor size: 1'
+        end
+        object ScrollBar2: TScrollBar
+          Left = 145
+          Height = 14
+          Top = 64
+          Width = 148
+          Max = 5
+          PageSize = 0
+          TabOrder = 1
+          OnChange = ScrollBar2Change
+        end
+        object RadioButton6: TRadioButton
+          Left = 165
+          Height = 22
+          Top = 8
+          Width = 49
+          Caption = 'Add'
+          Checked = True
+          TabOrder = 2
+          TabStop = True
+        end
+        object RadioButton7: TRadioButton
+          Left = 165
+          Height = 22
+          Top = 32
+          Width = 72
+          Caption = 'Remove'
+          TabOrder = 3
+        end
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Buyables'
+      ClientHeight = 431
+      ClientWidth = 317
+      object Label10: TLabel
+        Left = 8
+        Height = 16
+        Top = 24
+        Width = 118
+        Caption = 'All available towers'
+      end
+      object Label11: TLabel
+        Left = 8
+        Height = 16
+        Top = 391
+        Width = 140
+        Anchors = [akLeft, akBottom]
+        Caption = 'Minimum wave to build'
+      end
+      object Edit6: TEdit
+        Left = 152
+        Height = 26
+        Top = 377
+        Width = 80
+        Anchors = [akLeft, akBottom]
+        TabOrder = 0
+        Text = 'Edit6'
+      end
+      object Button10: TButton
+        Left = 240
+        Height = 49
+        Top = 380
+        Width = 75
+        Anchors = [akLeft, akBottom]
+        Caption = 'Set'
+        OnClick = Button10Click
+        TabOrder = 1
+      end
+      object ListBox1: TListBox
+        Left = 8
+        Height = 326
+        Top = 48
+        Width = 304
+        Anchors = [akTop, akLeft, akBottom]
+        ItemHeight = 0
+        OnClick = ListBox1Click
+        OnDblClick = ListBox1DblClick
+        ScrollWidth = 262
+        TabOrder = 2
+        TopIndex = -1
+      end
+      object Label12: TLabel
+        Left = 8
+        Height = 16
+        Top = 415
+        Width = 126
+        Anchors = [akLeft, akBottom]
+        Caption = 'Upper limit of towers'
+      end
+      object Edit7: TEdit
+        Left = 152
+        Height = 26
+        Hint = '0 = Build as many items as you want'
+        Top = 405
+        Width = 80
+        Anchors = [akLeft, akBottom]
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
+        Text = 'Edit7'
+      end
+      object Button6: TButton
+        Left = 160
+        Height = 25
+        Top = 0
+        Width = 152
+        Caption = 'Open building editor'
+        OnClick = Button6Click
+        TabOrder = 4
+      end
+      object Button19: TButton
+        Left = 160
+        Height = 25
+        Top = 24
+        Width = 152
+        Caption = 'Open hero editor'
+        OnClick = Button19Click
+        TabOrder = 5
+      end
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Waves'
+      ClientHeight = 431
+      ClientWidth = 317
+      object Label13: TLabel
+        Left = 8
+        Height = 25
+        Top = 8
+        Width = 52
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'Waves'
+      end
+      object Button7: TButton
+        Left = 64
+        Height = 25
+        Top = 8
+        Width = 45
+        Caption = 'Add'
+        OnClick = Button7Click
+        TabOrder = 0
+      end
+      object PageControl2: TPageControl
+        Left = 8
+        Height = 384
+        Top = 40
+        Width = 304
+        TabOrder = 1
+        OnChange = PageControl2Change
+      end
+      object Button8: TButton
+        Left = 114
+        Height = 25
+        Top = 8
+        Width = 45
+        Caption = '&Clone'
+        OnClick = Button8Click
+        TabOrder = 2
+      end
+      object Button12: TButton
+        Left = 247
+        Height = 25
+        Top = 8
+        Width = 65
+        Caption = 'del last'
+        OnClick = Button12Click
+        TabOrder = 3
+      end
+      object Button17: TButton
+        Left = 165
+        Height = 25
+        Hint = 'With this button you can automatically create a new wave to your map.'#10#10'To do so:'#10' - add all opponents that overall should be available during gaming (the more the better)'#10' - add all buildings you want to use on the map and configure their minimum wave to build'#10' - hit the "+Random" button and enjoy'
+        Top = 8
+        Width = 65
+        Caption = '+AI Wave'
+        OnClick = Button17Click
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 4
+      end
+    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 250
+    OnTimer = Timer1Timer
+    Left = 232
+    Top = 128
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Filter = 'Graphic (*.png;*.bmp;*.jpg)|*.png;*.bmp;*.jpg|Portable Network Graphic (*.png)|*.png|Bitmaps (*.bmp)|*.bmp|Joint Picture Expert Group |*.jpg|All files (*)|*|'
+    Left = 144
+    Top = 368
+  end
+end

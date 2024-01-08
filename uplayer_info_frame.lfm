@@ -1,0 +1,110 @@
+object PlayerInfoFrame: TPlayerInfoFrame
+  Left = 0
+  Height = 54
+  Top = 0
+  Width = 465
+  ClientHeight = 54
+  ClientWidth = 465
+  TabOrder = 0
+  DesignLeft = 331
+  DesignTop = 119
+  object Label1: TLabel
+    Left = 8
+    Height = 16
+    Top = 8
+    Width = 71
+    Caption = 'Playername'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 16
+    Top = 32
+    Width = 41
+    Caption = 'Label2'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 112
+    Height = 16
+    Top = 8
+    Width = 29
+    Caption = 'Cash'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 112
+    Height = 16
+    Top = 32
+    Width = 41
+    Caption = 'Label4'
+    ParentColor = False
+  end
+  object Label5: TLabel
+    Left = 191
+    Height = 16
+    Top = 8
+    Width = 30
+    Caption = 'Lives'
+    ParentColor = False
+  end
+  object Label6: TLabel
+    Left = 191
+    Height = 16
+    Top = 32
+    Width = 41
+    Caption = 'Label6'
+    ParentColor = False
+  end
+  object Label7: TLabel
+    Left = 264
+    Height = 16
+    Top = 8
+    Width = 25
+    Caption = 'Kills'
+    ParentColor = False
+  end
+  object Label8: TLabel
+    Left = 264
+    Height = 16
+    Top = 32
+    Width = 41
+    Caption = 'Label8'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 320
+    Height = 25
+    Top = 20
+    Width = 48
+    Caption = 'Send'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Label9: TLabel
+    Left = 376
+    Height = 16
+    Top = 8
+    Width = 29
+    Caption = 'Cash'
+    ParentColor = False
+  end
+  object ComboBox1: TComboBox
+    Left = 376
+    Height = 27
+    Top = 24
+    Width = 84
+    ItemHeight = 0
+    ItemIndex = 3
+    Items.Strings = (
+      '5'
+      '10'
+      '50'
+      '100'
+      '500'
+    )
+    OnKeyPress = ComboBox1KeyPress
+    TabOrder = 1
+    Text = '100'
+  end
+end

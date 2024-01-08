@@ -1,0 +1,211 @@
+object Form6: TForm6
+  Left = 522
+  Height = 717
+  Top = 86
+  Width = 426
+  Caption = 'Form6'
+  ClientHeight = 717
+  ClientWidth = 426
+  FormStyle = fsStayOnTop
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '2.3.0.0'
+  object PageControl1: TPageControl
+    Left = 8
+    Height = 472
+    Top = 192
+    Width = 408
+    ActivePage = TabSheet1
+    TabIndex = 0
+    TabOrder = 7
+    object TabSheet1: TTabSheet
+      Caption = 'TabSheet1'
+      ClientHeight = 438
+      ClientWidth = 402
+      object Label6: TLabel
+        Left = 58
+        Height = 80
+        Top = 71
+        Width = 240
+        Caption = 'Alles was hier stünde, wird'#10'durch '#10#10'TBuilding_stage'#10#10'geregelt. Bei Änderungen ist das Frame '#10'direkt zu editieren !'
+        Font.Color = clRed
+        ParentFont = False
+      end
+    end
+  end
+  object Label1: TLabel
+    Left = 16
+    Height = 16
+    Top = 16
+    Width = 35
+    Caption = 'Name'
+  end
+  object Label2: TLabel
+    Left = 16
+    Height = 16
+    Top = 40
+    Width = 23
+    Caption = 'Size'
+  end
+  object Label3: TLabel
+    Left = 16
+    Height = 16
+    Top = 168
+    Width = 69
+    Caption = 'Stagecount'
+  end
+  object Label4: TLabel
+    Left = 16
+    Height = 16
+    Top = 64
+    Width = 55
+    Caption = 'Category'
+  end
+  object Image1: TImage
+    Left = 304
+    Height = 90
+    Top = 13
+    Width = 90
+    AutoSize = True
+    Transparent = True
+  end
+  object Label5: TLabel
+    Left = 248
+    Height = 16
+    Top = 8
+    Width = 37
+    Caption = 'Image'
+  end
+  object Edit1: TEdit
+    Left = 128
+    Height = 26
+    Top = 8
+    Width = 80
+    TabOrder = 0
+    Text = 'Edit1'
+  end
+  object Edit2: TEdit
+    Left = 128
+    Height = 26
+    Top = 32
+    Width = 80
+    TabOrder = 1
+    Text = 'Edit2'
+  end
+  object Edit3: TEdit
+    Left = 128
+    Height = 26
+    Top = 160
+    Width = 80
+    TabOrder = 6
+    Text = 'Edit3'
+  end
+  object Edit4: TEdit
+    Left = 128
+    Height = 26
+    Top = 56
+    Width = 80
+    TabOrder = 2
+    Text = 'Edit4'
+  end
+  object Button1: TButton
+    Left = 216
+    Height = 21
+    Top = 160
+    Width = 24
+    Caption = 'set'
+    OnClick = Button1Click
+    TabOrder = 9
+  end
+  object Button2: TButton
+    Left = 248
+    Height = 21
+    Top = 29
+    Width = 43
+    Caption = 'load'
+    OnClick = Button2Click
+    TabOrder = 8
+  end
+  object Edit20: TEdit
+    Left = 128
+    Height = 26
+    Top = 82
+    Width = 80
+    TabOrder = 3
+    Text = 'Edit20'
+  end
+  object Edit21: TEdit
+    Left = 128
+    Height = 26
+    Top = 107
+    Width = 80
+    TabOrder = 4
+    Text = 'Edit21'
+  end
+  object Edit22: TEdit
+    Left = 128
+    Height = 26
+    Top = 134
+    Width = 80
+    TabOrder = 5
+    Text = 'Edit22'
+  end
+  object Label24: TLabel
+    Left = 16
+    Height = 16
+    Top = 90
+    Width = 96
+    Caption = 'Refund easy [%]'
+  end
+  object Label25: TLabel
+    Left = 16
+    Height = 16
+    Top = 115
+    Width = 110
+    Caption = 'Refund middle [%]'
+  end
+  object Label26: TLabel
+    Left = 16
+    Height = 16
+    Top = 142
+    Width = 97
+    Caption = 'Refund hard [%]'
+  end
+  object Button3: TButton
+    Left = 341
+    Height = 25
+    Top = 680
+    Width = 75
+    Caption = 'Ok'
+    OnClick = Button3Click
+    TabOrder = 10
+  end
+  object Button4: TButton
+    Left = 8
+    Height = 25
+    Top = 680
+    Width = 75
+    Caption = 'Cancel'
+    OnClick = Button4Click
+    TabOrder = 11
+  end
+  object OpenDialog2: TOpenDialog
+    DefaultExt = '.geb'
+    Filter = 'Building|*.geb|All|*.*'
+    Left = 148
+    Top = 608
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = '.geb'
+    Filter = 'Building|*.geb|All|*.*'
+    Left = 256
+    Top = 608
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Filter = 'Graphic (*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;*.jfif;*.tif;*.tiff;*.gif;*.pbm;*.pgm;*.ppm;*.tga)|*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;*.jfif;*.tif;*.tiff;*.gif;*.pbm;*.pgm;*.ppm;*.tga;*.ani|Portable Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.bmp|Cursor (*.cur)|*.cur|Icon (*.ico)|*.ico|Mac OS X Icon (*.icns)|*.icns|Joint Picture Expert Group (*.jpeg;*.jpg;*.jpe;*.jfif)|*.jpeg;*.jpg;*.jpe;*.jfif|Tagged Image File Format (*.tif;*.tiff)|*.tif;*.tiff|Graphics Interchange Format (*.gif)|*.gif|Portable PixMap (*.pbm;*.pgm;*.ppm)|*.pbm;*.pgm;*.ppm|TGA Image File (*.tga)|*.tga|Animation|*.ani|All files (*)|*'
+    Left = 340
+    Top = 124
+  end
+end

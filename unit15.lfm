@@ -1,0 +1,60 @@
+object Form15: TForm15
+  Left = 329
+  Height = 106
+  Top = 122
+  Width = 282
+  BorderIcons = [biSystemMenu]
+  Caption = 'Form15'
+  ClientHeight = 106
+  ClientWidth = 282
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.3.0.0'
+  object RadioButton1: TRadioButton
+    Left = 8
+    Height = 22
+    Top = 8
+    Width = 83
+    Caption = 'Overwrite'
+    TabOrder = 0
+  end
+  object RadioButton2: TRadioButton
+    Left = 8
+    Height = 22
+    Top = 40
+    Width = 71
+    Caption = 'Copy as'
+    Checked = True
+    TabOrder = 1
+    TabStop = True
+  end
+  object Edit1: TEdit
+    Left = 104
+    Height = 25
+    Top = 36
+    Width = 168
+    OnKeyPress = Edit1KeyPress
+    TabOrder = 2
+    Text = 'Edit1'
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 72
+    Width = 75
+    Cancel = True
+    Caption = '&Cancel'
+    ModalResult = 2
+    TabOrder = 3
+  end
+  object Button2: TButton
+    Left = 197
+    Height = 25
+    Top = 72
+    Width = 75
+    Caption = '&OK'
+    Default = True
+    OnClick = Button2Click
+    TabOrder = 4
+  end
+end
