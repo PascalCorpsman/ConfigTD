@@ -30,7 +30,7 @@ It supports multiple graphical themes and is client server based.
 - multiple themes all free mixable, ingame map, texture, building, opponent and hero editor
 - map creation during gaming (maps can be created wave by wave while playing them, even repeating of the last wave is possible)
   * map layer can be imported by image or created within the ingame editor
-  * arbiture number of waves, with arbiture amount of opponents (max 65535 in per wave)
+  * arbiture number of waves, with arbiture amount of opponents (max 65535 per wave)
   * wave generator for automated wave creation
 - arbiture opponent classes
   * boss (only tags)
@@ -59,6 +59,14 @@ Read carefully the [manual](manual.md) or
 7. Select the difficulty you want to play the map. ![](in_game.png)
 8. Hit "P" to pause the game and take a look what the map offers you and how to play. The "G1" map is a defeating map, so you do not need to maze here, place all the buildings you buy onto the blue area and enjoy the game. Can you defeat all 12 waves in hard mode ?
 
+## Why is there no sound ?
+
+Actual the game is (at least at the moment) not designed to use sounds. This is due to the following reasons:
+- adds lots of complexity
+- disturbes when played with thousands of units on the map
+
+It could be possible that in future these arguments change and sound support will be added.
+
 ## What needs to be done to compile the game
 
 To be able to compile the code you need the [Lazarus-IDE](https://www.lazarus-ide.org)
@@ -70,6 +78,7 @@ Inside Lazarus you need to install the following packages:
 
 Additional you need to download:
 - [DGLOpenGL](https://github.com/saschawillems/dglopengl)
+- [Synapse](http://www.ararat.cz/synapse/doku.php/download)
 
 ### Contributors
 Idea : Christian Wimmer, Uwe Schächterle<br>
