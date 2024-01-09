@@ -1,0 +1,17 @@
+[opponent]
+name=Panzer
+description=
+lifepoints0=30000
+lifepoints1=30000
+lifepoints2=30000
+lifepoints3=10000
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=2.5
+size=4.00x3.90
+image=opanzer.bmp
+canfly=0
+boss=1
+bonus=1
+imagerotation=1

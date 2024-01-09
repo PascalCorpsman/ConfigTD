@@ -1,0 +1,17 @@
+[opponent]
+name=Balloon White
+description=
+lifepoints0=40
+lifepoints1=0
+lifepoints2=0
+lifepoints3=0
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=2
+size=2.00x3.10
+image=owhiteballoon.png
+canfly=0
+boss=0
+bonus=0
+imagerotation=0

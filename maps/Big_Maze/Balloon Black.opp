@@ -1,0 +1,17 @@
+[opponent]
+name=Balloon Black
+description=
+lifepoints0=20
+lifepoints1=20
+lifepoints2=20
+lifepoints3=20
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=2
+size=1.90x3.00
+image=oblackballoon.png
+canfly=0
+boss=0
+bonus=0
+imagerotation=0

@@ -1,0 +1,17 @@
+[opponent]
+name=Balloon Green
+description=
+lifepoints0=0
+lifepoints1=1500
+lifepoints2=0
+lifepoints3=0
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=3
+size=3.80x6.00
+image=ogreenballoon.png
+canfly=0
+boss=0
+bonus=0
+imagerotation=0
