@@ -447,18 +447,9 @@ spawndelay0=2500
 spawndelta0=100
 
 [HighScore]
-PlayerCats=1
-PlayerCat0=3
-PlayerCat0Count=1
-PlayerCat0_0Name=Corpsman, Decipator, Leonard
-PlayerCat0_0Time=2023.04.09 23:23:14
-PlayerCat0_0Points=3408821
-PlayerCat0_0Duration=6238
-PlayerCat0_0Rounds=19
-PlayerCat0_0Difficulty=1
-PlayerCat0_0LivesLost=52
-Hash=307765447
+PlayerCats=0
+Hash=0
 
 [Rating]
-Count=1
-Sum=5
+Count=0
+Sum=0
