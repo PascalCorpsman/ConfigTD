@@ -667,6 +667,8 @@ Begin
   End;
   fTruncedMapfolder := fTruncedMapfolder + 'buildings' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
+  sl.Sorted := true;
+  sl.Sort;
   ListBox1.Items.Text := sl.Text;
   sl.free;
   Edit1.text := '';
@@ -699,6 +701,8 @@ Begin
   End;
   fTruncedMapfolder := fTruncedMapfolder + 'opponents' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
+  sl.Sorted := True;
+  sl.Sort;
   ListBox1.Items.Text := sl.Text;
   sl.free;
   Edit1.text := '';
@@ -731,6 +735,8 @@ Begin
   End;
   fTruncedMapfolder := fTruncedMapfolder + 'heros' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
+  sl.Sorted := true;
+  sl.Sort;
   ListBox1.Items.Text := sl.Text;
   sl.free;
   Edit1.text := '';
