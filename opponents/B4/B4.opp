@@ -1,0 +1,17 @@
+[opponent]
+name=B4
+description=
+lifepoints0=0
+lifepoints1=0
+lifepoints2=0
+lifepoints3=150
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=6
+size=2.00x2.00
+image=oBlue_S4.ani
+canfly=1
+boss=0
+bonus=0
+imagerotation=0

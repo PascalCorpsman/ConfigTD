@@ -1,0 +1,17 @@
+[opponent]
+name=Gr4
+description=
+lifepoints0=0
+lifepoints1=230
+lifepoints2=0
+lifepoints3=0
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=2.75
+size=2.00x2.00
+image=oGreen_S4.bmp
+canfly=0
+boss=0
+bonus=0
+imagerotation=1

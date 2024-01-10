@@ -1,0 +1,17 @@
+[opponent]
+name=R6
+description=
+lifepoints0=0
+lifepoints1=0
+lifepoints2=1950
+lifepoints3=0
+lifefactor0=0.5
+lifefactor1=1
+lifefactor2=1.5
+speed=2.25
+size=2.00x2.00
+image=oRed_S6.bmp
+canfly=0
+boss=1
+bonus=0
+imagerotation=1
