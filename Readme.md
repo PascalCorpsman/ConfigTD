@@ -49,7 +49,7 @@ It supports multiple graphical themes and is client server based.
 ## What needs to be done to play the game
 
 1. Clone or download this repository to your harddrive
-2. Read the [overview](documentation/overview.md) document as needed
+2. Read the [overview](documentation/Readme.md) document as needed
 
 ## Why is there no sound ?
 
