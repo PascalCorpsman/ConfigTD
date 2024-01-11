@@ -75,4 +75,4 @@ To get the best gaming experience its recommended to always use blocks as waypoi
 
 If you managed to do everything right, your map should look the same as above. Take a cup of coffee and relax, the most complicated parts are done :).
 
-## Defining buyable buildings and creep waves
+next comes the [waveguide](waveguide.md)
