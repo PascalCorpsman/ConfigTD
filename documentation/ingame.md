@@ -2,6 +2,9 @@
 
 This guide tries to give you a overview of the different in game elements
 
+General element description:
+![](images/in_game.png)
+
 ## Buildings strategy buttons
 | Image | Description |
 | --- | :--- |
