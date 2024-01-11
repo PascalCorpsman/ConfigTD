@@ -5,10 +5,10 @@ Config TD is a Opensource and free Tower Defense clone with the aim of maximal c
 It supports multiple graphical themes and is client server based.
 
 #### Theme color
-![](preview_color.png)
+![](documentation/images/preview_color.png)
 
 #### Theme comic
-![](preview_comic.png)
+![](documentation/images/preview_comic.png)
 
 ### Features
 - 1 to 16 player (theoretically there is no limitiation to the player count, but in reallity the game does not support more than 65535 enemies at the map, which gives a upper limit for the playercount)
@@ -48,22 +48,15 @@ It supports multiple graphical themes and is client server based.
 
 ## What needs to be done to play the game
 
-Read carefully the [manual](manual.md) or
-
 1. Clone or download this repository to your harddrive
-2. Start the "config_td" client supposed for your operating system (Linux 64 or Win64 are supported by default, for other OS you need to compile the source by yourself) ![](game_started.png)
-3. Click "Host Game" if you are the first player and do not use a dedicated server, otherwise click "Join Game" ![](host_game.png)
-4. Fill in your Player name and click on "Create" ![](select_map.png)
-5. Select "Load Map" ![](select_G1_map.png)
-6. Select the G1 map (side note: every map that has a description is "defined" and playable, all the other maps are in "development" state) and hit "Play" (Attention, if you want to play with multiple players, only hit load and wait until all players connected to the game) ![](select_difficulty.png)
-7. Select the difficulty you want to play the map. ![](in_game.png)
-8. Hit "P" to pause the game and take a look what the map offers you and how to play. The "G1" map is a defeating map, so you do not need to maze here, place all the buildings you buy onto the blue area and enjoy the game. Can you defeat all 12 waves in hard mode ?
+2. Read the [overview](documentation/overview.md) document as needed
 
 ## Why is there no sound ?
 
 Actual the game is (at least at the moment) not designed to use sounds. This is due to the following reasons:
 - adds lots of complexity
 - disturbes when played with thousands of units on the map
+- game is designed for LAN-Parties, where everyone talks to each other, all the sound effects will then mess up the room sound and typically are switched of anyway
 
 It could be possible that in future these arguments change and sound support will be added.
 
