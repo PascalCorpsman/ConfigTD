@@ -47,9 +47,9 @@ There are 4 possible map colors which results by the combination of the 2 checkb
 ! Attention ! <br>
 Opponents that can fly, don't care the not walking thing, the fly over it.
 
-5. For this demo map we want to mix maze and defeat mode for maximum demonstrations. So click and adjust the map with what you just learned until it looks like this (hint: you can enable a grid if you want "View" -> "Show/hide grid")![](images/demo_map_terrain2.png)
+5. For this demo map we want to mix maze and defeat mode for maximum demonstrations. So click and adjust the map with what you just learned, until it looks like this (hint: you can enable a grid if you want "View" -> "Show/Hide grid")![](images/demo_map_terrain2.png)
 
-6. Next we make the background image of the map, so that it looks a little bit more eycatching ![](images/demo_map_texture_editor.png)
+6. Next we make the background image of the map, so that it looks a little bit more eye catching ![](images/demo_map_texture_editor.png)
 * (1)(2) Select "Editors" -> "Map Texture" to open the map textrure tool
 * (3)-(6) Select some nice textures from the "graphics/textures" folder for each type of floor
 * (7) hit the "Create Texture" button to create a preview
@@ -72,6 +72,11 @@ Normally all opponents are spawned at one single point (the first point of a way
 * (6) Click multiple times on the map. Each click sets a next waypoint, which the creeps have to reach. Creeps spawn on the very first point and if they reach the last one, you or your team lose one live. In this example the waypoints for both player is in the top the same and in the mazing area the waypaths differ (player 1 to the left and player 2 to the right).
 
 To get the best gaming experience its recommended to always use blocks as waypoints where the player is not allowed to place buildings on, so repeat the steps from 5. and 6. to define the landing spot of the lasts waypoint as "not buildable"
+
+9. Last step, go back to "General" tab and check the "Show" box on the Background Image section to show the backimage again (as it was hidden due to the waypoint editing).
+
+![](images/demo_map_mapguide_result.png)
+
 
 If you managed to do everything right, your map should look the same as above. Take a cup of coffee and relax, the most complicated parts are done :).
 
