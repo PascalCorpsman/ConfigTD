@@ -45,9 +45,11 @@ There are 2 way's of defining a new wave:
 * (5) increase the amount of money per opponent kill by a bit
 * (6) set spawndelay to 6s this gives the player enough time to place his first buildings before the map is populated with opponents
 
-3. define a new wave (using the "+AI Wave" button)
-
-
+3. define a new wave (using the "+AI Wave" button) ![](images/demo_map_wave_by_ai.png)
+* (1) switch to "Waves" tab
+* (2) click "+AI Waves" button
+* (3) select the difficulty level you are aiming for
+* (4) check results and tweak them if needed
 
 Thats it, you now have set everything to actually play the map. Continue with the [validate map]() guide to see how you can play and validate the map during wave generation. 
 
