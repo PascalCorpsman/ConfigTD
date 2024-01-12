@@ -51,6 +51,6 @@ There are 2 way's of defining a new wave:
 * (3) select the difficulty level you are aiming for
 * (4) check results and tweak them if needed
 
-Thats it, you now have set everything to actually play the map. Continue with the [validate map]() guide to see how you can play and validate the map during wave generation. 
+Thats it, you now have set everything to actually play the map. Continue with the [validate map](validate_map.md) guide to see how you can play and validate the map during wave generation. 
 
-Finally do the [check and clean map]() guide to cleanup your map when finished. 
+Finally do the [check and clean map](clean_and_check_map.md) guide to cleanup your map when finished. 
