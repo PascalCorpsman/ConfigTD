@@ -18,7 +18,7 @@ Unit uctd_opp;
 
 {$I apptype.inc}
 
-(* -- Lazarus Bug in Auswertung von apptype.inc -- Dieser Block darf "aktiviert" nie ins SVN
+(* -- Lazarus Bug in Auswertung von apptype.inc -- Dieser Block darf "aktiviert" nie ins GIT
 {$UNDEF Client}
 {$DEFINE Server}
 //*)

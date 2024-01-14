@@ -56,6 +56,7 @@ Const
   miDelOpponent = 12; // Der Eine will das der andere einen Opponent Löscht
   miDelBuilding = 13; // Der Eine will das der andere ein Gebäude Löscht
   miDelHero = 14; // Der Eine will das der andere einen Helden Löscht
+  miCleanupUnusedOpponents = 15; // Ein Client triggert es, der Server verteilt es an alle und alle "löschen"
 
   (*
    * Nachrichten vom Client an den Server

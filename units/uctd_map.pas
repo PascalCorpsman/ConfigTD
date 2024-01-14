@@ -18,7 +18,7 @@ Unit uctd_map;
 
 {$I apptype.inc}
 
-(* -- Lazarus Bug in Auswertung von apptype.inc -- Dieser Block darf "aktiviert" nie ins SVN
+(* -- Lazarus Bug in Auswertung von apptype.inc -- Dieser Block darf "aktiviert" nie ins GIT
 {$UNDEF Client}
 {$DEFINE Server}
 //*)
@@ -336,6 +336,8 @@ Type
     Function WaveOppList(WaveNum: integer): String;
 {$ENDIF}
     Function CheckForErrors(ShowWarnings: Boolean): TCheckResult;
+    Function GetListOfUnusedOpponents(): TStringList;
+    Procedure DeleteUnusedOpponents();
     Procedure Pause(value: Boolean); // An und ab schalten der Pause
     Function RemoveBuilding(x, y, Owner: integer): Boolean;
     Procedure deletePlacement(x, y: integer);
@@ -1540,6 +1542,46 @@ Begin
   If (FBackTex <> IgnoreFile) And (FBackTex <> '') Then Begin
     result.add(ap + FBackTex);
   End;
+End;
+
+Function TMap.GetListOfUnusedOpponents: TStringList;
+Var
+  ap: String; // Der Pfad der Anwendung in welchem Gearbeitet werden darf.
+  sl1, sl2: TStringList;
+  i, j: Integer;
+
+Begin
+  result := TStringList.Create;
+  ap := MapFolder + MapName + PathDelim;
+
+  sl1 := findallfiles(ap, '*.opp', false); // Alle Gegner die im Verzeichnis sind
+  sl2 := TStringList.Create; // Sammeln aller Gegner die es auf der Karte gibt
+  sl2.Duplicates := dupIgnore;
+  For i := 0 To high(Waves) Do Begin
+    For j := 0 To high(Waves[i].Opponents) Do Begin
+      sl2.Add(Waves[i].Opponents[j].opponent);
+    End;
+  End;
+
+  For i := 0 To sl1.Count - 1 Do Begin
+    If pos(ExtractFileName(sl1[i]), sl2.Text) = 0 Then Begin
+      result.add(sl1[i])
+    End;
+  End;
+  sl1.free;
+  sl2.free;
+End;
+
+Procedure TMap.DeleteUnusedOpponents();
+Var
+  sl: TStringList;
+  i: Integer;
+Begin
+  sl := GetListOfUnusedOpponents();
+  For i := 0 To sl.Count - 1 Do Begin
+    delOpponent(ExtractFileName(sl[i]));
+  End;
+  sl.free;
 End;
 
 Function TMap.CoordIsBuildable(x, y: integer; Const building: TBuilding
@@ -2885,6 +2927,7 @@ Begin
             exit;
           End;
         End
+        // TODO: hier fehlt der Hero ?
     Else Begin
         LogShow('Unknown placement : ' + extractfilename(fPlacements[i].Filename), llError);
         logleave;
@@ -2919,30 +2962,19 @@ Begin
   // TODO: Prüfen ob 2 Wegpunkte ein und des selben Spielers nicht über eine Wegpunktfläche verbunden werden können, wenn ja -> Fehler
 
   // Prüfen ob alle Gegner die in die Karte integriert wurden auch Verwendet werden.
-  sl1 := findallfiles(ap, '*.opp', false); // Alle Gegner die im Verzeichnis sind
-  sl2 := TStringList.Create; // Sammeln aller Gegner die es auf der Karte gibt
-  sl2.Duplicates := dupIgnore;
-  For i := 0 To high(Waves) Do Begin
-    For j := 0 To high(Waves[i].Opponents) Do Begin
-      sl2.Add(Waves[i].Opponents[j].opponent);
-    End;
-  End;
-  msg := '';
-  For i := 0 To sl1.Count - 1 Do Begin
-    If pos(ExtractFileName(sl1[i]), sl2.Text) = 0 Then Begin
-      msg := msg + '  ' + ExtractFileName(sl1[i]) + LineEnding;
-    End;
-  End;
-  msg := trim(msg);
-  If msg <> '' Then Begin
-    warning := warning + LineEnding +
-      'The following opponents are in the map folder but not used by any wave:' + LineEnding + '  ' + msg;
+  // -> Das wird gemacht, aber nicht hier sondern im Editor nach dem Dialog, hier wird lediglich die "Warnung" getriggert
+  sl1 := GetListOfUnusedOpponents();
+  If sl1.Count <> 0 Then Begin
+    If ShowWarnings Then result.Warnings := True;
   End;
   sl1.free;
-  sl2.free;
+
   // Prüfen ob Gebäude in der Karte Registriert wurden die nicht Kaufbar sind
+  (*
+   * Das macht so eigentlich gar keinen Sinn, da die Gebäude ja immer kaufbar sind
+   *)
   sl1 := findallfiles(ap, '*.geb;*.hero', false); // Alle Gebäude/ Helden die im Verzeichnis sind
-  sl2 := TStringList.Create; // Sammeln aller Gegner die es auf der Karte gibt
+  sl2 := TStringList.Create; // Sammeln aller Gebäude die es auf der Karte gibt
   For i := 0 To high(fBuyAbles) Do Begin
     sl2.add(fBuyAbles[i].Item);
   End;

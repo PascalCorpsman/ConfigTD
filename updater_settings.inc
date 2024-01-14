@@ -18,8 +18,8 @@ Const
   (*
    * Der Updater braucht die "int" version nicht, die ist nur für Config_td, klar dass beide immer gleich sein müssen !
    *)
-  updater_Version = '0.09004'; // Zum Unterscheiden im Updater kann man auch gern "unterversionen nehmen" die Zahl wird als Floatingpoint angenommen.
-  updater_int_Version = 9;
+  updater_Version = '0.10000'; // Zum Unterscheiden im Updater kann man auch gern "unterversionen nehmen" die Zahl wird als Floatingpoint angenommen.
+  updater_int_Version = 10;
 
   updater_AppName = 'Config TD';
   updater_StarterName = 'config_td';

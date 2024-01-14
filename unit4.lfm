@@ -8,12 +8,12 @@ object Form4: TForm4
   ClientHeight = 465
   ClientWidth = 323
   FormStyle = fsStayOnTop
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
   object PageControl1: TPageControl
     Left = 0
     Height = 465
@@ -43,10 +43,10 @@ object Form4: TForm4
         Lines.Strings = (
           'Memo1'
         )
-        OnChange = Memo1Change
         ScrollBars = ssAutoBoth
         TabOrder = 0
         WordWrap = False
+        OnChange = Memo1Change
       end
       object Label2: TLabel
         Left = 8
@@ -68,10 +68,10 @@ object Form4: TForm4
           'Single Maze'
           'Coop Maze'
         )
-        OnChange = ComboBox1Change
         Style = csDropDownList
         TabOrder = 1
         Text = 'Single'
+        OnChange = ComboBox1Change
       end
       object Label3: TLabel
         Left = 8
@@ -85,9 +85,9 @@ object Form4: TForm4
         Height = 26
         Top = 160
         Width = 168
-        OnChange = Edit1Change
         TabOrder = 2
         Text = 'Edit1'
+        OnChange = Edit1Change
       end
       object GroupBox1: TGroupBox
         Left = 8
@@ -125,11 +125,11 @@ object Form4: TForm4
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
-          OnChange = Edit2Change
           ParentShowHint = False
           ShowHint = True
           TabOrder = 0
           Text = 'Edit2'
+          OnChange = Edit2Change
         end
         object Edit3: TEdit
           Left = 108
@@ -137,11 +137,11 @@ object Form4: TForm4
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
-          OnChange = Edit2Change
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
           Text = 'Edit3'
+          OnChange = Edit2Change
         end
         object Edit4: TEdit
           Left = 208
@@ -149,11 +149,11 @@ object Form4: TForm4
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
-          OnChange = Edit2Change
           ParentShowHint = False
           ShowHint = True
           TabOrder = 2
           Text = 'Edit4'
+          OnChange = Edit2Change
         end
       end
       object GroupBox2: TGroupBox
@@ -171,8 +171,8 @@ object Form4: TForm4
           Top = 8
           Width = 57
           Caption = 'Show'
-          OnChange = CheckBox1Change
           TabOrder = 0
+          OnChange = CheckBox1Change
         end
         object Button1: TButton
           Left = 104
@@ -180,8 +180,8 @@ object Form4: TForm4
           Top = 5
           Width = 60
           Caption = 'Load'
-          OnClick = Button1Click
           TabOrder = 1
+          OnClick = Button1Click
         end
         object Button2: TButton
           Left = 235
@@ -189,8 +189,8 @@ object Form4: TForm4
           Top = 5
           Width = 60
           Caption = 'Clear'
-          OnClick = Button2Click
           TabOrder = 2
+          OnClick = Button2Click
         end
         object Button18: TButton
           Left = 168
@@ -198,8 +198,8 @@ object Form4: TForm4
           Top = 5
           Width = 60
           Caption = 'Create'
-          OnClick = Button18Click
           TabOrder = 3
+          OnClick = Button18Click
         end
       end
       object Button5: TButton
@@ -208,8 +208,8 @@ object Form4: TForm4
         Top = 400
         Width = 136
         Caption = 'Check and save map'
-        OnClick = Button5Click
         TabOrder = 5
+        OnClick = Button5Click
       end
       object Button11: TButton
         Left = 9
@@ -217,8 +217,8 @@ object Form4: TForm4
         Top = 376
         Width = 304
         Caption = 'Show Highscores'
-        OnClick = Button11Click
         TabOrder = 6
+        OnClick = Button11Click
       end
       object Button9: TButton
         Left = 176
@@ -226,8 +226,8 @@ object Form4: TForm4
         Top = 400
         Width = 136
         Caption = 'Start / Restart game'
-        OnClick = Button9Click
         TabOrder = 7
+        OnClick = Button9Click
       end
       object GroupBox6: TGroupBox
         Left = 8
@@ -244,8 +244,8 @@ object Form4: TForm4
           Top = 5
           Width = 35
           Caption = 'Set'
-          OnClick = Button13Click
           TabOrder = 0
+          OnClick = Button13Click
         end
         object Image1: TImage
           Left = 16
@@ -268,8 +268,8 @@ object Form4: TForm4
           Top = 5
           Width = 35
           Caption = 'Set'
-          OnClick = Button14Click
           TabOrder = 1
+          OnClick = Button14Click
         end
         object Image2: TImage
           Left = 94
@@ -292,8 +292,8 @@ object Form4: TForm4
           Top = 5
           Width = 35
           Caption = 'Set'
-          OnClick = Button15Click
           TabOrder = 2
+          OnClick = Button15Click
         end
         object Image3: TImage
           Left = 168
@@ -316,8 +316,8 @@ object Form4: TForm4
           Top = 5
           Width = 35
           Caption = 'Set'
-          OnClick = Button16Click
           TabOrder = 3
+          OnClick = Button16Click
         end
         object Image4: TImage
           Left = 240
@@ -346,8 +346,8 @@ object Form4: TForm4
         Top = 8
         Width = 304
         Caption = 'Resize'
-        OnClick = Button3Click
         TabOrder = 0
+        OnClick = Button3Click
       end
       object GroupBox3: TGroupBox
         Left = 8
@@ -364,8 +364,8 @@ object Form4: TForm4
           Top = 7
           Width = 111
           Caption = 'Enable editing'
-          OnChange = CheckBox2Change
           TabOrder = 0
+          OnChange = CheckBox2Change
         end
         object CheckBox3: TCheckBox
           Left = 145
@@ -416,8 +416,8 @@ object Form4: TForm4
           Top = 8
           Width = 111
           Caption = 'Enable editing'
-          OnChange = CheckBox6Change
           TabOrder = 0
+          OnChange = CheckBox6Change
         end
         object RadioButton4: TRadioButton
           Left = 7
@@ -443,9 +443,9 @@ object Form4: TForm4
           Top = 8
           Width = 119
           ItemHeight = 0
-          OnChange = ComboBox2Change
           Style = csDropDownList
           TabOrder = 3
+          OnChange = ComboBox2Change
         end
         object Button4: TButton
           Left = 268
@@ -453,8 +453,8 @@ object Form4: TForm4
           Top = 10
           Width = 25
           Caption = 'R'
-          OnClick = Button4Click
           TabOrder = 4
+          OnClick = Button4Click
         end
         object Label9: TLabel
           Left = 145
@@ -492,8 +492,8 @@ object Form4: TForm4
           Top = 8
           Width = 111
           Caption = 'Enable editing'
-          OnChange = CheckBox5Change
           TabOrder = 0
+          OnChange = CheckBox5Change
         end
         object Label8: TLabel
           Left = 8
@@ -509,9 +509,9 @@ object Form4: TForm4
           Width = 50
           MaxValue = 100
           MinValue = 1
-          OnChange = CheckBox5Change
           TabOrder = 1
           Value = 1
+          OnChange = CheckBox5Change
         end
         object RadioButton1: TRadioButton
           Left = 165
@@ -555,8 +555,8 @@ object Form4: TForm4
           Top = 8
           Width = 111
           Caption = 'Enable editing'
-          OnChange = CheckBox7Change
           TabOrder = 0
+          OnChange = CheckBox7Change
         end
         object Label18: TLabel
           Left = 8
@@ -630,8 +630,8 @@ object Form4: TForm4
         Width = 75
         Anchors = [akLeft, akBottom]
         Caption = 'Set'
-        OnClick = Button10Click
         TabOrder = 1
+        OnClick = Button10Click
       end
       object ListBox1: TListBox
         Left = 8
@@ -640,11 +640,11 @@ object Form4: TForm4
         Width = 304
         Anchors = [akTop, akLeft, akBottom]
         ItemHeight = 0
-        OnClick = ListBox1Click
-        OnDblClick = ListBox1DblClick
         ScrollWidth = 262
         TabOrder = 2
         TopIndex = -1
+        OnClick = ListBox1Click
+        OnDblClick = ListBox1DblClick
       end
       object Label12: TLabel
         Left = 8
@@ -672,8 +672,8 @@ object Form4: TForm4
         Top = 0
         Width = 152
         Caption = 'Open building editor'
-        OnClick = Button6Click
         TabOrder = 4
+        OnClick = Button6Click
       end
       object Button19: TButton
         Left = 160
@@ -681,8 +681,8 @@ object Form4: TForm4
         Top = 24
         Width = 152
         Caption = 'Open hero editor'
-        OnClick = Button19Click
         TabOrder = 5
+        OnClick = Button19Click
       end
     end
     object TabSheet4: TTabSheet
@@ -704,8 +704,8 @@ object Form4: TForm4
         Top = 8
         Width = 45
         Caption = 'Add'
-        OnClick = Button7Click
         TabOrder = 0
+        OnClick = Button7Click
       end
       object PageControl2: TPageControl
         Left = 8
@@ -721,8 +721,8 @@ object Form4: TForm4
         Top = 8
         Width = 45
         Caption = '&Clone'
-        OnClick = Button8Click
         TabOrder = 2
+        OnClick = Button8Click
       end
       object Button12: TButton
         Left = 247
@@ -730,8 +730,8 @@ object Form4: TForm4
         Top = 8
         Width = 65
         Caption = 'del last'
-        OnClick = Button12Click
         TabOrder = 3
+        OnClick = Button12Click
       end
       object Button17: TButton
         Left = 165
@@ -740,10 +740,10 @@ object Form4: TForm4
         Top = 8
         Width = 65
         Caption = '+AI Wave'
-        OnClick = Button17Click
         ParentShowHint = False
         ShowHint = True
         TabOrder = 4
+        OnClick = Button17Click
       end
     end
   end

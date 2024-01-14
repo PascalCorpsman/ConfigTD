@@ -196,7 +196,8 @@ Uses
   , unit7
   , unit14
   , unit19
-  , uctd, uctd_messages, uctd_common, uctd_building, uctd_opp;
+  , uctd, uctd_messages, uctd_common, uctd_building, uctd_opp,
+  LCLType;
 
 Function BuyableToString(Const data: TBuyAble): String;
   Function KindToString(aKind: TBuyAbleKind): String;
@@ -250,7 +251,7 @@ End;
 
 { TForm4 }
 
-procedure TForm4.FormCreate(Sender: TObject);
+Procedure TForm4.FormCreate(Sender: TObject);
 Begin
   fOnTransferFileDoneReason := frUnknown;
   Tform(self).Constraints.MaxHeight := Tform(self).Height;
@@ -264,14 +265,14 @@ Begin
   Edit7.text := '0';
 End;
 
-procedure TForm4.FormDestroy(Sender: TObject);
+Procedure TForm4.FormDestroy(Sender: TObject);
 Begin
   If assigned(PlacementeObject) Then
     PlacementeObject.free;
   PlacementeObject := Nil;
 End;
 
-procedure TForm4.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+Procedure TForm4.FormCloseQuery(Sender: TObject; Var CanClose: boolean);
 Begin
   setValue('MapEditorForm', 'Left', inttostr(form4.left));
   setValue('MapEditorForm', 'Top', inttostr(form4.top));
@@ -280,7 +281,7 @@ Begin
   canclose := Not ctd.IsInEditMode;
 End;
 
-procedure TForm4.ComboBox1Change(Sender: TObject);
+Procedure TForm4.ComboBox1Change(Sender: TObject);
 Var
   m: TMemoryStream;
   i: integer;
@@ -291,7 +292,7 @@ Begin
   ctd.UpdateMapProperty(mpMapType, m);
 End;
 
-procedure TForm4.ComboBox2Change(Sender: TObject);
+Procedure TForm4.ComboBox2Change(Sender: TObject);
 Var
   s: String;
 Begin
@@ -310,29 +311,40 @@ Begin
   End;
 End;
 
-procedure TForm4.Button5Click(Sender: TObject);
+Procedure TForm4.Button5Click(Sender: TObject);
+Var
+  sl: TStringList;
 Begin
   // Check and Save Map
   log('TForm4.Button5Click', llTrace);
   If Form1.SaveAndCheckMap(true, true) Then Begin
     LogShow('Congratulations. Your maps has been approved to be playable and without warnings!', llInfo);
+  End
+  Else Begin
+    sl := ctd.Map.GetListOfUnusedOpponents();
+    If sl.count <> 0 Then Begin
+      If ID_YES = Application.MessageBox('There are opponents which where spawned in no wave, do you want to remove them now ?', 'Question', mb_iconquestion Or MB_YESNO) Then Begin
+        ctd.CleanupUnusedOpponets();
+      End;
+    End;
+    sl.free;
   End;
   LogLeave;
 End;
 
-procedure TForm4.Button6Click(Sender: TObject);
+Procedure TForm4.Button6Click(Sender: TObject);
 Begin
   // Open building Editor
   Form1.MenuItem15Click(Nil);
 End;
 
-procedure TForm4.Button7Click(Sender: TObject);
+Procedure TForm4.Button7Click(Sender: TObject);
 Begin
   // Add new Wave
   SetWaveCountTo(length(ctd.Map.Waves) + 1);
 End;
 
-procedure TForm4.SetWaveCountTo(WaveCount: integer);
+Procedure TForm4.SetWaveCountTo(WaveCount: integer);
 Var
   waves: Integer;
   m: TMemoryStream;
@@ -367,7 +379,7 @@ Begin
   Form4updating := false;
 End;
 
-procedure TForm4.OnCTDWaveClone(Sender: TObject; SourceWaveNum,
+Procedure TForm4.OnCTDWaveClone(Sender: TObject; SourceWaveNum,
   DestWaveNum: Integer);
 Var
   fcloneWave: Twave;
@@ -399,26 +411,26 @@ Begin
   AdjustMoveWaveButtons;
 End;
 
-procedure TForm4.Button8Click(Sender: TObject);
+Procedure TForm4.Button8Click(Sender: TObject);
 Begin
   If (PageControl2.PageCount = 0) Then exit; // Es gibt keine Waves zum Clonen
   AddWave(false); // Die Neue Wave in der LCL schon mal anlegen
   ctd.CloneMapWave((PageControl2.Pages[PageControl2.ActivePageIndex].Components[0] As TWaveFrame).WaveNum, PageControl2.PageCount - 1);
 End;
 
-procedure TForm4.Button9Click(Sender: TObject);
+Procedure TForm4.Button9Click(Sender: TObject);
 Begin
   // Start restart Game
   Form1.MenuItem18Click(Nil);
 End;
 
-procedure TForm4.CheckBox1Change(Sender: TObject);
+Procedure TForm4.CheckBox1Change(Sender: TObject);
 Begin
   If assigned(ctd.Map) Then
     ctd.Map.ShowBackTex := CheckBox1.Checked;
 End;
 
-procedure TForm4.CheckBox2Change(Sender: TObject);
+Procedure TForm4.CheckBox2Change(Sender: TObject);
 Begin
   If CheckBox2.Checked Then Begin
     If assigned(ctd.Map) Then Begin
@@ -435,7 +447,7 @@ Begin
   End;
 End;
 
-procedure TForm4.CheckBox5Change(Sender: TObject);
+Procedure TForm4.CheckBox5Change(Sender: TObject);
 Begin
   If CheckBox5.Checked Then Begin
     ctd.Map.ViewWaypoints := SpinEdit1.Value - 1;
@@ -451,7 +463,7 @@ Begin
   End;
 End;
 
-procedure TForm4.CheckBox6Change(Sender: TObject);
+Procedure TForm4.CheckBox6Change(Sender: TObject);
 Begin
   If CheckBox6.Checked Then Begin
     // Edit Terrain Deaktivieren
@@ -464,7 +476,7 @@ Begin
   End;
 End;
 
-procedure TForm4.CheckBox7Change(Sender: TObject);
+Procedure TForm4.CheckBox7Change(Sender: TObject);
 Begin
   If CheckBox7.Checked Then Begin
     CheckBox1.Checked := false;
@@ -477,7 +489,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button3Click(Sender: TObject);
+Procedure TForm4.Button3Click(Sender: TObject);
 Var
   m: TMemoryStream;
   i: integer;
@@ -499,7 +511,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button10Click(Sender: TObject);
+Procedure TForm4.Button10Click(Sender: TObject);
 Var
   b: TBuyAble;
   m: TMemoryStream;
@@ -521,14 +533,14 @@ Begin
   logleave;
 End;
 
-procedure TForm4.Button11Click(Sender: TObject);
+Procedure TForm4.Button11Click(Sender: TObject);
 Begin
   // Anfrage Highscores der Karte
   ctd.OnGetHighscores := @form1.OnShowHighScores;
   ctd.RequestHighscores;
 End;
 
-procedure TForm4.Button12Click(Sender: TObject);
+Procedure TForm4.Button12Click(Sender: TObject);
 Begin
   // Remove last wave
   If high(ctd.Map.Waves) > -1 Then Begin
@@ -536,7 +548,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button13Click(Sender: TObject);
+Procedure TForm4.Button13Click(Sender: TObject);
 Begin
   // Set Damageclass 1
   If OpenPictureDialog1.Execute Then Begin
@@ -550,7 +562,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button14Click(Sender: TObject);
+Procedure TForm4.Button14Click(Sender: TObject);
 Begin
   // Set Damageclass 2
   If OpenPictureDialog1.Execute Then Begin
@@ -564,7 +576,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button15Click(Sender: TObject);
+Procedure TForm4.Button15Click(Sender: TObject);
 Begin
   // Set Damageclass 3
   If OpenPictureDialog1.Execute Then Begin
@@ -578,7 +590,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button16Click(Sender: TObject);
+Procedure TForm4.Button16Click(Sender: TObject);
 Begin
   // Set Damageclass 4
   If OpenPictureDialog1.Execute Then Begin
@@ -592,7 +604,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button17Click(Sender: TObject);
+Procedure TForm4.Button17Click(Sender: TObject);
 Var
   i: integer;
 Begin
@@ -608,19 +620,19 @@ Begin
   End;
 End;
 
-procedure TForm4.Button18Click(Sender: TObject);
+Procedure TForm4.Button18Click(Sender: TObject);
 Begin
   // Create Map Texture
   form1.MenuItem29Click(Nil);
 End;
 
-procedure TForm4.Button19Click(Sender: TObject);
+Procedure TForm4.Button19Click(Sender: TObject);
 Begin
   // Open Hero Editor
   form1.MenuItem31Click(Nil);
 End;
 
-procedure TForm4.Button1Click(Sender: TObject);
+Procedure TForm4.Button1Click(Sender: TObject);
 Begin
   If OpenPictureDialog1.Execute Then Begin
     fTransferFilename := OpenPictureDialog1.FileName;
@@ -629,7 +641,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Button2Click(Sender: TObject);
+Procedure TForm4.Button2Click(Sender: TObject);
 Var
   m: TMemoryStream;
 Begin
@@ -640,13 +652,13 @@ Begin
   CheckBox1.Checked := false;
 End;
 
-procedure TForm4.Button4Click(Sender: TObject);
+Procedure TForm4.Button4Click(Sender: TObject);
 Begin
   // Refresh Placements List
   ctd.GetFileList('*.opp;*.geb', @OnGetComboBox2Content);
 End;
 
-procedure TForm4.Edit1Change(Sender: TObject);
+Procedure TForm4.Edit1Change(Sender: TObject);
 Var
   m: TMemoryStream;
   i: integer;
@@ -658,7 +670,7 @@ Begin
   ctd.UpdateMapProperty(mpMaxPlayer, m);
 End;
 
-procedure TForm4.Edit2Change(Sender: TObject);
+Procedure TForm4.Edit2Change(Sender: TObject);
 Var
   m: TMemoryStream;
   i: integer;
@@ -673,7 +685,7 @@ Begin
   ctd.UpdateMapProperty(mpLives, m);
 End;
 
-procedure TForm4.FormShow(Sender: TObject);
+Procedure TForm4.FormShow(Sender: TObject);
 Begin
   form4.left := strtoint(GetValue('MapEditorForm', 'Left', inttostr(Form1.Left + Form1.Width)));
   form4.top := strtoint(GetValue('MapEditorForm', 'Top', inttostr(form1.Top)));
@@ -682,7 +694,7 @@ Begin
   FixFormPosition(form4);
 End;
 
-procedure TForm4.ListBox1Click(Sender: TObject);
+Procedure TForm4.ListBox1Click(Sender: TObject);
 Var
   by: TBuyAble;
 Begin
@@ -693,7 +705,7 @@ Begin
   edit7.text := inttostr(by.Count);
 End;
 
-procedure TForm4.ListBox1DblClick(Sender: TObject);
+Procedure TForm4.ListBox1DblClick(Sender: TObject);
 Var
   by: TBuyAble;
 Begin
@@ -716,7 +728,7 @@ Begin
   End;
 End;
 
-procedure TForm4.Memo1Change(Sender: TObject);
+Procedure TForm4.Memo1Change(Sender: TObject);
 Var
   m: TMemoryStream;
 Begin
@@ -725,23 +737,23 @@ Begin
   ctd.UpdateMapProperty(mpDescription, m);
 End;
 
-procedure TForm4.PageControl2Change(Sender: TObject);
+Procedure TForm4.PageControl2Change(Sender: TObject);
 Begin
   // Braucht nicht, weil beim Wechsel zwischen den Opponent Tabs ebenfalls ein Refresh gesendet wird.
   //  RefreshOpponentsClick(Nil);
 End;
 
-procedure TForm4.ScrollBar1Change(Sender: TObject);
+Procedure TForm4.ScrollBar1Change(Sender: TObject);
 Begin
   label7.caption := 'Cursor size: ' + inttostr((ScrollBar1.Position * 2) + 1);
 End;
 
-procedure TForm4.ScrollBar2Change(Sender: TObject);
+Procedure TForm4.ScrollBar2Change(Sender: TObject);
 Begin
   label18.caption := 'Cursor size: ' + inttostr((ScrollBar2.Position * 2) + 1);
 End;
 
-procedure TForm4.Timer1Timer(Sender: TObject);
+Procedure TForm4.Timer1Timer(Sender: TObject);
 Begin
   If ctd.BlockMapUpdateSending Or Form4updating Then exit;
   timer1.enabled := false; // Auf jeden Abschalten
@@ -752,7 +764,7 @@ Begin
   RefreshOpponentsClick(Nil); // Wave Opponents
 End;
 
-procedure TForm4.OnFinishedLoadListDuringLoad(Sender: TObject);
+Procedure TForm4.OnFinishedLoadListDuringLoad(Sender: TObject);
 Var
   obj: String;
   j: Integer;
@@ -775,7 +787,7 @@ Begin
     End;
 End;
 
-procedure TForm4.OnGetComboBox2Content(Sender: TObject; const Data: TStringlist
+Procedure TForm4.OnGetComboBox2Content(Sender: TObject; Const Data: TStringlist
   );
 Var
   i: Integer;
@@ -796,8 +808,8 @@ Begin
   ComboBox2Change(Nil);
 End;
 
-procedure TForm4.OnGetPageControl2Content(Sender: TObject;
-  const Data: TStringlist);
+Procedure TForm4.OnGetPageControl2Content(Sender: TObject;
+  Const Data: TStringlist);
 Var
   f: TWaveFrame;
   i: Integer;
@@ -808,7 +820,7 @@ Begin
   End;
 End;
 
-procedure TForm4.OnTransferFileDone(Sender: TObject; Suceed: Boolean);
+Procedure TForm4.OnTransferFileDone(Sender: TObject; Suceed: Boolean);
 Var
   m: TMemoryStream;
 Begin
@@ -881,7 +893,7 @@ Begin
   fOnTransferFileDoneReason := frUnknown;
 End;
 
-procedure TForm4.AdjustMoveWaveButtons;
+Procedure TForm4.AdjustMoveWaveButtons;
 Var
   i: Integer;
 Begin
@@ -891,13 +903,13 @@ Begin
   End;
 End;
 
-procedure TForm4.RefreshOpponentsClick(Sender: TObject);
+Procedure TForm4.RefreshOpponentsClick(Sender: TObject);
 Begin
   If Form4updating Then exit;
   ctd.GetFileList('*.opp', @OnGetPageControl2Content);
 End;
 
-procedure TForm4.ChangeWaveIndexClick(WaveIndex: integer; Direction: Boolean);
+Procedure TForm4.ChangeWaveIndexClick(WaveIndex: integer; Direction: Boolean);
 Var
   w1, w2: TWave;
 Begin
@@ -918,7 +930,7 @@ Begin
   End;
 End;
 
-procedure TForm4.AddWave(Reset: Boolean);
+Procedure TForm4.AddWave(Reset: Boolean);
 Var
   t: TTabSheet;
   f: TWaveframe;
@@ -937,7 +949,7 @@ Begin
   End;
 End;
 
-procedure TForm4.ResetWave(const Page: TTabSheet);
+Procedure TForm4.ResetWave(Const Page: TTabSheet);
 Var
   f: TWaveFrame;
 Begin
@@ -947,7 +959,7 @@ Begin
   //  PageControl2.Width := f.Width;
 End;
 
-procedure TForm4.DelLastWave;
+Procedure TForm4.DelLastWave;
 Begin
   PageControl2.Pages[PageControl2.PageCount - 1].free;
 End;

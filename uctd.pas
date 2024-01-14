@@ -474,6 +474,7 @@ Type
     Procedure DecSpeed;
     Procedure RequestPlayerInfos;
     Procedure ChangePlayerPos(aPlayerindex: integer; Up: Boolean);
+    Procedure CleanupUnusedOpponets();
 
     Procedure Check_Scrollborders;
     Procedure Zoom(ZoomIn: Boolean);
@@ -1443,7 +1444,7 @@ Begin
     If assigned(fSideMenuObject) And (fSideMenuObject Is THero) And Not assigned(fBuyingObject) And (Not fCTRLPressed) Then Begin // Bugfix wenn STRG+ Leftklick (= anzeigen !) dann sollen die evtl angewählten Gebäude nicht mit angewählt werden.
       // Alle Anwählen die gerade Sichtbar und vom selben Typ sind.
       fSelectedHeros := fMap.GetAllHerosOfSameTypeInRect(THero(fSideMenuObject),
-      rect(fsx Div MapBlockSize, fsy Div MapBlockSize, (fMapW - fMapL + fsx) Div MapBlockSize, (fMapH - fMapT + fsy) Div MapBlockSize)
+        rect(fsx Div MapBlockSize, fsy Div MapBlockSize, (fMapW - fMapL + fsx) Div MapBlockSize, (fMapH - fMapT + fsy) Div MapBlockSize)
         );
     End;
   End;
@@ -2819,6 +2820,11 @@ Begin
 {$ENDIF}
     log('Tctd.HandleReceivedData : ' + MessageIdentifierToString(Chunk.UserDefinedID), llTrace);
   Case (Chunk.UserDefinedID And $FFFF) Of
+    miCleanupUnusedOpponents: Begin
+        If assigned(fMap) Then Begin
+          fMap.DeleteUnusedOpponents;
+        End;
+      End;
     miYouWereKickedOut: Begin
         (*
          * Wenn der Spieler aus dem Spiel geworfen wurde, dann sollte er das auch mit bekommen ...
@@ -4812,6 +4818,11 @@ Begin
     aPlayerindex := 0;
   m.Write(aPlayerindex, SizeOf(integer));
   SendChunk(miRequestPlayerPosChange, m);
+End;
+
+Procedure Tctd.CleanupUnusedOpponets();
+Begin
+  SendChunk(miCleanupUnusedOpponents, Nil);
 End;
 
 Initialization

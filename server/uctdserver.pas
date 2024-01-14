@@ -296,6 +296,12 @@ Begin
     log(format('TServer.OnReceivedChunk : %d, %s', [Chunk.UID, MessageIdentifierToString(Chunk.UserDefinedID)]), llTrace);
 
   Case (Chunk.UserDefinedID And $FFFF) Of
+    miCleanupUnusedOpponents: Begin
+        If assigned(fMap) Then Begin
+          fMap.DeleteUnusedOpponents();
+          SendChunk(miCleanupUnusedOpponents, Nil, 0);
+        End;
+      End;
     miAddRandomWave: Begin
         If assigned(fMap) Then Begin
           k := 0;

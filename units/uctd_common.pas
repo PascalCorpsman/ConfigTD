@@ -69,6 +69,7 @@ Const
    * -Released- 0.09003 = FIX: DamageClass Graphiken wurden nicht mehr angezeigt
    *                      FIX: DoOnPaint anstatt .Invalidate, warum auch immer ??
    *            0.09004 = FIX: Beim Doppelklick auf ein Gebäude wurden die "obersten" Gebäude nicht selektiert
+   *            0.10000 = ADD: DelUnusedOppponents
    *
    * Known Bugs :
    *)
