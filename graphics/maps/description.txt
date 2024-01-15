@@ -1,0 +1,4 @@
+red   = nothing              [RGB = (255,   0,   0)]   
+black = walkable             [RGB = (  0,   0,   0)]
+white = buildable            [RGB = (255, 255, 255)]
+gray  = walkable, buildable  [RGB = (192, 192, 192)]

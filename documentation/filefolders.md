@@ -8,7 +8,7 @@ This document explains the porpuse and reason of every file in this repository.
 | --- | --- |
 | buildings | All global accessable buildings are stored here (use ingame editor to access)
 | documentation| Holds all documentations
-| graphics | Lots of sample graphics, if you want to create a map / opponent or building yourself
+| graphics | Lots of sample graphics, if you want to create a map / opponent or building by yourself
 | heros | All global accessable heros are stored here (use ingame editor to access)
 | logs | Server stores its log files here (for debuging)
 | maps | All maps that are created by the server
