@@ -1,4 +1,4 @@
-# Overview
+# Manual
 This document acts as table of content and shall give you easy access to the different manuals, ordering is by "priority" (top first to bottom last) to read.
 
 | Manual | Description |
