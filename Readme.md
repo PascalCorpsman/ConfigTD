@@ -56,8 +56,9 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 
 ## What needs to be done to play the game
 
-1. Clone or download this repository to your harddrive
-2. Read the [overview](documentation/Readme.md) document as needed
+1. Download the content of the [bin](https://github.com/PascalCorpsman/ConfigTD/bin) folder according to your operating system
+2. Merge the content of the [Config TD Data](https://github.com/PascalCorpsman/ConfigTD_Data) repository
+3. Read the [overview](documentation/Readme.md) document as needed
 
 ## Why is there no sound ?
 
