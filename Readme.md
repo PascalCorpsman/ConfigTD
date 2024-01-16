@@ -58,8 +58,17 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 
 1. Download the content of the [bin](https://github.com/PascalCorpsman/ConfigTD/tree/main/bin) folder according to your operating system
 2. Merge the content of the [Config TD Data](https://github.com/PascalCorpsman/ConfigTD_Data) repository
-3. Read the [overview](documentation/Readme.md) document as needed
+3. Read the [manual](documentation/Readme.md) document as needed
+   
+Linux users may need to run the following commands at least once:<br>
 
+SSH bindings:
+
+> sudo apt-get install libssl-dev
+
+OpenGL bindings:
+
+> sudo apt-get install freeglut3-dev
 ## Why is there no sound ?
 
 Actual the game is (at least at the moment) not designed to use sounds. This is due to the following reasons:
