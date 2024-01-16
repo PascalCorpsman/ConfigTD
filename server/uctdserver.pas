@@ -1452,7 +1452,7 @@ Begin
    * dies ist bei Server und Client Identisch, zur Reduktion von Redundantem
    * Code ist aus diesem Grund der Folgende Code in das .inc ausgelagert.
    *)
-{$I ../HandleUpdateMapProperty.inc}
+{$I ../client/HandleUpdateMapProperty.inc}
   If MapProperty = mpSaveMap Then Begin
     fMap.Save(MapName);
   End;

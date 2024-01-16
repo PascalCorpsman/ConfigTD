@@ -188,6 +188,10 @@ Begin
     miCreateSplashMark: result := 'CreateSplashMark';
     miRefreshPlayerStats: result := 'RefreshPlayerStats';
     miCloneMapWave: result := 'CloneMapWave';
+    miDelOpponent: result := 'DelOpponent';
+    miDelBuilding: result := 'DelBuilding';
+    miDelHero: result := 'DelHero';
+    miCleanupUnusedOpponents: result := 'CleanupUnusedOpponents';
 
     miStartRoundResult: result := 'StartRoundResult';
     miRequestLogin: result := 'RequestLogin';

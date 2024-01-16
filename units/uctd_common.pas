@@ -28,7 +28,7 @@ Uses
 {$ENDIF}
   ;
 
-{$I updater_settings.inc}
+{$I ../client/updater_settings.inc}
 
 Const
   (*
@@ -70,6 +70,7 @@ Const
    *                      FIX: DoOnPaint anstatt .Invalidate, warum auch immer ??
    *            0.09004 = FIX: Beim Doppelklick auf ein Gebäude wurden die "obersten" Gebäude nicht selektiert
    *            0.10000 = ADD: DelUnusedOppponents
+   *                      ADD: Preview of already connected player
    *
    * Known Bugs :
    *)

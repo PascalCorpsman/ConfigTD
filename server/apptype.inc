@@ -31,5 +31,5 @@
  *)
 {$DEFINE DoNotLog_CyclicMessages}
 
-{$I ../globalsettings.inc}
+{$I ../client/globalsettings.inc}
 
