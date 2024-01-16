@@ -57,8 +57,9 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 ## What needs to be done to play the game
 
 1. Download the content of the [bin](https://github.com/PascalCorpsman/ConfigTD/tree/main/bin) folder according to your operating system
-2. Merge the content of the [Config TD Data](https://github.com/PascalCorpsman/ConfigTD_Data) repository
-3. Read the [manual](documentation/Readme.md) document as needed
+2. Download the content of the [textures](https://github.com/PascalCorpsman/ConfigTD/tree/main/textures) folder and merge it to the downloaded bin folder content
+3. Merge the content of the [Config TD Data](https://github.com/PascalCorpsman/ConfigTD_Data) repository (holds maps and all the other gaming content)
+4. Read the [manual](documentation/Readme.md) document as needed
    
 Linux users may need to run the following commands at least once:<br>
 
