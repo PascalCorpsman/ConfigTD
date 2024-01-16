@@ -73,7 +73,7 @@ It could be possible that in future these arguments change and sound support wil
 To be able to compile the code you need the [Lazarus-IDE](https://www.lazarus-ide.org)
 
 Inside Lazarus you need to install the following packages:
-- L-Net from [here](https://github.com/almindor/lnet) or use the online Packagemanager to install
+- L-Net from [here](https://github.com/almindor/lnet) ~~or use the online Packagemanager to install~~(OPM version seems to be outdated and not working)
 - LazOpenGLContext (comes with lazarus, install via "Package" -> "Install Packages")
 - TaChartLazarusPkg (comes with lazarus, install via "Package" -> "Install Packages")
 
