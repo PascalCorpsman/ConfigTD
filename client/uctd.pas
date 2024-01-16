@@ -705,18 +705,24 @@ Begin
   End;
 End;
 
-Procedure CenterTextOut(w, h: integer; text: String);
+Procedure TextOut(x, y: integer; text: String);
 Var
   fs: Single;
 Begin
   glBindTexture(GL_TEXTURE_2D, 0);
   fs := OpenGL_ASCII_Font.Size;
   OpenGL_ASCII_Font.Size := OpenGL_ASCII_Font.Size * fontscale;
-  OpenGL_ASCII_Font.Textout(
-    (w - round(OpenGL_ASCII_Font.TextWidth(text))) Div 2,
-    (h - round(OpenGL_ASCII_Font.TextHeight(text))) Div 2, text
-    );
+  OpenGL_ASCII_Font.Textout(x, y, text);
   OpenGL_ASCII_Font.Size := fs;
+End;
+
+Procedure CenterTextOut(w, h: integer; text: String);
+Var
+  tw, th: integer;
+Begin
+  tw := round(OpenGL_ASCII_Font.TextWidth(text) * fontscale);
+  th := round(OpenGL_ASCII_Font.TextHeight(text) * fontscale);
+  TextOut((w - tw) Div 2, (h - th) Div 2, text);
 End;
 
 { TCTDDualinfoField }
@@ -2395,9 +2401,13 @@ Procedure Tctd.SendMapRating(Rating: integer);
 Var
   m: TMemoryStream;
 Begin
-  m := TMemoryStream.Create;
-  m.Write(Rating, SizeOf(Rating));
-  SendChunk(miSendMapRating, m);
+  log('Tctd.SendMapRating', llTrace);
+  If assigned(fMap) Then Begin
+    m := TMemoryStream.Create;
+    m.Write(Rating, SizeOf(Rating));
+    SendChunk(miSendMapRating, m);
+  End;
+  LogLeave;
 End;
 
 Procedure Tctd.RequestHighscores;
@@ -3139,20 +3149,23 @@ Begin
   log(format('Start round : %d on map %s', [round + 1, MapName]), llInfo);
   fgameState := gs_WaitToStart;
   fAktualWave := Round;
-  If FHintObject.Obj Is TOpponent Then Begin
-    FHintObject.Obj := Nil;
-  End;
-  //fSidemenuOpponent := Nil; -- Der Darf nicht auf Nil gesetzt werden -> das Setzen von fSideMenuObject = nil genügt bereits.
-  If fSideMenuObject Is TOpponent Then Begin // Gegner werden abgewählt, Gebäude nicht ;)
-    fSideMenuObject := Nil;
-  End;
+  // Bei einem Komplett neuen Spiel resetten wir auch alles !
   If Round = 0 Then Begin
+    FHintObject.Obj := Nil;
+    fSideMenuObject := Nil;
     fBuyingObject := Nil;
     fmap.ResetAllBuyedObjects;
     fmap.CalcWaypointFields;
     fmap.Difficulty := Difficulty;
     fStartRoundTick := GetTick();
     setlength(fSelectedBuildings, 0);
+  End;
+  If FHintObject.Obj Is TOpponent Then Begin
+    FHintObject.Obj := Nil;
+  End;
+  //fSidemenuOpponent := Nil; -- Der Darf nicht auf Nil gesetzt werden -> das Setzen von fSideMenuObject = nil genügt bereits.
+  If fSideMenuObject Is TOpponent Then Begin // Gegner werden abgewählt, Gebäude nicht ;)
+    fSideMenuObject := Nil;
   End;
   fmap.ResetAllMovingObjects;
   fmap.CreateMovableObjectList(fAktualWave);
@@ -3667,6 +3680,7 @@ Var
   x, y, i, j: integer;
   f: single;
   hi: THint;
+  s: String;
 Begin
   If (fwold <> w) Or (fhold <> h) Then Begin
     fwold := w;
@@ -3982,14 +3996,22 @@ Begin
           RenderMenuTabButton();
         End
         Else Begin
-          OpenGL_ASCII_Font.Color := clYellow;
           fNewMapButton.Render();
           fLoadMapButton.Render();
           fLoadGameButton.Render();
+          // Print instructions
+          OpenGL_ASCII_Font.Color := clYellow;
           CenterTextOut(w, h, 'Please create or load a map, or load a old game.');
           If VersionInfoString <> '' Then Begin
             RenderToolTipp(w - 10, h - 10, VersionInfoString);
           End;
+          // Print Connected Player Names
+          OpenGL_ASCII_Font.Color := clGray;
+          s := '';
+          For i := 0 To high(fPlayerInfos) Do Begin
+            s := s + '   ' + fPlayerInfos[i].Name + LineEnding;
+          End;
+          TextOut(0, 32, 'Online Players:' + LineEnding + s);
         End;
       End;
   End;

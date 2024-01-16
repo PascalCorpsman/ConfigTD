@@ -998,7 +998,7 @@ Begin
     fMapTransferStream.Clear;
   End;
   form4.CheckBox1.Checked := ctd.Map.BackTex <> '';
-  form4.show;
+  RestoreForm4();
   Form4.CheckBox1Change(Nil); // ggf Anzeigen der MapBacktex
   MenuItem18.Enabled := true; // Start / Restart game
   MenuItem20.enabled := true; // Transfer
@@ -1269,7 +1269,7 @@ Begin
   MenuItem27.enabled := true; // Save Game
   MenuItem28.Enabled := false; // Player infos
   If Not Succeed Then Begin
-    form4.Show;
+    RestoreForm4();
   End;
 End;
 
@@ -1281,7 +1281,7 @@ Begin
      * Beim beenden der Highscores wird das dann "erledigt"
      *)
     If Not form8.Visible Then Begin
-      Form4.Show;
+      RestoreForm4();
     End;
   End;
   MenuItem25.Enabled := true; // Abort Round
@@ -1712,8 +1712,8 @@ Begin
     'Idea : Christian Wimmer, Uwe Schächterle' + LineEnding +
     'Implementation : Uwe Schächterle' + LineEnding +
     'Graphics : Uwe Schächterle' + LineEnding +
-    'Leveldesign : Christian Wimmer, Uwe Schächterle' + LineEnding +
-    'Testing : Christian Wimmer, Uwe Schächterle, Philipp Meyer'
+    'Leveldesign : Christian Wimmer, Uwe Schächterle' + LineEnding + LineEnding +
+    'Sourcecode: https://github.com/PascalCorpsman/ConfigTD'
     );
 End;
 

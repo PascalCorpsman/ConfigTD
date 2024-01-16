@@ -142,9 +142,6 @@ Begin
    * So ganz Ideal ist das leider noch nicht
    *)
   Form1.RestoreForm4;
-  If Not form4.visible Then Begin
-    form4.show;
-  End;
 End;
 
 Procedure TForm8.LoadStatistics(PlayerIndex, PlayerCount: integer; Msg: String;
