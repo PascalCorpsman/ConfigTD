@@ -6,17 +6,17 @@ This document explains the porpuse and reason of every file in this repository.
 
 | Folder | Description |
 | --- | --- |
-| buildings | All global accessable buildings are stored here (use ingame editor to access)
+| [buildings](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/buildings) | All global accessable buildings are stored here (use ingame editor to access)
 | documentation| Holds all documentations
-| graphics | Lots of sample graphics, if you want to create a map / opponent or building by yourself
+| [graphics](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/graphics) | Lots of sample graphics, if you want to create a map / opponent or building by yourself
 | heros | All global accessable heros are stored here (use ingame editor to access)
 | logs | Server stores its log files here (for debuging)
-| maps | All maps that are created by the server
-| opponents | All global accessable opponents are stored here (use ingame editor to access)
+| [maps](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/maps) | All maps that are created by the server
+| [opponents](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/opponents) | All global accessable opponents are stored here (use ingame editor to access)
 | savegames | Location where the server stores backups and savegames
 | server | sourcecode folder of the server
 | share | If you connect as client, all downloaded maps will be stored here (copy them to your maps folder to play them on selfhosted games)
-| textures | Textures needed by the program do not modify its content
+| [textures](https://github.com/PascalCorpsman/ConfigTD/tree/main/textures) | Textures needed by the program do not modify its content
 | units | sourcecode folder of shared units between server and client
 
 ## Application Descriptions
