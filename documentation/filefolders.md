@@ -7,6 +7,7 @@ This document explains the porpuse and reason of every file in this repository.
 | Folder | Description |
 | --- | --- |
 | [buildings](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/buildings) | All global accessable buildings are stored here (use ingame editor to access)
+| client | sourcecode folder of the client
 | documentation| Holds all documentations
 | [graphics](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/graphics) | Lots of sample graphics, if you want to create a map / opponent or building by yourself
 | heros | All global accessable heros are stored here (use ingame editor to access)
@@ -15,7 +16,7 @@ This document explains the porpuse and reason of every file in this repository.
 | [opponents](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/opponents) | All global accessable opponents are stored here (use ingame editor to access)
 | savegames | Location where the server stores backups and savegames
 | server | sourcecode folder of the server
-| share | If you connect as client, all downloaded maps will be stored here (copy them to your maps folder to play them on selfhosted games)
+| share | The client always "downloads" all maps and stores them into the share folder, if you played on a external server you can copy the maps from the share folder to your local maps folder to be able to single play them
 | [textures](https://github.com/PascalCorpsman/ConfigTD/tree/main/textures) | Textures needed by the program do not modify its content
 | units | sourcecode folder of shared units between server and client
 
@@ -29,7 +30,7 @@ This document explains the porpuse and reason of every file in this repository.
 | image_overview | If you want to browse over all graphics within the "graphics" folder use this program
 | opponent_overview | If you want to see / compare all global opponents whithin one screen use this program 
 
-## Other files in root folder 
+## general file descriptions
 
 | Filename | Description |
 | --- | --- |
@@ -40,7 +41,7 @@ This document explains the porpuse and reason of every file in this repository.
 | *.lfm | Sourcecode file (Lazarus form module)
 | *.pas | Sourcecode file (FreePascal source code)
 | *.md | Documentation / License / ..
-| balancing.ods | Tabelular overview over all buildings / opponents settings
+| [balancing.ods](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/balancing.ods) | Tabelular overview over all buildings / opponents settings
 | settings.ini | All by the game collected informations and settings
 
 
