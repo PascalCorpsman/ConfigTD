@@ -1,0 +1,65 @@
+object Form1: TForm1
+  Left = 370
+  Height = 409
+  Top = 116
+  Width = 512
+  Caption = 'Form1'
+  ClientHeight = 409
+  ClientWidth = 512
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
+  OnCreate = FormCreate
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 496
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Scan folder'
+    TabOrder = 0
+    OnClick = Button1Click
+  end
+  object ListBox1: TListBox
+    Left = 8
+    Height = 296
+    Top = 40
+    Width = 496
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Items.Strings = (
+      'a'
+      'b'
+      'c'
+    )
+    ItemHeight = 40
+    ScrollWidth = 492
+    Style = lbOwnerDrawFixed
+    TabOrder = 1
+    OnClick = ListBox1Click
+    OnDblClick = ListBox1DblClick
+    OnDrawItem = ListBox1DrawItem
+  end
+  object Edit1: TEdit
+    Left = 8
+    Height = 26
+    Top = 339
+    Width = 496
+    Anchors = [akLeft, akRight, akBottom]
+    ReadOnly = True
+    TabOrder = 2
+    Text = 'Edit1'
+  end
+  object Button2: TButton
+    Left = 8
+    Height = 25
+    Top = 376
+    Width = 496
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Close'
+    TabOrder = 3
+    OnClick = Button2Click
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog
+    Left = 80
+    Top = 56
+  end
+end
