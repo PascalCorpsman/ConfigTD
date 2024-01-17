@@ -295,6 +295,7 @@ Type
     fStrategyToolTipp: String; // Tooltip beim Hovern über den Strategie Buttons
     fStrategyToolTippPos: TPoint;
 
+    Procedure DeselectCursor; // Setzt alles was "unterm" Cursor ist zurück und wählt es ab
     Procedure FOnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     Procedure FOnMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     Procedure FOnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -1098,11 +1099,7 @@ Begin
             End;
           End;
           If Not (ssShift In shift) Then Begin
-            fSideMenuObject := Nil;
-            If assigned(FBuyingObject) Then FBuyingObject.free;
-            fBuyingObject := Nil;
-            fSelectedBuildings := Nil;
-            fSelectedHeros := Nil;
+            DeselectCursor;
           End;
         End
         Else Begin
@@ -1303,6 +1300,15 @@ Begin
     FOnMouseDownCapture(Sender, Button, Shift, x, y);
 End;
 
+Procedure Tctd.DeselectCursor;
+Begin
+  fSideMenuObject := Nil;
+  If assigned(FBuyingObject) Then FBuyingObject.free;
+  fBuyingObject := Nil;
+  fSelectedBuildings := Nil;
+  fSelectedHeros := Nil;
+End;
+
 Procedure Tctd.FOnMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 Begin
@@ -1311,11 +1317,7 @@ Begin
   If (abs(fmDownPos.x - x) < 15) And (abs(fmDownPos.y - y) < 15) And (mbRight = Button) Then Begin
     If (fGameState = gs_Gaming) Or (fGameState = gs_WaitToStart) Then Begin
       // Achtung, der Selbe Code steht auch in Tctd.FOnMouseDown, wenn "obj := GetMapObjUnderCursor(x, y)" -> Nil
-      FSideMenuObject := Nil;
-      If assigned(fBuyingObject) Then fBuyingObject.free;
-      FBuyingObject := Nil;
-      fSelectedBuildings := Nil;
-      fSelectedHeros := Nil;
+      DeselectCursor;
       fStrategyToolTipp := '';
     End;
   End;
@@ -1500,6 +1502,9 @@ Begin
   End;
   If (key = VK_SUBTRACT) Or (key = 189) Then Begin
     DecSpeed;
+  End;
+  If (Key = VK_ESCAPE) Then Begin
+    DeselectCursor();
   End;
   If (Key = ord('B')) Then Begin
     fShowBuildableTiles := true;
@@ -3457,11 +3462,7 @@ Begin
   Tab_Image := Nil;
   fCaptured_OpenGLControl := Nil;
   fSplashhints.free;
-  fSideMenuObject := Nil;
-  If assigned(fBuyingObject) Then fBuyingObject.free;
-  fBuyingObject := Nil;
-  fSelectedBuildings := Nil;
-  fSelectedHeros := Nil;
+  DeselectCursor;
   If Assigned(fMap) Then fmap.free;
   For i := 0 To high(FBuyMenu.Items) Do Begin
     FBuyMenu.Items[i].obj.Free;
@@ -4239,11 +4240,7 @@ Begin
   End;
   // Alles Platt machen, was mit der Maus selektion zu tun hat..
   If ClearBuying Then Begin
-    fSideMenuObject := Nil;
-    If assigned(FBuyingObject) Then FBuyingObject.free;
-    FBuyingObject := Nil;
-    fSelectedBuildings := Nil;
-    fSelectedHeros := Nil;
+    DeselectCursor()
   End;
   logleave;
 End;

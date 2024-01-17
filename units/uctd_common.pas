@@ -71,6 +71,7 @@ Const
    *            0.09004 = FIX: Beim Doppelklick auf ein Gebäude wurden die "obersten" Gebäude nicht selektiert
    *            0.10000 = ADD: DelUnusedOppponents
    *                      ADD: Preview of already connected player
+   *                      ADD: ESC deselct cursor in game
    *
    * Known Bugs :
    *)
