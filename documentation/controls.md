@@ -19,6 +19,7 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | "-" | Decrease simulation speed
 | ALT | Show lifepoints of all opponents
 | Return | Open Chat window
+| ESC | Deselect what ever actually is selected
 | 0..9 | Keyboard shortcuts for buildings/hero in the buy menu
 | F1..F8 | if a building/hero is selected, the corresponding building/hero strategy will be set (only on own ones)
 
