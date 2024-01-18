@@ -581,6 +581,7 @@ Var
   yo, lw, lh: Single;
   gi: TGraphikItem;
 Begin
+  glDisable(GL_DEPTH_TEST);
   lw := OpenGL_ASCII_Font.TextWidth('8') * fontscale;
   lh := OpenGL_ASCII_Font.TextHeight('8') * fontscale;
   Case Hint.Kind Of
@@ -687,6 +688,7 @@ Begin
     glPopMatrix;
   End;
   glPopMatrix;
+  glenable(GL_DEPTH_TEST);
 End;
 
 Function GetValue(Section, Ident, Default: String): String;
