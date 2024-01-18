@@ -2494,6 +2494,13 @@ Begin
         glVertex2f(fwold, 0);
       End;
   End;
+  // Blackout upper buttons
+  If fMapT <> 0 Then Begin
+    glVertex2f(0, 0);
+    glVertex2f(0, fMapT);
+    glVertex2f(fwold, fMapT);
+    glVertex2f(fwold, 0);
+  End;
   glend;
   glPopMatrix;
 End;

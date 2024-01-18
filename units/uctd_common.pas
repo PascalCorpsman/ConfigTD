@@ -73,7 +73,7 @@ Const
    *                      ADD: Preview of already connected player
    *                      ADD: ESC deselct cursor in game
    *                      ADD: Option for "Dark" theme
-   *
+   *                      FIX: Rendering der Karte zwischen den Oberen Elementen wurde als störend empfunden
    * Known Bugs :
    *)
   (*
