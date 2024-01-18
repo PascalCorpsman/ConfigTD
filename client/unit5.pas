@@ -33,6 +33,7 @@ Type
     CheckBox10: TCheckBox;
     CheckBox11: TCheckBox;
     CheckBox12: TCheckBox;
+    CheckBox13: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
@@ -190,6 +191,10 @@ Begin
   setValue('Global', 'ShowBuildableTilesDuringBuild', inttostr(ord(form5.CheckBox10.Checked)));
   SetValue('Global', 'ShowWaveOppHint', inttostr(ord(form5.CheckBox11.Checked)));
   SetValue('Global', 'ShowHeroRanges', inttostr(ord(form5.CheckBox12.Checked)));
+  If GetValue('Global', 'DarkMode', '0') <> inttostr(ord(form5.CheckBox13.Checked)) Then Begin
+    showmessage('Warning, changing dark mode needs a restart to apply.');
+  End;
+  SetValue('Global', 'DarkMode', inttostr(ord(form5.CheckBox13.Checked)));
 
   SetValue('Global', 'MapBlockSize', form5.Edit1.text);
   SetValue('Global', 'AutoNextWaveDelay', form5.Edit2.text);

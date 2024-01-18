@@ -1,16 +1,16 @@
 object Form5: TForm5
-  Left = 337
-  Height = 463
-  Top = 113
+  Left = 347
+  Height = 494
+  Top = 111
   Width = 524
   Caption = 'Form5'
-  ClientHeight = 463
+  ClientHeight = 494
   ClientWidth = 524
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
   object CheckBox1: TCheckBox
     Left = 8
     Height = 22
@@ -22,20 +22,20 @@ object Form5: TForm5
   object Button1: TButton
     Left = 8
     Height = 25
-    Top = 424
+    Top = 457
     Width = 227
     Caption = 'OK'
-    OnClick = Button1Click
     TabOrder = 1
+    OnClick = Button1Click
   end
   object Button2: TButton
     Left = 286
     Height = 25
-    Top = 424
+    Top = 457
     Width = 227
     Caption = 'Cancel'
-    OnClick = Button2Click
     TabOrder = 2
+    OnClick = Button2Click
   end
   object CheckBox2: TCheckBox
     Left = 8
@@ -200,14 +200,14 @@ object Form5: TForm5
   object Label9: TLabel
     Left = 8
     Height = 16
-    Top = 330
+    Top = 368
     Width = 59
     Caption = 'Grid color'
   end
   object ColorBox8: TColorBox
     Left = 143
     Height = 26
-    Top = 327
+    Top = 358
     Width = 100
     ItemHeight = 16
     TabOrder = 8
@@ -215,14 +215,14 @@ object Form5: TForm5
   object Label10: TLabel
     Left = 8
     Height = 16
-    Top = 360
+    Top = 394
     Width = 123
     Caption = 'Building range color'
   end
   object ColorBox9: TColorBox
     Left = 143
     Height = 26
-    Top = 351
+    Top = 384
     Width = 100
     ItemHeight = 16
     TabOrder = 9
@@ -247,7 +247,7 @@ object Form5: TForm5
   object GroupBox3: TGroupBox
     Left = 8
     Height = 72
-    Top = 255
+    Top = 284
     Width = 241
     Caption = ' Map block size '
     ClientHeight = 55
@@ -329,7 +329,7 @@ object Form5: TForm5
   object ScrollBar1: TScrollBar
     Left = 80
     Height = 14
-    Top = 391
+    Top = 424
     Width = 121
     Max = 30
     PageSize = 0
@@ -337,16 +337,16 @@ object Form5: TForm5
     OnChange = ScrollBar1Change
   end
   object Label12: TLabel
-    Left = 9
+    Left = 8
     Height = 16
-    Top = 385
+    Top = 422
     Width = 58
     Caption = 'Fontscale'
   end
   object Label13: TLabel
-    Left = 213
+    Left = 216
     Height = 16
-    Top = 359
+    Top = 422
     Width = 49
     Caption = 'Label13'
   end
@@ -365,5 +365,13 @@ object Form5: TForm5
     Width = 191
     Caption = 'Show hero range on hinting'
     TabOrder = 19
+  end
+  object CheckBox13: TCheckBox
+    Left = 8
+    Height = 22
+    Top = 256
+    Width = 89
+    Caption = 'Dark mode'
+    TabOrder = 20
   end
 end

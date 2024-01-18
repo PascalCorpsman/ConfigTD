@@ -233,7 +233,6 @@
       <Unit25>
         <Filename Value="../../Sample/OpenGL/uopengl_widgetset.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="uOpenGL_WidgetSet"/>
       </Unit25>
       <Unit26>
         <Filename Value="../../Sample/OpenGL/uopengl_ascii_font.ressource"/>

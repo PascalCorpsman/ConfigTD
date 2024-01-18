@@ -130,7 +130,8 @@ Type
     Procedure OnRender(); override;
   public
     Text: String;
-    Constructor Create(Owner: TOpenGLControl; Texture: String); reintroduce;
+    DarkMode: Boolean;
+    Constructor Create(Owner: TOpenGLControl; Texture: String); reintroduce; virtual;
   End;
 
   { TCTDDualinfoField }
@@ -140,6 +141,7 @@ Type
     Procedure OnRender(); override;
   public
     Text2: String;
+    Constructor Create(Owner: TOpenGLControl; Texture: String); override;
   End;
 
   TOnGetBooleanEventRecord = Record
@@ -404,6 +406,7 @@ Type
     HintShowBuildingRange: Boolean; // Anzeige des Feuerradiusses eines Gebäudes beim Hinting
     HintShowHeroRange: Boolean; // Anzeige des Feuerradiusses eines Helden beim Hinting
     OnRefreshPlayerStats: TNotifyEvent;
+    DarkMode: Boolean; // Wenn True, dann wird versucht möglichst viel im Spiel Dunkel zu rendern ..
     Property OnHostButtonClick: TNotifyEvent write SetOnHostButtonClick;
     Property OnJoinButtonClick: TNotifyEvent write SetOnJoinButtonClick;
     Property OnNewMapButtonClick: TNotifyEvent write SetOnNewMapButtonClick;
@@ -730,11 +733,18 @@ End;
 
 { TCTDDualinfoField }
 
-Procedure TCTDDualinfoField.OnRender();
+Procedure TCTDDualinfoField.OnRender;
 Const
   Border = 2;
 Begin
-  glColor4f(1, 1, 1, 0);
+  If DarkMode Then Begin
+    glColor4f(0, 0, 0, 0);
+    OpenGL_ASCII_Font.Color := clGray;
+  End
+  Else Begin
+    glColor4f(1, 1, 1, 0);
+    OpenGL_ASCII_Font.Color := clBlack;
+  End;
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
   glTranslatef(left, top, ctd_Tipp_Layer + 2 * Epsilon);
@@ -745,11 +755,18 @@ Begin
   glVertex2f(0, Height);
   glend();
   glTranslatef(0, 0, Epsilon);
+  glColor4f(1, 1, 1, 0);
   RenderAlphaQuad(point(Width Div 2, Height Div 2), Height, -Height, 0, ftexture);
-  OpenGL_ASCII_Font.Color := clBlack;
+  glBindTexture(GL_TEXTURE_2D, 0);
   OpenGL_ASCII_Font.RenderTextToRect(rect((Width + Height) Div 2 + Border, Border, width - Border, height - Border), Text);
   OpenGL_ASCII_Font.RenderTextToRect(rect(Border, Border, (width - Height) Div 2 - Border, height - Border), Text2);
   glPopMatrix;
+End;
+
+Constructor TCTDDualinfoField.Create(Owner: TOpenGLControl; Texture: String);
+Begin
+  Inherited Create(Owner, Texture);
+  Text2 := '';
 End;
 
 { TCTDinfofield }
@@ -758,7 +775,14 @@ Procedure TCTDinfofield.OnRender();
 Const
   Border = 2;
 Begin
-  glColor4f(1, 1, 1, 0);
+  If DarkMode Then Begin
+    glColor4f(0, 0, 0, 0);
+    OpenGL_ASCII_Font.Color := clGray;
+  End
+  Else Begin
+    glColor4f(1, 1, 1, 0);
+    OpenGL_ASCII_Font.Color := clBlack;
+  End;
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
   glTranslatef(left, top, ctd_Tipp_Layer + 2 * Epsilon);
@@ -769,8 +793,9 @@ Begin
   glVertex2f(0, Height);
   glend();
   glTranslatef(0, 0, Epsilon);
+  glColor4f(1, 1, 1, 0);
   RenderAlphaQuad(point(Height Div 2, Height Div 2), Height, -Height, 0, ftexture);
-  OpenGL_ASCII_Font.Color := clBlack;
+  glBindTexture(GL_TEXTURE_2D, 0);
   OpenGL_ASCII_Font.RenderTextToRect(rect(Height + Border, Border, width - Border, height - Border), Text);
   glPopMatrix;
 End;
@@ -779,6 +804,7 @@ Constructor TCTDinfofield.Create(Owner: TOpenGLControl; Texture: String);
 Begin
   Inherited Create(Owner);
   ftexture := OpenGL_GraphikEngine.LoadAlphaGraphik(Texture, smStretchHard);
+  DarkMode := false;
 End;
 
 { TStreamHolder }
@@ -3403,6 +3429,7 @@ Constructor Tctd.create;
 Begin
   log('Tctd.create', llTrace);
   Inherited create();
+  DarkMode := false;
   fLeftMousePressed := false;
   VersionInfoString := '';
   ShowBuildableTilesDuringBuild := false;
@@ -3551,10 +3578,26 @@ Begin
     Log('Could not load : ' + p + SplashMarkTex, llError);
   End;
 
-  fTargetsInfo := TCTDinfofield.Create(Owner, p + 'targets.png');
-  fCoinsInfo := TCTDinfofield.Create(Owner, p + 'coins.png');
-  fLivesInfo := TCTDinfofield.Create(Owner, p + 'hard.png');
-  fWaveinfo := TCTDDualinfoField.Create(Owner, p + 'wave.png');
+  If DarkMode Then
+    fTargetsInfo := TCTDinfofield.Create(Owner, p + 'targets_dark.png')
+  Else
+    fTargetsInfo := TCTDinfofield.Create(Owner, p + 'targets.png');
+  fTargetsInfo.DarkMode := DarkMode;
+  If DarkMode Then
+    fCoinsInfo := TCTDinfofield.Create(Owner, p + 'coins_dark.png')
+  Else
+    fCoinsInfo := TCTDinfofield.Create(Owner, p + 'coins.png');
+  fCoinsInfo.DarkMode := DarkMode;
+  If DarkMode Then
+    fLivesInfo := TCTDinfofield.Create(Owner, p + 'hard_dark.png')
+  Else
+    fLivesInfo := TCTDinfofield.Create(Owner, p + 'hard.png');
+  fLivesInfo.DarkMode := DarkMode;
+  If DarkMode Then
+    fWaveinfo := TCTDDualinfoField.Create(Owner, p + 'wave_dark.png')
+  Else
+    fWaveinfo := TCTDDualinfoField.Create(Owner, p + 'wave.png');
+  fWaveinfo.DarkMode := DarkMode;
 
   Level_Up_Image := TOpenGl_HintImage.create(Owner);
   Level_Up_Image.Hint := '';

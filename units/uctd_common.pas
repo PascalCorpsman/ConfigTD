@@ -72,6 +72,7 @@ Const
    *            0.10000 = ADD: DelUnusedOppponents
    *                      ADD: Preview of already connected player
    *                      ADD: ESC deselct cursor in game
+   *                      ADD: Option for "Dark" theme
    *
    * Known Bugs :
    *)
