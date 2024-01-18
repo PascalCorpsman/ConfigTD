@@ -74,6 +74,7 @@ Const
    *                      ADD: ESC deselct cursor in game
    *                      ADD: Option for "Dark" theme
    *                      FIX: Rendering der Karte zwischen den Oberen Elementen wurde als störend empfunden
+   *                      FIX: Crash on "Show Highscore" when running from inside the Lazarus-IDE
    * Known Bugs :
    *)
   (*

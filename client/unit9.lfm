@@ -6,9 +6,9 @@ object Form9: TForm9
   Caption = 'Form9'
   ClientHeight = 382
   ClientWidth = 585
-  OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
+  LCLVersion = '3.99.0.0'
+  OnCreate = FormCreate
   object PageControl1: TPageControl
     Left = 8
     Height = 240
@@ -57,8 +57,8 @@ object Form9: TForm9
       Top = 14
       Width = 75
       Caption = 'Clear'
-      OnClick = Button2Click
       TabOrder = 1
+      OnClick = Button2Click
     end
     object Image1: TImage
       Left = 135

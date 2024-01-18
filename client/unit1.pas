@@ -1462,6 +1462,7 @@ Begin
   DefaultFormatSettings.DecimalSeparator := '.';
   InitLogger();
   MapFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0))) + 'share' + PathDelim;
+  SetCurrentDirUTF8(ExtractFilePath(ParamStrUTF8(0)));
   ServerMapFolder := '';
   FileloggingDir := '';
   For i := 1 To Paramcount Do Begin
