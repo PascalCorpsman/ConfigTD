@@ -55,6 +55,9 @@ Var
   s: String;
   Password: String = '';
   Params: Array Of Boolean = Nil; // Zum Prüfen ob auch alle übergebenen Parameter verwendet wurden.
+
+{$R *.res}
+
 Begin
   DefaultFormatSettings.DecimalSeparator := '.';
   // Logger Konfigurieren
