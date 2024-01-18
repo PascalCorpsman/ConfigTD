@@ -767,7 +767,7 @@ Begin
   ctd.ShowLifepoints := GetValue('Global', 'AlwaysShowLifepoints', '0') = '1';
   ctd.DarkOtherBuildings := GetValue('Global', 'Building_Darkning', '1') = '1';
   ctd.UseMiddleMouseButtonToScroll := GetValue('Global', 'Middle_Mouse_Map_Scolling', '0') = '1';
-  ctd.darkMode := GetValue('Global', 'DarkMode', '0') = '1';
+  ctd.darkMode := GetValue('Global', 'DarkMode', '1') = '1'; // Enable Dark mode by default
   ShowFPS := getValue('Global', 'ShowFPS', '0') = '1';
   MapBlockSize := strtointdef(getValue('Global', 'MapBlockSize', inttostr(MapBlockSize)), MapBlockSize);
   Good_Col := StringToColor(GetValue('Global', 'Good_Color', ColorToString(Good_Col)));
@@ -1630,7 +1630,7 @@ Begin
   form5.CheckBox10.Checked := getValue('Global', 'ShowBuildableTilesDuringBuild', '0') = '1';
   form5.CheckBox11.Checked := GetValue('Global', 'ShowWaveOppHint', '1') = '1';
   form5.CheckBox12.Checked := GetValue('Global', 'ShowHeroRanges', '1') = '1';
-  form5.CheckBox13.Checked := GetValue('Global', 'DarkMode', '0') = '1';
+  form5.CheckBox13.Checked := GetValue('Global', 'DarkMode', '1') = '1';
 
   form5.Edit1.text := GetValue('Global', 'MapBlockSize', inttostr(MapBlockSize));
   form5.Edit2.text := GetValue('Global', 'AutoNextWaveDelay', '10');

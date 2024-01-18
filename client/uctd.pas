@@ -4091,7 +4091,7 @@ Begin
   fLivesInfo.Top := 0;
   fLivesInfo.Width := 128;
   fLivesInfo.Height := 64;
-  fWaveinfo.Top := 0;
+  fWaveinfo.Top := (64 - 48) Div 2;
   fWaveinfo.Width := 144; // 128 + 64;
   fWaveinfo.Height := 48; // 64;
   fHostButton.Top := fhold Div 2 - 2 * fJoinButton.Height;
