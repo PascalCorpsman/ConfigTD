@@ -4136,7 +4136,7 @@ Begin
 
         fMapL := 0;
         If fgameState = gs_Gaming Then Begin
-          fMapT := 64;
+          fMapT := 65; // Feature Request, make a tiny gap between map and upper menue
         End
         Else Begin
           fMapT := 0;
@@ -4179,7 +4179,7 @@ Begin
         *)
         fMapL := 0;
         If fgameState = gs_Gaming Then Begin
-          fMapT := 64;
+          fMapT := 65; // Feature Request, make a tiny gap between map and upper menue
         End
         Else Begin
           fMapT := 0;
