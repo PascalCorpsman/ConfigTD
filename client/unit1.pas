@@ -37,6 +37,7 @@ Interface
 Uses
   Classes, SysUtils, FileUtil, OpenGLContext, lNetComponents, Forms, Controls,
   Graphics, Dialogs, Menus, ExtCtrls, StdCtrls,
+  UniqueInstance, // Wird in der .lpr Benutzt
   dglOpenGL, // http://wiki.delphigl.com/index.php/dglOpenGL.pas (innerhalb der .pas datei muss am Anfang stehen  {$HINTS off} und am Ende  {$HINTS on}
   uctd_common, uctd, uopengl_widgetset, uwave_frame, uwave_oppenent_frame,
   types, uupdate;
@@ -148,6 +149,8 @@ Type
     Procedure OpenGLControl1Resize(Sender: TObject);
     Procedure Timer1Timer(Sender: TObject);
     Procedure Timer2Timer(Sender: TObject);
+    Procedure UniqueInstance1OtherInstance(Sender: TObject;
+      ParamCount: Integer; Const Parameters: Array Of String);
   private
     { private declarations }
     fUpdater: TUpdater;
@@ -597,6 +600,12 @@ Begin
     timer2.Enabled := false;
     MenuItem18.Click;
   End;
+End;
+
+Procedure TForm1.UniqueInstance1OtherInstance(Sender: TObject;
+  ParamCount: Integer; Const Parameters: Array Of String);
+Begin
+  BringToFront;
 End;
 
 Procedure TForm1.Form10GetMapListEvent(Sender: TObject; Const Data: TStringlist
