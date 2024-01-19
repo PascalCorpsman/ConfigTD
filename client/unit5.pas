@@ -91,7 +91,7 @@ Implementation
 
 {$R *.lfm}
 
-Uses uctd, uctd_common, unit1;
+Uses uctd, uctd_common, unit1, LCLType;
 
 Var
   Form5ShowOnce: Boolean = false;
@@ -191,10 +191,6 @@ Begin
   setValue('Global', 'ShowBuildableTilesDuringBuild', inttostr(ord(form5.CheckBox10.Checked)));
   SetValue('Global', 'ShowWaveOppHint', inttostr(ord(form5.CheckBox11.Checked)));
   SetValue('Global', 'ShowHeroRanges', inttostr(ord(form5.CheckBox12.Checked)));
-  If GetValue('Global', 'DarkMode', '0') <> inttostr(ord(form5.CheckBox13.Checked)) Then Begin
-    showmessage('Warning, changing dark mode needs a restart to apply.');
-  End;
-  SetValue('Global', 'DarkMode', inttostr(ord(form5.CheckBox13.Checked)));
 
   SetValue('Global', 'MapBlockSize', form5.Edit1.text);
   SetValue('Global', 'AutoNextWaveDelay', form5.Edit2.text);
@@ -212,6 +208,16 @@ Begin
   SetValue('Global', 'Menupos', form5.ComboBox1.Text);
 
   setvalue('Global', 'Fontscale', inttostr(form5.ScrollBar1.Position));
+
+
+  If GetValue('Global', 'DarkMode', '0') <> inttostr(ord(form5.CheckBox13.Checked)) Then Begin
+    If ID_YES = Application.MessageBox('Changing dark mode needs a restart to apply, do you want to restart now ?', 'Warning', MB_YESNO Or mb_iconwarning) Then Begin
+      SetValue('Global', 'DarkMode', inttostr(ord(form5.CheckBox13.Checked)));
+      RestartApplication(); // Diese Zeile Beendet das Programm
+      exit;
+    End;
+  End;
+  SetValue('Global', 'DarkMode', inttostr(ord(form5.CheckBox13.Checked)));
 
   form1.Load_CT_Settings();
   close;

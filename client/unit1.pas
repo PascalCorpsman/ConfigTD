@@ -773,13 +773,15 @@ Begin
   ctd.UseMiddleMouseButtonToScroll := GetValue('Global', 'Middle_Mouse_Map_Scolling', '0') = '1';
   ctd.darkMode := GetValue('Global', 'DarkMode', '1') = '1'; // Enable Dark mode by default
 {$IFDEF Windows} // Windows 10/11 Lazarus Darkmode compatiblity
-  If ctd.darkMode Then Begin
-    PreferredAppMode := pamForceDark;
-    uMetaDarkStyle.ApplyMetaDarkStyle(DefaultDark);
-  End
-  Else Begin
-    PreferredAppMode := pamForceLight;
-    uMetaDarkStyle.ApplyMetaDarkStyle(DefaultDark);
+  If Not Initialized Then Begin // Start only once at startup
+    If ctd.darkMode Then Begin
+      PreferredAppMode := pamForceDark;
+      uMetaDarkStyle.ApplyMetaDarkStyle(DefaultDark);
+    End
+    Else Begin
+      PreferredAppMode := pamForceLight;
+      uMetaDarkStyle.ApplyMetaDarkStyle(DefaultWhite);
+    End;
   End;
 {$ENDIF}
   ShowFPS := getValue('Global', 'ShowFPS', '0') = '1';

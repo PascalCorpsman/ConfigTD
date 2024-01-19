@@ -75,6 +75,7 @@ Const
    *                      ADD: Option for "Dark" theme
    *                      FIX: Rendering der Karte zwischen den Oberen Elementen wurde als störend empfunden
    *                      FIX: Crash on "Show Highscore" when running from inside the Lazarus-IDE
+   *                      ADD: Automatich Restart after Darkmode Change
    * Known Bugs :
    *)
   (*
@@ -408,13 +409,28 @@ Function RemoveTimestampInfoFromFilename(Info: String): String;
 
 Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
 
+Procedure RestartApplication();
+
 Implementation
 
 Uses FileUtil, LazUTF8, LazFileUtils, math
 {$IFDEF Client}
   , dglOpenGL
 {$ENDIF}
+  , process, UTF8Process
   , ucrc;
+
+// Taken from: https://forum.lazarus.freepascal.org/index.php?topic=17747.0
+Procedure RestartApplication();
+Var
+  aProcess: TProcessUTF8;
+Begin
+  aProcess := TProcessUTF8.Create(Nil);
+  aProcess.Executable := Application.ExeName;
+  aProcess.Execute;
+  aProcess.Free;
+  Application.Terminate;
+End;
 
 Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
 Var
