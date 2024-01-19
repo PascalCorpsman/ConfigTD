@@ -40,7 +40,7 @@ Var
 Begin
   CheckInstance := true;
   For i := 1 To ParamCount Do Begin
-    If ParamStr(i) = '-d' Then Begin
+    If (ParamStr(i) = '-d') Or (ParamStr(i) = '-restart') Then Begin
       CheckInstance := false;
     End;
   End;

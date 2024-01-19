@@ -421,12 +421,14 @@ Uses FileUtil, LazUTF8, LazFileUtils, math
   , ucrc;
 
 // Taken from: https://forum.lazarus.freepascal.org/index.php?topic=17747.0
+
 Procedure RestartApplication();
 Var
   aProcess: TProcessUTF8;
 Begin
   aProcess := TProcessUTF8.Create(Nil);
   aProcess.Executable := Application.ExeName;
+  aProcess.Parameters.Add('-restart');
   aProcess.Execute;
   aProcess.Free;
   Application.Terminate;
