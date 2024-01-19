@@ -40,6 +40,10 @@ Uses
   UniqueInstance, // Wird in der .lpr Benutzt
   dglOpenGL, // http://wiki.delphigl.com/index.php/dglOpenGL.pas (innerhalb der .pas datei muss am Anfang stehen  {$HINTS off} und am Ende  {$HINTS on}
   uctd_common, uctd, uopengl_widgetset, uwave_frame, uwave_oppenent_frame,
+{$IFDEF Windows} // Windows 10/11 Lazarus Darkmode compatiblity
+  uDarkStyleParams, uMetaDarkStyle, uDarkStyleSchemes,
+  uWin32WidgetSetDark,
+{$ENDIF}
   types, uupdate;
 
 {$IFDEF AUTOMODE}
@@ -768,6 +772,16 @@ Begin
   ctd.DarkOtherBuildings := GetValue('Global', 'Building_Darkning', '1') = '1';
   ctd.UseMiddleMouseButtonToScroll := GetValue('Global', 'Middle_Mouse_Map_Scolling', '0') = '1';
   ctd.darkMode := GetValue('Global', 'DarkMode', '1') = '1'; // Enable Dark mode by default
+{$IFDEF Windows} // Windows 10/11 Lazarus Darkmode compatiblity
+  If ctd.darkMode Then Begin
+    PreferredAppMode := pamForceDark;
+    uMetaDarkStyle.ApplyMetaDarkStyle(DefaultDark);
+  End
+  Else Begin
+    PreferredAppMode := pamForceLight;
+    uMetaDarkStyle.ApplyMetaDarkStyle(DefaultDark);
+  End;
+{$ENDIF}
   ShowFPS := getValue('Global', 'ShowFPS', '0') = '1';
   MapBlockSize := strtointdef(getValue('Global', 'MapBlockSize', inttostr(MapBlockSize)), MapBlockSize);
   Good_Col := StringToColor(GetValue('Global', 'Good_Color', ColorToString(Good_Col)));
