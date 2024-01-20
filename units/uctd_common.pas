@@ -425,10 +425,17 @@ Uses FileUtil, LazUTF8, LazFileUtils, math
 Procedure RestartApplication();
 Var
   aProcess: TProcessUTF8;
+  i: Integer;
 Begin
   aProcess := TProcessUTF8.Create(Nil);
   aProcess.Executable := Application.ExeName;
-  aProcess.Parameters.Add('-restart');
+  aProcess.Parameters.Add('-r');
+  If Paramcount <> 0 Then Begin
+    For i := 1 To Paramcount Do Begin
+      If (lowercase(ParamStrUTF8(i)) = '-d') Then
+        aProcess.Parameters.Add('-d')
+    End;
+  End;
   aProcess.Execute;
   aProcess.Free;
   Application.Terminate;
