@@ -209,7 +209,6 @@ Begin
 
   setvalue('Global', 'Fontscale', inttostr(form5.ScrollBar1.Position));
 
-
   If GetValue('Global', 'DarkMode', '0') <> inttostr(ord(form5.CheckBox13.Checked)) Then Begin
     If ID_YES = Application.MessageBox('Changing dark mode needs a restart to apply, do you want to restart now ?', 'Warning', MB_YESNO Or mb_iconwarning) Then Begin
       SetValue('Global', 'DarkMode', inttostr(ord(form5.CheckBox13.Checked)));

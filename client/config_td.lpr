@@ -26,7 +26,7 @@ Uses
   Forms,
   Unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, Unit9, unit10, unit11,
   unit12, unit13, unit14, unit15, unit16, unit17, Unit18, Unit19,
-  UniqueInstanceRaw;
+  UniqueInstanceRaw, uctd_common;
 
 {$R *.res}
 
@@ -36,16 +36,26 @@ Uses
 Var
   IgnoreInstance, ReStart: Boolean;
   i: Integer;
-
+  startTime: int64;
 Begin
   IgnoreInstance := false;
   ReStart := false;
-  For i := 1 To ParamCount Do
-    If ParamStr(i) = '-d' Then
-      IgnoreInstance := true
-    Else If ParamStr(i) = '-r' Then
-      ReStart := true;
-  If ReStart Then Delay(1000); // TODO: This is an arbiture Random Number, and could leed to problems on Realy slow machines .. ( or if the closing instance has a memory leak)
+  For i := 1 To ParamCount Do Begin
+    Case ParamStr(i) Of
+      '-d': IgnoreInstance := true;
+      '-r': ReStart := true;
+    End;
+  End;
+  If ReStart Then Begin
+    startTime := GetTick;
+    (*
+     * In case of a restart wait max 10s for the old application to close.
+     * If it closes or is closed, start as normal, otherwise skip restarting and close
+     *)
+    While ((startTime + 10 * 1000 < GetTick) And InstanceRunning('Config_TD_Client', false, false)) Do Begin
+      delay(100);
+    End;
+  End;
   If IgnoreInstance Or Not InstanceRunning('Config_TD_Client', false, true) Then Begin
     RequireDerivedFormResource := True;
     Application.Initialize;
@@ -70,5 +80,6 @@ Begin
     Application.CreateForm(TForm19, Form19);
     Application.Run;
   End;
+
 End.
 
