@@ -21,9 +21,9 @@ Uses
   cthreads, // Für TUpdater
   cmem,
 {$ENDIF}
-  crt, //  for Delay
   Interfaces, // this includes the LCL widgetset
   Forms,
+  crt, // for Delay
   Unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, Unit9, unit10, unit11,
   unit12, unit13, unit14, unit15, unit16, unit17, Unit18, Unit19,
   UniqueInstanceRaw, uctd_common;
@@ -52,7 +52,10 @@ Begin
      * In case of a restart wait max 10s for the old application to close.
      * If it closes or is closed, start as normal, otherwise skip restarting and close
      *)
-    While ((startTime + 10 * 1000 < GetTick) And InstanceRunning('Config_TD_Client', false, false)) Do Begin
+    While InstanceRunning('Config_TD_Client', false, false) Do Begin
+      If (startTime + 10 * 1000 < GetTick) Then Begin
+        exit;
+      End;
       delay(100);
     End;
   End;
