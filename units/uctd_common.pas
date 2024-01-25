@@ -409,18 +409,23 @@ Function RemoveTimestampInfoFromFilename(Info: String): String;
 
 Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
 
+{$IFDEF Client}
 Procedure RestartApplication();
+{$ENDIF}
 
 Implementation
 
 Uses FileUtil, LazUTF8, LazFileUtils, math
 {$IFDEF Client}
   , dglOpenGL
+  , UTF8Process
 {$ENDIF}
-  , process, UTF8Process
+  , process
   , ucrc;
 
 // Taken from: https://forum.lazarus.freepascal.org/index.php?topic=17747.0
+
+{$IFDEF Client}
 
 Procedure RestartApplication();
 Var
@@ -440,6 +445,7 @@ Begin
   aProcess.Free;
   Application.Terminate;
 End;
+{$ENDIF}
 
 Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
 Var
