@@ -10,7 +10,7 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | ^ | Toggle show/hide side menu
 | p | Toggle pause
 | q | Select all buildings of same stage and owner and type (as the selected)
-| s | Sell selected buildings / stop movement of selected heros
+| s | Sell selected buildings / stop movement of selected heros / move map down
 | h | Select all own heros
 | u | Upgrade selected buildings
 | w | Show player names on map, where opponents get spawned
@@ -22,12 +22,17 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | ESC | Deselect what ever actually is selected
 | 0..9 | Keyboard shortcuts for buildings/hero in the buy menu
 | F1..F8 | if a building/hero is selected, the corresponding building/hero strategy will be set (only on own ones)
+| w,a,s,d, cursors | Scroll map (! Attention !, s key has multiple functions see above)
+| e | Zoom map in
+| c | Zoom map out
 
 ### Editor
 | Key | Description |
 | --- | :--- |
 | ^  | Toggle show/hide side menu
-
+| w,a,s,d, cursors | Scroll map 
+| e | Zoom map in
+| c | Zoom map out
 ## Mouse commands
 
 ### Ingame
@@ -39,8 +44,8 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | CTRL + Left | Display a "!" on the map that can be seen by all players
 | SHIFT + Left | Toggle selection of building / Place Building and keep buy selection
 | Move + (Middle/Right) | Scroll map   
-| Wheel Up | Zoom in
-| Wheel Down | Zoom Out
+| Wheel Up | Zoom map in
+| Wheel Down | Zoom map Out
 
 ### Editor
 | Key | Description |
@@ -48,8 +53,8 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | Left | Modify terrain, add/del placements, add/del waypoint
 | CTRL + Left | Display a "!" on the map that can be seen by all players
 | Move + Right | Scroll map   
-| Wheel Up | Zoom in
-| Wheel Down | Zoom Out
+| Wheel Up | Zoom map in
+| Wheel Down | Zoom map Out
 
 ## Chat commands
 | Command | Description |
