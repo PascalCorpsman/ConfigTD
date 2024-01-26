@@ -1605,8 +1605,9 @@ Var
   dx, dy: integer;
 Begin
   If Not assigned(fMap) Then exit;
-  dx := max(10, fmap.width * MapBlockSize Div 100);
-  dy := max(10, fmap.Height * MapBlockSize Div 100);
+  // Scrollgeschwindigkeit = 2% der jeweiligen Karten Breite / Höhe
+  dx := max(10, 2 * fmap.width * MapBlockSize Div 100);
+  dy := max(10, 2 * fmap.Height * MapBlockSize Div 100);
   If fPressKeys[KeyIndexDown] Then Begin
     fsy := fsy + dy;
     Check_Scrollborders();
