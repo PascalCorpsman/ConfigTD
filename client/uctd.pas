@@ -195,6 +195,7 @@ Type
   Tctd = Class
   private
     fDashSeparator: String; // die "---" im Build menü auf die Richtige Länge skalliert
+    fkeyRepeatTimeStamp: Int64; // Letzter Zeitstempel an dem die KeyPress Funktionen evaliert wurden
     // Die Game Info Elemente
     fTargetsInfo: TCTDinfofield;
     fCoinsInfo: TCTDinfofield;
@@ -288,6 +289,8 @@ Type
     fDestH: integer;
     fDestW: integer;
 
+    fPressKeys: Array[0..5] Of Boolean; // Speichern der KeyDown informationen
+
     fwold, fhold: integer; // Breite und Höhe des Anzeigefensters (wird in jedem OnRender Aktualisiert)
     fCursorPos: Tpoint; // Immer die Aktuelle Position des Mauscursors
     fLeftMousePressed: Boolean; // True, wenn die Maus mit Links gedrückt wurde, automatischer reset bei MouseUp
@@ -304,6 +307,7 @@ Type
     Procedure FOnDblClick(Sender: TObject);
 
     Procedure FOnKeyDown(Sender: TObject; Var Key: Word; Shift: TShiftState);
+    Procedure FOnKeyPress(); // Will be called on KeyPressDelta ms.
     Procedure FOnKeyUp(Sender: TObject; Var Key: Word; Shift: TShiftState);
     Procedure HandleLevelUpBuilding(Const Stream: TStream);
     Procedure HandleRemoveBuilding(Const Stream: TStream);
@@ -382,6 +386,8 @@ Type
 
     Procedure DoWaveClone(SourceWaveNum, DestWaveNum: integer);
     Procedure RenderHint(x, y: integer; Const Hint: THint; AllowAdjusting: Boolean = true);
+
+    Procedure ResetPressKeys; // Setzt alle "gedrückten" tasten zurück
   public
     VersionInfoString: String;
     ShowBuildableTilesDuringBuild: Boolean; // Wenn True, dann wird er "B" Tastendruck simuliert während ein Gebäude Plaziert wird
@@ -422,7 +428,7 @@ Type
     Property PlayerCount: integer read fGetPlayerCount;
     Property PlayerIndex: integer read fPlayerIndex;
 
-    Constructor create;
+    Constructor Create;
     Destructor Destroy; override;
 
     Property IsInEditMode: boolean read GetIsInEditMode;
@@ -692,6 +698,15 @@ Begin
   End;
   glPopMatrix;
   glenable(GL_DEPTH_TEST);
+End;
+
+Procedure Tctd.ResetPressKeys;
+Var
+  i: Integer;
+Begin
+  For i := 0 To high(fPressKeys) Do Begin
+    fPressKeys[i] := false;
+  End;
 End;
 
 Function GetValue(Section, Ident, Default: String): String;
@@ -1521,6 +1536,10 @@ Begin
     If assigned(fSelectedHeros) Then Begin
       DoHeroStop;
     End;
+    If (fSelectedHeros = Nil) And (fSelectedBuildings = Nil) Then Begin
+      fPressKeys[KeyIndexDown] := true;
+      fPressKeys[KeyIndexUp] := false;
+    End;
   End;
   If key = ord('U') Then Begin
     DoUpdate;
@@ -1546,6 +1565,30 @@ Begin
     OnTabButtonClick(Nil);
   End;
   If ssCtrl In shift Then fCTRLPressed := true;
+  If (key = ord('X')) Or (key = VK_DOWN) Then Begin
+    fPressKeys[KeyIndexDown] := true;
+    fPressKeys[KeyIndexUp] := false;
+  End;
+  If (key = ord('W')) Or (key = VK_UP) Then Begin
+    fPressKeys[KeyIndexUp] := true;
+    fPressKeys[KeyIndexDown] := false;
+  End;
+  If (key = ord('A')) Or (key = VK_LEFT) Then Begin
+    fPressKeys[KeyIndexLeft] := true;
+    fPressKeys[KeyIndexRight] := false;
+  End;
+  If (key = ord('D')) Or (key = VK_RIGHT) Then Begin
+    fPressKeys[KeyIndexRight] := true;
+    fPressKeys[KeyIndexLeft] := false;
+  End;
+  If (key = ord('E')) Then Begin
+    fPressKeys[KeyIndexZoomIn] := true;
+    fPressKeys[KeyIndexZoomOut] := false;
+  End;
+  If (key = ord('C')) Then Begin
+    fPressKeys[KeyIndexZoomIn] := false;
+    fPressKeys[KeyIndexZoomOut] := true;
+  End;
   If assigned(FOnKeyDownCapture) Then Begin
     FOnKeyDownCapture(sender, key, shift);
   End;
@@ -1557,6 +1600,37 @@ Begin
   End;
 End;
 
+Procedure Tctd.FOnKeyPress();
+Var
+  dx, dy: integer;
+Begin
+  If Not assigned(fMap) Then exit;
+  dx := max(10, fmap.width * MapBlockSize Div 100);
+  dy := max(10, fmap.Height * MapBlockSize Div 100);
+  If fPressKeys[KeyIndexDown] Then Begin
+    fsy := fsy + dy;
+    Check_Scrollborders();
+  End;
+  If fPressKeys[KeyIndexUp] Then Begin
+    fsy := fsy - dy;
+    Check_Scrollborders();
+  End;
+  If fPressKeys[KeyIndexLeft] Then Begin
+    fsx := fsx - dx;
+    Check_Scrollborders();
+  End;
+  If fPressKeys[KeyIndexRight] Then Begin
+    fsx := fsx + dx;
+    Check_Scrollborders();
+  End;
+  If fPressKeys[KeyIndexZoomOut] Then Begin
+    Zoom(true);
+  End;
+  If fPressKeys[KeyIndexZoomIn] Then Begin
+    Zoom(false);
+  End;
+End;
+
 Procedure Tctd.FOnKeyUp(Sender: TObject; Var Key: Word; Shift: TShiftState);
 Begin
   fCTRLPressed := false; // TODO: klären ob das so schon reicht oder ggf noch zu tun ist ..
@@ -1565,6 +1639,18 @@ Begin
   End;
   If assigned(FOnKeyUpCapture) Then Begin
     FOnKeyUpCapture(sender, key, shift);
+  End;
+  If key In [VK_UP, VK_DOWN, ord('W'), ord('X'), ord('S')] Then Begin
+    fPressKeys[KeyIndexUp] := false;
+    fPressKeys[KeyIndexDown] := false;
+  End;
+  If key In [VK_LEFT, VK_RIGHT, ord('A'), ord('D')] Then Begin
+    fPressKeys[KeyIndexLeft] := false;
+    fPressKeys[KeyIndexRight] := false;
+  End;
+  If key In [ord('E'), ord('C')] Then Begin
+    fPressKeys[KeyIndexZoomIn] := false;
+    fPressKeys[KeyIndexZoomOut] := false;
   End;
 End;
 
@@ -3187,6 +3273,7 @@ Var
 Begin
   log('Tctd.HandleStartRound', llTrace);
   log(format('Start round : %d on map %s', [round + 1, MapName]), llInfo);
+  ResetPressKeys();
   fgameState := gs_WaitToStart;
   fAktualWave := Round;
   // Bei einem Komplett neuen Spiel resetten wir auch alles !
@@ -3432,7 +3519,7 @@ Begin
   logleave;
 End;
 
-Constructor Tctd.create;
+Constructor Tctd.Create;
 Begin
   log('Tctd.create', llTrace);
   Inherited create();
@@ -3464,6 +3551,8 @@ Begin
   fSidemenuOpponent := TOpponent.create();
   fMenuPosition := mpBottom;
   fSidemenuVisible := true;
+  ResetPressKeys;
+  fkeyRepeatTimeStamp := GetTick;
   LogLeave;
 End;
 
@@ -3734,6 +3823,7 @@ Var
   f: single;
   hi: THint;
   s: String;
+  t: Int64;
 Begin
   If (fwold <> w) Or (fhold <> h) Then Begin
     fwold := w;
@@ -3750,8 +3840,14 @@ Begin
   fNewMapButton.Visible := (((fgameState = gs_WaitToStart) Or (fgameState = gs_EditMode)) And (Not assigned(fMap))); // Das wäre evtl wo anders besser aufgehoben
   fLoadMapButton.Visible := (((fgameState = gs_WaitToStart) Or (fgameState = gs_EditMode)) And (Not assigned(fMap))); // Das wäre evtl wo anders besser aufgehoben
   fLoadGameButton.Visible := (((fgameState = gs_WaitToStart) Or (fgameState = gs_EditMode)) And (Not assigned(fMap))); // Das wäre evtl wo anders besser aufgehoben
-
   OpenGL_SpriteEngine.Enabled := (fgameState = gs_Gaming) And (Not FPausing);
+  // Tastendrücke Emulieren
+  t := GetTick;
+  If fkeyRepeatTimeStamp + KeyPressDelta <= t Then Begin
+    fkeyRepeatTimeStamp := t;
+    FOnKeyPress();
+  End;
+
   Case fgameState Of
     gs_WaitForJoin: Begin
         OpenGL_ASCII_Font.Color := clgreen;
@@ -4436,6 +4532,7 @@ End;
 
 Procedure Tctd.SwitchToEditMode;
 Begin
+  ResetPressKeys();
   fLeftMousePressed := false;
   fgameState := gs_EditMode;
   fSelectedBuildings := Nil;

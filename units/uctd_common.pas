@@ -76,6 +76,7 @@ Const
    *                      FIX: Rendering der Karte zwischen den Oberen Elementen wurde als störend empfunden
    *                      FIX: Crash on "Show Highscore" when running from inside the Lazarus-IDE
    *                      ADD: Automatich Restart after Darkmode Change
+   *            0.10001 = ADD: #6 Move / Zoom Keys
    * Known Bugs :
    *)
   (*
@@ -114,6 +115,15 @@ Const
   UpdateRate = 40; // Zeit in ms bis die Clients wieder Aktualisiert werden
   SynchonizeTimeOut = 150; // Kommt mehr als 150ms lang keine Heartbeat Message von allen Clients, dann wird eine Zwangspause eingeleitet.
   HeartBeatTime = 100; // Muss Sinnigerweise << SynchonizeTimeOut sein.
+  KeyPressDelta = 50; // Zeit in ms, nach derrer eine Gedrückte Taste "widerhohlt" wird
+
+  // !! Achtung !! die folgenden Konstanten müssen zu TCTD.fPressKeys passen !
+  KeyIndexUp = 0;
+  KeyIndexDown = 1;
+  KeyIndexLeft = 2;
+  KeyIndexRight = 3;
+  KeyIndexZoomIn = 4;
+  KeyIndexZoomOut = 5;
 
   (*
    * Kachelfarben für die Kombinationen der Kacheln der Karten
