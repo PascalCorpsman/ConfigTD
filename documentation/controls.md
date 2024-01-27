@@ -22,7 +22,7 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | ESC | Deselect what ever actually is selected
 | 0..9 | Keyboard shortcuts for buildings/hero in the buy menu
 | F1..F8 | if a building/hero is selected, the corresponding building/hero strategy will be set (only on own ones)
-| w,a,s,x,d,cursors | Scroll map (! Attention ! "s" key has multiple functions see above)
+| cursors | Scroll map
 | e | Zoom map in
 | c | Zoom map out
 
@@ -30,7 +30,7 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | Key | Description |
 | --- | :--- |
 | ^  | Toggle show/hide side menu
-| w,a,s,x,d,cursors | Scroll map 
+| cursors | Scroll map 
 | e | Zoom map in
 | c | Zoom map out
 ## Mouse commands
