@@ -1565,19 +1565,19 @@ Begin
     OnTabButtonClick(Nil);
   End;
   If ssCtrl In shift Then fCTRLPressed := true;
-  If (key = ord('X')) Or (key = VK_DOWN) Then Begin
+  If (key = VK_DOWN) Then Begin
     fPressKeys[KeyIndexDown] := true;
     fPressKeys[KeyIndexUp] := false;
   End;
-  If (key = ord('W')) Or (key = VK_UP) Then Begin
+  If (key = VK_UP) Then Begin
     fPressKeys[KeyIndexUp] := true;
     fPressKeys[KeyIndexDown] := false;
   End;
-  If (key = ord('A')) Or (key = VK_LEFT) Then Begin
+  If (key = VK_LEFT) Then Begin
     fPressKeys[KeyIndexLeft] := true;
     fPressKeys[KeyIndexRight] := false;
   End;
-  If (key = ord('D')) Or (key = VK_RIGHT) Then Begin
+  If (key = VK_RIGHT) Then Begin
     fPressKeys[KeyIndexRight] := true;
     fPressKeys[KeyIndexLeft] := false;
   End;
@@ -1641,11 +1641,11 @@ Begin
   If assigned(FOnKeyUpCapture) Then Begin
     FOnKeyUpCapture(sender, key, shift);
   End;
-  If key In [VK_UP, VK_DOWN, ord('W'), ord('X'), ord('S')] Then Begin
+  If key In [VK_UP, VK_DOWN] Then Begin
     fPressKeys[KeyIndexUp] := false;
     fPressKeys[KeyIndexDown] := false;
   End;
-  If key In [VK_LEFT, VK_RIGHT, ord('A'), ord('D')] Then Begin
+  If key In [VK_LEFT, VK_RIGHT] Then Begin
     fPressKeys[KeyIndexLeft] := false;
     fPressKeys[KeyIndexRight] := false;
   End;
