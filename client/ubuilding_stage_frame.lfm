@@ -103,7 +103,7 @@ object Building_stage: TBuilding_stage
       Height = 16
       Top = 64
       Width = 71
-      Caption = 'Reload time'
+      Caption = 'Reload time [ms]'
     end
     object Edit9: TEdit
       Left = 98
@@ -133,7 +133,7 @@ object Building_stage: TBuilding_stage
       Height = 16
       Top = 112
       Width = 72
-      Caption = 'bulletspeed'
+      Caption = 'Bulletspeed'
     end
     object Edit11: TEdit
       Left = 98
@@ -275,7 +275,7 @@ object Building_stage: TBuilding_stage
         Height = 16
         Top = 56
         Width = 29
-        Caption = 'Time'
+        Caption = 'Time [ms]'
       end
       object Edit17: TEdit
         Left = 88
@@ -405,7 +405,7 @@ object Building_stage: TBuilding_stage
     Height = 16
     Top = 111
     Width = 87
-    Caption = 'Buildtime [mS]'
+    Caption = 'Buildtime [ms]'
   end
   object OpenPictureDialog1: TOpenPictureDialog
     Filter = 'Graphic (*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;*.jfif;*.tif;*.tiff;*.gif;*.pbm;*.pgm;*.ppm;*.tga)|*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;*.jfif;*.tif;*.tiff;*.gif;*.pbm;*.pgm;*.ppm;*.tga;*.ani|Portable Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.bmp|Cursor (*.cur)|*.cur|Icon (*.ico)|*.ico|Mac OS X Icon (*.icns)|*.icns|Joint Picture Expert Group (*.jpeg;*.jpg;*.jpe;*.jfif)|*.jpeg;*.jpg;*.jpe;*.jfif|Tagged Image File Format (*.tif;*.tiff)|*.tif;*.tiff|Graphics Interchange Format (*.gif)|*.gif|Portable PixMap (*.pbm;*.pgm;*.ppm)|*.pbm;*.pgm;*.ppm|TGA Image File (*.tga)|*.tga|Animation|*.ani|All files (*)|*'
