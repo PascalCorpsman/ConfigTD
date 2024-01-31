@@ -17,7 +17,7 @@ First take a look at a existing opponent, this can be done by:
 | Name | Description | 
 | -- | -- |
 | (1) Name | Name that is shown in the info box during the game
-| (2) Description | Optional furhter details 
+| (2) Description | Optional further details 
 | (3) Speed | Normalized speed in grid per second
 | (4) Size | Normalized size in grid (the image will be scaled to the given values)
 | (5) Image |  Image / Animation used, supported are (.bmp, .png, .ani)
