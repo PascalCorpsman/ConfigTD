@@ -312,7 +312,7 @@ object Hero_Level: THero_Level
     Hint = 'Only valid if image is an animation'
     Top = 161
     Width = 175
-    Caption = 'stop animation when still'
+    Caption = 'stop animation when idle'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 7
