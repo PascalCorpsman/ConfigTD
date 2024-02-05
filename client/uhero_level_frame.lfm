@@ -41,8 +41,8 @@ object Hero_Level: THero_Level
     Top = 32
     Width = 43
     Caption = 'load'
-    OnClick = Button3Click
     TabOrder = 1
+    OnClick = Button3Click
   end
   object Image2: TImage
     Left = 292
@@ -125,8 +125,8 @@ object Hero_Level: THero_Level
       Left = 0
       Height = 16
       Top = 64
-      Width = 71
-      Caption = 'Reload time'
+      Width = 99
+      Caption = 'Reload time [ms]'
     end
     object Edit10: TEdit
       Left = 98
@@ -167,8 +167,8 @@ object Hero_Level: THero_Level
       Top = 48
       Width = 43
       Caption = 'load'
-      OnClick = Button4Click
       TabOrder = 8
+      OnClick = Button4Click
     end
     object Image3: TImage
       Left = 272
@@ -259,8 +259,8 @@ object Hero_Level: THero_Level
       Top = 0
       Width = 362
       Caption = 'Load from previous stage'
-      OnClick = Button1Click
       TabOrder = 9
+      OnClick = Button1Click
     end
     object Image4: TImage
       Left = 64
