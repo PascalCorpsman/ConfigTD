@@ -112,7 +112,7 @@
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="../HandleUpdateMapProperty.inc"/>
+        <Filename Value="../client/HandleUpdateMapProperty.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
@@ -172,7 +172,7 @@
         <IsPartOfProject Value="True"/>
       </Unit20>
       <Unit21>
-        <Filename Value="../updater_settings.inc"/>
+        <Filename Value="../client/updater_settings.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit21>
       <Unit22>
