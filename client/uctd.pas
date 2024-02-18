@@ -1536,10 +1536,6 @@ Begin
     If assigned(fSelectedHeros) Then Begin
       DoHeroStop;
     End;
-    If (fSelectedHeros = Nil) And (fSelectedBuildings = Nil) Then Begin
-      fPressKeys[KeyIndexDown] := true;
-      fPressKeys[KeyIndexUp] := false;
-    End;
   End;
   If key = ord('U') Then Begin
     DoUpdate;
@@ -1580,14 +1576,6 @@ Begin
   If (key = VK_RIGHT) Then Begin
     fPressKeys[KeyIndexRight] := true;
     fPressKeys[KeyIndexLeft] := false;
-  End;
-  If (key = ord('E')) Then Begin
-    fPressKeys[KeyIndexZoomIn] := true;
-    fPressKeys[KeyIndexZoomOut] := false;
-  End;
-  If (key = ord('C')) Then Begin
-    fPressKeys[KeyIndexZoomIn] := false;
-    fPressKeys[KeyIndexZoomOut] := true;
   End;
   If assigned(FOnKeyDownCapture) Then Begin
     FOnKeyDownCapture(sender, key, shift);
@@ -1648,10 +1636,6 @@ Begin
   If key In [VK_LEFT, VK_RIGHT] Then Begin
     fPressKeys[KeyIndexLeft] := false;
     fPressKeys[KeyIndexRight] := false;
-  End;
-  If key In [ord('E'), ord('C')] Then Begin
-    fPressKeys[KeyIndexZoomIn] := false;
-    fPressKeys[KeyIndexZoomOut] := false;
   End;
 End;
 
