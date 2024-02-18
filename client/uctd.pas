@@ -1540,6 +1540,14 @@ Begin
   If key = ord('U') Then Begin
     DoUpdate;
   End;
+  If (key = ord('E')) Then Begin
+    fPressKeys[KeyIndexZoomIn] := true;
+    fPressKeys[KeyIndexZoomOut] := false;
+  End;
+  If (key = ord('C')) Then Begin
+    fPressKeys[KeyIndexZoomIn] := false;
+    fPressKeys[KeyIndexZoomOut] := true;
+  End;
   If (key = VK_ADD) Or (key = 187) Then Begin
     IncSpeed;
   End;
@@ -1636,6 +1644,10 @@ Begin
   If key In [VK_LEFT, VK_RIGHT] Then Begin
     fPressKeys[KeyIndexLeft] := false;
     fPressKeys[KeyIndexRight] := false;
+  End;
+  If key In [ord('E'), ord('C')] Then Begin
+    fPressKeys[KeyIndexZoomIn] := false;
+    fPressKeys[KeyIndexZoomOut] := false;
   End;
 End;
 
