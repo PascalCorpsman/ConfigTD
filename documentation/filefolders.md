@@ -39,7 +39,7 @@ This document explains the porpuse and reason of every file in this repository.
 | *.lpr | Sourcecode file (same as main.c)
 | *.dll | precompiled SSH library (for windows users needed)
 | *.lfm | Sourcecode file (Lazarus form module)
-| *.pas | Sourcecode file (FreePascal source code)
+| *.pas | Sourcecode file (Free Pascal source code)
 | *.md | Documentation / License / ..
 | [balancing.ods](https://github.com/PascalCorpsman/ConfigTD_Data/tree/main/balancing.ods) | Tabelular overview over all buildings / opponents settings
 | settings.ini | All by the game collected informations and settings
