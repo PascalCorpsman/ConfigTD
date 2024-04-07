@@ -7,11 +7,11 @@ object Form13: TForm13
   ClientHeight = 241
   ClientWidth = 320
   FormStyle = fsStayOnTop
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
   object Memo1: TMemo
     Left = 8
     Height = 192
@@ -32,10 +32,10 @@ object Form13: TForm13
     Top = 206
     Width = 304
     Anchors = [akLeft, akRight, akBottom]
-    OnKeyPress = Edit1KeyPress
-    OnKeyUp = Edit1KeyUp
     TabOrder = 1
     Text = 'Edit1'
+    OnKeyPress = Edit1KeyPress
+    OnKeyUp = Edit1KeyUp
   end
   object PopupMenu1: TPopupMenu
     Left = 78

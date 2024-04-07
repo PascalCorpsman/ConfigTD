@@ -162,39 +162,44 @@ Procedure TForm13.Edit1KeyPress(Sender: TObject; Var Key: char);
 Var
   s: String;
 Begin
-  If (key = #13) And (trim(edit1.text) <> '') Then Begin
-    LastChat := Edit1.text;
-    s := trim(lowercase(Edit1.text));
-    Case s Of
-      '-clear': memo1.clear;
-      '-air': ctd.splashAirLevels;
-      '-boss': ctd.splashBossLevels;
-      '-bonus': ctd.splashBonusLevels;
-      '-p': ctd.RequestPingTimes;
-      '-?': Begin
-          s :=
-            'Valid commands:' + LineEnding +
-            '-air               = show all levels containing air creeps' + LineEnding +
-            '-boss              = show all levels containing boss creeps.' + LineEnding +
-            '-bonus             = show all levels containing bonus creeps.' + LineEnding +
-            LineEnding +
-            '-p                 = show all ping times between server and players.' + LineEnding +
-            '-clear             = clear messagelog' + LineEnding +
-            '-kick <playername> = tells the server to kick player <playername> out of the game' + LineEnding +
-            '-?                 = this help';
-          AddMessage(s);
-          ctd.Splashhint(s, DefaultSplashHintColor);
+  If (key = #13) Then Begin
+    If (trim(edit1.text) <> '') Then Begin
+      LastChat := Edit1.text;
+      s := trim(lowercase(Edit1.text));
+      Case s Of
+        '-clear': memo1.clear;
+        '-air': ctd.splashAirLevels;
+        '-boss': ctd.splashBossLevels;
+        '-bonus': ctd.splashBonusLevels;
+        '-p': ctd.RequestPingTimes;
+        '-?': Begin
+            s :=
+              'Valid commands:' + LineEnding +
+              '-air               = show all levels containing air creeps' + LineEnding +
+              '-boss              = show all levels containing boss creeps.' + LineEnding +
+              '-bonus             = show all levels containing bonus creeps.' + LineEnding +
+              LineEnding +
+              '-p                 = show all ping times between server and players.' + LineEnding +
+              '-clear             = clear messagelog' + LineEnding +
+              '-kick <playername> = tells the server to kick player <playername> out of the game' + LineEnding +
+              '-?                 = this help';
+            AddMessage(s);
+            ctd.Splashhint(s, DefaultSplashHintColor);
+          End
+      Else
+        If pos('-kick ', s) = 1 Then Begin
+          s := trim(copy(edit1.text, length('-kick') + 1, length(s)));
+          ctd.SendKillCommand(s);
         End
-    Else
-      If pos('-kick ', s) = 1 Then Begin
-        s := trim(copy(edit1.text, length('-kick') + 1, length(s)));
-        ctd.SendKillCommand(s);
-      End
-      Else Begin
-        ctd.SendChat(edit1.text);
+        Else Begin
+          ctd.SendChat(edit1.text);
+        End;
       End;
+      edit1.text := '';
+    End
+    Else Begin
+      close;
     End;
-    edit1.text := '';
   End;
   If key = #27 Then close;
 End;

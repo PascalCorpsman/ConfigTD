@@ -77,6 +77,7 @@ Const
    *                      FIX: Crash on "Show Highscore" when running from inside the Lazarus-IDE
    *                      ADD: Automatich Restart after Darkmode Change
    *            0.10001 = ADD: #6 Move / Zoom Keys
+   *                      ADD: If Chat is empty and "Return" -> Close dialog
    * Known Bugs :
    *)
   (*
