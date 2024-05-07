@@ -3295,6 +3295,7 @@ Begin
   fmap.CreateMovableObjectList(fAktualWave);
   fmap.ResetAllUpdateBuildings;
   fmap.CreateDamageClassTextures;
+  fmap.EditTerrain := false;
   For i := 0 To high(fPlayerInfos) Do Begin
     fPlayerInfos[i].KillsOnWaveStart := fPlayerInfos[i].Kills + fPlayerInfos[i].BonusFinisher;
     fPlayerInfos[i].LivesOnWaveStart := fPlayerInfos[i].Lives;

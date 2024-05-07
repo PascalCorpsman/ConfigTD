@@ -445,6 +445,9 @@ Begin
     // Wegpunkt Flächen Deaktivieren
     CheckBox7.Checked := false;
   End;
+  If assigned(ctd.Map) Then Begin
+    ctd.Map.EditTerrain := CheckBox2.Checked
+  End;
 End;
 
 Procedure TForm4.CheckBox5Change(Sender: TObject);

@@ -78,6 +78,7 @@ Const
    *                      ADD: Automatich Restart after Darkmode Change
    *            0.10001 = ADD: #6 Move / Zoom Keys
    *                      ADD: If Chat is empty and "Return" -> Close dialog
+   *            0.10002 = ADD: Feature Request, show map texture and terrain at same time
    * Known Bugs :
    *)
   (*
@@ -207,7 +208,8 @@ Const
 
   (*
    * Die Karte Rendert sich wie Folgt :
-   * -0.9  = ctd_Map_Layer                  = Map-Kacheln
+   * -0.9  = ctd_Map_Layer                   = Map-Kacheln
+   * -0.875= ctd_Map_Layer +0.5* ctd_EPSILON = Design Mode Overlay (zum gleichzeitigen anzeigen Karte / Terrain)
    * -0.85 = ctd_Map_Layer + 1 * ctd_EPSILON = Map-Kacheln Grid
    * -0.8  = ctd_Map_Layer + 2 * ctd_EPSILON = Map-Placements
    * -0.75 = ctd_Map_Layer + 3 * ctd_EPSILON = Map-Boden Gegner

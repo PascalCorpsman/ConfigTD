@@ -256,6 +256,7 @@ Type
     fPlacements: Array Of tctd_mapopbject;
 
     ShowBackTex: Boolean;
+    EditTerrain: Boolean;
 
     Difficulty: Integer; // Wird in HandleInitiateNewRound gesetzt, der Schwierigkeitsgrad mit dem die Karte gerade gespielt wird
 
@@ -983,6 +984,7 @@ Var
   i: Integer;
 Begin
   ResetAllMovingObjects;
+  EditTerrain := false;
 {$IFDEF Client}
   If fFTerrainBackTex <> 0 Then Begin
     (*
@@ -2187,6 +2189,7 @@ Procedure TMap.RenderAbstract(blockw, blockh: Single; Grid,
 Var
   i, j: integer;
   k, l: Single;
+  b: Boolean;
 Begin
   glEnable(GL_DEPTH_TEST);
   glPushMatrix;
@@ -2199,10 +2202,25 @@ Begin
     glScalef(MapBlockSize * Width / fOpenGLBackTex.OrigWidth, MapBlockSize * Height / fOpenGLBackTex.OrigHeight, 1); // So Scallieren dass es die Gesamte Karte überdeckt
     RenderQuad(0, 0, fOpenGLBackTex);
     glPopMatrix;
-  End
-  Else Begin
+  End;
+  If (Not ShowBackTex) Or EditTerrain Then Begin
     // Der Hintergrund
-    glColor4f(1, 1, 1, 1);
+    glPushMatrix;
+    (*
+     * Im Designmodus gibt es den Fall, dass der Kartenersteller
+     * die Feldeigenschaften an den Hintergrund anpassen will, dann
+     * nutzen wir ein Alphablending um dies zu unterstützen ;)
+     *)
+    If ShowBackTex And (fOpenGLBackTex.Image <> 0) Then Begin
+      glColor4f(1, 1, 1, 0.5);
+      glTranslatef(0, 0, ctd_EPSILON / 2);
+      B := glIsEnabled(gl_Blend);
+      If Not (b) Then glenable(gl_Blend);
+      glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    End
+    Else Begin
+      glColor4f(1, 1, 1, 1);
+    End;
     k := Width / fOpenGLWidth;
     l := height / fOpenGLHeight;
     glBindTexture(GL_TEXTURE_2D, fFTerrainBackTex);
@@ -2216,6 +2234,10 @@ Begin
     glTexCoord2f(0, l);
     glVertex2f(0, Height * MapBlockSize);
     glEnd;
+    glPopMatrix;
+    If ShowBackTex And (fOpenGLBackTex.Image <> 0) Then Begin
+      If Not b Then gldisable(gl_blend);
+    End;
   End;
   // Grid ?
   If Grid Then Begin // Tiefe  + Epsilon
