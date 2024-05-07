@@ -56,6 +56,7 @@ Type
     CheckBox5: TCheckBox;
     CheckBox6: TCheckBox;
     CheckBox7: TCheckBox;
+    CheckBox8: TCheckBox;
     ComboBox1: TComboBox;
     ComboBox2: TComboBox;
     Edit1: TEdit;
@@ -428,6 +429,12 @@ Procedure TForm4.CheckBox1Change(Sender: TObject);
 Begin
   If assigned(ctd.Map) Then
     ctd.Map.ShowBackTex := CheckBox1.Checked;
+  If sender = CheckBox1 Then Begin
+    CheckBox8.Checked := CheckBox1.Checked;
+  End
+  Else Begin
+    CheckBox1.Checked := CheckBox8.Checked;
+  End;
 End;
 
 Procedure TForm4.CheckBox2Change(Sender: TObject);
