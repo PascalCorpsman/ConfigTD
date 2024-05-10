@@ -251,7 +251,12 @@ Begin
   For j := 0 To PageControl1.PageCount - 1 Do Begin
     f := PageControl1.Pages[j].Components[0] As TWaveOpponentFrame;
     s := f.ComboBox1.Text;
-    f.ComboBox1.items.CommaText := sl2.CommaText;
+    f.ComboBox1.Items.BeginUpdate;
+    f.ComboBox1.items.Clear;
+    For i := 0 To sl2.Count - 1 Do Begin
+      f.AddOpponentItem(sl2[i]);
+    End;
+    f.ComboBox1.Items.EndUpdate;
     f.ComboBox1.ItemIndex := -1;
     // Wieder Zurücksetzen des alten Textes, falls es diesen noch gibt...
     For i := 0 To f.ComboBox1.Items.Count - 1 Do Begin

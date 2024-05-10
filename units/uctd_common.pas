@@ -79,6 +79,7 @@ Const
    *            0.10001 = ADD: #6 Move / Zoom Keys
    *                      ADD: If Chat is empty and "Return" -> Close dialog
    *            0.10002 = ADD: Feature Request, show map texture and terrain at same time
+   *            0.10003 = ADD: Icons for Gebs / Opps / Heros in menus
    * Known Bugs :
    *)
   (*
@@ -335,6 +336,25 @@ Type
 
   TBuildingStrategy = (bsFirst, bsLast, bsNearest, bsFarest, bsStrongest, bsWeakest, bsRandom);
 
+{$IFDEF Client}
+  { TItemObject }
+
+  TItemObject = Class
+  private
+
+    Procedure LoadImage(Const Filename: String);
+  public
+    Image: TBitmap;
+    Text: String;
+    Constructor Create;
+    Destructor Destroy; override;
+    Procedure LoadOppInfo(Const Filename: String);
+    Procedure LoadGebInfo(Const Filename: String);
+    Procedure LoadHeroInfo(Const Filename: String);
+    Procedure Clone(Const obj: TItemObject);
+  End;
+{$ENDIF}
+
 {$IFDEF Server}
 Const
   MapBlockSize = 1; // Der Server Rechnet alles 1:1, damit kann der Client direkt mit Blockwidth hochscallieren
@@ -434,7 +454,13 @@ Uses FileUtil, LazUTF8, LazFileUtils, math
   , UTF8Process
 {$ENDIF}
   , process
-  , ucrc;
+  , ucrc
+{$IFDEF Client}
+  , uctd_opp
+  , uctd_building
+  , uctd_hero
+{$ENDIF}
+  ;
 
 // Taken from: https://forum.lazarus.freepascal.org/index.php?topic=17747.0
 
@@ -984,5 +1010,122 @@ Begin
   End;
 End;
 
+{$IFDEF Client}
+
+{ TItemObject }
+
+Constructor TItemObject.Create;
+Begin
+  Inherited Create;
+  image := Tbitmap.create;
+  Image.Transparent := true;
+End;
+
+Destructor TItemObject.Destroy;
+Begin
+  image.free;
+End;
+
+Procedure TItemObject.LoadImage(Const Filename: String);
+Var
+  b: TBitmap;
+  png: TPortableNetworkGraphic;
+  jp: TJPEGImage;
+  Animation: TOpenGL_Animation;
+Begin
+  Case lowercase(ExtractFileExt(Filename)) Of
+    '.png': Begin
+        png := TPortableNetworkGraphic.Create;
+        png.LoadFromFile(Filename);
+        png.Transparent := true;
+        image.Assign(png);
+        png.free;
+      End;
+    '.jpg': Begin
+        jp := TJPEGImage.Create;
+        jp.LoadFromFile(Filename);
+        jp.Transparent := true;
+        image.Assign(jp);
+        jp.free;
+      End;
+    '.bmp': Begin
+        image.LoadFromFile(Filename);
+        image.TransparentColor := image.canvas.pixels[0, 0];
+        image.transparent := true;
+      End;
+    '.ani': Begin
+        Animation := TOpenGL_Animation.Create;
+        Animation.LoadFromFile(Filename);
+        b := Animation.GetFirstBitmap();
+        b.TransparentColor := b.canvas.pixels[0, 0];
+        b.transparent := true;
+        Image.Assign(b);
+        b.free;
+      End;
+  End;
+End;
+
+Procedure TItemObject.LoadOppInfo(Const Filename: String);
+Var
+  opp: TOpponent;
+  fp: String;
+Begin
+  opp := TOpponent.create();
+  opp.LoadFromFile(Filename);
+  Text := format('(%d/%d/%d/%d)', [opp.LifePoints[0], opp.LifePoints[1], opp.LifePoints[2], opp.LifePoints[3]]);
+  fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
+  LoadImage(fp + opp.Image);
+  opp.free;
+End;
+
+Procedure TItemObject.LoadGebInfo(Const Filename: String);
+Var
+  geb: TBuilding;
+  fp: String;
+Begin
+  geb := TBuilding.create();
+  geb.LoadFromFile(Filename);
+  fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
+  text :=
+    format('(%d/%d/%d/%d)', [
+    geb.Stages[high(geb.Stages)].bulletpower[0],
+      geb.Stages[high(geb.Stages)].bulletpower[1],
+      geb.Stages[high(geb.Stages)].bulletpower[2],
+      geb.Stages[high(geb.Stages)].bulletpower[3]]);
+  LoadImage(fp + geb.Stages[high(geb.Stages)].image);
+  geb.free;
+End;
+
+Procedure TItemObject.LoadHeroInfo(Const Filename: String);
+Var
+  hero: THero;
+  fp: String;
+Begin
+  hero := THero.create();
+  hero.LoadFromFile(Filename);
+  fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
+  text :=
+    format('(%d/%d/%d/%d)', [
+    hero.Levels[high(hero.Levels)].bulletpower[0],
+      hero.Levels[high(hero.Levels)].bulletpower[1],
+      hero.Levels[high(hero.Levels)].bulletpower[2],
+      hero.Levels[high(hero.Levels)].bulletpower[3]]);
+  LoadImage(fp + hero.Levels[high(hero.Levels)].image);
+  hero.free;
+End;
+
+Procedure TItemObject.Clone(Const obj: TItemObject);
+Begin
+  If assigned(obj) Then Begin
+    text := obj.Text;
+    image.Assign(obj.Image);
+  End
+  Else Begin
+    text := '';
+    image.Clear;
+  End;
+End;
+
+{$ENDIF}
 End.
 

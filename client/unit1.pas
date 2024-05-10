@@ -991,18 +991,7 @@ Begin
     form4.Image4.Picture.Clear;
   End;
   // --- Buyables ---
-  form4.ListBox1.Clear;
-  For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
-    form4.listbox1.Items.add(BuyableToString(ctd.Map.BuyAbles[i]));
-  End;
-  form4.Edit6.Text := '';
-  form4.Edit7.Text := '';
-  If form4.ListBox1.Items.Count = 0 Then Begin
-    form4.Edit6.Enabled := false;
-    form4.Edit7.Enabled := false;
-    form4.Button10.Enabled := false;
-  End;
-
+  Form14.RefreshForm4Buyables;
   // --- Waves ---
   form4.SetWaveCountTo(high(ctd.Map.Waves) + 1);
   Form4updating := true; // Das Laden einer Wave fragt die Opponentliste ab, das darf aber nur 1 mal gemacht werden, und da macht es der Timer, also wird das laden hier geblockt.

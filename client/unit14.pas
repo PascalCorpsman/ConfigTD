@@ -20,7 +20,7 @@ Interface
 
 Uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  uctd_mapobject;
+  uctd_mapobject, Types, uctd_map;
 
 Type
 
@@ -72,6 +72,8 @@ Type
     Procedure FormCreate(Sender: TObject);
     Procedure FormShow(Sender: TObject);
     Procedure ListBox1DblClick(Sender: TObject);
+    Procedure ListBox1DrawItem(Control: TWinControl; Index: Integer;
+      ARect: TRect; State: TOwnerDrawState);
     Procedure ListBox2DblClick(Sender: TObject);
   private
     { private declarations }
@@ -93,6 +95,7 @@ Type
 
     Procedure TransferShareLocal(ShareName, LocalName: String); // Transveriert von Lokalen Share nach Lokales Verzeichnis
 
+    Procedure AddForm4Buyable(b: TBuyAble);
   public
     { public declarations }
     Procedure LoadBuildingSettings(OnLoadBuildingFinishEvent: TNotifyEvent);
@@ -100,6 +103,7 @@ Type
     Procedure LoadHeroSettings(OnLoadHeroFinishEvent: TNotifyEvent);
 
     Function TransferShareServer(Obj: tctd_mapopbject): Boolean; // Sendet ein lokales Objekt an den Server
+    Procedure RefreshForm4Buyables;
   End;
 
 Var
@@ -117,7 +121,7 @@ Uses
   , unit7 // Opponent Editor
   , unit15 // Abfrage beim copieren von Opponents / Gebäuden in Unit14
   , unit19 // Hero Editor
-  , uctd, uctd_common, uctd_building, uctd_opp, uctd_map, uctd_messages, uctd_hero
+  , uctd, uctd_common, uctd_building, uctd_opp, uctd_messages, uctd_hero
   ;
 
 { TForm14 }
@@ -223,39 +227,19 @@ Begin
       End;
   End;
   // Anfügen des Elementes in die Liste und Laden
-  ListBox1.Items.Add(edit1.text);
-  Application.ProcessMessages;
-  // Suchen in der Sortierten Liste
-  For i := 0 To ListBox1.Items.Count - 1 Do Begin
-    If listbox1.Items[i] = edit1.text Then Begin
-      ListBox1.ItemIndex := i;
-      break;
-    End;
-  End;
+  ListBox1.ItemIndex := ListBox1.Items.Add(edit1.text);
   Button4.Click; // Laden
   LogLeave;
 End;
 
 Procedure TForm14.Button2Click(Sender: TObject);
-Var
-  i: Integer;
 Begin
   // Delete in Map
   If ListBox2.ItemIndex <> -1 Then Begin
     Case fmode Of
       dmBuildings: Begin
           ctd.DelBuilding(ListBox2.items[ListBox2.ItemIndex] + '.geb');
-          form4.ListBox1.Clear;
-          For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
-            form4.listbox1.Items.add(BuyableToString(ctd.Map.BuyAbles[i]));
-          End;
-          form4.Edit6.Text := '';
-          form4.Edit7.Text := '';
-          If form4.ListBox1.Items.Count = 0 Then Begin
-            form4.Edit6.Enabled := false;
-            form4.Edit7.Enabled := false;
-            form4.Button10.Enabled := false;
-          End;
+          RefreshForm4Buyables;
         End;
       dmOpponents: Begin
           ctd.DelOpponent(ListBox2.items[ListBox2.ItemIndex] + '.opp');
@@ -263,17 +247,7 @@ Begin
         End;
       dmHeros: Begin
           ctd.Delhero(ListBox2.items[ListBox2.ItemIndex] + '.hero');
-          form4.ListBox1.Clear;
-          For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
-            form4.listbox1.Items.add(BuyableToString(ctd.Map.BuyAbles[i]));
-          End;
-          form4.Edit6.Text := '';
-          form4.Edit7.Text := '';
-          If form4.ListBox1.Items.Count = 0 Then Begin
-            form4.Edit6.Enabled := false;
-            form4.Edit7.Enabled := false;
-            form4.Button10.Enabled := false;
-          End;
+          RefreshForm4Buyables;
         End;
     End;
     ListBox2.items.Delete(ListBox2.ItemIndex);
@@ -497,6 +471,30 @@ Begin
   button6.click;
 End;
 
+Procedure TForm14.ListBox1DrawItem(Control: TWinControl; Index: Integer;
+  ARect: TRect; State: TOwnerDrawState);
+Var
+  s: String;
+  h, tw: integer;
+  lb: TListBox;
+Begin
+  lb := TListBox(Control);
+  h := 0;
+  tw := ARect.Right;
+  If assigned(lb.Items.Objects[index]) Then Begin
+    h := ARect.Bottom - ARect.top;
+    s := TItemObject(lb.Items.Objects[index]).Text;
+    tw := ARect.Right - lb.Canvas.TextWidth(s);
+  End;
+  // Erst mal Den "alten" Text wie gewohnt rendern
+  lb.Canvas.TextRect(Rect(ARect.Left, ARect.Top, tw, ARect.Bottom), ARect.Left + h, (ARect.Bottom + ARect.top - lb.Canvas.TextHeight('8')) Div 2, ' ' + lb.Items[index]);
+  // Gibt es Meta Infos -> Anzeigen
+  If assigned(lb.Items.Objects[index]) Then Begin
+    lb.Canvas.TextRect(ARect, tw, (ARect.Bottom + ARect.top - lb.Canvas.TextHeight('8')) Div 2, s);
+    lb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + h, ARect.Bottom), TItemObject(lb.Items.Objects[index]).Image);
+  End;
+End;
+
 Procedure TForm14.ListBox2DblClick(Sender: TObject);
 Begin
   // Move <=
@@ -509,6 +507,8 @@ Var
   i: Integer;
   m: TMemoryStream;
   b: TBuyAble;
+  obj: TItemObject;
+  found: Boolean;
 Begin
   // Bei Mehreren Kopieen wird diese Callback einmal zu oft aufgerufen, ka warum, aber da es dann nix mehr zu kopieren gibt -> Raus und gut.
   If Not assigned(fTransferLocalServerFiles) Then Begin
@@ -531,8 +531,17 @@ Begin
           exit;
         End;
       End;
-      Listbox2.Items.Add(t);
-      ListBox2.ItemIndex := Listbox2.Items.Count - 1;
+      found := false;
+      For i := 0 To ListBox1.Items.Count - 1 Do Begin
+        If ListBox1.Items[i] = t Then Begin
+          found := true;
+          obj := TItemObject.Create;
+          obj.clone(TItemObject(ListBox1.Items.Objects[i]));
+          ListBox2.ItemIndex := Listbox2.Items.AddObject(t, obj);
+          break;
+        End;
+      End;
+      If Not found Then ListBox2.ItemIndex := Listbox2.Items.Add(t);
       Case fmode Of
         dmBuildings: Begin
             // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
@@ -547,7 +556,7 @@ Begin
             m.Write(b.Kind, sizeof(b.Kind));
             //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
             ctd.UpdateMapProperty(mpAddBuyable, m);
-            form4.listbox1.Items.add(BuyableToString(b));
+            AddForm4Buyable(b);
 
             // Freischalten des Editierens der Gebäude Eigenschaften
             form4.Edit6.Enabled := true;
@@ -571,7 +580,7 @@ Begin
             m.Write(b.Kind, sizeof(b.Kind));
             //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
             ctd.UpdateMapProperty(mpAddBuyable, m);
-            form4.listbox1.Items.add(BuyableToString(b));
+            AddForm4Buyable(b);
 
             // Freischalten des Editierens der Gebäude Eigenschaften
             form4.Edit6.Enabled := true;
@@ -635,9 +644,29 @@ Procedure TForm14.OnGetListbox2Content(Sender: TObject; Const Data: TStringlist
   );
 Var
   i: Integer;
+  obj: TItemObject;
 Begin
   For i := 0 To Data.Count - 1 Do Begin
-    listbox2.items.add(ExtractFileNameOnly(Data[i]));
+    Case fmode Of
+      dmOpponents: Begin
+          obj := TItemObject.Create;
+          obj.LoadOppInfo(Mapfolder + mapname + PathDelim + Data[i]);
+          ListBox2.Items.AddObject(ExtractFileNameOnly(Data[i]), obj);
+        End;
+      dmBuildings: Begin
+          obj := TItemObject.Create;
+          obj.LoadGebInfo(Mapfolder + mapname + PathDelim + Data[i]);
+          ListBox2.Items.AddObject(ExtractFileNameOnly(Data[i]), obj);
+        End;
+      dmHeros: Begin
+          obj := TItemObject.Create;
+          obj.LoadHeroInfo(Mapfolder + mapname + PathDelim + Data[i]);
+          ListBox2.Items.AddObject(ExtractFileNameOnly(Data[i]), obj);
+        End;
+    Else Begin
+        listbox2.items.add(ExtractFileNameOnly(Data[i]));
+      End;
+    End;
   End;
   If assigned(fOnLoadFinishEvent) Then
     fOnLoadFinishEvent(Nil);
@@ -647,6 +676,9 @@ End;
 Procedure TForm14.LoadBuildingSettings(OnLoadBuildingFinishEvent: TNotifyEvent);
 Var
   sl: TStringList;
+  i: Integer;
+  fn: String;
+  obj: TItemObject;
 Begin
   If form6.visible Then form6.Close; // Building Editor
   If form7.visible Then form7.Close; // Opponent Editor
@@ -669,7 +701,14 @@ Begin
   sl := ListAllSubdirs(fTruncedMapfolder);
   sl.Sorted := true;
   sl.Sort;
-  ListBox1.Items.Text := sl.Text;
+  For i := 0 To sl.count - 1 Do Begin
+    fn := fTruncedMapfolder + sl[i] + PathDelim + sl[i] + '.geb';
+    If FileExists(fn) Then Begin
+      obj := TItemObject.Create;
+      obj.LoadGebInfo(fn);
+      ListBox1.Items.AddObject(sl[i], obj);
+    End;
+  End;
   sl.free;
   Edit1.text := '';
   // Die der Lokalen Karte
@@ -682,6 +721,9 @@ End;
 Procedure TForm14.LoadOpponentSettings;
 Var
   sl: TStringList;
+  i: integer;
+  obj: TItemObject;
+  fn: String;
 Begin
   If form6.visible Then form6.Close; // Building Editor
   If form7.visible Then form7.Close; // Opponent Editor
@@ -701,9 +743,14 @@ Begin
   End;
   fTruncedMapfolder := fTruncedMapfolder + 'opponents' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
-  sl.Sorted := True;
-  sl.Sort;
-  ListBox1.Items.Text := sl.Text;
+  For i := 0 To sl.count - 1 Do Begin
+    fn := fTruncedMapfolder + sl[i] + PathDelim + sl[i] + '.opp';
+    If FileExists(fn) Then Begin
+      obj := TItemObject.Create;
+      obj.LoadOppInfo(fn);
+      ListBox1.Items.AddObject(sl[i], obj);
+    End;
+  End;
   sl.free;
   Edit1.text := '';
   // Die der Lokalen Karte
@@ -716,6 +763,9 @@ End;
 Procedure TForm14.LoadHeroSettings(OnLoadHeroFinishEvent: TNotifyEvent);
 Var
   sl: TStringList;
+  fn: String;
+  i: Integer;
+  obj: TItemObject;
 Begin
   If form6.visible Then form6.Close; // Building Editor
   If form7.visible Then form7.Close; // Opponent Editor
@@ -737,7 +787,14 @@ Begin
   sl := ListAllSubdirs(fTruncedMapfolder);
   sl.Sorted := true;
   sl.Sort;
-  ListBox1.Items.Text := sl.Text;
+  For i := 0 To sl.count - 1 Do Begin
+    fn := fTruncedMapfolder + sl[i] + PathDelim + sl[i] + '.hero';
+    If FileExists(fn) Then Begin
+      obj := TItemObject.Create;
+      obj.LoadHeroInfo(fn);
+      ListBox1.Items.AddObject(sl[i], obj);
+    End;
+  End;
   sl.free;
   Edit1.text := '';
   // Die der Lokalen Karte
@@ -812,6 +869,7 @@ Var
   pp, p, ext: String;
   obj: tctd_mapopbject;
   i: Integer;
+  iobj: TItemObject;
 Begin
   log('TForm14.TransferShareLocal', llTrace);
   ext := lowercase(ExtractFileExt(ShareName));
@@ -877,8 +935,65 @@ Begin
       exit;
     End;
   End;
-  Listbox1.Items.Add(p);
+  Case fmode Of
+    dmBuildings: Begin
+        iobj := TItemObject.Create;
+        iobj.LoadGebInfo(ShareName);
+        Listbox1.ItemIndex := Listbox1.Items.AddObject(p, iobj);
+      End;
+    dmOpponents: Begin
+        iobj := TItemObject.Create;
+        iobj.LoadOppInfo(ShareName);
+        Listbox1.ItemIndex := Listbox1.Items.AddObject(p, iobj);
+      End;
+    dmHeros: Begin
+        iobj := TItemObject.Create;
+        iobj.LoadHeroInfo(ShareName);
+        Listbox1.ItemIndex := Listbox1.Items.AddObject(p, iobj);
+      End;
+  Else Begin
+      Listbox1.ItemIndex := Listbox1.Items.Add(p);
+    End;
+  End;
   LogLeave;
+End;
+
+Procedure TForm14.RefreshForm4Buyables;
+Var
+  i: Integer;
+Begin
+  form4.ListBox1.Clear;
+  For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
+    AddForm4Buyable(ctd.Map.BuyAbles[i]);
+  End;
+  form4.Edit6.Text := '';
+  form4.Edit7.Text := '';
+  If form4.ListBox1.Items.Count = 0 Then Begin
+    form4.Edit6.Enabled := false;
+    form4.Edit7.Enabled := false;
+    form4.Button10.Enabled := false;
+  End;
+End;
+
+Procedure TForm14.AddForm4Buyable(b: TBuyAble);
+Var
+  obj: TItemObject;
+Begin
+  Case b.Kind Of
+    bkBuilding: Begin
+        obj := TItemObject.Create;
+        obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
+        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
+      End;
+    bkHero: Begin
+        obj := TItemObject.Create;
+        obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
+        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
+      End;
+  Else Begin
+      form4.listbox1.Items.add(BuyableToString(b));
+    End;
+  End;
 End;
 
 End.

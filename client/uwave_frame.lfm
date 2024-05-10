@@ -22,9 +22,9 @@ object WaveFrame: TWaveFrame
     Height = 26
     Top = 10
     Width = 80
-    OnChange = Edit2Change
     TabOrder = 0
     Text = 'Edit2'
+    OnChange = Edit2Change
   end
   object Label3: TLabel
     Left = 4
@@ -41,8 +41,8 @@ object WaveFrame: TWaveFrame
     Top = 70
     Width = 50
     Caption = '&Add'
-    OnClick = Button1Click
     TabOrder = 2
+    OnClick = Button1Click
   end
   object Label11: TLabel
     Left = 4
@@ -58,9 +58,9 @@ object WaveFrame: TWaveFrame
     Height = 26
     Top = 40
     Width = 80
-    OnChange = Edit1Change
     TabOrder = 1
     Text = 'Edit1'
+    OnChange = Edit1Change
   end
   object PageControl1: TPageControl
     Left = 4
@@ -76,8 +76,8 @@ object WaveFrame: TWaveFrame
     Top = 24
     Width = 19
     Caption = '<'
-    OnClick = Button2Click
     TabOrder = 3
+    OnClick = Button2Click
   end
   object Button3: TButton
     Left = 253
@@ -85,8 +85,8 @@ object WaveFrame: TWaveFrame
     Top = 24
     Width = 19
     Caption = '>'
-    OnClick = Button3Click
     TabOrder = 4
+    OnClick = Button3Click
   end
   object Label1: TLabel
     Left = 235
@@ -101,8 +101,8 @@ object WaveFrame: TWaveFrame
     Top = 70
     Width = 50
     Caption = 'del'
-    OnClick = Button4Click
     TabOrder = 6
+    OnClick = Button4Click
   end
   object Bevel1: TBevel
     Left = 152

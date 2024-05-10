@@ -19,7 +19,7 @@ Unit uwave_oppenent_frame;
 Interface
 
 Uses
-  Classes, SysUtils, FileUtil, Forms, Controls, StdCtrls, Buttons, uctd_map;
+  Classes, SysUtils, FileUtil, Forms, Controls, StdCtrls, Buttons, uctd_map, Types;
 
 Type
 
@@ -42,6 +42,8 @@ Type
     SpeedButton1: TSpeedButton;
     Procedure Button1Click(Sender: TObject);
     Procedure ComboBox1Change(Sender: TObject);
+    Procedure ComboBox1DrawItem(Control: TWinControl; Index: Integer;
+      ARect: TRect; State: TOwnerDrawState);
     Procedure ComboBox1KeyDown(Sender: TObject; Var Key: Word;
       Shift: TShiftState);
     Procedure Edit1Change(Sender: TObject);
@@ -62,13 +64,15 @@ Type
     Procedure Reset();
     Procedure LoadOppent(Const Opp: TWaveOpponent);
     Function GetOpponent(): TWaveOpponent;
+
+    Procedure AddOpponentItem(opponent: String);
   End;
 
 Implementation
 
 {$R *.lfm}
 
-Uses uctd, uctd_messages, LCLType;
+Uses uctd, uctd_messages, uctd_common, LCLType;
 
 { TWaveOpponentFrame }
 
@@ -90,6 +94,26 @@ Begin
   m.WriteAnsiString(ComboBox1.Text);
   ctd.UpdateMapProperty(mpWaveOpponent, m);
   ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].opponent := ComboBox1.Text;
+End;
+
+Procedure TWaveOpponentFrame.ComboBox1DrawItem(Control: TWinControl;
+  Index: Integer; ARect: TRect; State: TOwnerDrawState);
+Var
+  cb: TComboBox;
+  obj: TItemObject;
+  l: Integer;
+Begin
+  cb := TComboBox(Control);
+  obj := TItemObject(cb.items.Objects[index]);
+  l := 0;
+  If assigned(obj) Then Begin
+    l := ARect.Bottom - ARect.Top;
+    cb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + l, ARect.Bottom), obj.Image);
+  End;
+  cb.Canvas.TextRect(arect,
+    l,
+    (ARect.Bottom + ARect.Top - cb.canvas.TextHeight('8')) Div 2
+    , '  ' + cb.Items[index]);
 End;
 
 Procedure TWaveOpponentFrame.ComboBox1KeyDown(Sender: TObject; Var Key: Word;
@@ -201,17 +225,25 @@ Begin
 End;
 
 Procedure TWaveOpponentFrame.LoadOppent(Const Opp: TWaveOpponent);
+Var
+  found: Boolean;
+  i: Integer;
 Begin
-  ComboBox1.ItemIndex := -1;
-  ComboBox1.Text := Opp.opponent;
-  (*
-   * Wenn es den Gegner noch nicht in der Liste gibt (weil diese noch nicht initialisiert ist)
-   * Dann legen wir einen Initialeintrag an, dieser wird später zwar wieder überschrieben aber das ist egal.
-   *)
-  If ComboBox1.ItemIndex = -1 Then Begin
-    ComboBox1.Items.Add(Opp.opponent);
-    ComboBox1.Text := Opp.opponent;
+  found := false;
+  For i := 0 To ComboBox1.Items.Count - 1 Do Begin
+    If ComboBox1.Items[i] = Opp.opponent Then Begin
+      found := true;
+      break;
+    End;
   End;
+  If Not found Then Begin
+    (*
+     * Wenn es den Gegner noch nicht in der Liste gibt (weil diese noch nicht initialisiert ist)
+     * Dann legen wir einen Initialeintrag an, dieser wird später zwar wieder überschrieben aber das ist egal.
+     *)
+    AddOpponentItem(Opp.opponent);
+  End;
+  ComboBox1.Text := Opp.opponent;
   Edit1.text := inttostr(Opp.Count); // Count
   edit2.text := inttostr(Opp.refund); // Cash per unit
   Edit3.text := inttostr(Opp.UnitsPerSpawn); // Units per Spawn
@@ -227,6 +259,16 @@ Begin
   result.UnitsPerSpawn := strtointdef(edit3.text, 0);
   result.SpawnDelay := strtointdef(edit4.text, 0);
   result.Spawndelta := strtointdef(edit5.text, 0);
+End;
+
+Procedure TWaveOpponentFrame.AddOpponentItem(opponent: String);
+Var
+  obj: TItemObject;
+Begin
+  obj := TItemObject.Create;
+  obj.LoadOppInfo(MapFolder + MapName + PathDelim + opponent);
+  ComboBox1.Items.AddObject(opponent, obj);
+  ComboBox1.Text := opponent;
 End;
 
 End.

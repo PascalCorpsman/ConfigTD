@@ -1,17 +1,17 @@
 object Form14: TForm14
-  Left = 317
+  Left = 353
   Height = 331
-  Top = 126
-  Width = 462
+  Top = 112
+  Width = 567
   Caption = 'Form14'
   ClientHeight = 331
-  ClientWidth = 462
+  ClientWidth = 567
   FormStyle = fsStayOnTop
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
   object Label1: TLabel
     Left = 8
     Height = 16
@@ -30,43 +30,47 @@ object Form14: TForm14
     Left = 8
     Height = 140
     Top = 56
-    Width = 200
+    Width = 250
     Anchors = [akTop, akLeft, akBottom]
     ItemHeight = 0
     MultiSelect = True
-    OnDblClick = ListBox1DblClick
     ScrollWidth = 198
+    Style = lbOwnerDrawFixed
     TabOrder = 0
     TopIndex = -1
+    OnDblClick = ListBox1DblClick
+    OnDrawItem = ListBox1DrawItem
   end
   object Label3: TLabel
-    Left = 256
+    Left = 307
     Height = 16
     Top = 32
     Width = 75
     Caption = 'Current map'
   end
   object ListBox2: TListBox
-    Left = 256
+    Left = 307
     Height = 140
     Top = 56
-    Width = 200
+    Width = 250
     Anchors = [akTop, akLeft, akBottom]
     ItemHeight = 0
-    OnDblClick = ListBox2DblClick
     ScrollWidth = 198
+    Style = lbOwnerDrawFixed
     TabOrder = 3
     TopIndex = -1
+    OnDblClick = ListBox2DblClick
+    OnDrawItem = ListBox1DrawItem
   end
   object Button1: TButton
-    Left = 152
+    Left = 202
     Height = 25
-    Top = 255
+    Top = 254
     Width = 56
     Anchors = [akLeft, akBottom]
     Caption = 'Create'
-    OnClick = Button1Click
     TabOrder = 7
+    OnClick = Button1Click
   end
   object Label4: TLabel
     Left = 10
@@ -80,68 +84,68 @@ object Form14: TForm14
     Left = 10
     Height = 26
     Top = 254
-    Width = 136
+    Width = 184
     Anchors = [akLeft, akBottom]
-    OnKeyPress = Edit1KeyPress
     TabOrder = 6
     Text = 'Edit1'
+    OnKeyPress = Edit1KeyPress
   end
   object Button3: TButton
     Left = 8
     Height = 25
     Top = 295
-    Width = 446
+    Width = 549
     Anchors = [akLeft, akBottom]
     Caption = 'Exit'
-    OnClick = Button3Click
     TabOrder = 8
+    OnClick = Button3Click
   end
   object Button4: TButton
     Left = 10
     Height = 25
     Top = 206
-    Width = 198
+    Width = 248
     Anchors = [akLeft, akBottom]
     Caption = 'Edit'
-    OnClick = Button4Click
     TabOrder = 4
+    OnClick = Button4Click
   end
   object Button5: TButton
-    Left = 256
+    Left = 307
     Height = 25
     Top = 206
-    Width = 200
+    Width = 250
     Anchors = [akLeft, akBottom]
     Caption = 'Edit'
-    OnClick = Button5Click
     TabOrder = 5
+    OnClick = Button5Click
   end
   object Button6: TButton
-    Left = 213
+    Left = 264
     Height = 65
     Top = 56
     Width = 35
     Caption = '=>'
-    OnClick = Button6Click
     TabOrder = 1
+    OnClick = Button6Click
   end
   object Button7: TButton
-    Left = 213
+    Left = 264
     Height = 65
     Top = 131
     Width = 35
     Caption = '<='
-    OnClick = Button7Click
     TabOrder = 2
+    OnClick = Button7Click
   end
   object Button2: TButton
-    Left = 256
+    Left = 307
     Height = 25
     Top = 239
-    Width = 200
+    Width = 250
     Anchors = [akLeft, akBottom]
     Caption = 'Delete'
-    OnClick = Button2Click
     TabOrder = 9
+    OnClick = Button2Click
   end
 end

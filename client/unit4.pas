@@ -21,7 +21,7 @@ Interface
 Uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   ComCtrls, StdCtrls, Spin, ExtDlgs, Buttons, uctd_mapobject, uctd_map,
-  uwave_frame;
+  uwave_frame, Types;
 
 Type
 
@@ -150,6 +150,8 @@ Type
     Procedure FormShow(Sender: TObject);
     Procedure ListBox1Click(Sender: TObject);
     Procedure ListBox1DblClick(Sender: TObject);
+    Procedure ListBox1DrawItem(Control: TWinControl; Index: Integer;
+      ARect: TRect; State: TOwnerDrawState);
     Procedure Memo1Change(Sender: TObject);
     Procedure PageControl2Change(Sender: TObject);
     Procedure ScrollBar1Change(Sender: TObject);
@@ -735,6 +737,25 @@ Begin
         Raise exception.Create('TForm4.ListBox1DblClick: implementieren.');
       End;
     End;
+  End;
+End;
+
+Procedure TForm4.ListBox1DrawItem(Control: TWinControl; Index: Integer;
+  ARect: TRect; State: TOwnerDrawState);
+Var
+  h: integer;
+  lb: TListBox;
+Begin
+  lb := TListBox(Control);
+  h := 0;
+  If assigned(lb.Items.Objects[index]) Then Begin
+    h := ARect.Bottom - ARect.top;
+  End;
+  // Erst mal Den "alten" Text wie gewohnt rendern
+  lb.Canvas.TextRect(aRect, ARect.Left + h, (ARect.Bottom + ARect.top - lb.Canvas.TextHeight('8')) Div 2, ' ' + lb.Items[index]);
+  // Gibt es Meta Infos -> Anzeigen
+  If assigned(lb.Items.Objects[index]) Then Begin
+    lb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + h, ARect.Bottom), TItemObject(lb.Items.Objects[index]).Image);
   End;
 End;
 
