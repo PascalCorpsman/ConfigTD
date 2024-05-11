@@ -65,7 +65,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="Opponent_overview"/>
+      <Filename Value="../Opponent_overview"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
