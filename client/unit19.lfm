@@ -6,19 +6,19 @@ object Form19: TForm19
   Caption = 'Form19'
   ClientHeight = 658
   ClientWidth = 417
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
   object Button3: TButton
     Left = 16
     Height = 25
     Top = 624
     Width = 75
     Caption = 'Cancel'
-    OnClick = Button3Click
     TabOrder = 0
+    OnClick = Button3Click
   end
   object Button2: TButton
     Left = 328
@@ -26,8 +26,8 @@ object Form19: TForm19
     Top = 624
     Width = 75
     Caption = 'OK'
-    OnClick = Button2Click
     TabOrder = 1
+    OnClick = Button2Click
   end
   object Label1: TLabel
     Left = 16
@@ -57,8 +57,8 @@ object Form19: TForm19
     Top = 131
     Width = 24
     Caption = 'set'
-    OnClick = Button5Click
     TabOrder = 3
+    OnClick = Button5Click
   end
   object PageControl1: TPageControl
     Left = 8
@@ -104,8 +104,8 @@ object Form19: TForm19
     Top = 29
     Width = 43
     Caption = 'load'
-    OnClick = Button6Click
     TabOrder = 5
+    OnClick = Button6Click
   end
   object Label3: TLabel
     Left = 16

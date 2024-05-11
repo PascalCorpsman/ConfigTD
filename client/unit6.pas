@@ -144,6 +144,7 @@ Begin
     exit;
   End;
   Building.savetoFile(Building.Filename);
+  TItemObject.Reload(Building.Filename);
   If transfer Then Begin
     If Not Form14.TransferShareServer(Building) Then Begin
       logshow('Could not transfer building to server, please retry in a few seconds.', llError);
@@ -160,6 +161,7 @@ End;
 
 Procedure TForm6.FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
 Begin
+  form14.ReloadIndex;
   form14.Show;
 End;
 

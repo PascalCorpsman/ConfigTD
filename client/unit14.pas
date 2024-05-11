@@ -20,7 +20,7 @@ Interface
 
 Uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  uctd_mapobject, Types, uctd_map;
+  uctd_mapobject, Types, uctd_map, uctd_common;
 
 Type
 
@@ -40,8 +40,6 @@ Type
     Index: integer; // Der Index, welche Datei als nächstes übertragen werden soll
     FileList: TFileInfoList;
   End;
-
-  TDialogMode = (dmBuildings, dmOpponents, dmHeros);
 
   { TForm14 }
 
@@ -104,6 +102,7 @@ Type
 
     Function TransferShareServer(Obj: tctd_mapopbject): Boolean; // Sendet ein lokales Objekt an den Server
     Procedure RefreshForm4Buyables;
+    Procedure ReloadIndex; // Läd die ItemObjecte die grad selectiert sind neu (nach Edit Dialog)
   End;
 
 Var
@@ -121,7 +120,7 @@ Uses
   , unit7 // Opponent Editor
   , unit15 // Abfrage beim copieren von Opponents / Gebäuden in Unit14
   , unit19 // Hero Editor
-  , uctd, uctd_common, uctd_building, uctd_opp, uctd_messages, uctd_hero
+  , uctd, uctd_building, uctd_opp, uctd_messages, uctd_hero
   ;
 
 { TForm14 }
@@ -233,6 +232,8 @@ Begin
 End;
 
 Procedure TForm14.Button2Click(Sender: TObject);
+Var
+  obj: TItemObject;
 Begin
   // Delete in Map
   If ListBox2.ItemIndex <> -1 Then Begin
@@ -250,6 +251,8 @@ Begin
           RefreshForm4Buyables;
         End;
     End;
+    obj := TItemObject(ListBox2.items.Objects[ListBox2.ItemIndex]);
+    If assigned(obj) Then obj.Unregister;
     ListBox2.items.Delete(ListBox2.ItemIndex);
   End;
 End;
@@ -527,6 +530,9 @@ Begin
       For i := 0 To ListBox2.Items.Count - 1 Do Begin
         If ListBox2.Items[i] = t Then Begin
           ListBox2.ItemIndex := i;
+          obj := TItemObject(ListBox2.items.Objects[i]);
+          If assigned(obj) Then obj.ReloadPrivate;
+          ListBox2.Invalidate;
           LogLeave;
           exit;
         End;
@@ -972,6 +978,47 @@ Begin
     form4.Edit6.Enabled := false;
     form4.Edit7.Enabled := false;
     form4.Button10.Enabled := false;
+  End;
+End;
+
+Procedure TForm14.ReloadIndex;
+Var
+  obj: TItemObject;
+Begin
+  obj := Nil;
+  Case fmode Of
+    dmBuildings: Begin
+        If form6.transfer Then Begin
+          obj := TItemObject(ListBox2.Items.Objects[ListBox2.ItemIndex]);
+        End
+        Else Begin
+          obj := TItemObject(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+        End;
+      End;
+    dmOpponents: Begin
+        If form7.transfer Then Begin
+          obj := TItemObject(ListBox2.Items.Objects[ListBox2.ItemIndex]);
+        End
+        Else Begin
+          obj := TItemObject(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+        End;
+      End;
+    dmHeros: Begin
+        If form19.transfer Then Begin
+          obj := TItemObject(ListBox2.Items.Objects[ListBox2.ItemIndex]);
+        End
+        Else Begin
+          obj := TItemObject(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+        End;
+      End;
+  End;
+  If assigned(obj) Then Begin
+    obj.ReloadPrivate;
+    // Eigentlich müsste das hier nur die jeweilig "richtige" sein, aber so what ...
+    ListBox1.Invalidate;
+    ListBox2.Invalidate;
+    // Theoretisch müste auch noch Form4 Aktualisiert werden
+    // Dass aber nur, wenn sich das Bild ändert, ..
   End;
 End;
 

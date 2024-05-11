@@ -80,6 +80,7 @@ Const
    *                      ADD: If Chat is empty and "Return" -> Close dialog
    *            0.10002 = ADD: Feature Request, show map texture and terrain at same time
    *            0.10003 = ADD: Icons for Gebs / Opps / Heros in menus
+   *                      FIX: Reduce loading times by TItemObjectManager
    * Known Bugs :
    *)
   (*
@@ -264,6 +265,8 @@ Type
 
   TLogShowHandler = Procedure(Msg: String; WarnLevel: TLogLevel);
 
+  TDialogMode = (dmBuildings, dmOpponents, dmHeros);
+
   TSlowDown = Record
     slowdownstatic: single;
     slowdowndynamic: single;
@@ -337,21 +340,31 @@ Type
   TBuildingStrategy = (bsFirst, bsLast, bsNearest, bsFarest, bsStrongest, bsWeakest, bsRandom);
 
 {$IFDEF Client}
+
   { TItemObject }
 
-  TItemObject = Class
+  TItemObject = Class // TODO: What ein Hack, mal sauber aufräumen..
   private
-
+    fMode: TDialogMode;
+    Procedure LoadOppInfo_private(Const Filename: String);
+    Procedure LoadGebInfo_private(Const Filename: String);
+    Procedure LoadHeroInfo_private(Const Filename: String);
     Procedure LoadImage(Const Filename: String);
   public
     Image: TBitmap;
     Text: String;
+    fFilename: String;
     Constructor Create;
     Destructor Destroy; override;
     Procedure LoadOppInfo(Const Filename: String);
     Procedure LoadGebInfo(Const Filename: String);
     Procedure LoadHeroInfo(Const Filename: String);
     Procedure Clone(Const obj: TItemObject);
+
+    Procedure UnRegister;
+
+    Class Procedure Reload(Const Filename: String);
+    Procedure ReloadPrivate;
   End;
 {$ENDIF}
 
@@ -462,9 +475,34 @@ Uses FileUtil, LazUTF8, LazFileUtils, math
 {$ENDIF}
   ;
 
-// Taken from: https://forum.lazarus.freepascal.org/index.php?topic=17747.0
-
 {$IFDEF Client}
+
+Type
+
+  { TItemObjectManager }
+
+  TItemObjectManager = Class
+  private
+    objs: Array Of TItemObject;
+    Function Loaded(Const Filename: String; Var obj: TItemObject): Boolean;
+    Procedure Append(Const obj: TItemObject);
+  public
+    Constructor Create;
+    Destructor Destroy; override;
+
+    Procedure LoadOppInfo(Const Filename: String; Var obj: TItemObject);
+    Procedure LoadGebInfo(Const Filename: String; Var obj: TItemObject);
+    Procedure LoadHeroInfo(Const Filename: String; Var obj: TItemObject);
+
+    Procedure UnRegister(Const obj: TItemObject);
+    Procedure Reload(Const Filename: String);
+  End;
+
+
+Var
+  ItemObjectManager: TItemObjectManager = Nil;
+
+  // Taken from: https://forum.lazarus.freepascal.org/index.php?topic=17747.0
 
 Procedure RestartApplication();
 Var
@@ -1012,6 +1050,107 @@ End;
 
 {$IFDEF Client}
 
+{ TItemObjectManager }
+
+Function TItemObjectManager.Loaded(Const Filename: String; Var obj: TItemObject
+  ): Boolean;
+Var
+  i: Integer;
+Begin
+  result := false;
+  For i := 0 To high(objs) Do Begin
+    If objs[i].fFilename = Filename Then Begin
+      result := true;
+      obj.Clone(objs[i]);
+      exit;
+    End;
+  End;
+End;
+
+Procedure TItemObjectManager.Append(Const obj: TItemObject);
+Begin
+  setlength(objs, high(objs) + 2);
+  objs[high(objs)] := obj;
+End;
+
+Constructor TItemObjectManager.Create;
+Begin
+  objs := Nil;
+End;
+
+Destructor TItemObjectManager.Destroy;
+Var
+  i: Integer;
+Begin
+  For i := 0 To high(objs) Do Begin
+    objs[i].free;
+  End;
+  setlength(objs, 0);
+End;
+
+Procedure TItemObjectManager.LoadOppInfo(Const Filename: String;
+  Var obj: TItemObject);
+Var
+  iobj: TItemObject;
+Begin
+  If Loaded(Filename, obj) Then exit;
+  iobj := TItemObject.Create;
+  iobj.LoadOppInfo_private(Filename);
+  obj.Clone(iobj);
+  append(iobj);
+End;
+
+Procedure TItemObjectManager.LoadGebInfo(Const Filename: String;
+  Var obj: TItemObject);
+Var
+  iobj: TItemObject;
+Begin
+  If Loaded(Filename, obj) Then exit;
+  iobj := TItemObject.Create;
+  iobj.LoadGebInfo_private(Filename);
+  obj.Clone(iobj);
+  append(iobj);
+End;
+
+Procedure TItemObjectManager.LoadHeroInfo(Const Filename: String;
+  Var obj: TItemObject);
+Var
+  iobj: TItemObject;
+Begin
+  If Loaded(Filename, obj) Then exit;
+  iobj := TItemObject.Create;
+  iobj.LoadHeroInfo_private(Filename);
+  obj.Clone(iobj);
+  append(iobj);
+End;
+
+Procedure TItemObjectManager.UnRegister(Const obj: TItemObject);
+Var
+  i, j: Integer;
+Begin
+  For i := 0 To high(objs) Do Begin
+    If objs[i].fFilename = obj.fFilename Then Begin
+      objs[i].Free;
+      For j := i To high(objs) - 1 Do Begin
+        objs[j] := objs[j + 1];
+      End;
+      setlength(objs, high(objs));
+    End;
+  End;
+End;
+
+Procedure TItemObjectManager.Reload(Const Filename: String);
+Var
+  i: Integer;
+Begin
+  For i := 0 To high(objs) Do Begin
+    If objs[i].fFilename = Filename Then Begin
+      objs[i].ReloadPrivate();
+      break;
+    End;
+  End;
+End;
+
 { TItemObject }
 
 Constructor TItemObject.Create;
@@ -1024,6 +1163,22 @@ End;
 Destructor TItemObject.Destroy;
 Begin
   image.free;
+End;
+
+Procedure TItemObject.LoadOppInfo(Const Filename: String);
+Begin
+  ItemObjectManager.LoadOppInfo(Filename, self);
+End;
+
+Procedure TItemObject.LoadGebInfo(Const Filename: String);
+Begin
+  ItemObjectManager.LoadGebInfo(Filename, self);
+
+End;
+
+Procedure TItemObject.LoadHeroInfo(Const Filename: String);
+Begin
+  ItemObjectManager.LoadHeroInfo(Filename, self);
 End;
 
 Procedure TItemObject.LoadImage(Const Filename: String);
@@ -1065,11 +1220,13 @@ Begin
   End;
 End;
 
-Procedure TItemObject.LoadOppInfo(Const Filename: String);
+Procedure TItemObject.LoadOppInfo_private(Const Filename: String);
 Var
   opp: TOpponent;
   fp: String;
 Begin
+  fMode := dmOpponents;
+  fFilename := Filename;
   opp := TOpponent.create();
   opp.LoadFromFile(Filename);
   Text := format('(%d/%d/%d/%d)', [opp.LifePoints[0], opp.LifePoints[1], opp.LifePoints[2], opp.LifePoints[3]]);
@@ -1078,11 +1235,13 @@ Begin
   opp.free;
 End;
 
-Procedure TItemObject.LoadGebInfo(Const Filename: String);
+Procedure TItemObject.LoadGebInfo_private(Const Filename: String);
 Var
   geb: TBuilding;
   fp: String;
 Begin
+  fMode := dmBuildings;
+  fFilename := Filename;
   geb := TBuilding.create();
   geb.LoadFromFile(Filename);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
@@ -1096,11 +1255,13 @@ Begin
   geb.free;
 End;
 
-Procedure TItemObject.LoadHeroInfo(Const Filename: String);
+Procedure TItemObject.LoadHeroInfo_private(Const Filename: String);
 Var
   hero: THero;
   fp: String;
 Begin
+  fMode := dmHeros;
+  fFilename := Filename;
   hero := THero.create();
   hero.LoadFromFile(Filename);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
@@ -1114,18 +1275,53 @@ Begin
   hero.free;
 End;
 
+Procedure TItemObject.ReloadPrivate;
+Begin
+  Case fMode Of
+    dmBuildings: Begin
+        LoadGebInfo_private(fFilename);
+      End;
+    dmOpponents: Begin
+        LoadOppInfo_private(fFilename);
+      End;
+    dmHeros: Begin
+        LoadHeroInfo_private(fFilename);
+      End;
+  End;
+End;
+
 Procedure TItemObject.Clone(Const obj: TItemObject);
 Begin
   If assigned(obj) Then Begin
+    fFilename := obj.fFilename;
     text := obj.Text;
     image.Assign(obj.Image);
+    fMode := obj.fMode;
   End
   Else Begin
     text := '';
     image.Clear;
+    fFilename := '';
   End;
 End;
 
+Procedure TItemObject.UnRegister;
+Begin
+  ItemObjectManager.UnRegister(Self);
+End;
+
+Class Procedure TItemObject.Reload(Const Filename: String);
+Begin
+  ItemObjectManager.Reload(Filename);
+End;
+
+Initialization
+  ItemObjectManager := TItemObjectManager.create;
+
+Finalization
+  ItemObjectManager.free;
+
 {$ENDIF}
+
 End.
 

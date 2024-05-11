@@ -123,6 +123,7 @@ End;
 
 Procedure TForm7.FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
 Begin
+  form14.ReloadIndex;
   form14.Show;
 End;
 
@@ -156,6 +157,7 @@ Begin
     exit;
   End;
   Opponent.SaveToFile(Opponent.Filename);
+  TItemObject.Reload(Opponent.Filename);
   If transfer Then Begin
     If Not Form14.TransferShareServer(Opponent) Then Begin
       logshow('Could not transfer opponent to server, please retry in a few seconds.', llError);

@@ -138,6 +138,7 @@ Begin
     exit;
   End;
   hero.SaveToFile(hero.Filename);
+  TItemObject.Reload(hero.Filename);
   If transfer Then Begin
     If Not Form14.TransferShareServer(Hero) Then Begin
       logshow('Could not transfer hero to server, please retry in a few seconds.', llError);
@@ -154,6 +155,7 @@ End;
 
 Procedure TForm19.FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
 Begin
+  form14.ReloadIndex;
   form14.Show;
 End;
 
