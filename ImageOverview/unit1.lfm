@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 238
-  Height = 409
-  Top = 106
+  Left = 347
+  Height = 504
+  Top = 107
   Width = 512
   Caption = 'Form1'
-  ClientHeight = 409
+  ClientHeight = 504
   ClientWidth = 512
   Position = poScreenCenter
   LCLVersion = '3.99.0.0'
@@ -21,8 +21,8 @@ object Form1: TForm1
   end
   object ListBox1: TListBox
     Left = 8
-    Height = 296
-    Top = 40
+    Height = 367
+    Top = 64
     Width = 496
     Anchors = [akTop, akLeft, akRight, akBottom]
     Items.Strings = (
@@ -41,7 +41,7 @@ object Form1: TForm1
   object Edit1: TEdit
     Left = 8
     Height = 26
-    Top = 339
+    Top = 434
     Width = 496
     Anchors = [akLeft, akRight, akBottom]
     ReadOnly = True
@@ -51,12 +51,21 @@ object Form1: TForm1
   object Button2: TButton
     Left = 8
     Height = 25
-    Top = 376
+    Top = 471
     Width = 496
     Anchors = [akLeft, akRight, akBottom]
     Caption = 'Close'
     TabOrder = 3
     OnClick = Button2Click
+  end
+  object ProgressBar1: TProgressBar
+    Left = 8
+    Height = 20
+    Top = 40
+    Width = 496
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 4
+    Visible = False
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog
     Left = 80

@@ -19,7 +19,8 @@ Unit Unit1;
 Interface
 
 Uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls, types;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  ComCtrls, types;
 
 Type
 
@@ -30,6 +31,7 @@ Type
     Button2: TButton;
     Edit1: TEdit;
     ListBox1: TListBox;
+    ProgressBar1: TProgressBar;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     Procedure Button1Click(Sender: TObject);
     Procedure Button2Click(Sender: TObject);
@@ -66,27 +68,28 @@ Var
 Begin
   SelectDirectoryDialog1.FileName := ExtractFilePath(ParamStrUTF8(0));
   If SelectDirectoryDialog1.Execute Then Begin
-    sl := TStringList.Create;
     sl := FindAllFiles(SelectDirectoryDialog1.FileName, '*.bmp;*.png;*.ani', true);
     sl.Sorted := true;
     sl.Sort;
     For i := 0 To high(fListboxData) Do Begin
       fListboxData[i].Free;
     End;
+    ProgressBar1.Visible := true;
+    ProgressBar1.Max := sl.Count;
     setlength(fListboxData, sl.Count);
+    ListBox1.Items.BeginUpdate;
     ListBox1.Items.Clear;
     For i := 0 To sl.Count - 1 Do Begin
+      If i Mod max(1, sl.count Div 10) = 0 Then Begin
+        ProgressBar1.Position := i;
+        Application.ProcessMessages;
+      End;
       Case lowercase(ExtractFileExt(sl[i])) Of
         '.png': Begin
             p := TPortableNetworkGraphic.Create;
             p.LoadFromFile(sl[i]);
             b := TBitmap.Create;
-            //b.Assign(p); -- Das kopiert macht manchmal die Transparente Farbe kaputt, so ists umständlich aber funktioniert ;)
-            b.Width := p.Width;
-            b.Height := p.Height;
-            For j := 0 To p.Width - 1 Do
-              For k := 0 To p.Height - 1 Do
-                b.canvas.Pixels[j, k] := p.Canvas.Pixels[j, k];
+            b.Assign(p);
             p.free;
           End;
         '.bmp': Begin
@@ -105,7 +108,10 @@ Begin
       fListboxData[i] := b;
       listbox1.Items.Add(sl[i]);
     End;
+    ProgressBar1.Visible := false;
+    ListBox1.Items.EndUpdate;
     listbox1.Invalidate;
+    sl.free;
   End;
 End;
 
@@ -120,8 +126,9 @@ Begin
    * 0.01 = Initialversion
    * 0.02 = Support Animations
    * 0.03 = Sort Elements
+   * 0.04 = Speedup and Progressbar
    *)
-  caption := 'Image shower ver. 0.03, by Corpsman, support : www.Corpsman.de';
+  caption := 'Image shower ver. 0.04, by Corpsman, support : www.Corpsman.de';
   fListboxData := Nil;
   ListBox1.Clear;
   edit1.text := '';
