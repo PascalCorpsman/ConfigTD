@@ -24,7 +24,7 @@ Uses
   Classes, SysUtils, Graphics, uvectormath, Dialogs, ulogger
 {$IFDEF Client}
   , uopengl_graphikengine
-  , forms, Controls, uopengl_animation
+  , forms, Controls, StdCtrls, uopengl_animation
 {$ENDIF}
   ;
 
@@ -346,6 +346,8 @@ Type
   TItemObject = Class // TODO: What ein Hack, mal sauber aufräumen..
   private
     fMode: TDialogMode;
+    fPower: TPower; // Zum Sortieren
+    fName: String; // Zum Sortieren
     Procedure LoadOppInfo_private(Const Filename: String);
     Procedure LoadGebInfo_private(Const Filename: String);
     Procedure LoadHeroInfo_private(Const Filename: String);
@@ -457,6 +459,9 @@ Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
 
 {$IFDEF Client}
 Procedure RestartApplication();
+Procedure ItemObjectItemsSort(Const List: TStrings); // Sortiert eine Liste nach Item Objects
+Procedure AddAndSelect(Const aListbox: TListBox; aText: String; aObject: tObject);
+Procedure AddAndSort(Const aListbox: TListBox; aText: String; aObject: tObject);
 {$ENDIF}
 
 Implementation
@@ -522,6 +527,106 @@ Begin
   aProcess.Free;
   Application.Terminate;
 End;
+
+Procedure ItemObjectItemsSort(Const List: TStrings);
+
+  Function CompareItem(a, b, Selector: integer): integer;
+  Var
+    aObj, bObj: TItemObject;
+  Begin
+    aobj := TItemObject(List.Objects[a]);
+    bObj := TItemObject(List.Objects[b]);
+    If assigned(aObj) And assigned(bObj) Then Begin
+      Case Selector Of
+        0: result := CompareStr(aObj.fName, bObj.fName);
+        4: result := aObj.fPower[3] - bObj.fPower[3];
+        3: result := aObj.fPower[2] - bObj.fPower[2];
+        2: result := aObj.fPower[1] - bObj.fPower[1];
+        1: result := aObj.fPower[0] - bObj.fPower[0];
+      End;
+    End
+    Else Begin
+      result := CompareStr(list[a], list[b]);
+    End;
+  End;
+
+  Procedure Quick(li, re: integer);
+  Var
+    l, r, p: Integer;
+  Begin
+    If Li < Re Then Begin
+      // Achtung, das Pivotelement darf nur einam vor den While schleifen ausgelesen werden, danach nicht mehr !!
+      p := Trunc((li + re) / 2); // Auslesen des Pivo Elementes
+      l := Li;
+      r := re;
+      While l < r Do Begin
+        While CompareItem(l, p, 0) < 0 Do
+          inc(l);
+        While CompareItem(r, p, 0) > 0 Do
+          dec(r);
+        If L <= R Then Begin
+          List.Exchange(l, r);
+          inc(l);
+          dec(r);
+        End;
+      End;
+      quick(li, r);
+      quick(l, re);
+    End;
+  End;
+
+  Procedure Bubble(Selector: integer); // TODO: Einen effizienteren Algorithmus nehmen !
+  Var
+    i, j: Integer;
+  Begin
+    For i := list.count - 1 Downto 1 Do Begin
+      For j := 1 To i Do Begin
+        If CompareItem(j, j - 1, Selector) < 0 Then Begin
+          List.Exchange(j, j - 1);
+        End;
+      End;
+    End;
+  End;
+
+Var
+  i: Integer;
+Begin
+  (*
+   * Da es 5 Sortierkategorieen gibt muss leider auch 5 Mal sortiert werden :/
+   *)
+  Quick(0, list.count - 1);
+  For i := 1 To 4 Do Begin
+    Bubble(i);
+  End;
+End;
+
+Procedure AddAndSelect(Const aListbox: TListBox; aText: String;
+  aObject: tObject);
+Var
+  i: Integer;
+Begin
+  AddAndSort(aListbox, aText, aObject);
+  // Select the Inserted Element
+  For i := 0 To aListbox.Items.Count - 1 Do Begin
+    If aListbox.Items[i] = aText Then Begin
+      aListbox.ItemIndex := i;
+      break;
+    End;
+  End;
+End;
+
+Procedure AddAndSort(Const aListbox: TListBox; aText: String;
+  aObject: tObject);
+Begin
+  If assigned(aObject) Then Begin
+    aListbox.Items.AddObject(aText, aObject);
+  End
+  Else Begin
+    aListbox.Items.Add(aText);
+  End;
+  ItemObjectItemsSort(aListbox.Items);
+End;
+
 {$ENDIF}
 
 Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
@@ -1229,6 +1334,8 @@ Begin
   fFilename := Filename;
   opp := TOpponent.create();
   opp.LoadFromFile(Filename);
+  fPower := opp.LifePoints;
+  fName := ExtractFileNameOnly(Filename);
   Text := format('(%d/%d/%d/%d)', [opp.LifePoints[0], opp.LifePoints[1], opp.LifePoints[2], opp.LifePoints[3]]);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   LoadImage(fp + opp.Image);
@@ -1244,6 +1351,8 @@ Begin
   fFilename := Filename;
   geb := TBuilding.create();
   geb.LoadFromFile(Filename);
+  fPower := geb.Stages[high(geb.Stages)].bulletpower;
+  fName := ExtractFileNameOnly(Filename);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   text :=
     format('(%d/%d/%d/%d)', [
@@ -1264,6 +1373,8 @@ Begin
   fFilename := Filename;
   hero := THero.create();
   hero.LoadFromFile(Filename);
+  fPower := hero.Levels[high(hero.Levels)].bulletpower;
+  fName := ExtractFileNameOnly(Filename);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   text :=
     format('(%d/%d/%d/%d)', [
@@ -1297,11 +1408,18 @@ Begin
     text := obj.Text;
     image.Assign(obj.Image);
     fMode := obj.fMode;
+    fPower := obj.fPower;
+    fName := obj.fName;
   End
   Else Begin
     text := '';
     image.Clear;
     fFilename := '';
+    fName := '';
+    fPower[0] := 0;
+    fPower[1] := 0;
+    fPower[2] := 0;
+    fPower[3] := 0;
   End;
 End;
 

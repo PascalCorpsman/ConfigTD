@@ -19,9 +19,9 @@ object Form4: TForm4
     Height = 465
     Top = 0
     Width = 323
-    ActivePage = TabSheet4
+    ActivePage = TabSheet2
     Align = alClient
-    TabIndex = 4
+    TabIndex = 1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'General'
@@ -95,7 +95,7 @@ object Form4: TForm4
         Top = 192
         Width = 304
         Caption = ' Lives count for every Player'
-        ClientHeight = 70
+        ClientHeight = 55
         ClientWidth = 302
         TabOrder = 3
         object Label4: TLabel
@@ -235,7 +235,7 @@ object Form4: TForm4
         Top = 320
         Width = 305
         Caption = ' Damage classes '
-        ClientHeight = 46
+        ClientHeight = 31
         ClientWidth = 303
         TabOrder = 8
         object Button13: TButton
@@ -355,7 +355,7 @@ object Form4: TForm4
         Top = 40
         Width = 304
         Caption = ' Edit Terrain '
-        ClientHeight = 103
+        ClientHeight = 88
         ClientWidth = 302
         TabOrder = 1
         object CheckBox2: TCheckBox
@@ -416,7 +416,7 @@ object Form4: TForm4
         Top = 160
         Width = 304
         Caption = ' Placements '
-        ClientHeight = 95
+        ClientHeight = 80
         ClientWidth = 302
         TabOrder = 2
         object CheckBox6: TCheckBox

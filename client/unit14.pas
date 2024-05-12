@@ -92,8 +92,6 @@ Type
     Procedure TransferLocalServer(LocalName, ServerName: String); // Sendet von der Lokalen Position alles zum Server in die Map
 
     Procedure TransferShareLocal(ShareName, LocalName: String); // Transveriert von Lokalen Share nach Lokales Verzeichnis
-
-    Procedure AddForm4Buyable(b: TBuyAble);
   public
     { public declarations }
     Procedure LoadBuildingSettings(OnLoadBuildingFinishEvent: TNotifyEvent);
@@ -226,7 +224,7 @@ Begin
       End;
   End;
   // Anfügen des Elementes in die Liste und Laden
-  ListBox1.ItemIndex := ListBox1.Items.Add(edit1.text);
+  AddAndSelect(ListBox1, Edit1.Text, Nil);
   Button4.Click; // Laden
   LogLeave;
 End;
@@ -543,11 +541,11 @@ Begin
           found := true;
           obj := TItemObject.Create;
           obj.clone(TItemObject(ListBox1.Items.Objects[i]));
-          ListBox2.ItemIndex := Listbox2.Items.AddObject(t, obj);
+          AddAndSelect(ListBox2, t, obj);
           break;
         End;
       End;
-      If Not found Then ListBox2.ItemIndex := Listbox2.Items.Add(t);
+      If Not found Then AddAndSelect(ListBox2, t, Nil);
       Case fmode Of
         dmBuildings: Begin
             // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
@@ -562,7 +560,7 @@ Begin
             m.Write(b.Kind, sizeof(b.Kind));
             //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
             ctd.UpdateMapProperty(mpAddBuyable, m);
-            AddForm4Buyable(b);
+            form1.AddForm4Buyable(b);
 
             // Freischalten des Editierens der Gebäude Eigenschaften
             form4.Edit6.Enabled := true;
@@ -586,7 +584,7 @@ Begin
             m.Write(b.Kind, sizeof(b.Kind));
             //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
             ctd.UpdateMapProperty(mpAddBuyable, m);
-            AddForm4Buyable(b);
+            form1.AddForm4Buyable(b);
 
             // Freischalten des Editierens der Gebäude Eigenschaften
             form4.Edit6.Enabled := true;
@@ -674,6 +672,7 @@ Begin
       End;
     End;
   End;
+  ItemObjectItemsSort(listbox2.Items);
   If assigned(fOnLoadFinishEvent) Then
     fOnLoadFinishEvent(Nil);
   fOnLoadFinishEvent := Nil;
@@ -698,15 +697,12 @@ Begin
   button7.Enabled := Assigned(ctd.Map);
   // Die "Globalen"
   ListBox1.Clear;
-  ListBox1.Sorted := true;
   fTruncedMapfolder := ExcludeTrailingPathDelimiter(MapFolder);
   While fTruncedMapfolder[length(fTruncedMapfolder)] <> PathDelim Do Begin
     delete(fTruncedMapfolder, length(fTruncedMapfolder), 1);
   End;
   fTruncedMapfolder := fTruncedMapfolder + 'buildings' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
-  sl.Sorted := true;
-  sl.Sort;
   For i := 0 To sl.count - 1 Do Begin
     fn := fTruncedMapfolder + sl[i] + PathDelim + sl[i] + '.geb';
     If FileExists(fn) Then Begin
@@ -716,10 +712,10 @@ Begin
     End;
   End;
   sl.free;
+  ItemObjectItemsSort(ListBox1.Items);
   Edit1.text := '';
   // Die der Lokalen Karte
   ListBox2.Clear;
-  ListBox2.Sorted := true;
   fOnLoadFinishEvent := OnLoadBuildingFinishEvent;
   ctd.GetFileList('*.geb', @OnGetListbox2Content);
 End;
@@ -742,7 +738,6 @@ Begin
   button7.Enabled := Assigned(ctd.Map);
   // Die "Globalen"
   ListBox1.Clear;
-  ListBox1.Sorted := true;
   fTruncedMapfolder := ExcludeTrailingPathDelimiter(MapFolder);
   While fTruncedMapfolder[length(fTruncedMapfolder)] <> PathDelim Do Begin
     delete(fTruncedMapfolder, length(fTruncedMapfolder), 1);
@@ -758,10 +753,10 @@ Begin
     End;
   End;
   sl.free;
+  ItemObjectItemsSort(ListBox1.Items);
   Edit1.text := '';
   // Die der Lokalen Karte
   ListBox2.Clear;
-  ListBox2.Sorted := true;
   fOnLoadFinishEvent := Nil; // Gegner können aus Form4 heraus nicht direkt geladen werden, deswegen brauchen wir den Event an der Stelle nicht..
   ctd.GetFileList('*.opp', @OnGetListbox2Content);
 End;
@@ -784,15 +779,12 @@ Begin
   button7.Enabled := Assigned(ctd.Map);
   // Die "Globalen"
   ListBox1.Clear;
-  ListBox1.Sorted := true;
   fTruncedMapfolder := ExcludeTrailingPathDelimiter(MapFolder);
   While fTruncedMapfolder[length(fTruncedMapfolder)] <> PathDelim Do Begin
     delete(fTruncedMapfolder, length(fTruncedMapfolder), 1);
   End;
   fTruncedMapfolder := fTruncedMapfolder + 'heros' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
-  sl.Sorted := true;
-  sl.Sort;
   For i := 0 To sl.count - 1 Do Begin
     fn := fTruncedMapfolder + sl[i] + PathDelim + sl[i] + '.hero';
     If FileExists(fn) Then Begin
@@ -802,10 +794,10 @@ Begin
     End;
   End;
   sl.free;
+  ItemObjectItemsSort(ListBox1.Items);
   Edit1.text := '';
   // Die der Lokalen Karte
   ListBox2.Clear;
-  ListBox2.Sorted := true;
   fOnLoadFinishEvent := OnLoadHeroFinishEvent;
   ctd.GetFileList('*.hero', @OnGetListbox2Content);
 End;
@@ -945,20 +937,20 @@ Begin
     dmBuildings: Begin
         iobj := TItemObject.Create;
         iobj.LoadGebInfo(ShareName);
-        Listbox1.ItemIndex := Listbox1.Items.AddObject(p, iobj);
+        AddAndSelect(Listbox1, p, iobj);
       End;
     dmOpponents: Begin
         iobj := TItemObject.Create;
         iobj.LoadOppInfo(ShareName);
-        Listbox1.ItemIndex := Listbox1.Items.AddObject(p, iobj);
+        AddAndSelect(Listbox1, p, iobj);
       End;
     dmHeros: Begin
         iobj := TItemObject.Create;
         iobj.LoadHeroInfo(ShareName);
-        Listbox1.ItemIndex := Listbox1.Items.AddObject(p, iobj);
+        AddAndSelect(Listbox1, p, iobj);
       End;
   Else Begin
-      Listbox1.ItemIndex := Listbox1.Items.Add(p);
+      AddAndSelect(Listbox1, p, Nil);
     End;
   End;
   LogLeave;
@@ -970,7 +962,7 @@ Var
 Begin
   form4.ListBox1.Clear;
   For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
-    AddForm4Buyable(ctd.Map.BuyAbles[i]);
+    form1.AddForm4Buyable(ctd.Map.BuyAbles[i]);
   End;
   form4.Edit6.Text := '';
   form4.Edit7.Text := '';
@@ -1019,27 +1011,6 @@ Begin
     ListBox2.Invalidate;
     // Theoretisch müste auch noch Form4 Aktualisiert werden
     // Dass aber nur, wenn sich das Bild ändert, ..
-  End;
-End;
-
-Procedure TForm14.AddForm4Buyable(b: TBuyAble);
-Var
-  obj: TItemObject;
-Begin
-  Case b.Kind Of
-    bkBuilding: Begin
-        obj := TItemObject.Create;
-        obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
-        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
-      End;
-    bkHero: Begin
-        obj := TItemObject.Create;
-        obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
-        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
-      End;
-  Else Begin
-      form4.listbox1.Items.add(BuyableToString(b));
-    End;
   End;
 End;
 

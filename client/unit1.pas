@@ -39,7 +39,7 @@ Uses
   Graphics, Dialogs, Menus, ExtCtrls, StdCtrls,
   UniqueInstance, // Wird in der .lpr Benutzt
   dglOpenGL, // http://wiki.delphigl.com/index.php/dglOpenGL.pas (innerhalb der .pas datei muss am Anfang stehen  {$HINTS off} und am Ende  {$HINTS on}
-  uctd_common, uctd, uopengl_widgetset, uwave_frame, uwave_oppenent_frame,
+  uctd_common, uctd_map, uctd, uopengl_widgetset, uwave_frame, uwave_oppenent_frame,
 {$IFDEF Windows} // Windows 10/11 Lazarus Darkmode compatiblity
   uDarkStyleParams, uMetaDarkStyle, uDarkStyleSchemes,
   uWin32WidgetSetDark,
@@ -195,7 +195,7 @@ Type
      *)
     Procedure HideForm4;
     Procedure RestoreForm4;
-
+    Procedure AddForm4Buyable(b: TBuyAble);
   End;
 
 Var
@@ -222,7 +222,7 @@ Uses
 {$ENDIF}
   , uOpenGL_ASCII_Font
   , ucolorselectbox
-  , uctd_messages, uctd_map
+  , uctd_messages
   , unit2 // Host Join Dialog
   , unit3 // Select Map Size Dialog (New Map)
   , unit4 // Karten Eigenschaften Dialog
@@ -1201,7 +1201,7 @@ Begin
         by.WaveNum := i;
         by.Count := j;
         by.Kind := bk;
-        form4.ListBox1.Items.Add(BuyableToString(by));
+        AddForm4Buyable(by);
       End;
     {mpDelBuyable: Begin
         s := Data.ReadAnsiString;
@@ -1388,6 +1388,27 @@ Begin
   End;
   If ctd.GameState = gs_EditMode Then Begin
     form4.Show;
+  End;
+End;
+
+Procedure TForm1.AddForm4Buyable(b: TBuyAble);
+Var
+  obj: TItemObject;
+Begin
+  Case b.Kind Of
+    bkBuilding: Begin
+        obj := TItemObject.Create;
+        obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
+        AddAndSort(form4.listbox1, BuyableToString(b), obj);
+      End;
+    bkHero: Begin
+        obj := TItemObject.Create;
+        obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
+        AddAndSort(form4.listbox1, BuyableToString(b), obj);
+      End;
+  Else Begin
+      AddAndSort(form4.listbox1, BuyableToString(b), Nil);
+    End;
   End;
 End;
 

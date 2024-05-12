@@ -823,6 +823,7 @@ Procedure TForm4.OnGetComboBox2Content(Sender: TObject; Const Data: TStringlist
 Var
   i: Integer;
 Begin
+  // TODO: Hier muss theoretisch auch noch die TItemObject Vorschau mit rein !
   ComboBox2.Sorted := true;
   ComboBox2.Items.Clear;
   For i := 0 To data.Count - 1 Do Begin
