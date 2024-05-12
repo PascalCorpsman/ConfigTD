@@ -1395,19 +1395,21 @@ Procedure TForm1.AddForm4Buyable(b: TBuyAble);
 Var
   obj: TItemObject;
 Begin
+  // Die Listbox mach keinen Sinn nach Power zu sortieren
+  // -> Sortieren Nach Alphabet (sorted flag wird in Form14 gesetzt
   Case b.Kind Of
     bkBuilding: Begin
         obj := TItemObject.Create;
         obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
-        AddAndSort(form4.listbox1, BuyableToString(b), obj);
+        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
       End;
     bkHero: Begin
         obj := TItemObject.Create;
         obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
-        AddAndSort(form4.listbox1, BuyableToString(b), obj);
+        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
       End;
   Else Begin
-      AddAndSort(form4.listbox1, BuyableToString(b), Nil);
+      form4.listbox1.items.add(BuyableToString(b));
     End;
   End;
 End;

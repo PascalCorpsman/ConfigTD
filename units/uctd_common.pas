@@ -81,6 +81,7 @@ Const
    *            0.10002 = ADD: Feature Request, show map texture and terrain at same time
    *            0.10003 = ADD: Icons for Gebs / Opps / Heros in menus
    *                      FIX: Reduce loading times by TItemObjectManager
+   *                      ADD: Custom Sorting for TItemObject Lists
    * Known Bugs :
    *)
   (*
@@ -1310,14 +1311,14 @@ Begin
       End;
     '.bmp': Begin
         image.LoadFromFile(Filename);
-        image.TransparentColor := image.canvas.pixels[0, 0];
+        image.TransparentColor := clFuchsia;
         image.transparent := true;
       End;
     '.ani': Begin
         Animation := TOpenGL_Animation.Create;
         Animation.LoadFromFile(Filename);
         b := Animation.GetFirstBitmap();
-        b.TransparentColor := b.canvas.pixels[0, 0];
+        b.TransparentColor := clFuchsia;
         b.transparent := true;
         Image.Assign(b);
         b.free;

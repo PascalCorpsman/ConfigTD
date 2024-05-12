@@ -19,9 +19,9 @@ object Form4: TForm4
     Height = 465
     Top = 0
     Width = 323
-    ActivePage = TabSheet2
+    ActivePage = TabSheet3
     Align = alClient
-    TabIndex = 1
+    TabIndex = 3
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'General'
@@ -95,7 +95,7 @@ object Form4: TForm4
         Top = 192
         Width = 304
         Caption = ' Lives count for every Player'
-        ClientHeight = 55
+        ClientHeight = 70
         ClientWidth = 302
         TabOrder = 3
         object Label4: TLabel
@@ -235,7 +235,7 @@ object Form4: TForm4
         Top = 320
         Width = 305
         Caption = ' Damage classes '
-        ClientHeight = 31
+        ClientHeight = 46
         ClientWidth = 303
         TabOrder = 8
         object Button13: TButton

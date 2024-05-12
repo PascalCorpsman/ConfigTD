@@ -961,6 +961,7 @@ Var
   i: Integer;
 Begin
   form4.ListBox1.Clear;
+  form4.ListBox1.Sorted := true;
   For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
     form1.AddForm4Buyable(ctd.Map.BuyAbles[i]);
   End;
