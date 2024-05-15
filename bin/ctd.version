@@ -9,14 +9,14 @@
         "file":        {
           "HASH":"8be50d69cd27117bfde0740b7ada0fbf",
           "HASH2":"a6ed777d520baa7fae1e1d27362a14e4",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/tree\/main\/bin\/Animation_Editor.exe",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":        {
           "HASH":"1657fbda6454b5a0beeb52aa0de510ff",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/tree\/main\/bin\/textures\/heart_dark.png",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/textures\/heart_dark.png",
           "Filename":"textures\/heart_dark.png"
         }
       }
