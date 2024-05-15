@@ -3683,9 +3683,9 @@ Begin
     fCoinsInfo := TCTDinfofield.Create(Owner, p + 'coins.png');
   fCoinsInfo.DarkMode := DarkMode;
   If DarkMode Then
-    fLivesInfo := TCTDinfofield.Create(Owner, p + 'hard_dark.png')
+    fLivesInfo := TCTDinfofield.Create(Owner, p + 'heart_dark.png')
   Else
-    fLivesInfo := TCTDinfofield.Create(Owner, p + 'hard.png');
+    fLivesInfo := TCTDinfofield.Create(Owner, p + 'heart.png');
   fLivesInfo.DarkMode := DarkMode;
   If DarkMode Then
     fWaveinfo := TCTDDualinfoField.Create(Owner, p + 'wave_dark.png')
