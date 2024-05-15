@@ -1,12 +1,12 @@
 object Form10: TForm10
   Left = 382
-  Height = 324
+  Height = 375
   Top = 123
-  Width = 496
+  Width = 500
   ActiveControl = CheckBox1
   Caption = 'Form10'
-  ClientHeight = 324
-  ClientWidth = 496
+  ClientHeight = 375
+  ClientWidth = 500
   Position = poScreenCenter
   LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
@@ -15,58 +15,57 @@ object Form10: TForm10
   OnShow = FormShow
   object CheckBox1: TCheckBox
     Left = 8
-    Height = 22
-    Top = 8
-    Width = 61
+    Height = 19
+    Top = 9
+    Width = 50
     Caption = '&Single'
     TabOrder = 1
     OnChange = CheckBox1Change
   end
   object CheckBox2: TCheckBox
-    Left = 72
-    Height = 22
-    Top = 8
-    Width = 56
+    Left = 8
+    Height = 19
+    Top = 25
+    Width = 47
     Caption = 'C&oop'
     TabOrder = 2
     OnChange = CheckBox1Change
   end
   object CheckBox3: TCheckBox
-    Left = 128
-    Height = 22
-    Top = 8
-    Width = 95
+    Left = 8
+    Height = 19
+    Top = 41
+    Width = 81
     Caption = 'Single &maze'
     TabOrder = 3
     OnChange = CheckBox1Change
   end
   object CheckBox4: TCheckBox
-    Left = 232
-    Height = 22
-    Top = 8
-    Width = 90
+    Left = 8
+    Height = 19
+    Top = 57
+    Width = 78
     Caption = 'Coop m&aze'
     TabOrder = 4
     OnChange = CheckBox1Change
   end
   object ListBox1: TListBox
     Left = 8
-    Height = 211
-    Top = 72
+    Height = 254
+    Top = 80
     Width = 184
     Anchors = [akTop, akLeft, akBottom]
     ItemHeight = 0
     ScrollWidth = 182
     TabOrder = 0
-    TopIndex = -1
     OnClick = ListBox1Click
     OnDblClick = ListBox1DblClick
     OnKeyPress = ListBox1KeyPress
   end
   object Button1: TButton
-    Left = 320
+    Left = 324
     Height = 25
-    Top = 291
+    Top = 342
     Width = 75
     Anchors = [akRight, akBottom]
     Caption = '&Load'
@@ -77,7 +76,7 @@ object Form10: TForm10
   object Button2: TButton
     Left = 8
     Height = 25
-    Top = 291
+    Top = 342
     Width = 75
     Anchors = [akLeft, akBottom]
     Cancel = True
@@ -88,7 +87,7 @@ object Form10: TForm10
   object Image1: TImage
     Left = 197
     Height = 112
-    Top = 112
+    Top = 120
     Width = 112
     Center = True
     Proportional = True
@@ -96,15 +95,15 @@ object Form10: TForm10
   end
   object Label1: TLabel
     Left = 197
-    Height = 16
-    Top = 96
-    Width = 47
+    Height = 15
+    Top = 104
+    Width = 41
     Caption = 'Preview'
   end
   object Memo1: TMemo
     Left = 320
-    Height = 211
-    Top = 72
+    Height = 254
+    Top = 80
     Width = 168
     Anchors = [akTop, akLeft, akBottom]
     Color = clInactiveBorder
@@ -118,15 +117,15 @@ object Form10: TForm10
   end
   object Label2: TLabel
     Left = 336
-    Height = 16
-    Top = 14
-    Width = 101
+    Height = 15
+    Top = 24
+    Width = 90
     Caption = 'min Player count'
   end
   object Edit1: TEdit
     Left = 448
-    Height = 26
-    Top = 6
+    Height = 23
+    Top = 16
     Width = 40
     TabOrder = 5
     Text = 'Edit1'
@@ -134,15 +133,15 @@ object Form10: TForm10
   end
   object Label3: TLabel
     Left = 336
-    Height = 16
-    Top = 40
-    Width = 104
+    Height = 15
+    Top = 56
+    Width = 92
     Caption = 'max Player count'
   end
   object Edit2: TEdit
     Left = 448
-    Height = 26
-    Top = 32
+    Height = 23
+    Top = 48
     Width = 40
     TabOrder = 6
     Text = 'Edit2'
@@ -150,9 +149,9 @@ object Form10: TForm10
   end
   object Label4: TLabel
     Left = 172
-    Height = 16
-    Top = 288
-    Width = 24
+    Height = 15
+    Top = 340
+    Width = 20
     Anchors = [akLeft, akBottom]
     Caption = '(12)'
     ParentBidiMode = False
@@ -160,7 +159,7 @@ object Form10: TForm10
   object Button3: TButton
     Left = 197
     Height = 25
-    Top = 291
+    Top = 342
     Width = 112
     Anchors = [akLeft, akBottom]
     Caption = '&Reset filter'
@@ -168,9 +167,9 @@ object Form10: TForm10
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 413
+    Left = 417
     Height = 25
-    Top = 291
+    Top = 342
     Width = 75
     Anchors = [akRight, akBottom]
     Caption = '&Play'
@@ -178,9 +177,9 @@ object Form10: TForm10
     OnClick = Button4Click
   end
   object TrackBar1: TTrackBar
-    Left = 64
+    Left = 151
     Height = 36
-    Top = 32
+    Top = 40
     Width = 64
     Max = 4
     Position = 0
@@ -188,10 +187,10 @@ object Form10: TForm10
     TabOrder = 12
   end
   object TrackBar2: TTrackBar
-    Left = 209
+    Left = 264
     Height = 36
-    Top = 32
-    Width = 100
+    Top = 40
+    Width = 64
     Max = 5
     Min = 1
     Position = 5
@@ -199,31 +198,43 @@ object Form10: TForm10
     TabOrder = 13
   end
   object Label5: TLabel
-    Left = 9
-    Height = 32
-    Top = 32
-    Width = 39
+    Left = 103
+    Height = 30
+    Top = 41
+    Width = 34
     Caption = 'Rating'#10'Min'
   end
   object Label6: TLabel
-    Left = 136
-    Height = 32
-    Top = 32
-    Width = 39
+    Left = 224
+    Height = 30
+    Top = 40
+    Width = 34
     Caption = 'Rating'#10'Max'
   end
   object Label7: TLabel
     Left = 197
-    Height = 16
-    Top = 72
-    Width = 42
+    Height = 15
+    Top = 80
+    Width = 37
     Caption = 'Rating:'
   end
   object Label8: TLabel
     Left = 248
-    Height = 16
-    Top = 72
-    Width = 41
+    Height = 15
+    Top = 80
+    Width = 34
     Caption = 'Label8'
+  end
+  object CheckBox5: TCheckBox
+    Left = 197
+    Height = 19
+    Hint = 'Playable means that at least one wave is defined for this map'
+    Top = 9
+    Width = 88
+    Caption = 'only Playable'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 14
+    OnChange = CheckBox1Change
   end
 end

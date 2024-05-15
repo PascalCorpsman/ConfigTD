@@ -82,6 +82,7 @@ Const
    *            0.10003 = ADD: Icons for Gebs / Opps / Heros in menus
    *                      FIX: Reduce loading times by TItemObjectManager
    *                      ADD: Custom Sorting for TItemObject Lists
+   *            0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
    * Known Bugs :
    *)
   (*

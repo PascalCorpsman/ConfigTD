@@ -2745,9 +2745,10 @@ Var
 Begin
   result := '';
   ini := TIniFile.Create(MapFolder + MapName + PathDelim + MapRootName);
-  result := format('%d:%d', [
+  result := format('%d:%d:%d', [
     ini.ReadInteger('map', 'type', -1),
-      ini.ReadInteger('map', 'maxplayer', 0)
+      ini.ReadInteger('map', 'maxplayer', 0),
+      ini.ReadInteger('map', 'waves', 0)
       ]);
   rc := ini.ReadInteger('Rating', 'Count', 0);
   If rc = 0 Then Begin

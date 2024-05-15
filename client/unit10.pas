@@ -35,6 +35,7 @@ Type
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
+    CheckBox5: TCheckBox;
     Edit1: TEdit;
     Edit2: TEdit;
     Image1: TImage;
@@ -74,6 +75,7 @@ Type
     Function ReadPlayer(Const Value: String): integer;
     Function ReadRating(Const Value: String): Single;
     Function ReadType(Const Value: String): integer;
+    Function ReadWaveCount(Const Value: String): integer;
   public
     { public declarations }
     Procedure ReloadLevels;
@@ -130,6 +132,7 @@ Begin
     setvalue('Global', 'MapsCoop', inttostr(ord(form10.CheckBox2.Checked)));
     setvalue('Global', 'MapsSingleMaze', inttostr(ord(form10.CheckBox3.Checked)));
     setvalue('Global', 'MapsCoopMaze', inttostr(ord(form10.CheckBox4.Checked)));
+    setvalue('Global', 'OnlyPlayable', inttostr(ord(form10.CheckBox5.Checked)));
     // Karte laden
     ctd.LoadMap(form10Filename);
     close;
@@ -147,6 +150,7 @@ Begin
   CheckBox2.Checked := true;
   CheckBox3.Checked := true;
   CheckBox4.Checked := true;
+  CheckBox5.Checked := true; // Das ist Prinzipiel heikel, da es ja default mäßig Karten ausblendet, unter der Annahme dass der Großteil der Spieler aber zocken und nicht Designen will, ists ok
   edit1.text := '1';
   edit2.text := '99';
   TrackBar1.Position := 0;
@@ -165,6 +169,7 @@ Begin
     setvalue('Global', 'MapsCoop', inttostr(ord(form10.CheckBox2.Checked)));
     setvalue('Global', 'MapsSingleMaze', inttostr(ord(form10.CheckBox3.Checked)));
     setvalue('Global', 'MapsCoopMaze', inttostr(ord(form10.CheckBox4.Checked)));
+    setvalue('Global', 'OnlyPlayable', inttostr(ord(form10.CheckBox5.Checked)));
     // Karte laden
     ctd.LoadMap(form10Filename);
     // Der "Hack" zum automatischen Starten des Spiels
@@ -216,44 +221,43 @@ Begin
   End;
 End;
 
-
 (*
- *  Der String ist wie folgt aufgebaut
+ *  Der String ist wie folgt aufgebaut (wird in TServer.HandleRequestMapList bzw. TServer.ExtractMapAttibutes erzeugt)
  *
- *  <MapName>:<Maptype>:<MaxPlayer>:Rating
+ *  <MapName>:<Maptype> :<MaxPlayer>:<NumWaves>:<Rating>
+ *  <String> :<Bitfield>:<integer>  :<integer> :<integer>
  *)
 
 Function TForm10.ReadRating(Const Value: String): Single;
 Var
-  s: String;
+  a: TStringArray;
 Begin
-  // Abschneiden <Mapname>
-  s := copy(value, pos(':', value) + 1, length(value));
-  // Abschneiden <Maptype>
-  s := copy(s, pos(':', s) + 1, length(s));
-  // Abschneiden <MaxPlayer>
-  s := copy(s, pos(':', s) + 1, length(s));
-  result := strtofloatdef(s, 0);
+  a := Value.Split(':');
+  result := strtointdef(a[4], 0);
 End;
 
 Function TForm10.ReadType(Const Value: String): integer;
 Var
-  s: String;
+  a: TStringArray;
 Begin
-  // Abschneiden <Mapname>
-  s := copy(value, pos(':', value) + 1, length(value));
-  result := strtointdef(copy(s, 1, pos(':', s) - 1), -1);
+  a := Value.Split(':');
+  result := strtointdef(a[1], 0);
+End;
+
+Function TForm10.ReadWaveCount(Const Value: String): integer;
+Var
+  a: TStringArray;
+Begin
+  a := Value.Split(':');
+  result := strtointdef(a[3], 0);
 End;
 
 Function TForm10.ReadPlayer(Const Value: String): integer;
 Var
-  s: String;
+  a: TStringArray;
 Begin
-  // Abschneiden <Mapname>
-  s := copy(value, pos(':', value) + 1, length(value));
-  // Abschneiden <Maptype>
-  s := copy(s, pos(':', s) + 1, length(s));
-  result := strtointdef(copy(s, 1, pos(':', s) - 1), 0);
+  a := Value.Split(':');
+  result := strtointdef(a[2], 0);
 End;
 
 Function TForm10.ReadName(Const value: String): String;
@@ -264,7 +268,7 @@ End;
 Procedure TForm10.ReloadLevels;
 Var
   i: Integer;
-  maxp, pp, minp, j: Integer;
+  w, maxp, pp, minp, j: Integer;
   f: Single;
 Begin
   log('TForm10.ReloadLevels', lltrace);
@@ -281,7 +285,9 @@ Begin
     j := ReadType(Form10MapList[i]);
     pp := ReadPlayer(Form10MapList[i]);
     f := ReadRating(Form10MapList[i]);
-    If (j <> -1) And (minp <= pp) And (maxp >= pp) And (f >= TrackBar1.Position) And (f <= TrackBar2.Position) Then Begin
+    w := ReadWaveCount(Form10MapList[i]);
+    If (j <> -1) And (minp <= pp) And (maxp >= pp) And (f >= TrackBar1.Position) And (f <= TrackBar2.Position)
+      And ((Not CheckBox5.Checked) Or (CheckBox5.Checked And (w > 0))) Then Begin
       Case j Of
         0: If CheckBox1.Checked Then ListBox1.Items.Add(ReadName(Form10MapList[i]));
         1: If CheckBox2.Checked Then ListBox1.Items.Add(ReadName(Form10MapList[i]));

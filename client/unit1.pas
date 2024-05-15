@@ -625,6 +625,7 @@ Begin
     form10.CheckBox2.Checked := getvalue('Global', 'MapsCoop', '1') = '1';
     form10.CheckBox3.Checked := getvalue('Global', 'MapsSingleMaze', '1') = '1';
     form10.CheckBox4.Checked := getvalue('Global', 'MapsCoopMaze', '1') = '1';
+    form10.CheckBox5.Checked := getvalue('Global', 'OnlyPlayable', '1') = '1';
     form10.EndUpdate;
     form10.show;
   End
@@ -1596,6 +1597,9 @@ Begin
   setValue('MainForm', 'Top', inttostr(Form1.top));
   setValue('MainForm', 'Width', inttostr(Form1.Width));
   setValue('MainForm', 'Height', inttostr(Form1.Height));
+
+  setvalue('Global', 'LastCTDIntVersion', inttostr(updater_int_Version));
+  setvalue('Global', 'LastCTDUpdaterVersion', updater_Version);
 
   timer1.Enabled := false;
   Initialized := false;
