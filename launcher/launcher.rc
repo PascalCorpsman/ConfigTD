@@ -1,0 +1,2 @@
+// Kommentar, Pfade werden Relativ zur .pas Datei angegeben
+SSL_DLL RCDATA "ssleay32.dll"

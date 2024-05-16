@@ -1,0 +1,96 @@
+object Form3: TForm3
+  Left = 333
+  Height = 472
+  Top = 112
+  Width = 619
+  Caption = 'Form3'
+  ClientHeight = 472
+  ClientWidth = 619
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
+  OnCreate = FormCreate
+  object Memo1: TMemo
+    Left = 8
+    Height = 90
+    Top = 8
+    Width = 602
+    Anchors = [akTop, akLeft, akRight]
+    Lines.Strings = (
+      'Memo1'
+    )
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+    WordWrap = False
+  end
+  object CheckBox1: TCheckBox
+    Left = 8
+    Height = 22
+    Top = 104
+    Width = 124
+    Caption = 'Update launcher'
+    TabOrder = 1
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 16
+    Top = 128
+    Width = 175
+    Caption = 'Files that should be updated:'
+  end
+  object CheckListBox1: TCheckListBox
+    Left = 8
+    Height = 96
+    Top = 144
+    Width = 602
+    Anchors = [akTop, akLeft, akRight]
+    ItemHeight = 0
+    TabOrder = 2
+    TopIndex = -1
+    OnClick = CheckListBox1Click
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 16
+    Top = 248
+    Width = 241
+    Caption = 'Additional files that can be downloaded'
+  end
+  object CheckListBox2: TCheckListBox
+    Left = 8
+    Height = 96
+    Top = 264
+    Width = 602
+    Anchors = [akTop, akLeft, akRight]
+    ItemHeight = 0
+    TabOrder = 3
+    TopIndex = -1
+    OnClick = CheckListBox1Click
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 392
+    Width = 602
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Download and update files'
+    TabOrder = 4
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 8
+    Height = 25
+    Top = 432
+    Width = 602
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Cancel'
+    TabOrder = 5
+    OnClick = Button2Click
+  end
+  object Label3: TLabel
+    Left = 8
+    Height = 16
+    Top = 368
+    Width = 41
+    Caption = 'Label3'
+  end
+end
