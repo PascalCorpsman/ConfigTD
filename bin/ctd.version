@@ -5,365 +5,505 @@
     "VersionText":"Testversion for launcher \/ updater",
     "Download_core":
     [
-      "file":      {
-        "HASH":"f33dfb5a4a6df88c1dae98b4759ed0af",
-        "HASH2":"a195c965446f544f3bbc2ed6b887306a",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
-        "Filename":"..\/ctd_server.exe"
-      },
-      "file":      {
-        "HASH":"8be50d69cd27117bfde0740b7ada0fbf",
-        "HASH2":"a6ed777d520baa7fae1e1d27362a14e4",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
-        "Filename":"..\/Animation_Editor.exe"
-      },
-      "file":      {
-        "HASH":"47c594e21eedf715d5f86b673345f72e",
-        "HASH2":"b613015eb0abaf494ac7b375e185a9bd",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
-        "Filename":"..\/config_td.exe"
-      },
-      "file":      {
-        "HASH":"831fe8a4aa26a51f61d37912b2a26787",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/libeay32.dll",
-        "Filename":"..\/libeay32.dll"
-      },
-      "file":      {
-        "HASH":"dfdd460d8a32b8f14a8f4dacd6c6a3a9",
-        "HASH2":"10d9f14a48d920ded80daabde50f68bf",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_updater.exe",
-        "Filename":"..\/ctd_updater.exe"
-      },
-      "file":      {
-        "HASH":"d09314356d12d5c00a327a552b0c1c4b",
-        "HASH2":"ac2b832eea1dcc95fd8ec148a4fc096b",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
-        "Filename":"..\/Opponent_overview.exe"
-      },
-      "file":      {
-        "HASH":"73488b07008dba8ed09bcf0ea340a17a",
-        "HASH2":"c3e6b10346d96689b076a4fc6925c95b",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
-        "Filename":"..\/image_overview.exe"
-      },
-      "file":      {
-        "HASH":"d8332b1139d89b51955d3281eac902af",
-        "HASH2":"8e5c2b72b75e26a58542b5f574b91844",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
-        "Filename":"..\/ctd_launcher.exe"
-      },
-      "file":      {
-        "HASH":"af4a34a52ce908819b5c63739f69921a",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc4.png",
-        "Filename":"textures\/dc4.png"
-      },
-      "file":      {
-        "HASH":"e9c5383eb97dcc1b0455acd715510b89",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars8.bmp",
-        "Filename":"textures\/stars8.bmp"
-      },
-      "file":      {
-        "HASH":"e02059c9152f25a1461128e143b00583",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/sell.png",
-        "Filename":"textures\/sell.png"
-      },
-      "file":      {
-        "HASH":"3326468edc36d2de7ea681d1b78e0277",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars1.bmp",
-        "Filename":"textures\/stars1.bmp"
-      },
-      "file":      {
-        "HASH":"c4f378d2073aef091c487d86d69398b5",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/mindistances.png",
-        "Filename":"textures\/mindistances.png"
-      },
-      "file":      {
-        "HASH":"1657fbda6454b5a0beeb52aa0de510ff",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/heart_dark.png",
-        "Filename":"textures\/heart_dark.png"
-      },
-      "file":      {
-        "HASH":"6aab8d12f68ecf77217fd3c4059cbbf1",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_up.png",
-        "Filename":"textures\/tab_up.png"
-      },
-      "file":      {
-        "HASH":"ce445d881ca1fd56e897b330f48fd283",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_host_game_s.png",
-        "Filename":"textures\/BTN_host_game_s.png"
-      },
-      "file":      {
-        "HASH":"edab6f6397044512d2735684f8fe7545",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_map_n.png",
-        "Filename":"textures\/BTN_load_map_n.png"
-      },
-      "file":      {
-        "HASH":"acbfb65b169c5e2586ab433c639b2eb0",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars5.bmp",
-        "Filename":"textures\/stars5.bmp"
-      },
-      "file":      {
-        "HASH":"6a00f1e2ff2317d92bf912d593714005",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars9.bmp",
-        "Filename":"textures\/stars9.bmp"
-      },
-      "file":      {
-        "HASH":"f947d891e45607d709aed2b83311af14",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/splashmark.png",
-        "Filename":"textures\/splashmark.png"
-      },
-      "file":      {
-        "HASH":"657206d345689b73384e9b2b70d53f00",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/strongest.png",
-        "Filename":"textures\/strongest.png"
-      },
-      "file":      {
-        "HASH":"93f144d9985632f3640bdab9a10c54f3",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/wave.png",
-        "Filename":"textures\/wave.png"
-      },
-      "file":      {
-        "HASH":"9f90e13edfd3b11b368e41c875963243",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/playerstartpoint.png",
-        "Filename":"textures\/playerstartpoint.png"
-      },
-      "file":      {
-        "HASH":"9177e9faa331fdd41a381deba1c521e7",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_left.png",
-        "Filename":"textures\/tab_left.png"
-      },
-      "file":      {
-        "HASH":"ee23c155df05eed4c18f05607c0be3d3",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/maxdistance.png",
-        "Filename":"textures\/maxdistance.png"
-      },
-      "file":      {
-        "HASH":"9bcb14c06c0d91d5b4ed0e6dc44aaa3c",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars3.bmp",
-        "Filename":"textures\/stars3.bmp"
-      },
-      "file":      {
-        "HASH":"a7fe24e74f8fa8e5d7357784fb482fa3",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_join_game_n.png",
-        "Filename":"textures\/BTN_join_game_n.png"
-      },
-      "file":      {
-        "HASH":"4b5925c19e4b930f3223e93aca7e402c",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/coins.png",
-        "Filename":"textures\/coins.png"
-      },
-      "file":      {
-        "HASH":"f299a72a55525c95ece64d3c8b428ee1",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_join_game_s.png",
-        "Filename":"textures\/BTN_join_game_s.png"
-      },
-      "file":      {
-        "HASH":"147a01da7dd4b23a5b5b910e34e77ec4",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/maxdistances.png",
-        "Filename":"textures\/maxdistances.png"
-      },
-      "file":      {
-        "HASH":"479233ea90a2af2e26da4ff3cd1d1970",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars0.bmp",
-        "Filename":"textures\/stars0.bmp"
-      },
-      "file":      {
-        "HASH":"0f1f1394777bddd6b22062dff8edb54f",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/mindistance.png",
-        "Filename":"textures\/mindistance.png"
-      },
-      "file":      {
-        "HASH":"941f4fea97a7babd7b0ea2d08c975ecf",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_new_map_n.png",
-        "Filename":"textures\/BTN_new_map_n.png"
-      },
-      "file":      {
-        "HASH":"25f79867c82aff61484cc72fbd4b62bf",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/select.png",
-        "Filename":"textures\/select.png"
-      },
-      "file":      {
-        "HASH":"f06ca7ddeff12b409257b8a631d00954",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_game_s.png",
-        "Filename":"textures\/BTN_load_game_s.png"
-      },
-      "file":      {
-        "HASH":"f82fe6ffac140138efa036f1a7b2321b",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/firsts.png",
-        "Filename":"textures\/firsts.png"
-      },
-      "file":      {
-        "HASH":"76b41c42447e211659b3ece97d8c2f8d",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/weakests.png",
-        "Filename":"textures\/weakests.png"
-      },
-      "file":      {
-        "HASH":"d7bd8f4cdcb093c0f6e5050cc8230b0a",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/build_in_progress.png",
-        "Filename":"textures\/build_in_progress.png"
-      },
-      "file":      {
-        "HASH":"7c42004f0fe02846854bee8236930ea5",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/buykachel.png",
-        "Filename":"textures\/buykachel.png"
-      },
-      "file":      {
-        "HASH":"6730ca3238d827a7626119014a5d0593",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_new_map_s.png",
-        "Filename":"textures\/BTN_new_map_s.png"
-      },
-      "file":      {
-        "HASH":"f70778e20d8c6064ec10a41b0cf2c7a5",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_host_game_n.png",
-        "Filename":"textures\/BTN_host_game_n.png"
-      },
-      "file":      {
-        "HASH":"f4896194f24420c103d725ee4d854b4f",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars2.bmp",
-        "Filename":"textures\/stars2.bmp"
-      },
-      "file":      {
-        "HASH":"1bdc89157c5bbcc7d4423d54828ce837",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/random.png",
-        "Filename":"textures\/random.png"
-      },
-      "file":      {
-        "HASH":"e1d10248ad98754afa0d6596ecbc7104",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc1.png",
-        "Filename":"textures\/dc1.png"
-      },
-      "file":      {
-        "HASH":"91e0104b3213d7d0acc837c7bd4bda6c",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/targets_dark.png",
-        "Filename":"textures\/targets_dark.png"
-      },
-      "file":      {
-        "HASH":"5bfc801ff6c145f482db00127f4e4b42",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/lasts.png",
-        "Filename":"textures\/lasts.png"
-      },
-      "file":      {
-        "HASH":"ca404add63a78e55d65a4add9f131248",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/coins_dark.png",
-        "Filename":"textures\/coins_dark.png"
-      },
-      "file":      {
-        "HASH":"47671d7d12625e87d8ac42306d9d84d2",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_map_s.png",
-        "Filename":"textures\/BTN_load_map_s.png"
-      },
-      "file":      {
-        "HASH":"3f5a8eeb222ead1340c6d42c561a72fe",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars7.bmp",
-        "Filename":"textures\/stars7.bmp"
-      },
-      "file":      {
-        "HASH":"2dcd18883f11fb553ede39988b40966d",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/wave_dark.png",
-        "Filename":"textures\/wave_dark.png"
-      },
-      "file":      {
-        "HASH":"4c79be0be80df6db93d1b7c0057158ee",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/first.png",
-        "Filename":"textures\/first.png"
-      },
-      "file":      {
-        "HASH":"cab6e768cfc56fbb7ceca4277e44dcbf",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/strongests.png",
-        "Filename":"textures\/strongests.png"
-      },
-      "file":      {
-        "HASH":"e051617d67fc0faa916a2288fdbc7027",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars4.bmp",
-        "Filename":"textures\/stars4.bmp"
-      },
-      "file":      {
-        "HASH":"c89e072519e17c2131a994e32b6397cb",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/level_up.png",
-        "Filename":"textures\/level_up.png"
-      },
-      "file":      {
-        "HASH":"d1386e42b93538a0959c8b610d61e7e4",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/weakest.png",
-        "Filename":"textures\/weakest.png"
-      },
-      "file":      {
-        "HASH":"fe4616e05a4e830b89c344ffb23d3122",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc2.png",
-        "Filename":"textures\/dc2.png"
-      },
-      "file":      {
-        "HASH":"4fd0ce9fb75cc4f5866558d8047378dd",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/targets.png",
-        "Filename":"textures\/targets.png"
-      },
-      "file":      {
-        "HASH":"172286a75eaef44639a830fb982760b1",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/randoms.png",
-        "Filename":"textures\/randoms.png"
-      },
-      "file":      {
-        "HASH":"2dfe52fb9eea2bd1a50704cc0a2f62b5",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_game_n.png",
-        "Filename":"textures\/BTN_load_game_n.png"
-      },
-      "file":      {
-        "HASH":"78637d40cb0f938b62305e5afb26639f",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc3.png",
-        "Filename":"textures\/dc3.png"
-      },
-      "file":      {
-        "HASH":"acca043d9f6af3274ce3f16b127efd69",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_right.png",
-        "Filename":"textures\/tab_right.png"
-      },
-      "file":      {
-        "HASH":"f9c6b0b30837732e6108edc7aff20e23",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/last.png",
-        "Filename":"textures\/last.png"
-      },
-      "file":      {
-        "HASH":"e8cbecf027458a7521014cf52be3e201",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/prefer_air.png",
-        "Filename":"textures\/prefer_air.png"
-      },
-      "file":      {
-        "HASH":"1dde2f9e16b2fdf62af41b0256fffeea",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/heart.png",
-        "Filename":"textures\/heart.png"
-      },
-      "file":      {
-        "HASH":"94080153888f61926b0c39f2f1ecadf1",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_down.png",
-        "Filename":"textures\/tab_down.png"
-      },
-      "file":      {
-        "HASH":"3d71b3ef43312070022b4aec9413efed",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/prefer_airs.png",
-        "Filename":"textures\/prefer_airs.png"
-      },
-      "file":      {
-        "HASH":"cb42f434ba78fffb6caf1f86edd8d371",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars6.bmp",
-        "Filename":"textures\/stars6.bmp"
-      },
-      "file":      {
-        "HASH":"46d53d2aa3e918f59bb573aa03065c5f",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/Readme.md",
-        "Filename":"Readme.md"
-      },
-      "file":      {
-        "HASH":"d58cdf31766861efd00e29996e56a486",
-        "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/license.md",
-        "Filename":"license.md"
+      {
+        "file":        {
+          "HASH":"f33dfb5a4a6df88c1dae98b4759ed0af",
+          "HASH2":"a195c965446f544f3bbc2ed6b887306a",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
+          "Filename":"..\/ctd_server.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"8be50d69cd27117bfde0740b7ada0fbf",
+          "HASH2":"a6ed777d520baa7fae1e1d27362a14e4",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
+          "Filename":"..\/Animation_Editor.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"47c594e21eedf715d5f86b673345f72e",
+          "HASH2":"b613015eb0abaf494ac7b375e185a9bd",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
+          "Filename":"..\/config_td.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"831fe8a4aa26a51f61d37912b2a26787",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/libeay32.dll",
+          "Filename":"..\/libeay32.dll"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"dfdd460d8a32b8f14a8f4dacd6c6a3a9",
+          "HASH2":"10d9f14a48d920ded80daabde50f68bf",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_updater.exe",
+          "Filename":"..\/ctd_updater.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"d09314356d12d5c00a327a552b0c1c4b",
+          "HASH2":"ac2b832eea1dcc95fd8ec148a4fc096b",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
+          "Filename":"..\/Opponent_overview.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"73488b07008dba8ed09bcf0ea340a17a",
+          "HASH2":"c3e6b10346d96689b076a4fc6925c95b",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
+          "Filename":"..\/image_overview.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"d8332b1139d89b51955d3281eac902af",
+          "HASH2":"8e5c2b72b75e26a58542b5f574b91844",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
+          "Filename":"..\/ctd_launcher.exe"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"af4a34a52ce908819b5c63739f69921a",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc4.png",
+          "Filename":"textures\/dc4.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"e9c5383eb97dcc1b0455acd715510b89",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars8.bmp",
+          "Filename":"textures\/stars8.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"e02059c9152f25a1461128e143b00583",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/sell.png",
+          "Filename":"textures\/sell.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"3326468edc36d2de7ea681d1b78e0277",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars1.bmp",
+          "Filename":"textures\/stars1.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"c4f378d2073aef091c487d86d69398b5",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/mindistances.png",
+          "Filename":"textures\/mindistances.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"1657fbda6454b5a0beeb52aa0de510ff",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/heart_dark.png",
+          "Filename":"textures\/heart_dark.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"6aab8d12f68ecf77217fd3c4059cbbf1",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_up.png",
+          "Filename":"textures\/tab_up.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"ce445d881ca1fd56e897b330f48fd283",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_host_game_s.png",
+          "Filename":"textures\/BTN_host_game_s.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"edab6f6397044512d2735684f8fe7545",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_map_n.png",
+          "Filename":"textures\/BTN_load_map_n.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"acbfb65b169c5e2586ab433c639b2eb0",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars5.bmp",
+          "Filename":"textures\/stars5.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"6a00f1e2ff2317d92bf912d593714005",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars9.bmp",
+          "Filename":"textures\/stars9.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f947d891e45607d709aed2b83311af14",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/splashmark.png",
+          "Filename":"textures\/splashmark.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"657206d345689b73384e9b2b70d53f00",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/strongest.png",
+          "Filename":"textures\/strongest.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"93f144d9985632f3640bdab9a10c54f3",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/wave.png",
+          "Filename":"textures\/wave.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"9f90e13edfd3b11b368e41c875963243",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/playerstartpoint.png",
+          "Filename":"textures\/playerstartpoint.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"9177e9faa331fdd41a381deba1c521e7",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_left.png",
+          "Filename":"textures\/tab_left.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"ee23c155df05eed4c18f05607c0be3d3",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/maxdistance.png",
+          "Filename":"textures\/maxdistance.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"9bcb14c06c0d91d5b4ed0e6dc44aaa3c",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars3.bmp",
+          "Filename":"textures\/stars3.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"a7fe24e74f8fa8e5d7357784fb482fa3",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_join_game_n.png",
+          "Filename":"textures\/BTN_join_game_n.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"4b5925c19e4b930f3223e93aca7e402c",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/coins.png",
+          "Filename":"textures\/coins.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f299a72a55525c95ece64d3c8b428ee1",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_join_game_s.png",
+          "Filename":"textures\/BTN_join_game_s.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"147a01da7dd4b23a5b5b910e34e77ec4",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/maxdistances.png",
+          "Filename":"textures\/maxdistances.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"479233ea90a2af2e26da4ff3cd1d1970",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars0.bmp",
+          "Filename":"textures\/stars0.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"0f1f1394777bddd6b22062dff8edb54f",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/mindistance.png",
+          "Filename":"textures\/mindistance.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"941f4fea97a7babd7b0ea2d08c975ecf",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_new_map_n.png",
+          "Filename":"textures\/BTN_new_map_n.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"25f79867c82aff61484cc72fbd4b62bf",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/select.png",
+          "Filename":"textures\/select.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f06ca7ddeff12b409257b8a631d00954",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_game_s.png",
+          "Filename":"textures\/BTN_load_game_s.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f82fe6ffac140138efa036f1a7b2321b",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/firsts.png",
+          "Filename":"textures\/firsts.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"76b41c42447e211659b3ece97d8c2f8d",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/weakests.png",
+          "Filename":"textures\/weakests.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"d7bd8f4cdcb093c0f6e5050cc8230b0a",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/build_in_progress.png",
+          "Filename":"textures\/build_in_progress.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"7c42004f0fe02846854bee8236930ea5",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/buykachel.png",
+          "Filename":"textures\/buykachel.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"6730ca3238d827a7626119014a5d0593",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_new_map_s.png",
+          "Filename":"textures\/BTN_new_map_s.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f70778e20d8c6064ec10a41b0cf2c7a5",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_host_game_n.png",
+          "Filename":"textures\/BTN_host_game_n.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f4896194f24420c103d725ee4d854b4f",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars2.bmp",
+          "Filename":"textures\/stars2.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"1bdc89157c5bbcc7d4423d54828ce837",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/random.png",
+          "Filename":"textures\/random.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"e1d10248ad98754afa0d6596ecbc7104",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc1.png",
+          "Filename":"textures\/dc1.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"91e0104b3213d7d0acc837c7bd4bda6c",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/targets_dark.png",
+          "Filename":"textures\/targets_dark.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"5bfc801ff6c145f482db00127f4e4b42",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/lasts.png",
+          "Filename":"textures\/lasts.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"ca404add63a78e55d65a4add9f131248",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/coins_dark.png",
+          "Filename":"textures\/coins_dark.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"47671d7d12625e87d8ac42306d9d84d2",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_map_s.png",
+          "Filename":"textures\/BTN_load_map_s.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"3f5a8eeb222ead1340c6d42c561a72fe",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars7.bmp",
+          "Filename":"textures\/stars7.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"2dcd18883f11fb553ede39988b40966d",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/wave_dark.png",
+          "Filename":"textures\/wave_dark.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"4c79be0be80df6db93d1b7c0057158ee",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/first.png",
+          "Filename":"textures\/first.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"cab6e768cfc56fbb7ceca4277e44dcbf",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/strongests.png",
+          "Filename":"textures\/strongests.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"e051617d67fc0faa916a2288fdbc7027",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars4.bmp",
+          "Filename":"textures\/stars4.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"c89e072519e17c2131a994e32b6397cb",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/level_up.png",
+          "Filename":"textures\/level_up.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"d1386e42b93538a0959c8b610d61e7e4",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/weakest.png",
+          "Filename":"textures\/weakest.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"fe4616e05a4e830b89c344ffb23d3122",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc2.png",
+          "Filename":"textures\/dc2.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"4fd0ce9fb75cc4f5866558d8047378dd",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/targets.png",
+          "Filename":"textures\/targets.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"172286a75eaef44639a830fb982760b1",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/randoms.png",
+          "Filename":"textures\/randoms.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"2dfe52fb9eea2bd1a50704cc0a2f62b5",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/BTN_load_game_n.png",
+          "Filename":"textures\/BTN_load_game_n.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"78637d40cb0f938b62305e5afb26639f",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/dc3.png",
+          "Filename":"textures\/dc3.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"acca043d9f6af3274ce3f16b127efd69",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_right.png",
+          "Filename":"textures\/tab_right.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"f9c6b0b30837732e6108edc7aff20e23",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/last.png",
+          "Filename":"textures\/last.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"e8cbecf027458a7521014cf52be3e201",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/prefer_air.png",
+          "Filename":"textures\/prefer_air.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"1dde2f9e16b2fdf62af41b0256fffeea",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/heart.png",
+          "Filename":"textures\/heart.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"94080153888f61926b0c39f2f1ecadf1",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/tab_down.png",
+          "Filename":"textures\/tab_down.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"3d71b3ef43312070022b4aec9413efed",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/prefer_airs.png",
+          "Filename":"textures\/prefer_airs.png"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"cb42f434ba78fffb6caf1f86edd8d371",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/textures\/stars6.bmp",
+          "Filename":"textures\/stars6.bmp"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"46d53d2aa3e918f59bb573aa03065c5f",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/Readme.md",
+          "Filename":"Readme.md"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"d58cdf31766861efd00e29996e56a486",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/license.md",
+          "Filename":"license.md"
+        }
       }
     ],
     "Download":
     [
-      "zip":      {
-        "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD_Data\/archive\/refs\/heads\/main.zip",
-        "InFileOffset":"ConfigTD_Data-main",
-        "Description":"CTD_Data pack"
+      {
+        "zip":        {
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD_Data\/archive\/refs\/heads\/main.zip",
+          "InFileOffset":"ConfigTD_Data-main",
+          "Description":"CTD_Data pack"
+        }
       }
     ]
   }
