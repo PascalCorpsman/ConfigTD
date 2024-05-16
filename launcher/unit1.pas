@@ -83,11 +83,12 @@ Implementation
 
 {$R *.lfm}
 
+Uses unit2, Unit3, UTF8Process, LCLType
 {$IFDEF Windows}
-{$R launcher.rc}
+  , LResources
 {$ENDIF}
+  ;
 
-Uses unit2, Unit3, UTF8Process, LCLType;
 
 { TForm1 }
 
@@ -166,31 +167,28 @@ End;
 Procedure TForm1.Button1Click(Sender: TObject);
 Var
   tmpFolder: String;
-  S: TResourceStream;
-  F: TFileStream;
+{$IFDEF Windows}
+  r: TLResource;
+  st: TLazarusResourceStream;
+{$ENDIF}
 Begin
   form2.Memo1.Clear;
   // 1. Prüfen ob wir überhaupt die Fähigkeit haben https zu sprechen
 {$IFDEF Windows}
   If Not FileExists('ssleay32.dll') Then Begin
     // https://wiki.freepascal.org/Lazarus_Resources
-    S := TResourceStream.Create(HInstance, 'SSL_DLL', RT_RCDATA);
+    st := TLazarusResourceStream.Create('SSL_DLL', Nil);
     Try
-      // create a file mydata.dat in the application directory
-      F := TFileStream.Create(ExtractFilePath(ParamStr(0)) + 'ssleay32.dll', fmCreate);
-      Try
-        F.CopyFrom(S, S.Size); // copy data from the resource stream to file stream
-      Finally
-        F.Free; // destroy the file stream
+      st.SaveToFile(ExtractFilePath(ParamStr(0)) + 'ssleay32.dll');
+    Except
+      On av: exception Do Begin
+        log(av.Message);
+        st.free;
+        exit;
       End;
-    Finally
-      S.Free; // destroy the resource stream
     End;
+    st.free;
   End;
-{$ENDIF}
-{$IFDEF Linux}
-  // Kann man unter Linux Prüfen ob das installiert ist ?
-  // sudo aptitude install libssl-dev
 {$ENDIF}
   // 2. Download der Version Info
   tmpFolder := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim;
@@ -199,7 +197,12 @@ Begin
     log('Error, could not create: ' + tmpFolder);
     exit;
   End;
-  If Not DownloadFile(VersionInfoUrl, tmpFolder + 'ctd_version.json') Then exit; // TODO: Debug muss wieder rein
+  If Not DownloadFile(VersionInfoUrl, tmpFolder + 'ctd_version.json') Then Begin
+{$IFDEF Linux}
+    log('try installing ssl support: sudo aptitude install libssl-dev');
+{$ENDIF}
+    exit;
+  End;
   If Not CTD_Version.LoadFromFile(tmpFolder + 'ctd_version.json') Then exit;
   log('Online version: ' + format('%0.5f', [CTD_Version.Version]));
   log('Online launcher version: ' + format('%0.2f', [CTD_Version.LauncherVersion / 100]));
@@ -240,6 +243,10 @@ Begin
   ini.free;
   ini := Nil;
 End;
+{$IFDEF Windows}
+Initialization
+{$I ctd_launcher.lrs}
+{$ENDIF}
 
 End.
 
