@@ -47,7 +47,7 @@ Type
   private
     SelfFile: TFile;
     Procedure CheckAddFile(Const ListBox: TCheckListBox; Const aFile: TFile; Force: Boolean);
-    Procedure dlFile(Const aFile: TFile);
+    Procedure dlFile(aFile: TFile);
     Procedure TriggerUpdater(Executable: String);
   public
     Procedure InitWith(Const aVersion: TCTD_Version; Force: Boolean);
@@ -69,7 +69,7 @@ Procedure TForm3.FormCreate(Sender: TObject);
 Begin
   caption := 'Update overview';
   Constraints.MinHeight := Height;
-  Constraints.MaxHeight := Height;
+  //  Constraints.MaxHeight := Height;
   Constraints.MinWidth := Width;
 End;
 
@@ -86,6 +86,7 @@ Begin
 {$IFDEF Windows}
   fn := StringReplace(fn, '/', PathDelim, [rfReplaceAll]);
 {$ENDIF}
+  fh := aFile.Hash;
 {$IFDEF Linux}
   If aFile.Kind = fkExecutable Then Begin
     fn := ExtractFileNameWithoutExt(fn);
@@ -93,7 +94,6 @@ Begin
   End;
 {$ENDIF}
   If (Not NeedAdd) And (aFile.Kind In [fkExecutable, fkFile]) Then Begin
-    fh := aFile.Hash;
     If FileExists(fn) Then Begin
       cfh := MD5Print(MD5File(fn));
       If lowercase(fh) <> lowercase(cfh) Then Begin
@@ -122,7 +122,7 @@ Begin
   ListBox.Checked[i] := NeedAdd;
 End;
 
-Procedure TForm3.dlFile(Const aFile: TFile);
+Procedure TForm3.dlFile(aFile: TFile);
 Var
   UnZipper: TUnZipper;
   newRoot, root, fn, source, target, TargetDir: String;
@@ -136,6 +136,7 @@ Begin
 {$IFDEF Linux}
   If aFile.Kind = fkExecutable Then Begin
     fn := ExtractFileNameWithoutExt(fn);
+    aFile.URL := copy(aFile.URL, 1, length(aFile.URL) - length('.exe'));
   End;
 {$ENDIF}
   If aFile.Kind = fkZip Then Begin
@@ -238,7 +239,7 @@ Begin
   End;
   If CheckBox1.Checked Then Begin
     If SelfFile.URL <> '' Then Begin
-      updater := 'updater'{$IFDEF Windows} + '.exe'{$ENDIF};
+      updater := 'ctd_updater'{$IFDEF Windows} + '.exe'{$ENDIF};
       If Not FileExists(updater) Then Begin
         log('Error, ' + updater + ' not found.');
         close;
@@ -276,6 +277,7 @@ Begin
   For i := 0 To CheckListBox2.Items.Count - 1 Do Begin
     If CheckListBox2.Checked[i] Then inc(c);
   End;
+  If CheckBox1.Checked Then inc(c);
   label3.caption := format('%d files to download', [c]);
 End;
 

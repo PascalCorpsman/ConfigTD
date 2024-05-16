@@ -32,14 +32,17 @@ Unit Unit1;
 Interface
 
 Uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls;
 
 Type
 
   { TForm1 }
 
   TForm1 = Class(TForm)
+    Timer1: TTimer;
     Procedure FormCreate(Sender: TObject);
+    Procedure FormShow(Sender: TObject);
+    Procedure Timer1Timer(Sender: TObject);
   private
 
   public
@@ -53,17 +56,21 @@ Implementation
 
 {$R *.lfm}
 
-Uses FileUtil, UTF8Process;
+Uses FileUtil, process, UTF8Process;
 
 { TForm1 }
 
 Procedure TForm1.FormCreate(Sender: TObject);
+Begin
+  caption := 'CTD_updater ver. 0.01';
+End;
+
+Procedure TForm1.FormShow(Sender: TObject);
 Var
   fileToCopyAndStart, target: String;
   aTime: QWord;
   p: TProcessUTF8;
 Begin
-  caption := 'CTD_updater ver. 0.01';
   If ParamCount >= 1 Then Begin
     fileToCopyAndStart := ParamStr(1);
   End
@@ -91,11 +98,26 @@ Begin
     Showmessage('Error, could not copy: ' + fileToCopyAndStart + ' -> ' + target);
     halt;
   End;
+{$IFDEF LINUX}
+  p := TProcessUTF8.Create(Nil);
+  p.Options := [poWaitOnExit];
+  p.CurrentDirectory := GetCurrentDir;
+  p.Executable := 'chmod';
+  p.Parameters.Add('+x');
+  p.Parameters.Add(target);
+  p.Execute;
+  p.free;
+{$ENDIF}
   p := TProcessUTF8.Create(Nil);
   p.Executable := target;
   p.Execute;
   p.free;
-  halt;
+  timer1.Enabled := true;
+End;
+
+Procedure TForm1.Timer1Timer(Sender: TObject);
+Begin
+  close;
 End;
 
 End.

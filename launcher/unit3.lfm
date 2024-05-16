@@ -29,6 +29,7 @@ object Form3: TForm3
     Width = 124
     Caption = 'Update launcher'
     TabOrder = 1
+    OnChange = CheckListBox1Click
   end
   object Label1: TLabel
     Left = 8
@@ -42,7 +43,7 @@ object Form3: TForm3
     Height = 96
     Top = 144
     Width = 602
-    Anchors = [akTop, akLeft, akRight]
+    Anchors = [akTop, akLeft, akRight, akBottom]
     ItemHeight = 0
     TabOrder = 2
     TopIndex = -1
@@ -53,6 +54,7 @@ object Form3: TForm3
     Height = 16
     Top = 248
     Width = 241
+    Anchors = [akLeft, akBottom]
     Caption = 'Additional files that can be downloaded'
   end
   object CheckListBox2: TCheckListBox
@@ -60,7 +62,7 @@ object Form3: TForm3
     Height = 96
     Top = 264
     Width = 602
-    Anchors = [akTop, akLeft, akRight]
+    Anchors = [akLeft, akRight, akBottom]
     ItemHeight = 0
     TabOrder = 3
     TopIndex = -1
@@ -71,7 +73,7 @@ object Form3: TForm3
     Height = 25
     Top = 392
     Width = 602
-    Anchors = [akTop, akLeft, akRight]
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Download and update files'
     TabOrder = 4
     OnClick = Button1Click
@@ -81,7 +83,7 @@ object Form3: TForm3
     Height = 25
     Top = 432
     Width = 602
-    Anchors = [akTop, akLeft, akRight]
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Cancel'
     TabOrder = 5
     OnClick = Button2Click
@@ -91,6 +93,7 @@ object Form3: TForm3
     Height = 16
     Top = 368
     Width = 41
+    Anchors = [akLeft, akBottom]
     Caption = 'Label3'
   end
 end
