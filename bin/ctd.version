@@ -10,7 +10,7 @@
           "HASH":"f33dfb5a4a6df88c1dae98b4759ed0af",
           "HASH2":"a195c965446f544f3bbc2ed6b887306a",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
-          "Filename":"..\/ctd_server.exe"
+          "Filename":"ctd_server.exe"
         }
       },
       {
@@ -18,7 +18,7 @@
           "HASH":"8be50d69cd27117bfde0740b7ada0fbf",
           "HASH2":"a6ed777d520baa7fae1e1d27362a14e4",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
-          "Filename":"..\/Animation_Editor.exe"
+          "Filename":"Animation_Editor.exe"
         }
       },
       {
@@ -26,14 +26,14 @@
           "HASH":"47c594e21eedf715d5f86b673345f72e",
           "HASH2":"b613015eb0abaf494ac7b375e185a9bd",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
-          "Filename":"..\/config_td.exe"
+          "Filename":"config_td.exe"
         }
       },
       {
         "file":        {
           "HASH":"831fe8a4aa26a51f61d37912b2a26787",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/libeay32.dll",
-          "Filename":"..\/libeay32.dll"
+          "Filename":"libeay32.dll"
         }
       },
       {
@@ -41,7 +41,7 @@
           "HASH":"dfdd460d8a32b8f14a8f4dacd6c6a3a9",
           "HASH2":"10d9f14a48d920ded80daabde50f68bf",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_updater.exe",
-          "Filename":"..\/ctd_updater.exe"
+          "Filename":"ctd_updater.exe"
         }
       },
       {
@@ -49,7 +49,7 @@
           "HASH":"d09314356d12d5c00a327a552b0c1c4b",
           "HASH2":"ac2b832eea1dcc95fd8ec148a4fc096b",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
-          "Filename":"..\/Opponent_overview.exe"
+          "Filename":"Opponent_overview.exe"
         }
       },
       {
@@ -57,7 +57,7 @@
           "HASH":"73488b07008dba8ed09bcf0ea340a17a",
           "HASH2":"c3e6b10346d96689b076a4fc6925c95b",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
-          "Filename":"..\/image_overview.exe"
+          "Filename":"image_overview.exe"
         }
       },
       {
@@ -65,7 +65,7 @@
           "HASH":"d8332b1139d89b51955d3281eac902af",
           "HASH2":"8e5c2b72b75e26a58542b5f574b91844",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
-          "Filename":"..\/ctd_launcher.exe"
+          "Filename":"ctd_launcher.exe"
         }
       },
       {
