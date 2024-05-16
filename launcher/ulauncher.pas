@@ -1,3 +1,17 @@
+(******************************************************************************)
+(*                                                                            *)
+(* Author      : Uwe Schächterle (Corpsman)                                   *)
+(*                                                                            *)
+(* This file is part of ctd_launcher                                          *)
+(*                                                                            *)
+(*  See the file license.md, located under:                                   *)
+(*  https://github.com/PascalCorpsman/Software_Licenses/blob/main/license.md  *)
+(*  for details about the license.                                            *)
+(*                                                                            *)
+(*               It is not allowed to change or remove this text from any     *)
+(*               source file of the project.                                  *)
+(*                                                                            *)
+(******************************************************************************)
 Unit ulauncher;
 
 {$MODE ObjFPC}{$H+}
@@ -319,11 +333,11 @@ Begin
     fVersion := StrToFloat((jn.FindPath('Version') As TJSONValue).Value, fFormat);
     fLauncherVersion := StrToint((jn.FindPath('LauncherVersion') As TJSONValue).Value);
     fVersionText := (jn.FindPath('VersionText') As TJSONValue).Value;
-    ja := jn.FindPath('download_base') As TJSONArray;
+    ja := jn.FindPath('Download_core') As TJSONArray;
     If assigned(ja) Then Begin
       LoadFiles(ja, fdownload_base);
     End;
-    ja := jn.FindPath('download') As TJSONArray;
+    ja := jn.FindPath('Download') As TJSONArray;
     If assigned(ja) Then Begin
       LoadFiles(ja, fdownload);
     End;
