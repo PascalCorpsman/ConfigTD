@@ -1,7 +1,7 @@
 {
   "config_td":  {
     "Version":0.11000,
-    "LauncherVersion":1,
+    "LauncherVersion":2,
     "VersionText":"Testversion for launcher \/ updater",
     "Download_core":
     [
@@ -38,8 +38,8 @@
       },
       {
         "file":        {
-          "HASH":"dfdd460d8a32b8f14a8f4dacd6c6a3a9",
-          "HASH2":"10d9f14a48d920ded80daabde50f68bf",
+          "HASH":"82165bb9250d158ee2b235e8d5b4c064",
+          "HASH2":"c07d5aaed01b99505e9c0a492897033c",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_updater.exe",
           "Filename":"ctd_updater.exe"
         }
@@ -62,8 +62,8 @@
       },
       {
         "file":        {
-          "HASH":"d8332b1139d89b51955d3281eac902af",
-          "HASH2":"8e5c2b72b75e26a58542b5f574b91844",
+          "HASH":"f82701c9e1745aa60999d5a73d73fc7d",
+          "HASH2":"61156ee1c057e28ff49043cc18022c9b",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
