@@ -2,7 +2,7 @@
   "config_td":  {
     "Version":0.11000,
     "LauncherVersion":2,
-    "VersionText":"Improve usability of launcher",
+    "VersionText":"Improve launcher",
     "Download_core":
     [
       {
@@ -75,10 +75,10 @@
       },
       {
         "file":        {
-          "HASH":"d580399719c6b7a7db773554b0b52681",
-          "SIZE":"3357184",
-          "HASH2":"7e85d8733ab6c4e1c87b717e6005ff34",
-          "SIZE2":"7350600",
+          "HASH":"d2e6d0d193de5af5cf07da110cd93625",
+          "SIZE":"3358208",
+          "HASH2":"fdf6885c95bc82d0a200ca38b608458d",
+          "SIZE2":"7350616",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
