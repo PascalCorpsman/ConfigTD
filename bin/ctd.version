@@ -1,7 +1,7 @@
 {
   "config_td":  {
     "Version":0.11000,
-    "LauncherVersion":2,
+    "LauncherVersion":4,
     "VersionText":"Improve launcher",
     "Download_core":
     [
