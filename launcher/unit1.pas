@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* ctd_launcher                                                    15.05.2024 *)
 (*                                                                            *)
-(* Version     : 0.03                                                         *)
+(* Version     : 0.04                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -26,6 +26,7 @@
 (*               0.02 - first version that works under Linux                  *)
 (*               0.03 - first version that works under Windows                *)
 (*                      ADD: Progressbar, checks and improoved flow control   *)
+(*               0.04 - Progressbar in byte not filecount                     *)
 (*                                                                            *)
 (******************************************************************************)
 Unit Unit1;
@@ -209,7 +210,12 @@ Begin
   End;
   If Not CTD_Version.LoadFromFile(tmpFolder + 'ctd_version.json') Then exit;
   log('Online version: ' + format('%0.5f', [CTD_Version.Version]));
-  log('Local version: ' + format('%0.5f', [LastCTDUpdaterVersion]));
+  If LastCTDUpdaterVersion = -1 Then Begin
+    log('Local version: not available');
+  End
+  Else Begin
+      log('Local version: ' + format('%0.5f', [LastCTDUpdaterVersion]));
+  End;
   log('Online launcher version: ' + format('%0.2f', [CTD_Version.LauncherVersion / 100]));
   log('Local launcher version: ' + format('%0.2f', [LauncherVersion / 100]));
   form3.InitWith(CTD_Version, trunc(CTD_Version.Version * 100000) <> trunc(LastCTDUpdaterVersion * 100000));

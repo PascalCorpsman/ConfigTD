@@ -52,7 +52,7 @@ Type
     SelfFile: TFile;
     fforce: Boolean;
     Procedure CheckAddFile(Const ListBox: TCheckListBox; Const aFile: TFile; Force: Boolean);
-    Procedure dlFile(aFile: TFile);
+    Function dlFile(aFile: TFile): int64;
     Procedure TriggerUpdater(Executable: String);
   public
     Procedure InitWith(Const aVersion: TCTD_Version; Force: Boolean);
@@ -128,7 +128,7 @@ Begin
   ListBox.Checked[i] := NeedAdd;
 End;
 
-Procedure TForm3.dlFile(aFile: TFile);
+Function TForm3.dlFile(aFile: TFile): int64;
 Var
   UnZipper: TUnZipper;
   newRoot, root, fn, source, target, TargetDir: String;
@@ -138,6 +138,7 @@ Var
   pr: TProcessUTF8;
 {$ENDIF}
 Begin
+  result := 0;
   fn := aFile.Filename;
 {$IFDEF Linux}
   If aFile.Kind = fkExecutable Then Begin
@@ -149,6 +150,7 @@ Begin
     fn := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim + ExtractFileName(aFile.URL);
   End;
   If DownloadFile(aFile.URL, fn) Then Begin
+    result := FileSize(fn);
     If aFile.Kind = fkExecutable Then Begin
 {$IFDEF LINUX}
       pr := TProcessUTF8.Create(Nil);
@@ -222,7 +224,7 @@ Begin
   p.free;
 End;
 
-Function TForm3.GetFilesToDLCount(): Integer;
+Function TForm3.GetFilesToDLCount: Integer;
 Var
   i: integer;
 Begin
@@ -339,19 +341,17 @@ Begin
     End;
   End;
   form4.Show;
-  form4.ProgressBar1.Max := GetFilesToDLCount;
+  form4.ProgressBar1.Max := total Div 1024;
   form4.ProgressBar1.Position := 0;
   For i := 0 To CheckListBox1.items.count - 1 Do Begin
     If CheckListBox1.Checked[i] Then Begin
-      dlFile((CheckListBox1.Items.Objects[i] As TitemObject).filecontainer);
-      form4.ProgressBar1.Position := form4.ProgressBar1.Position + 1;
+      form4.ProgressBar1.Position := form4.ProgressBar1.Position + dlFile((CheckListBox1.Items.Objects[i] As TitemObject).filecontainer) Div 1024;
       Application.ProcessMessages;
     End;
   End;
   For i := 0 To CheckListBox2.items.count - 1 Do Begin
     If CheckListBox2.Checked[i] Then Begin
-      dlFile((CheckListBox2.Items.Objects[i] As TitemObject).filecontainer);
-      form4.ProgressBar1.Position := form4.ProgressBar1.Position + 1;
+      form4.ProgressBar1.Position := form4.ProgressBar1.Position + dlFile((CheckListBox2.Items.Objects[i] As TitemObject).filecontainer) Div 1024;
       Application.ProcessMessages;
     End;
   End;
@@ -367,7 +367,7 @@ Begin
       OwnFile := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim + ExtractFileName(ParamStr(0));
       SelfFile.Filename := OwnFile;
       dlFile(SelfFile);
-      form4.ProgressBar1.Position := form4.ProgressBar1.Position + 1;
+      form4.ProgressBar1.Position := form4.ProgressBar1.Position + dlFile(SelfFile) Div 1024;
       Application.ProcessMessages;
       If FileExists(OwnFile) Then Begin
         // So schnell wie möglich beenden !
