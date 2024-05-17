@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* ctd_launcher                                                    15.05.2024 *)
 (*                                                                            *)
-(* Version     : 0.02                                                         *)
+(* Version     : 0.03                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -23,7 +23,9 @@
 (* Known Issues: none                                                         *)
 (*                                                                            *)
 (* History     : 0.01 - Initial version                                       *)
-(*               0.02 - first version that works under linux                  *)
+(*               0.02 - first version that works under Linux                  *)
+(*               0.03 - first version that works under Windows                *)
+(*                      ADD: Progressbar, checks and improoved flow control   *)
 (*                                                                            *)
 (******************************************************************************)
 Unit Unit1;
@@ -45,6 +47,7 @@ Type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
@@ -63,6 +66,7 @@ Type
     Procedure Button2Click(Sender: TObject);
     Procedure Button3Click(Sender: TObject);
     Procedure Button4Click(Sender: TObject);
+    Procedure Button5Click(Sender: TObject);
     Procedure FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
     Procedure FormCreate(Sender: TObject);
   private
@@ -84,7 +88,7 @@ Implementation
 
 {$R *.lfm}
 
-Uses unit2, Unit3, UTF8Process, LCLType
+Uses unit2, Unit3, UTF8Process, LCLType, lclintf
 {$IFDEF Windows}
   , LResources
 {$ENDIF}
@@ -169,11 +173,10 @@ Procedure TForm1.Button1Click(Sender: TObject);
 Var
   tmpFolder: String;
 {$IFDEF Windows}
-  r: TLResource;
   st: TLazarusResourceStream;
 {$ENDIF}
 Begin
-  form2.Memo1.Clear;
+  ClearLog();
   // 1. Prüfen ob wir überhaupt die Fähigkeit haben https zu sprechen
 {$IFDEF Windows}
   If Not FileExists('ssleay32.dll') Then Begin
@@ -206,8 +209,13 @@ Begin
   End;
   If Not CTD_Version.LoadFromFile(tmpFolder + 'ctd_version.json') Then exit;
   log('Online version: ' + format('%0.5f', [CTD_Version.Version]));
+  log('Local version: ' + format('%0.5f', [LastCTDUpdaterVersion]));
   log('Online launcher version: ' + format('%0.2f', [CTD_Version.LauncherVersion / 100]));
+  log('Local launcher version: ' + format('%0.2f', [LauncherVersion / 100]));
   form3.InitWith(CTD_Version, trunc(CTD_Version.Version * 100000) <> trunc(LastCTDUpdaterVersion * 100000));
+  If form3.GetFilesToDLCount() = 0 Then Begin
+    showmessage('CTD is up to date, not "checked" are the .zip files.');
+  End;
   form3.ShowModal;
   log('Finished');
 End;
@@ -235,6 +243,11 @@ Begin
   Clear('OptionsForm');
   Clear('QuestionHeroDlgForm');
   Clear('QuestionOppDlgForm');
+End;
+
+Procedure TForm1.Button5Click(Sender: TObject);
+Begin
+  openurl('https://github.com/PascalCorpsman/ConfigTD');
 End;
 
 Procedure TForm1.FormCloseQuery(Sender: TObject; Var CanClose: Boolean);

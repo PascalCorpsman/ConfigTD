@@ -17,6 +17,7 @@ object Form2: TForm2
     Lines.Strings = (
       'Memo1'
     )
+    ReadOnly = True
     ScrollBars = ssAutoBoth
     TabOrder = 0
     WordWrap = False

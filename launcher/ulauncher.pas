@@ -23,7 +23,7 @@ Uses
 
 Const
   VersionInfoUrl = 'https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd.version'; // URL zum DL der Versionsinfo .JSON
-  LauncherVersion: integer = 2;
+  LauncherVersion: integer = 3;
 
 Type
 
@@ -33,6 +33,8 @@ Type
     Kind: TFileKind;
     URL: String;
     Hash: String;
+    Size: int64;
+    Size2: int64; // Nur für executables
     InFileOffset: String; // Damit kann noch ein Teil des Ziel Dateinamens platt gemacht werden..
     Hash2: String; // Nur für executables
     Filename: String; // Nur für File / executable
@@ -71,7 +73,10 @@ Type
     Function LoadFromFile(Const FIlename: String): Boolean;
   End;
 
+Procedure ClearLog();
 Procedure Log(Logtext: String);
+
+Function FileSizeToString(Value: Int64): String;
 
 Function DownloadFile(URL, Filename: String): boolean;
 
@@ -79,14 +84,68 @@ Implementation
 
 Uses unit1, unit2, ssl_openssl, httpsend, synautil;
 
+Procedure ClearLog();
+Begin
+  form2.Memo1.Clear;
+  If FileExists('ctd_launcher.log') Then
+    DeleteFile('ctd_launcher.log');
+End;
+
 Procedure Log(Logtext: String);
+Var
+  f: TextFile;
 Begin
   form2.Memo1.Append(Logtext);
+  assignfile(f, 'ctd_launcher.log');
+  If FileExists('ctd_launcher.log') Then
+    append(f)
+  Else
+    Rewrite(f);
+  writeln(f, Logtext);
+  CloseFile(f);
   If Not form2.Visible Then Begin
     form2.top := form1.top;
     form2.Left := form1.left + form1.Width + 10;
     Form2.Show;
   End;
+End;
+
+Function FileSizeToString(Value: Int64): String;
+Var
+  s: char;
+  r: Int64;
+Begin
+  s := ' ';
+  r := 0;
+  If value > 1024 Then Begin
+    s := 'K';
+    r := value Mod 1024;
+    value := value Div 1024;
+  End;
+  If value > 1024 Then Begin
+    s := 'M';
+    r := value Mod 1024;
+    value := value Div 1024;
+  End;
+  If value > 1024 Then Begin
+    s := 'G';
+    r := value Mod 1024;
+    value := value Div 1024;
+  End;
+  If value > 1024 Then Begin
+    s := 'T';
+    r := value Mod 1024;
+    value := value Div 1024;
+  End;
+  If value > 1024 Then Begin
+    s := 'P';
+    r := value Mod 1024;
+    value := value Div 1024;
+  End;
+  If (r Div 100) <> 0 Then
+    result := inttostr(value) + ',' + inttostr(r Div 100) + s + 'B'
+  Else
+    result := inttostr(value) + s + 'B'
 End;
 
 (*
@@ -265,13 +324,19 @@ Function TCTD_Version.LoadFromFile(Const FIlename: String): Boolean;
     result.Hash2 := '';
     result.Description := '';
     result.InFileOffset := '';
+    result.Size := 0;
+    result.Size2 := 0;
     jv := jno.FindPath('InFileOffset') As TJSONValue;
     If assigned(jv) Then result.InFileOffset := (jv).Value;
+    jv := jno.FindPath('Size') As TJSONValue;
+    If assigned(jv) Then result.Size := StrToInt64((jv).Value);
     If result.Kind = fkFile Then Begin
       result.Filename := (jno.FindPath('Filename') As TJSONValue).Value;
       If ExtractFileExt(lowercase(result.Filename)) = '.exe' Then Begin
         result.Kind := fkExecutable;
         result.Hash2 := (jno.FindPath('HASH2') As TJSONValue).Value;
+        jv := jno.FindPath('Size2') As TJSONValue;
+        If assigned(jv) Then result.Size2 := StrToInt64((jv).Value);
       End;
       result.Hash := (jno.FindPath('HASH') As TJSONValue).Value;
     End

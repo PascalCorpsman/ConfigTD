@@ -33,6 +33,8 @@ Type
   TForm3 = Class(TForm)
     Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
     CheckBox1: TCheckBox;
     CheckListBox1: TCheckListBox;
     CheckListBox2: TCheckListBox;
@@ -42,16 +44,20 @@ Type
     Memo1: TMemo;
     Procedure Button1Click(Sender: TObject);
     Procedure Button2Click(Sender: TObject);
+    Procedure Button3Click(Sender: TObject);
+    Procedure Button4Click(Sender: TObject);
     Procedure CheckListBox1Click(Sender: TObject);
     Procedure FormCreate(Sender: TObject);
   private
     SelfFile: TFile;
+    fforce: Boolean;
     Procedure CheckAddFile(Const ListBox: TCheckListBox; Const aFile: TFile; Force: Boolean);
     Procedure dlFile(aFile: TFile);
     Procedure TriggerUpdater(Executable: String);
   public
     Procedure InitWith(Const aVersion: TCTD_Version; Force: Boolean);
 
+    Function GetFilesToDLCount(): Integer;
   End;
 
 Var
@@ -59,7 +65,7 @@ Var
 
 Implementation
 
-Uses lazfileutils, md5, Zipper, FileUtil, process, UTF8Process;
+Uses lazfileutils, md5, Zipper, FileUtil, process, UTF8Process, unit4, LCLType;
 
 {$R *.lfm}
 
@@ -81,7 +87,8 @@ Var
   NeedAdd: Boolean;
   i: integer;
 Begin
-  NeedAdd := Force Or (aFile.Kind = fkZip);
+  fforce := Force;
+  NeedAdd := Force {Or (aFile.Kind = fkZip)};
   fn := aFile.Filename;
 {$IFDEF Windows}
   fn := StringReplace(fn, '/', PathDelim, [rfReplaceAll]);
@@ -109,7 +116,6 @@ Begin
     fkExecutable: Begin
         s := fn;
         If fn = extractfilename(ParamStr(0)) Then Begin
-          CheckBox1.Checked := CheckBox1.Checked Or NeedAdd;
           SelfFile := aFile;
           exit;
         End;
@@ -216,25 +222,137 @@ Begin
   p.free;
 End;
 
+Function TForm3.GetFilesToDLCount(): Integer;
+Var
+  i: integer;
+Begin
+  result := 0;
+  For i := 0 To CheckListBox1.Items.Count - 1 Do Begin
+    If CheckListBox1.Checked[i] Then inc(result);
+  End;
+  For i := 0 To CheckListBox2.Items.Count - 1 Do Begin
+    If CheckListBox2.Checked[i] Then inc(result);
+  End;
+  If CheckBox1.Checked Then inc(result);
+
+End;
+
 Procedure TForm3.Button2Click(Sender: TObject);
 Begin
   close;
+End;
+
+Procedure TForm3.Button3Click(Sender: TObject);
+Var
+  i: Integer;
+Begin
+  // None
+  For i := 0 To CheckListBox1.Items.Count - 1 Do Begin
+    CheckListBox1.Checked[i] := true;
+  End;
+  CheckListBox1Click(Nil);
+End;
+
+Procedure TForm3.Button4Click(Sender: TObject);
+Var
+  i: Integer;
+Begin
+  // None
+  For i := 0 To CheckListBox1.Items.Count - 1 Do Begin
+    CheckListBox1.Checked[i] := false;
+  End;
+  CheckListBox1Click(Nil);
 End;
 
 Procedure TForm3.Button1Click(Sender: TObject);
 Var
   i: Integer;
   OwnFile, updater: String;
+  b: Boolean;
+  total: int64;
+  io: TitemObject;
 Begin
   // Download and Update
+  If GetFilesToDLCount() = 0 Then Begin
+    showmessage('Nothing for download selected.');
+    exit;
+  End;
+  b := false;
+  For i := 0 To CheckListBox2.items.count - 1 Do Begin
+    If CheckListBox2.Checked[i] Then Begin
+      If (CheckListBox2.Items.Objects[i] As TitemObject).filecontainer.Kind = fkZip Then Begin
+        b := true;
+        break;
+      End;
+    End;
+  End;
+  If b And (Not fforce) Then Begin
+    If id_no = Application.MessageBox('Zip files are merged without checks, do you really want to continue ?', 'Warning', MB_ICONWARNING Or MB_YESNO) Then Begin
+      exit;
+    End;
+  End;
+  // Wir sammeln wie "groß" das alles sein wird und Fragen den User ob das OK ist
+  total := 0;
+  If CheckBox1.Checked Then Begin
+{$IFDEF WINDOWS}
+    total := total + SelfFile.Size;
+{$ENDIF}
+{$IFDEF LINUX}
+    total := total + SelfFile.Size2;
+{$ENDIF}
+  End;
+  For i := 0 To CheckListBox1.items.count - 1 Do Begin
+    If CheckListBox1.Checked[i] Then Begin
+      io := (CheckListBox1.Items.Objects[i] As TitemObject);
+      If io.filecontainer.Kind = fkExecutable Then Begin
+{$IFDEF WINDOWS}
+        total := total + io.filecontainer.Size;
+{$ENDIF}
+{$IFDEF LINUX}
+        total := total + io.filecontainer.Size2;
+{$ENDIF}
+      End
+      Else Begin
+        total := total + io.filecontainer.Size;
+      End;
+    End;
+  End;
+  For i := 0 To CheckListBox2.items.count - 1 Do Begin
+    If CheckListBox2.Checked[i] Then Begin
+      io := (CheckListBox2.Items.Objects[i] As TitemObject);
+      If io.filecontainer.Kind = fkExecutable Then Begin
+{$IFDEF WINDOWS}
+        total := total + io.filecontainer.Size;
+{$ENDIF}
+{$IFDEF LINUX}
+        total := total + io.filecontainer.Size2;
+{$ENDIF}
+      End
+      Else Begin
+        total := total + io.filecontainer.Size;
+      End;
+    End;
+  End;
+  If total <> 0 Then Begin
+    If ID_NO = Application.MessageBox(pchar('Need to download ' + FileSizeToString(total) + ' continue?'), 'Info', MB_ICONQUESTION Or MB_YESNO) Then Begin
+      exit;
+    End;
+  End;
+  form4.Show;
+  form4.ProgressBar1.Max := GetFilesToDLCount;
+  form4.ProgressBar1.Position := 0;
   For i := 0 To CheckListBox1.items.count - 1 Do Begin
     If CheckListBox1.Checked[i] Then Begin
       dlFile((CheckListBox1.Items.Objects[i] As TitemObject).filecontainer);
+      form4.ProgressBar1.Position := form4.ProgressBar1.Position + 1;
+      Application.ProcessMessages;
     End;
   End;
   For i := 0 To CheckListBox2.items.count - 1 Do Begin
     If CheckListBox2.Checked[i] Then Begin
       dlFile((CheckListBox2.Items.Objects[i] As TitemObject).filecontainer);
+      form4.ProgressBar1.Position := form4.ProgressBar1.Position + 1;
+      Application.ProcessMessages;
     End;
   End;
   If CheckBox1.Checked Then Begin
@@ -242,20 +360,25 @@ Begin
       updater := 'ctd_updater'{$IFDEF Windows} + '.exe'{$ENDIF};
       If Not FileExists(updater) Then Begin
         log('Error, ' + updater + ' not found.');
+        form4.Close;
         close;
         exit;
       End;
-      OwnFile := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim + ExtractFileNameOnly(ParamStr(0));
+      OwnFile := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim + ExtractFileName(ParamStr(0));
       SelfFile.Filename := OwnFile;
       dlFile(SelfFile);
+      form4.ProgressBar1.Position := form4.ProgressBar1.Position + 1;
+      Application.ProcessMessages;
       If FileExists(OwnFile) Then Begin
         // So schnell wie möglich beenden !
+        form4.Close;
         TriggerUpdater(OwnFile);
         Application.Terminate;
         exit;
       End
       Else Begin
         // Der Fehler wurde ja schon ausgegeben
+        form4.Close;
         close;
       End;
     End
@@ -263,22 +386,13 @@ Begin
       log('Error, could not update launcher due to missing download informations.');
     End;
   End;
+  form4.Close;
   Close;
 End;
 
 Procedure TForm3.CheckListBox1Click(Sender: TObject);
-Var
-  c, i: integer;
 Begin
-  c := 0;
-  For i := 0 To CheckListBox1.Items.Count - 1 Do Begin
-    If CheckListBox1.Checked[i] Then inc(c);
-  End;
-  For i := 0 To CheckListBox2.Items.Count - 1 Do Begin
-    If CheckListBox2.Checked[i] Then inc(c);
-  End;
-  If CheckBox1.Checked Then inc(c);
-  label3.caption := format('%d files to download', [c]);
+  label3.caption := format('%d files to download', [GetFilesToDLCount()]);
 End;
 
 Procedure TForm3.InitWith(Const aVersion: TCTD_Version; Force: Boolean);
@@ -286,8 +400,9 @@ Var
   i: Integer;
 Begin
   SelfFile.URL := '';
+  SelfFile.Size := 0;
+  SelfFile.Size2 := 0;
   memo1.Text := aVersion.VersionText;
-  CheckBox1.Checked := aVersion.LauncherVersion <> LauncherVersion;
   CheckListBox1.Clear;
   CheckListBox2.Clear;
   For i := 0 To aVersion.DownloadBaseCount - 1 Do Begin
@@ -296,6 +411,7 @@ Begin
   For i := 0 To aVersion.DownloadCount - 1 Do Begin
     CheckAddFile(CheckListBox2, aVersion.Download[i], Force);
   End;
+  CheckBox1.Checked := aVersion.LauncherVersion > LauncherVersion;
   CheckListBox1Click(Nil);
 End;
 
