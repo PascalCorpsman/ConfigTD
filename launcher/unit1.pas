@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* ctd_launcher                                                    15.05.2024 *)
 (*                                                                            *)
-(* Version     : 0.04                                                         *)
+(* Version     : 0.05                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -27,6 +27,7 @@
 (*               0.03 - first version that works under Windows                *)
 (*                      ADD: Progressbar, checks and improoved flow control   *)
 (*               0.04 - Progressbar in byte not filecount                     *)
+(*               0.05 -                                                       *)
 (*                                                                            *)
 (******************************************************************************)
 Unit Unit1;
