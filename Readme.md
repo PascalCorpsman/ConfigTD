@@ -56,22 +56,23 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 
 ## What needs to be done to play the game
 
-1. Create a directory on your computer e.g. "ConfigTD"
-2. Download the content of the [bin](https://github.com/PascalCorpsman/ConfigTD/tree/main/bin) folder according to your operating system and store it in "ConfigTD"
-3. Download the content of the [textures](https://github.com/PascalCorpsman/ConfigTD/tree/main/textures) folder and store it in "ConfigTD/textures"
-4. Merge the content of the [Config TD Data](https://github.com/PascalCorpsman/ConfigTD_Data) repository (holds maps and all the other gaming content) into "ConfigTD"
-5. Your directory should now look like this ![](documentation/images/folder_preview.png)
-6. Read the [manual](documentation/Readme.md) document as needed
-   
-Linux users may need to run the following commands at least once:<br>
+1. Download the [ctd_launcher.exe](https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd_launcher.exe) for windows users or the [ctd_launcher](https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd_launcher) binary for linux 64 users.  
+   - Linux users may need to make the binary executable (chmod +x)
+   - [Optional] some Linux need to add the following packages:
+       - SSL-Driver
+         > sudo aptitude install libssl-dev
+       - OpenGL driver
+         > sudo apt-get install freeglut3-dev
 
-SSH bindings:
+2. Run the launcher 
+   ![](documentation/images/ctd_launcher_preview.png)
+   (1) press "check for updates"<br>
+   (2) press "Download and update files"<br>
+   (3) confirm (yes) to download and wait until the window closes<br>
+   (4) press "Launch Config TD" and enjoy
 
-> sudo apt-get install libssl-dev
+3. Read the [manual](https://github.com/PascalCorpsman/ConfigTD/tree/main/documentation/Readme.md) as needed
 
-OpenGL bindings:
-
-> sudo apt-get install freeglut3-dev
 ## Why is there no sound ?
 
 Actual the game is (at least at the moment) not designed to use sounds. This is due to the following reasons:
