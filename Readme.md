@@ -66,9 +66,9 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 
 2. Run the launcher 
    ![](documentation/images/ctd_launcher_preview.png)
-   (1) press "check for updates"<br>
+   (1) press "Check for updates"<br>
    (2) press "Download and update files"<br>
-   (3) confirm (yes) to download and wait until the window closes<br>
+   (3) confirm "yes" to download and wait until the window closes<br>
    (4) press "Launch Config TD" and enjoy
 
 3. Read the [manual](https://github.com/PascalCorpsman/ConfigTD/tree/main/documentation/Readme.md) as needed
@@ -81,6 +81,25 @@ Actual the game is (at least at the moment) not designed to use sounds. This is 
 - game is designed for LAN-Parties, where everyone talks to each other, all the sound effects will then mess up the room sound and typically are switched of anyway
 
 It could be possible that in future these arguments change and sound support will be added.
+
+## I want to contribute what is needed ?
+
+#### Found a bug:
+- Check for the newest version (using the ctd_launcher)
+- if the bug still exists create a ticket in this repository
+  - describe all needed to reprocude, this includes at least:
+    - OS-Version
+    - all steps to reproduce the bug
+
+#### Want to add content:
+
+- please have a look at the [Config TD Data](https://github.com/PascalCorpsman/ConfigTD_Data) repository
+- The project always needs
+  - more units
+  - more buildings
+  - more maps
+  - more graphics
+  - more tutorials
 
 ## What needs to be done to compile the game
 
