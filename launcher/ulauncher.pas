@@ -32,7 +32,7 @@ Const
    *            0.05 = FIX: Download progress calculated wron
    *                   ADD: dummy image
    * -Released- 0.06 = DEL: uupdate.pas
-   *            0.07 =
+   *            0.07 = FIX: correct placings of log dialog
    *
    * Known Bugs :
    *)

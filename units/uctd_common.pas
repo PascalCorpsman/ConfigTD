@@ -82,7 +82,7 @@ Const
    *                      ADD: Custom Sorting for TItemObject Lists
    * -Released- 0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
    * -Released- 0.11001 = DEL: uUpdate.pas
-   *            0.11002 =
+   * -Released- 0.11002 = FIX: Client did not send correct protocol version
    *
    * Known Bugs :
    *)

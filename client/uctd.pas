@@ -2122,7 +2122,7 @@ Begin
   m := TMemoryStream.Create;
   m.WriteAnsiString(FuserName);
   m.WriteAnsiString(fPassword);
-  m.Write(version, sizeof(version));
+  m.Write(ProtocollVersion, sizeof(ProtocollVersion));
   SendChunk(miRequestLogin, m);
   LogLeave;
 End;
