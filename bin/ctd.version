@@ -1,15 +1,15 @@
 {
   "config_td":  {
-    "Version":0.11001,
+    "Version":0.11002,
     "LauncherVersion":6,
-    "VersionText":"DEL: remove updater\nADD: improve launcher",
+    "VersionText":"FIX: client did not send correct protocol version",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"d67ce7db4f67b2cc47a271957c3c524e",
+          "HASH":"021e72229b62f57693104436b99d6c98",
           "SIZE":"3417088",
-          "HASH2":"b9b6c2cb63382285af7af5dde946997f",
+          "HASH2":"71af0bf3eaa95230c107d328f71bb766",
           "SIZE2":"7898520",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
@@ -27,9 +27,9 @@
       },
       {
         "file":        {
-          "HASH":"b1ab61b53a8ff7ff30377787a3092a59",
+          "HASH":"2d560ee797b2db53a4268fb386c723ce",
           "SIZE":"7048192",
-          "HASH2":"9288df257cb1a82ef86e036b23f53647",
+          "HASH2":"25a8f8a7b2634b071a7e8f7fcb97b144",
           "SIZE2":"11488488",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
