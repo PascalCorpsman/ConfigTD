@@ -1405,6 +1405,7 @@ Procedure TForm1.FormCreate(Sender: TObject);
 Var
   FileloggingDir: String;
   i: integer;
+  dummy: Boolean;
 Begin
   DefFormat := DefaultFormatSettings;
   DefFormat.DecimalSeparator := '.';
@@ -1413,6 +1414,29 @@ Begin
   fMapTransferStream := TMemoryStream.Create;
   DefaultFormatSettings.DecimalSeparator := '.';
   InitLogger();
+  (*
+   * Generell prüfen ob die Installation richtig ist, wenn nicht eine Warnung an den User -> Raus
+   *)
+  If Not DirectoryExists('textures') Then Begin
+    (*
+     * Special case, some cloned the whole source and try to run the bin file from the wrong folder.
+     *)
+    If DirectoryExists('..' + PathDelim + 'textures') Then Begin
+      LogShow(
+        'It seems that you pulled the ctd_repository and run the game from the bin folder.' + LineEnding + LineEnding +
+        'The source repository is not made to play the game directly (as there is missing all gaming data content).' + LineEnding + LineEnding +
+        'If you downloaded the source accidentially and only want to play the game:' + LineEnding +
+        'move ctd_launcher to root folder and delete everything else, than use ctd_launcher to update and run the game'
+        , llFatal);
+    End
+    Else Begin
+      LogShow('Could not find textures directory, please run ctd_launcher to validate the installation.', llFatal);
+    End;
+    AutomodeData.State := AM_Idle;
+    dummy := true;
+    OnIdle(Nil, dummy);
+    halt;
+  End;
   MapFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0))) + 'share' + PathDelim;
   SetCurrentDirUTF8(ExtractFilePath(ParamStrUTF8(0)));
   ServerMapFolder := '';

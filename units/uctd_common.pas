@@ -83,7 +83,7 @@ Const
    * -Released- 0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
    * -Released- 0.11001 = DEL: uUpdate.pas
    * -Released- 0.11002 = FIX: Client did not send correct protocol version
-   *            0.11003 =
+   *            0.11003 = ADD: New Errormessage, if a user pulls the repository and tries to run the executable from the bin folder
    *
    * Known Bugs :
    *)
