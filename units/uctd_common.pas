@@ -83,6 +83,7 @@ Const
    * -Released- 0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
    * -Released- 0.11001 = DEL: uUpdate.pas
    * -Released- 0.11002 = FIX: Client did not send correct protocol version
+   *            0.11003 =
    *
    * Known Bugs :
    *)
@@ -91,7 +92,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.11002'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.11003'; // Die Versionsnummer die sich Server und Client Teilen      /
   defCaption = 'Config TD ver. ' + version
 {$IFDEF DebuggMode}
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
