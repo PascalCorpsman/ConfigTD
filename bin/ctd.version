@@ -1,7 +1,7 @@
 {
   "config_td":  {
     "Version":0.11000,
-    "LauncherVersion":4,
+    "LauncherVersion":5,
     "VersionText":"Improve launcher",
     "Download_core":
     [
@@ -75,10 +75,10 @@
       },
       {
         "file":        {
-          "HASH":"d2e6d0d193de5af5cf07da110cd93625",
-          "SIZE":"3358208",
-          "HASH2":"fdf6885c95bc82d0a200ca38b608458d",
-          "SIZE2":"7350616",
+          "HASH":"3388d2966e0a278a8c6252cdc11af695",
+          "SIZE":"3384832",
+          "HASH2":"08fc1d009278b7e2f75b2af32c123819",
+          "SIZE2":"7377656",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
@@ -557,8 +557,8 @@
       },
       {
         "file":        {
-          "HASH":"46d53d2aa3e918f59bb573aa03065c5f",
-          "SIZE":"6124",
+          "HASH":"0a1bfda0caeb0445163f1053390e5b7b",
+          "SIZE":"6170",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/Readme.md",
           "Filename":"Readme.md"
         }
