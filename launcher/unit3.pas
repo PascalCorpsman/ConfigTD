@@ -391,6 +391,7 @@ Begin
     End;
   End;
   form4.Close;
+  log('Finished');
   Close;
 End;
 

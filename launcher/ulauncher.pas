@@ -95,7 +95,7 @@ Function DownloadFile(URL, Filename: String): boolean;
 
 Implementation
 
-Uses unit1, unit2, ssl_openssl, httpsend, synautil;
+Uses unit1, unit2, unit3, ssl_openssl, httpsend, synautil;
 
 Procedure ClearLog();
 Begin

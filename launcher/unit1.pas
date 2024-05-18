@@ -215,8 +215,9 @@ Begin
   If form3.GetFilesToDLCount() = 0 Then Begin
     showmessage('CTD is up to date, not "checked" are the .zip files.');
   End;
+  form2.top := form3.top;
+  form2.Left := form3.left + form3.Width + 10;
   form3.ShowModal;
-  log('Finished');
 End;
 
 Procedure TForm1.Button4Click(Sender: TObject);
