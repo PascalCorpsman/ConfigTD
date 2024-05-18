@@ -27,7 +27,8 @@
 (*               0.03 - first version that works under Windows                *)
 (*                      ADD: Progressbar, checks and improoved flow control   *)
 (*               0.04 - Progressbar in byte not filecount                     *)
-(*               0.05 -                                                       *)
+(*               0.05 - FIX: Download progress calculated wron                *)
+(*                      ADD: dummy image                                      *)
 (*                                                                            *)
 (******************************************************************************)
 Unit Unit1;
@@ -215,7 +216,7 @@ Begin
     log('Local version: not available');
   End
   Else Begin
-      log('Local version: ' + format('%0.5f', [LastCTDUpdaterVersion]));
+    log('Local version: ' + format('%0.5f', [LastCTDUpdaterVersion]));
   End;
   log('Online launcher version: ' + format('%0.2f', [CTD_Version.LauncherVersion / 100]));
   log('Local launcher version: ' + format('%0.2f', [LauncherVersion / 100]));

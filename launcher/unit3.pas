@@ -343,15 +343,18 @@ Begin
   form4.Show;
   form4.ProgressBar1.Max := total Div 1024;
   form4.ProgressBar1.Position := 0;
+  total := 0;
   For i := 0 To CheckListBox1.items.count - 1 Do Begin
     If CheckListBox1.Checked[i] Then Begin
-      form4.ProgressBar1.Position := form4.ProgressBar1.Position + dlFile((CheckListBox1.Items.Objects[i] As TitemObject).filecontainer) Div 1024;
+      total := total + dlFile((CheckListBox1.Items.Objects[i] As TitemObject).filecontainer);
+      form4.ProgressBar1.Position := total Div 1024;
       Application.ProcessMessages;
     End;
   End;
   For i := 0 To CheckListBox2.items.count - 1 Do Begin
     If CheckListBox2.Checked[i] Then Begin
-      form4.ProgressBar1.Position := form4.ProgressBar1.Position + dlFile((CheckListBox2.Items.Objects[i] As TitemObject).filecontainer) Div 1024;
+      total := total + dlFile((CheckListBox2.Items.Objects[i] As TitemObject).filecontainer);
+      form4.ProgressBar1.Position := total Div 1024;
       Application.ProcessMessages;
     End;
   End;
@@ -367,7 +370,8 @@ Begin
       OwnFile := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim + ExtractFileName(ParamStr(0));
       SelfFile.Filename := OwnFile;
       dlFile(SelfFile);
-      form4.ProgressBar1.Position := form4.ProgressBar1.Position + dlFile(SelfFile) Div 1024;
+      total := total + dlFile(SelfFile);
+      form4.ProgressBar1.Position := total Div 1024;
       Application.ProcessMessages;
       If FileExists(OwnFile) Then Begin
         // So schnell wie möglich beenden !
