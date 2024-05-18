@@ -34,10 +34,11 @@ Const
    * -Released- 0.06 = DEL: uupdate.pas
    * -Released- 0.07 = FIX: correct placings of log dialog
    *                   FIX: logic for force was wrong
+   *            0.08 =
    *
    * Known Bugs :
    *)
-  LauncherVersion: integer = 7;
+  LauncherVersion: integer = 8;
 
 Type
 
