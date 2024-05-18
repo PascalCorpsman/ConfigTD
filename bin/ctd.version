@@ -1,7 +1,7 @@
 {
   "config_td":  {
     "Version":0.11002,
-    "LauncherVersion":6,
+    "LauncherVersion":7,
     "VersionText":"FIX: client did not send correct protocol version",
     "Download_core":
     [
@@ -75,10 +75,10 @@
       },
       {
         "file":        {
-          "HASH":"7c2a328ad0c819d4e6f035ee35065bf7",
-          "SIZE":"3384320",
-          "HASH2":"82e6ddd95ef3aea72ead2a8cd911c7f4",
-          "SIZE2":"7377656",
+          "HASH":"73e2ace4802d9c07413aa915ef7a1bd7",
+          "SIZE":"3385344",
+          "HASH2":"9f961503a6dfdb47369ea2ae93c10d6e",
+          "SIZE2":"7377704",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
