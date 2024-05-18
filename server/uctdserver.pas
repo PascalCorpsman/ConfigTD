@@ -739,7 +739,7 @@ Begin
   log('TServer.HandleUserLoginRequest', llTrace);
   m := TMemoryStream.Create;
   // 0. Check ob die beiden Versionen Compatibel sind
-  If version <> ClientVersion Then Begin
+  If ProtocollVersion <> ClientVersion Then Begin
     i := EC_Invalid_Versions;
     m.Write(i, sizeof(i));
     SendChunk(miRequestLoginResult, m, UID);
@@ -2290,7 +2290,7 @@ Begin
   Flag := 1; // [0 = Normal, 1 = Bakup]
   stream.Write(flag, sizeof(flag));
   // Speichern der Versionsnummer beim Speichern
-  ver := Version;
+  ver := ProtocollVersion;
   stream.Write(ver, sizeof(ver));
   i := fMap.Difficulty;
   stream.Write(i, sizeof(i));
@@ -2391,7 +2391,7 @@ Begin
   stream.read(flag, sizeof(flag)); // Ob Bakup oder Savegame ist uns egal
   ver := $FFFFFFFF;
   stream.Read(ver, SizeOf(ver)); // Auslesen der Versionsnummer des Spieles, als der Spielstand gespeichert wurde
-  If ver <> Version Then Begin
+  If ver <> ProtocollVersion Then Begin
     SendSplashMessage(format('Unable to load game, invalid file version %d need %d', [ver, Version]), DefaultSplashHintDelay, v3(1, 0, 0), uid);
     LogLeave;
     exit;

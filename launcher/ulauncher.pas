@@ -23,7 +23,7 @@ Uses
 
 Const
   VersionInfoUrl = 'https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd.version'; // URL zum DL der Versionsinfo .JSON
-  LauncherVersion: integer = 5;
+  LauncherVersion: integer = 6;
 
 Type
 

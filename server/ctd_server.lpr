@@ -34,7 +34,7 @@ Uses Interfaces, sysutils, uctdserver, lazutf8, LazFileUtils,
 Procedure PrintHelp;
 Begin
   writeln('');
-  writeln('Online help for Config TD Server ver. ' + format('%0.2f', [Version / 100]));
+  writeln('Online help for Config TD Server ver. ' + Version);
   writeln('');
   writeln('-p <Port> = Spezifies the port number to listen to.');
   writeln('-pw <Password> = Spezifies the password default ""');
@@ -111,7 +111,7 @@ Begin
       exit;
     End;
   End;
-  Log('Config TD - Server ver. ' + format('%0.2f', [Version / 100]) + ' by Corpsman www.Corpsman.de', llInfo); // Eigentlich müsste dieser Log weiter oben sein, aber nur so ist er auch in der evtl. erstellten .log Datei
+  Log('Config TD - Server ver. ' + Version + ' by Corpsman www.Corpsman.de', llInfo); // Eigentlich müsste dieser Log weiter oben sein, aber nur so ist er auch in der evtl. erstellten .log Datei
   s := '';
   For i := 1 To high(Params) Do Begin
     If Not params[i] Then Begin

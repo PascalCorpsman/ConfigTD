@@ -28,8 +28,6 @@ Uses
 {$ENDIF}
   ;
 
-{$I ../client/updater_settings.inc}
-
 Const
   (*
    * Historie : 0.01    = Initialversion
@@ -83,7 +81,7 @@ Const
    *                      FIX: Reduce loading times by TItemObjectManager
    *                      ADD: Custom Sorting for TItemObject Lists
    * -Released- 0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
-   *            0.11001 =
+   *            0.11001 = DEL: uUpdate.pas
    *
    * Known Bugs :
    *)
@@ -91,8 +89,9 @@ Const
    * Die Versionsnummer ist immer für Client und Server Gleich, beim Verbinden
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
-  Version: uint32 = updater_int_Version; // ACHTUNG die Versionsnummer mus hier und in der Zeile darunter angepasst werden
-  defCaption = 'Config TD ver. ' + updater_Version // ACHTUNG die Versionsnummer mus hier und in der Zeile darüber angepasst werden
+  ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
+  Version = '0.11001'; // Die Versionsnummer die sich Server und Client Teilen      /
+  defCaption = 'Config TD ver. ' + version
 {$IFDEF DebuggMode}
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
 {$ENDIF}

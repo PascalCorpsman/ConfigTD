@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* ctd_launcher                                                    15.05.2024 *)
 (*                                                                            *)
-(* Version     : 0.05                                                         *)
+(* Version     : 0.06                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -29,6 +29,7 @@
 (*               0.04 - Progressbar in byte not filecount                     *)
 (*               0.05 - FIX: Download progress calculated wron                *)
 (*                      ADD: dummy image                                      *)
+(*               0.06 - DEL: uupdate.pas                                      *)
 (*                                                                            *)
 (******************************************************************************)
 Unit Unit1;
@@ -75,8 +76,8 @@ Type
   private
     ini: TIniFile;
     CTD_Version: TCTD_Version;
-    LastCTDIntVersion: integer;
-    LastCTDUpdaterVersion: Single;
+    ProtocollVersion: integer;
+    Version: Single;
     Procedure LoadSettings();
     Procedure StoreSettings();
 
@@ -102,9 +103,6 @@ Uses unit2, Unit3, UTF8Process, LCLType, lclintf
 
 Procedure TForm1.FormCreate(Sender: TObject);
 Begin
-  (*
-   * Idee: Suche nach Updates / einfaches Konfig / Installer
-   *)
   CTD_Version := TCTD_Version.Create();
   SetCurrentDir(ExtractFilePath(ParamStr(0)));
   caption := format('Config TD, launcher ver. %0.2f', [LauncherVersion / 100]);
@@ -130,8 +128,8 @@ Begin
   edit3.text := ini.ReadString('Global', 'Hostport', '1234');
   edit4.text := ini.ReadString('Global', 'AutoNextWaveDelay', '10');
   ComboBox1.text := ini.ReadString('Global', 'Menupos', 'Right');
-  LastCTDIntVersion := ini.ReadInteger('Global', 'LastCTDIntVersion', -1);
-  LastCTDUpdaterVersion := strtofloat(ini.ReadString('Global', 'LastCTDUpdaterVersion', '-1'), fm);
+  ProtocollVersion := ini.ReadInteger('Global', 'ProtocollVersion', -1);
+  Version := strtofloat(ini.ReadString('Global', 'Version', '-1'), fm);
 End;
 
 Procedure TForm1.StoreSettings;
@@ -212,15 +210,15 @@ Begin
   End;
   If Not CTD_Version.LoadFromFile(tmpFolder + 'ctd_version.json') Then exit;
   log('Online version: ' + format('%0.5f', [CTD_Version.Version]));
-  If LastCTDUpdaterVersion = -1 Then Begin
+  If Version = -1 Then Begin
     log('Local version: not available');
   End
   Else Begin
-    log('Local version: ' + format('%0.5f', [LastCTDUpdaterVersion]));
+    log('Local version: ' + format('%0.5f', [Version]));
   End;
   log('Online launcher version: ' + format('%0.2f', [CTD_Version.LauncherVersion / 100]));
   log('Local launcher version: ' + format('%0.2f', [LauncherVersion / 100]));
-  form3.InitWith(CTD_Version, trunc(CTD_Version.Version * 100000) <> trunc(LastCTDUpdaterVersion * 100000));
+  form3.InitWith(CTD_Version, trunc(CTD_Version.Version * 100000) <> trunc(Version * 100000));
   If form3.GetFilesToDLCount() = 0 Then Begin
     showmessage('CTD is up to date, not "checked" are the .zip files.');
   End;

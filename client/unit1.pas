@@ -170,11 +170,8 @@ Type
     Procedure StartClientGame;
     Procedure OnIdle(Sender: TObject; Var Done: Boolean);
     Procedure OnShowGameStatistics(Msg: String; Const Data: TStream);
-    Procedure UpdateResultCallback(AlwaysShowResult: Boolean;
-      OnlineVersions: TVersionArray);
   public
     { public declarations }
-    Procedure CheckForNewVersion(AlwaysShowResult: Boolean);
     Procedure OnConnectToServer(Sender: TObject);
     Procedure OnDisconnectFromServer(Sender: TObject);
     Procedure OnLoadMap(Sender: TObject);
@@ -272,79 +269,6 @@ Begin
 End;
 
 { TForm1 }
-
-Procedure TForm1.CheckForNewVersion(AlwaysShowResult: Boolean);
-Begin
-  If URL_CheckForUpdate = '' Then exit; // Feature atm disabled -> exit
-  //  fUpdater.ProxyHost := getvalue('General', 'ProxyHost', '');
-  //  fUpdater.ProxyPort := getvalue('General', 'ProxyPort', '');
-  //  fUpdater.ProxyUser := getvalue('General', 'ProxyUser', '');
-  //  fUpdater.ProxyPass := getvalue('General', 'ProxyPass', '');
-  fUpdater.GetVersions(URL_CheckForUpdate, AlwaysShowResult, @UpdateResultCallback);
-End;
-
-Procedure TForm1.UpdateResultCallback(AlwaysShowResult: Boolean;
-  OnlineVersions: TVersionArray);
-Var
-  ReleaseText, Dir: String;
-  Ver: TVersion;
-  i: Integer;
-Begin
-  If Not assigned(OnlineVersions) Then Begin
-{$IFDEF Linux}
-    ctd.VersionInfoString := 'Error, could not download infos, did you install libssldev ?' + LineEnding + LineEnding +
-      'sudo apt-get install libssl-dev';
-{$ELSE}
-    ctd.VersionInfoString := fUpdater.LastError;
-{$ENDIF}
-    exit;
-  End;
-  // Suchen der Version die zu uns gehört
-  ver.name := '';
-  For i := 0 To high(OnlineVersions) Do Begin
-    If OnlineVersions[i].Name = updater_AppName Then Begin
-      ver := OnlineVersions[i];
-      break;
-    End;
-  End;
-  If ver.name = '' Then Begin
-    ctd.VersionInfoString := 'Could not download valid version informations.';
-    exit;
-  End;
-  If strtofloat(ver.Version, DefFormat) > strtofloat(updater_Version, DefFormat) Then Begin
-    ReleaseText := ver.ReleaseText;
-    If ID_YES = application.MessageBox(pchar(format(RF_VersionInfo, [updater_Version, ver.Version, ReleaseText])), 'Information', MB_YESNO Or MB_ICONINFORMATION) Then Begin
-      If Not GetWorkDir(dir) Then Begin
-        ctd.VersionInfoString := 'Unable to create temporary folder.';
-      End
-      Else Begin
-        self.Enabled := false;
-        // Proaktiv schon mal so viel wie möglich abschalten
-        ctd.DisConnect;
-        Timer2.Enabled := false;
-        timer1.Enabled := false;
-        form18.timer1.enabled := true; // So tun wie wenn was passieren würde ..
-        form18.Show; // Dem User Anzeigen dass wir nun Downloaden
-        If fUpdater.DoUpdate_Part1(dir, ver) Then Begin
-          form18.timer1.enabled := false; // So tun wie wenn was passieren würde ..
-          self.Enabled := true;
-        End
-        Else Begin
-          ctd.VersionInfoString := format(
-            'An error occured, the update process is not finished correct:' + LineEnding + LineEnding +
-            '%s' + LineEnding + LineEnding +
-            'Please retry by hand (or retry with admin rights).', [fUpdater.LastError]);
-          self.Enabled := true;
-        End;
-        // Egal ob mit oder ohne Fehler wir gehen aus !
-        close; // Wenn das auch nicht geht, dann hilft hier nur noch ein Halt :/
-      End;
-    End;
-  End
-  Else Begin
-    ctd.VersionInfoString := 'Your version is up to date.';
-  End;
-End;
 
 Procedure TForm1.OpenGLControl1MakeCurrent(Sender: TObject; Var Allow: boolean);
 Begin
@@ -1598,8 +1522,8 @@ Begin
   setValue('MainForm', 'Width', inttostr(Form1.Width));
   setValue('MainForm', 'Height', inttostr(Form1.Height));
 
-  setvalue('Global', 'LastCTDIntVersion', inttostr(updater_int_Version));
-  setvalue('Global', 'LastCTDUpdaterVersion', updater_Version);
+  setvalue('Global', 'ProtocollVersion', inttostr(ProtocollVersion));
+  setvalue('Global', 'Version', Version);
 
   timer1.Enabled := false;
   Initialized := false;
@@ -1623,7 +1547,6 @@ Begin
     Form1.Width := strtoint(GetValue('MainForm', 'Width', inttostr(Form1.Width)));
     Form1.Height := strtoint(GetValue('MainForm', 'Height', inttostr(Form1.Height)));
     FixFormPosition(form1);
-    CheckForNewVersion(false);
   End;
 {$IFDEF AUTOMODE}
   If Paramcount <> 0 Then Begin
