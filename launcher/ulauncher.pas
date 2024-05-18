@@ -34,7 +34,7 @@ Const
    * -Released- 0.06 = DEL: uupdate.pas
    * -Released- 0.07 = FIX: correct placings of log dialog
    *                   FIX: logic for force was wrong
-   *            0.08 =
+   *            0.08 = ADD: improoved UI and dialogs
    *
    * Known Bugs :
    *)

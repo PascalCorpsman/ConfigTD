@@ -41,6 +41,7 @@ Type
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    Label4: TLabel;
     Memo1: TMemo;
     Procedure Button1Click(Sender: TObject);
     Procedure Button2Click(Sender: TObject);

@@ -213,7 +213,11 @@ Begin
   log('Local launcher version: ' + format('%0.2f', [LauncherVersion / 100]));
   form3.InitWith(CTD_Version, Version = -1);
   If form3.GetFilesToDLCount() = 0 Then Begin
-    showmessage('CTD is up to date, not "checked" are the .zip files.');
+    showmessage(
+      'Your version of Config TD is up to date.' + LineEnding + LineEnding +
+      'But the additional *.zip files (like the Config TD Data repository) are not checked.' + LineEnding + LineEnding +
+      'If you want, you can check these files now manually and update them.'
+      );
   End;
   form2.top := form3.top;
   form2.Left := form3.left + form3.Width + 10;
