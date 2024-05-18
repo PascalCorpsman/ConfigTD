@@ -1,15 +1,15 @@
 {
   "config_td":  {
-    "Version":0.11002,
+    "Version":0.11003,
     "LauncherVersion":7,
-    "VersionText":"FIX: client did not send correct protocol version",
+    "VersionText":"Improove errormessages during startup",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"021e72229b62f57693104436b99d6c98",
+          "HASH":"e952aba3cdeba333ffbb4deb8b77ce76",
           "SIZE":"3417088",
-          "HASH2":"71af0bf3eaa95230c107d328f71bb766",
+          "HASH2":"126f0a9213eeceec186d64bbc493e47a",
           "SIZE2":"7898520",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
@@ -27,9 +27,9 @@
       },
       {
         "file":        {
-          "HASH":"2d560ee797b2db53a4268fb386c723ce",
-          "SIZE":"7048192",
-          "HASH2":"25a8f8a7b2634b071a7e8f7fcb97b144",
+          "HASH":"1f47d929ac5a233f90e8825c2dcfce4a",
+          "SIZE":"7048704",
+          "HASH2":"640f26945b399f270cfa4ceed7067e8e",
           "SIZE2":"11488488",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
