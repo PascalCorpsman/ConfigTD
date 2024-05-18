@@ -44,7 +44,7 @@ Uses
   uDarkStyleParams, uMetaDarkStyle, uDarkStyleSchemes,
   uWin32WidgetSetDark,
 {$ENDIF}
-  types, uupdate;
+  types;
 
 {$IFDEF AUTOMODE}
 Const
@@ -157,7 +157,6 @@ Type
       ParamCount: Integer; Const Parameters: Array Of String);
   private
     { private declarations }
-    fUpdater: TUpdater;
     fUserMessages: Array Of TUserMessages;
     fnmr: TNewMapRecord;
     fMapTransferStream: TMemorystream;
@@ -1469,7 +1468,6 @@ Begin
   End;
   log('Using share folder : ' + MapFolder, llInfo);
   caption := defCaption;
-  fUpdater := TUpdater.Create;
   Tform(self).Constraints.MinHeight := 480;
   Tform(self).Constraints.Minwidth := 640;
   // Init dglOpenGL.pas , Teil 1
@@ -1529,8 +1527,6 @@ Begin
   Initialized := false;
   // Eine Evtl bestehende Verbindung Kappen, so lange die LCL und alles andere noch Lebt.
   ctd.DisConnect;
-  fUpdater.free;
-  fUpdater := Nil;
   LogLeave;
 End;
 

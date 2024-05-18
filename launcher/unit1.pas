@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* ctd_launcher                                                    15.05.2024 *)
 (*                                                                            *)
-(* Version     : 0.06                                                         *)
+(* Version     : 0.07                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -29,7 +29,8 @@
 (*               0.04 - Progressbar in byte not filecount                     *)
 (*               0.05 - FIX: Download progress calculated wron                *)
 (*                      ADD: dummy image                                      *)
-(*               0.06 - DEL: uupdate.pas                                      *)
+(* - releases -  0.06 - DEL: uupdate.pas                                      *)
+(*               0.07 -                                                       *)
 (*                                                                            *)
 (******************************************************************************)
 Unit Unit1;

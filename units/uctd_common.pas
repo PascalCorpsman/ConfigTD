@@ -81,7 +81,8 @@ Const
    *                      FIX: Reduce loading times by TItemObjectManager
    *                      ADD: Custom Sorting for TItemObject Lists
    * -Released- 0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
-   *            0.11001 = DEL: uUpdate.pas
+   * -Released- 0.11001 = DEL: uUpdate.pas
+   *            0.11002 =
    *
    * Known Bugs :
    *)
@@ -90,7 +91,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.11001'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.11002'; // Die Versionsnummer die sich Server und Client Teilen      /
   defCaption = 'Config TD ver. ' + version
 {$IFDEF DebuggMode}
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
