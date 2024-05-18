@@ -211,7 +211,7 @@ Begin
   End;
   log('Online launcher version: ' + format('%0.2f', [CTD_Version.LauncherVersion / 100]));
   log('Local launcher version: ' + format('%0.2f', [LauncherVersion / 100]));
-  form3.InitWith(CTD_Version, trunc(CTD_Version.Version * 100000) <> trunc(Version * 100000));
+  form3.InitWith(CTD_Version, Version = -1);
   If form3.GetFilesToDLCount() = 0 Then Begin
     showmessage('CTD is up to date, not "checked" are the .zip files.');
   End;

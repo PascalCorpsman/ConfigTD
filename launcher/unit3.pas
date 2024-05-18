@@ -407,7 +407,7 @@ Begin
   SelfFile.URL := '';
   SelfFile.Size := 0;
   SelfFile.Size2 := 0;
-  memo1.Text := aVersion.VersionText;
+  memo1.Text := format('Config TD ver. %0.5f', [aVersion.Version]) + LineEnding + LineEnding + aVersion.VersionText;
   CheckListBox1.Clear;
   CheckListBox2.Clear;
   For i := 0 To aVersion.DownloadBaseCount - 1 Do Begin
