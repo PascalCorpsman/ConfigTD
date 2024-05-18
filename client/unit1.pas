@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* config_td                                                       ??.??.???? *)
 (*                                                                            *)
-(* Version     : see updater_settings.inc                                     *)
+(* Version     : see uctd_common.pas                                          *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)

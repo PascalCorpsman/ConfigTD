@@ -87,7 +87,7 @@ Const
    * Known Bugs :
    *)
   (*
-   * Die Versionsnummer ist immer für Client und Server Gleich, beim Verbinden
+   * Die ProtocollVersion ist immer für Client und Server Gleich, beim Verbinden
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!

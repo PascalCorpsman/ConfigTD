@@ -23,6 +23,19 @@ Uses
 
 Const
   VersionInfoUrl = 'https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd.version'; // URL zum DL der Versionsinfo .JSON
+  (*
+   * Historie : 0.01 = Initial version
+   *            0.02 = first version that works under Linux
+   *            0.03 = first version that works under Windows
+   *                   ADD: Progressbar, checks and improoved flow control
+   *            0.04 = Progressbar in byte not filecount
+   *            0.05 = FIX: Download progress calculated wron
+   *                   ADD: dummy image
+   * -Released- 0.06 = DEL: uupdate.pas
+   *            0.07 =
+   *
+   * Known Bugs :
+   *)
   LauncherVersion: integer = 7;
 
 Type
