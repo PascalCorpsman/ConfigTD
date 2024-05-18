@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.11000,
-    "LauncherVersion":5,
-    "VersionText":"Improve launcher",
+    "Version":0.11001,
+    "LauncherVersion":6,
+    "VersionText":"DEL: remove updater\nADD: improve launcher",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"f33dfb5a4a6df88c1dae98b4759ed0af",
-          "SIZE":"3417600",
-          "HASH2":"a195c965446f544f3bbc2ed6b887306a",
-          "SIZE2":"7898568",
+          "HASH":"d67ce7db4f67b2cc47a271957c3c524e",
+          "SIZE":"3417088",
+          "HASH2":"b9b6c2cb63382285af7af5dde946997f",
+          "SIZE2":"7898520",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -27,10 +27,10 @@
       },
       {
         "file":        {
-          "HASH":"47c594e21eedf715d5f86b673345f72e",
-          "SIZE":"7101952",
-          "HASH2":"b613015eb0abaf494ac7b375e185a9bd",
-          "SIZE2":"11741560",
+          "HASH":"b1ab61b53a8ff7ff30377787a3092a59",
+          "SIZE":"7048192",
+          "HASH2":"9288df257cb1a82ef86e036b23f53647",
+          "SIZE2":"11488488",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
@@ -75,9 +75,9 @@
       },
       {
         "file":        {
-          "HASH":"3388d2966e0a278a8c6252cdc11af695",
-          "SIZE":"3384832",
-          "HASH2":"08fc1d009278b7e2f75b2af32c123819",
+          "HASH":"7c2a328ad0c819d4e6f035ee35065bf7",
+          "SIZE":"3384320",
+          "HASH2":"82e6ddd95ef3aea72ead2a8cd911c7f4",
           "SIZE2":"7377656",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
