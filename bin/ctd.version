@@ -1,8 +1,8 @@
 {
   "config_td":  {
     "Version":0.11003,
-    "LauncherVersion":7,
-    "VersionText":"Improove errormessages during startup",
+    "LauncherVersion":8,
+    "VersionText":"FIX: ssl did not work on Windows 10 systems",
     "Download_core":
     [
       {
@@ -37,14 +37,6 @@
       },
       {
         "file":        {
-          "HASH":"831fe8a4aa26a51f61d37912b2a26787",
-          "SIZE":"2281984",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/libeay32.dll",
-          "Filename":"libeay32.dll"
-        }
-      },
-      {
-        "file":        {
           "HASH":"82165bb9250d158ee2b235e8d5b4c064",
           "SIZE":"2675712",
           "HASH2":"c07d5aaed01b99505e9c0a492897033c",
@@ -75,10 +67,10 @@
       },
       {
         "file":        {
-          "HASH":"73e2ace4802d9c07413aa915ef7a1bd7",
-          "SIZE":"3385344",
-          "HASH2":"9f961503a6dfdb47369ea2ae93c10d6e",
-          "SIZE2":"7377704",
+          "HASH":"2bd466aa7496de12917b2b19fad397ea",
+          "SIZE":"4793856",
+          "HASH2":"a044971c691aaaeb9aa76d4df5f79b0d",
+          "SIZE2":"7377800",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
