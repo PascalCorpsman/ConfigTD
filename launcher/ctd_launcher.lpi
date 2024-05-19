@@ -73,6 +73,10 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit4"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\..\Sample\DatenSteuerung\uncommenter.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
