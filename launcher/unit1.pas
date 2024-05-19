@@ -73,7 +73,9 @@ Type
     Version: Single;
     Procedure LoadSettings();
     Procedure StoreSettings();
-
+{$IFDEF Windows}
+    Function CheckAndMaybeExtract(Const RessourceDLL: String): Boolean;
+{$ENDIF}
   public
 
   End;
@@ -163,21 +165,19 @@ Begin
   close;
 End;
 
-Procedure TForm1.Button1Click(Sender: TObject);
+{$IFDEF Windows}
+
+Function TForm1.CheckAndMaybeExtract(Const RessourceDLL: String): Boolean;
 Var
-  tmpFolder: String;
-{$IFDEF Windows}
   st: TLazarusResourceStream;
-{$ENDIF}
 Begin
-  ClearLog();
-  // 1. Prüfen ob wir überhaupt die Fähigkeit haben https zu sprechen
-{$IFDEF Windows}
-  If Not FileExists('ssleay32.dll') Then Begin
+  result := FileExists(RessourceDLL + '.dll');
+  If Not result Then Begin
     // https://wiki.freepascal.org/Lazarus_Resources
-    st := TLazarusResourceStream.Create('SSL_DLL', Nil);
+    st := TLazarusResourceStream.Create(RessourceDLL, Nil);
     Try
-      st.SaveToFile(ExtractFilePath(ParamStr(0)) + 'ssleay32.dll');
+      st.SaveToFile(ExtractFilePath(ParamStr(0)) + RessourceDLL + '.dll');
+      result := true;
     Except
       On av: exception Do Begin
         log(av.Message);
@@ -187,6 +187,18 @@ Begin
     End;
     st.free;
   End;
+End;
+{$ENDIF}
+
+Procedure TForm1.Button1Click(Sender: TObject);
+Var
+  tmpFolder: String;
+Begin
+  ClearLog();
+  // 1. Prüfen ob wir überhaupt die Fähigkeit haben https zu sprechen
+{$IFDEF Windows}
+  If Not CheckAndMaybeExtract('ssleay32') Then exit;
+  If Not CheckAndMaybeExtract('libeay32') Then exit;
 {$ENDIF}
   // 2. Download der Version Info
   tmpFolder := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim;
