@@ -124,7 +124,7 @@ Begin
   edit4.text := ini.ReadString('Global', 'AutoNextWaveDelay', '10');
   ComboBox1.text := ini.ReadString('Global', 'Menupos', 'Right');
   ProtocollVersion := ini.ReadInteger('Global', 'ProtocollVersion', -1);
-  Version := strtofloat(ini.ReadString('Global', 'Version', '-1'), fm);
+  Version := strtofloatdef(ini.ReadString('Global', 'Version', '-1'), -1, fm);
 End;
 
 Procedure TForm1.StoreSettings;
