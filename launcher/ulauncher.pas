@@ -34,11 +34,13 @@ Const
    * -Released- 0.06 = DEL: uupdate.pas
    * -Released- 0.07 = FIX: correct placings of log dialog
    *                   FIX: logic for force was wrong
-   *            0.08 = ADD: improoved UI and dialogs
+   * -Released- 0.08 = ADD: improoved UI and dialogs
+   *                   Add: both ssL dll's for windows version
+   *            0.09 =
    *
    * Known Bugs :
    *)
-  LauncherVersion: integer = 8;
+  LauncherVersion: integer = 9;
 
 Type
 
@@ -97,7 +99,7 @@ Function DownloadFile(URL, Filename: String): boolean;
 
 Implementation
 
-Uses unit1, unit2, unit3, ssl_openssl, httpsend, synautil;
+Uses unit1, unit2, ssl_openssl, httpsend, synautil;
 
 Procedure ClearLog();
 Begin
