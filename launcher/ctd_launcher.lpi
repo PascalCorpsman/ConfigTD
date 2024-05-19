@@ -87,7 +87,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Sample\synapse;..\..\Sample\DatenSteuerung"/>
+      <OtherUnitFiles Value="..\..\Sample\synapse;..\..\Sample\DatenSteuerung;..\units"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
