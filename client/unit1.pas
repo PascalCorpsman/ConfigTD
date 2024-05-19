@@ -1413,6 +1413,7 @@ Begin
   fUserMessages := Nil;
   fMapTransferStream := TMemoryStream.Create;
   DefaultFormatSettings.DecimalSeparator := '.';
+  SetCurrentDirUTF8(ExtractFilePath(ParamStrUTF8(0)));
   InitLogger();
   (*
    * Generell prüfen ob die Installation richtig ist, wenn nicht eine Warnung an den User -> Raus
@@ -1438,7 +1439,6 @@ Begin
     halt;
   End;
   MapFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0))) + 'share' + PathDelim;
-  SetCurrentDirUTF8(ExtractFilePath(ParamStrUTF8(0)));
   ServerMapFolder := '';
   FileloggingDir := '';
   For i := 1 To Paramcount Do Begin
