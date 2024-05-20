@@ -169,6 +169,7 @@ Type
     Procedure StartClientGame;
     Procedure OnIdle(Sender: TObject; Var Done: Boolean);
     Procedure OnShowGameStatistics(Msg: String; Const Data: TStream);
+    Procedure OnFileReceivedEvent(Sender: TObject; MapName: String; Filename: String);
   public
     { public declarations }
     Procedure OnConnectToServer(Sender: TObject);
@@ -235,7 +236,7 @@ Uses
   , unit15 // Abfrage beim copieren von Opponents / Gebäuden in Unit14
   , unit16 // Savegame Dialog
   , unit17 // Map Texture Generator Dialog
-  , unit18 // Asynchrone Messagebox
+  //, unit18 // Asynchrone Messagebox
   //, unit19 // Hero Editor
   ;
 
@@ -331,6 +332,7 @@ Begin
     ctd.OnRefreshPlayerStats := @OnRefreshPlayerStats;
     ctd.OnShowGameStatistics := @OnShowGameStatistics;
     ctd.OnWaveCloneEvent := @form4.OnCTDWaveClone;
+    ctd.OnFileReceivedEvent := @OnFileReceivedEvent;
 
     ctd.RegisterTCPConnection(LTCPComponent1);
     ctd.RegisterUDPConnection(LUDPComponent1);
@@ -915,7 +917,7 @@ Begin
     form4.Image4.Picture.Clear;
   End;
   // --- Buyables ---
-  Form14.RefreshForm4Buyables;
+  Form4.RefreshForm4Buyables;
   // --- Waves ---
   form4.SetWaveCountTo(high(ctd.Map.Waves) + 1);
   Form4updating := true; // Das Laden einer Wave fragt die Opponentliste ab, das darf aber nur 1 mal gemacht werden, und da macht es der Timer, also wird das laden hier geblockt.
@@ -1288,6 +1290,12 @@ Begin
   Form8.BringToFront;
 End;
 
+Procedure TForm1.OnFileReceivedEvent(Sender: TObject; MapName: String;
+  Filename: String);
+Begin
+  Form14.OnFileReceivedEvent(sender, MapName, Filename);
+End;
+
 Var
   f4v: Boolean = false;
   f4t, f4l: integer;
@@ -1318,22 +1326,47 @@ End;
 Procedure TForm1.AddForm4Buyable(b: TBuyAble);
 Var
   obj: TItemObject;
+  s: String;
+  i: Integer;
 Begin
   // Die Listbox mach keinen Sinn nach Power zu sortieren
   // -> Sortieren Nach Alphabet (sorted flag wird in Form14 gesetzt
+
+  // Wenn es dann Ding schon gibt nicht mehr adden
+  s := BuyableToString(b);
+  For i := 0 To Form4.ListBox1.items.count - 1 Do Begin
+    If Form4.ListBox1.items[i] = s Then Begin
+      // Über das Update Map Properties kann es sein, das das Objekt schon
+      // geladen wurde obwohl es noch nicht "da" ist -> dann wird es nun aktualisiert
+      obj := Form4.ListBox1.items.Objects[i] as TItemObject;
+      if not assigned(obj) then begin
+        // TODO: Klären, was da dann gemacht werden muss ..
+      end else begin
+        Case b.Kind Of
+            bkBuilding: Begin
+                obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
+              End;
+            bkHero: Begin
+                obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
+              End;
+        end;
+      end;
+      exit;
+    End;
+  End;
   Case b.Kind Of
     bkBuilding: Begin
         obj := TItemObject.Create;
         obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
-        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
+        form4.listbox1.Items.AddObject(s, obj);
       End;
     bkHero: Begin
         obj := TItemObject.Create;
         obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
-        form4.listbox1.Items.AddObject(BuyableToString(b), obj);
+        form4.listbox1.Items.AddObject(s, obj);
       End;
   Else Begin
-      form4.listbox1.items.add(BuyableToString(b));
+      form4.listbox1.items.add(s);
     End;
   End;
 End;

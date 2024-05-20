@@ -33,7 +33,6 @@ Type
 
   TTransferLocalServerFiles = Record
     Files: TFileInfoList; // Die Liste der zu Kopierenden Dateien
-    ListBox2Name: String; // Der Name der beim Abschluss in die Listbox2 hinzugefügt werden muss
   End;
 
   TTransferShareServer = Record //
@@ -91,7 +90,7 @@ Type
      *)
     Procedure TransferLocalServer(LocalName, ServerName: String); // Sendet von der Lokalen Position alles zum Server in die Map
 
-    Procedure TransferShareLocal(ShareName, LocalName: String); // Transveriert von Lokalen Share nach Lokales Verzeichnis
+    Procedure TransferShareLocal(ShareName, LocalName: String); // Transferiert von Lokalen Share nach Lokales Verzeichnis
   public
     { public declarations }
     Procedure LoadBuildingSettings(OnLoadBuildingFinishEvent: TNotifyEvent);
@@ -99,8 +98,9 @@ Type
     Procedure LoadHeroSettings(OnLoadHeroFinishEvent: TNotifyEvent);
 
     Function TransferShareServer(Obj: tctd_mapopbject): Boolean; // Sendet ein lokales Objekt an den Server
-    Procedure RefreshForm4Buyables;
     Procedure ReloadIndex; // Läd die ItemObjecte die grad selectiert sind neu (nach Edit Dialog)
+    Procedure OnFileReceivedEvent(Sender: TObject; MapName: String; Filename: String);
+
   End;
 
 Var
@@ -224,7 +224,7 @@ Begin
       End;
   End;
   // Anfügen des Elementes in die Liste und Laden
-  AddAndSelect(ListBox1, Edit1.Text, Nil);
+  AddSortAndSelect(ListBox1, Edit1.Text, Nil);
   Button4.Click; // Laden
   LogLeave;
 End;
@@ -238,7 +238,7 @@ Begin
     Case fmode Of
       dmBuildings: Begin
           ctd.DelBuilding(ListBox2.items[ListBox2.ItemIndex] + '.geb');
-          RefreshForm4Buyables;
+          form4.RefreshForm4Buyables;
         End;
       dmOpponents: Begin
           ctd.DelOpponent(ListBox2.items[ListBox2.ItemIndex] + '.opp');
@@ -246,7 +246,7 @@ Begin
         End;
       dmHeros: Begin
           ctd.Delhero(ListBox2.items[ListBox2.ItemIndex] + '.hero');
-          RefreshForm4Buyables;
+          form4.RefreshForm4Buyables;
         End;
     End;
     obj := TItemObject(ListBox2.items.Objects[ListBox2.ItemIndex]);
@@ -479,6 +479,7 @@ Var
   h, tw: integer;
   lb: TListBox;
 Begin
+  // TODO: Unter Windows sieht das so schlecht aus, dass man da Teilweise gar nicht sehen kann was angewählt ist ...
   lb := TListBox(Control);
   h := 0;
   tw := ARect.Right;
@@ -504,12 +505,7 @@ End;
 
 Procedure TForm14.OnTransferLocalServer(Sender: TObject; Suceed: Boolean);
 Var
-  t: String;
   i: Integer;
-  m: TMemoryStream;
-  b: TBuyAble;
-  obj: TItemObject;
-  found: Boolean;
 Begin
   // Bei Mehreren Kopieen wird diese Callback einmal zu oft aufgerufen, ka warum, aber da es dann nix mehr zu kopieren gibt -> Raus und gut.
   If Not assigned(fTransferLocalServerFiles) Then Begin
@@ -523,75 +519,6 @@ Begin
   Else Begin
     // Senden der Nächsten Datei
     If length(fTransferLocalServerFiles[0].Files) = 0 Then Begin
-      // Wir haben Alle Dateien versendet
-      t := ExtractFileNameOnly(fTransferLocalServerFiles[0].ListBox2Name);
-      For i := 0 To ListBox2.Items.Count - 1 Do Begin
-        If ListBox2.Items[i] = t Then Begin
-          ListBox2.ItemIndex := i;
-          obj := TItemObject(ListBox2.items.Objects[i]);
-          If assigned(obj) Then obj.ReloadPrivate;
-          ListBox2.Invalidate;
-          LogLeave;
-          exit;
-        End;
-      End;
-      found := false;
-      For i := 0 To ListBox1.Items.Count - 1 Do Begin
-        If ListBox1.Items[i] = t Then Begin
-          found := true;
-          obj := TItemObject.Create;
-          obj.clone(TItemObject(ListBox1.Items.Objects[i]));
-          AddAndSelect(ListBox2, t, obj);
-          break;
-        End;
-      End;
-      If Not found Then AddAndSelect(ListBox2, t, Nil);
-      Case fmode Of
-        dmBuildings: Begin
-            // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
-            b.Item := t + '.geb';
-            b.WaveNum := 0;
-            b.Count := 0;
-            b.Kind := bkBuilding;
-            m := TMemoryStream.Create;
-            m.WriteAnsiString(b.Item);
-            m.Write(b.WaveNum, sizeof(b.WaveNum));
-            m.Write(b.Count, sizeof(b.Count));
-            m.Write(b.Kind, sizeof(b.Kind));
-            //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
-            ctd.UpdateMapProperty(mpAddBuyable, m);
-            form1.AddForm4Buyable(b);
-
-            // Freischalten des Editierens der Gebäude Eigenschaften
-            form4.Edit6.Enabled := true;
-            form4.Edit7.Enabled := true;
-            form4.Button10.Enabled := true;
-
-          End;
-        dmOpponents: Begin
-            // For the Future ?
-          End;
-        dmHeros: Begin
-            // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
-            b.Item := t + '.hero';
-            b.WaveNum := 0;
-            b.Count := 1; // Per Default lassen wir nur einen Helden zu, soll der Level Designer das aufbohren
-            b.Kind := bkHero;
-            m := TMemoryStream.Create;
-            m.WriteAnsiString(b.Item);
-            m.Write(b.WaveNum, sizeof(b.WaveNum));
-            m.Write(b.Count, sizeof(b.Count));
-            m.Write(b.Kind, sizeof(b.Kind));
-            //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
-            ctd.UpdateMapProperty(mpAddBuyable, m);
-            form1.AddForm4Buyable(b);
-
-            // Freischalten des Editierens der Gebäude Eigenschaften
-            form4.Edit6.Enabled := true;
-            form4.Edit7.Enabled := true;
-            form4.Button10.Enabled := true;
-          End;
-      End;
       // Das Objekt aus der Fifo nehmen
       For i := 1 To high(fTransferLocalServerFiles) Do Begin
         fTransferLocalServerFiles[i - 1] := fTransferLocalServerFiles[i];
@@ -804,7 +731,7 @@ End;
 
 Procedure TForm14.TransferLocalServer(LocalName, ServerName: String);
 Var
-  index, i: integer;
+  c, index, i: integer;
   sl: TStringList;
   t: String;
 Begin
@@ -813,17 +740,23 @@ Begin
   index := high(fTransferLocalServerFiles);
   sl := FindAllFiles(ExtractFilePath(LocalName), '*', false);
   setlength(fTransferLocalServerFiles[index].Files, sl.Count);
+  (*
+   * Sicherstellen, das die zu übertragende Datei als letztes kommt, dadurch kann beim
+   * empfangen der Eventhandler dann auf alle Daten zugreifen, weil diese ja schon übertragen wurden ;)
+   *)
+  c := 0;
   For i := 0 To sl.Count - 1 Do Begin
-    t := ExtractFileName(sl[i]);
-    If sl[i] = LocalName Then Begin
-      t := ServerName; // Ist ja bereits ohne Pfade, deswegen muss der nicht extra extrahiert werden
+    If sl[i] <> LocalName Then Begin
+      t := ExtractFileName(sl[i]);
+      fTransferLocalServerFiles[index].Files[c].Source := sl[i];
+      fTransferLocalServerFiles[index].Files[c].Dest := t;
+      inc(c);
     End;
-    fTransferLocalServerFiles[index].Files[i].Source := sl[i];
-    fTransferLocalServerFiles[index].Files[i].Dest := t;
   End;
+  fTransferLocalServerFiles[index].Files[c].Source := LocalName;
+  fTransferLocalServerFiles[index].Files[c].Dest := ServerName;
   sl.free;
-  fTransferLocalServerFiles[index].ListBox2Name := ServerName;
-  OnTransferLocalServer(self, true); // Wir starten das Senden der Dateien in dem wir behaupten,das die letzte erfolgreich gesendet wurde.
+  OnTransferLocalServer(self, true); // Wir starten das Senden der Dateien in dem wir behaupten, das die letzte erfolgreich gesendet wurde.
   LogLeave;
 End;
 
@@ -871,6 +804,9 @@ Var
 Begin
   log('TForm14.TransferShareLocal', llTrace);
   ext := lowercase(ExtractFileExt(ShareName));
+  If ext = '.hero' Then Begin
+    Raise exception.create('TForm14.TransferShareLocal, vergessener Code für heros?');
+  End;
   If ext = '.geb' Then Begin
     obj := TBuilding.create();
   End
@@ -937,41 +873,23 @@ Begin
     dmBuildings: Begin
         iobj := TItemObject.Create;
         iobj.LoadGebInfo(ShareName);
-        AddAndSelect(Listbox1, p, iobj);
+        AddSortAndSelect(Listbox1, p, iobj);
       End;
     dmOpponents: Begin
         iobj := TItemObject.Create;
         iobj.LoadOppInfo(ShareName);
-        AddAndSelect(Listbox1, p, iobj);
+        AddSortAndSelect(Listbox1, p, iobj);
       End;
     dmHeros: Begin
         iobj := TItemObject.Create;
         iobj.LoadHeroInfo(ShareName);
-        AddAndSelect(Listbox1, p, iobj);
+        AddSortAndSelect(Listbox1, p, iobj);
       End;
   Else Begin
-      AddAndSelect(Listbox1, p, Nil);
+      AddSortAndSelect(Listbox1, p, Nil);
     End;
   End;
   LogLeave;
-End;
-
-Procedure TForm14.RefreshForm4Buyables;
-Var
-  i: Integer;
-Begin
-  form4.ListBox1.Clear;
-  form4.ListBox1.Sorted := true;
-  For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
-    form1.AddForm4Buyable(ctd.Map.BuyAbles[i]);
-  End;
-  form4.Edit6.Text := '';
-  form4.Edit7.Text := '';
-  If form4.ListBox1.Items.Count = 0 Then Begin
-    form4.Edit6.Enabled := false;
-    form4.Edit7.Enabled := false;
-    form4.Button10.Enabled := false;
-  End;
 End;
 
 Procedure TForm14.ReloadIndex;
@@ -1013,6 +931,94 @@ Begin
     // Theoretisch müste auch noch Form4 Aktualisiert werden
     // Dass aber nur, wenn sich das Bild ändert, ..
   End;
+End;
+
+Procedure TForm14.OnFileReceivedEvent(Sender: TObject; MapName: String;
+  Filename: String);
+Var
+  ext, t: String;
+  i: Integer;
+  m: TMemoryStream;
+  b: TBuyAble;
+  obj: TItemObject;
+  found: Boolean;
+Begin
+  // Wir haben Alle Dateien versendet
+  t := Filename;
+  ext := LowerCase(ExtractFileExt(Filename));
+  If Not (
+    ((ext = '.geb') And (fmode = dmBuildings)) Or
+    ((ext = '.opp') And (fmode = dmOpponents)) Or
+    ((ext = '.hero') And (fmode = dmHeros))
+    ) Then exit;
+  If Not Assigned(ctd.Map) Then exit;
+  t := ExtractFileNameOnly(t);
+  For i := 0 To ListBox2.Items.Count - 1 Do Begin
+    If ListBox2.Items[i] = t Then Begin
+      ListBox2.ItemIndex := i;
+      obj := TItemObject(ListBox2.items.Objects[i]);
+      If assigned(obj) Then obj.ReloadPrivate;
+      ListBox2.Invalidate;
+      LogLeave;
+      exit;
+    End;
+  End;
+  found := false;
+  For i := 0 To ListBox1.Items.Count - 1 Do Begin
+    If ListBox1.Items[i] = t Then Begin
+      found := true;
+      obj := TItemObject.Create;
+      obj.clone(TItemObject(ListBox1.Items.Objects[i]));
+      AddSortAndSelect(ListBox2, t, obj);
+      break;
+    End;
+  End;
+  If Not found Then AddSortAndSelect(ListBox2, t, Nil);
+  Case fmode Of
+    dmBuildings: Begin
+        // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
+        b.Item := t + '.geb';
+        b.WaveNum := 0;
+        b.Count := 0;
+        b.Kind := bkBuilding;
+        m := TMemoryStream.Create;
+        m.WriteAnsiString(b.Item);
+        m.Write(b.WaveNum, sizeof(b.WaveNum));
+        m.Write(b.Count, sizeof(b.Count));
+        m.Write(b.Kind, sizeof(b.Kind));
+        //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
+        ctd.UpdateMapProperty(mpAddBuyable, m);
+        form1.AddForm4Buyable(b);
+
+        // Freischalten des Editierens der Gebäude Eigenschaften
+        form4.Edit6.Enabled := true;
+        form4.Edit7.Enabled := true;
+        form4.Button10.Enabled := true;
+      End;
+    dmOpponents: Begin
+        // For the Future ?
+      End;
+    dmHeros: Begin
+        // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
+        b.Item := t + '.hero';
+        b.WaveNum := 0;
+        b.Count := 1; // Per Default lassen wir nur einen Helden zu, soll der Level Designer das aufbohren
+        b.Kind := bkHero;
+        m := TMemoryStream.Create;
+        m.WriteAnsiString(b.Item);
+        m.Write(b.WaveNum, sizeof(b.WaveNum));
+        m.Write(b.Count, sizeof(b.Count));
+        m.Write(b.Kind, sizeof(b.Kind));
+        //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
+        ctd.UpdateMapProperty(mpAddBuyable, m);
+        form1.AddForm4Buyable(b);
+
+        // Freischalten des Editierens der Gebäude Eigenschaften
+        form4.Edit6.Enabled := true;
+        form4.Edit7.Enabled := true;
+        form4.Button10.Enabled := true;
+      End;
+  End; // *)
 End;
 
 End.

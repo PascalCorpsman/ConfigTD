@@ -84,7 +84,9 @@ Const
    * -Released- 0.11001 = DEL: uUpdate.pas
    * -Released- 0.11002 = FIX: Client did not send correct protocol version
    * -Released- 0.11003 = ADD: New Errormessage, if a user pulls the repository and tries to run the executable from the bin folder
-   *            0.11004 =
+   *            0.11004 = FIX: Crash during add buildings to a map
+   *                      Revert: Sorting of buildings / Opponents / Heros by Power (as it convues during Map editing)
+   *                      FIX: Crash during delete Hero / building
    *
    * Known Bugs :
    *)
@@ -354,10 +356,12 @@ Type
     fMode: TDialogMode;
     fPower: TPower; // Zum Sortieren
     fName: String; // Zum Sortieren
+    fLoaded: Boolean; // True, wenn erfolgreich geladen
     Procedure LoadOppInfo_private(Const Filename: String);
     Procedure LoadGebInfo_private(Const Filename: String);
     Procedure LoadHeroInfo_private(Const Filename: String);
     Procedure LoadImage(Const Filename: String);
+    Procedure ClearImage(); // Eigentlich macht das keinen Sinn ..
   public
     Image: TBitmap;
     Text: String;
@@ -456,7 +460,7 @@ Procedure SetLogLevel(Level: integer);
 Procedure AssertLog(Criteria: Boolean; LogText: String; LogLevel: TLogLevel = llInfo); // Logt nur wenn "Criteria" = true
 Function LogLevelToString(LogLevel: TLogLevel): String;
 
-Function GetTick: int64 Inline; // Wrapper für Gettickcount
+Function GetTick: int64; // Wrapper für Gettickcount
 
 // Macht das Gegenteil von TServer.HandleRequestSavegames -> Entfernt also was der anfügt..
 Function RemoveTimestampInfoFromFilename(Info: String): String;
@@ -466,7 +470,7 @@ Function prettyTime(TimeInMs: int64): String; // Code entliehen aus CCM
 {$IFDEF Client}
 Procedure RestartApplication();
 Procedure ItemObjectItemsSort(Const List: TStrings); // Sortiert eine Liste nach Item Objects
-Procedure AddAndSelect(Const aListbox: TListBox; aText: String; aObject: tObject);
+Procedure AddSortAndSelect(Const aListbox: TListBox; aText: String; aObject: tObject);
 Procedure AddAndSort(Const aListbox: TListBox; aText: String; aObject: tObject);
 {$ENDIF}
 
@@ -536,20 +540,14 @@ End;
 
 Procedure ItemObjectItemsSort(Const List: TStrings);
 
-  Function CompareItem(a, b, Selector: integer): integer;
+  Function CompareItem(a, b: integer): integer;
   Var
     aObj, bObj: TItemObject;
   Begin
     aobj := TItemObject(List.Objects[a]);
     bObj := TItemObject(List.Objects[b]);
     If assigned(aObj) And assigned(bObj) Then Begin
-      Case Selector Of
-        0: result := CompareStr(aObj.fName, bObj.fName);
-        4: result := aObj.fPower[3] - bObj.fPower[3];
-        3: result := aObj.fPower[2] - bObj.fPower[2];
-        2: result := aObj.fPower[1] - bObj.fPower[1];
-        1: result := aObj.fPower[0] - bObj.fPower[0];
-      End;
+      result := CompareStr(aObj.fName, bObj.fName);
     End
     Else Begin
       result := CompareStr(list[a], list[b]);
@@ -566,9 +564,9 @@ Procedure ItemObjectItemsSort(Const List: TStrings);
       l := Li;
       r := re;
       While l < r Do Begin
-        While CompareItem(l, p, 0) < 0 Do
+        While CompareItem(l, p) < 0 Do
           inc(l);
-        While CompareItem(r, p, 0) > 0 Do
+        While CompareItem(r, p) > 0 Do
           dec(r);
         If L <= R Then Begin
           List.Exchange(l, r);
@@ -581,32 +579,16 @@ Procedure ItemObjectItemsSort(Const List: TStrings);
     End;
   End;
 
-  Procedure Bubble(Selector: integer); // TODO: Einen effizienteren Algorithmus nehmen !
-  Var
-    i, j: Integer;
-  Begin
-    For i := list.count - 1 Downto 1 Do Begin
-      For j := 1 To i Do Begin
-        If CompareItem(j, j - 1, Selector) < 0 Then Begin
-          List.Exchange(j, j - 1);
-        End;
-      End;
-    End;
-  End;
-
-Var
-  i: Integer;
 Begin
   (*
-   * Da es 5 Sortierkategorieen gibt muss leider auch 5 Mal sortiert werden :/
+   * Sortieren nur nach name, das Sortieren nach Schadensklassen sieht zwar gut aus
+   * ist aber in der Realität total nutzlos, da man sonst die verschiedenen "Themes" nicht mehr
+   * auseinander halten kann !!
    *)
   Quick(0, list.count - 1);
-  For i := 1 To 4 Do Begin
-    Bubble(i);
-  End;
 End;
 
-Procedure AddAndSelect(Const aListbox: TListBox; aText: String;
+Procedure AddSortAndSelect(Const aListbox: TListBox; aText: String;
   aObject: tObject);
 Var
   i: Integer;
@@ -1171,8 +1153,11 @@ Begin
   result := false;
   For i := 0 To high(objs) Do Begin
     If objs[i].fFilename = Filename Then Begin
-      result := true;
+      If Not objs[i].fLoaded Then Begin
+        objs[i].ReloadPrivate;
+      End;
       obj.Clone(objs[i]);
+      result := true;
       exit;
     End;
   End;
@@ -1269,6 +1254,7 @@ Begin
   Inherited Create;
   image := Tbitmap.create;
   Image.Transparent := true;
+  fLoaded := false;
 End;
 
 Destructor TItemObject.Destroy;
@@ -1284,7 +1270,6 @@ End;
 Procedure TItemObject.LoadGebInfo(Const Filename: String);
 Begin
   ItemObjectManager.LoadGebInfo(Filename, self);
-
 End;
 
 Procedure TItemObject.LoadHeroInfo(Const Filename: String);
@@ -1331,20 +1316,35 @@ Begin
   End;
 End;
 
+Procedure TItemObject.ClearImage();
+Begin
+  Image.Clear;
+End;
+
 Procedure TItemObject.LoadOppInfo_private(Const Filename: String);
 Var
   opp: TOpponent;
   fp: String;
 Begin
+  fLoaded := false;
   fMode := dmOpponents;
   fFilename := Filename;
+  fName := ExtractFileNameOnly(Filename);
+  If Not FileExists(Filename) Then Begin
+    exit;
+  End;
   opp := TOpponent.create();
   opp.LoadFromFile(Filename);
   fPower := opp.LifePoints;
-  fName := ExtractFileNameOnly(Filename);
   Text := format('(%d/%d/%d/%d)', [opp.LifePoints[0], opp.LifePoints[1], opp.LifePoints[2], opp.LifePoints[3]]);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
-  LoadImage(fp + opp.Image);
+  If FileExists(fp + opp.Image) Then Begin
+    LoadImage(fp + opp.Image);
+    fLoaded := true;
+  End
+  Else Begin
+    ClearImage();
+  End;
   opp.free;
 End;
 
@@ -1353,12 +1353,16 @@ Var
   geb: TBuilding;
   fp: String;
 Begin
+  fLoaded := false;
   fMode := dmBuildings;
   fFilename := Filename;
+  fName := ExtractFileNameOnly(Filename);
+  If Not FileExists(Filename) Then Begin
+    exit;
+  End;
   geb := TBuilding.create();
   geb.LoadFromFile(Filename);
   fPower := geb.Stages[high(geb.Stages)].bulletpower;
-  fName := ExtractFileNameOnly(Filename);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   text :=
     format('(%d/%d/%d/%d)', [
@@ -1366,7 +1370,13 @@ Begin
       geb.Stages[high(geb.Stages)].bulletpower[1],
       geb.Stages[high(geb.Stages)].bulletpower[2],
       geb.Stages[high(geb.Stages)].bulletpower[3]]);
-  LoadImage(fp + geb.Stages[high(geb.Stages)].image);
+  If FileExists(fp + geb.Stages[high(geb.Stages)].image) Then Begin
+    LoadImage(fp + geb.Stages[high(geb.Stages)].image);
+    fLoaded := true;
+  End
+  Else Begin
+    ClearImage();
+  End;
   geb.free;
 End;
 
@@ -1375,12 +1385,16 @@ Var
   hero: THero;
   fp: String;
 Begin
+  fLoaded := false;
   fMode := dmHeros;
   fFilename := Filename;
+  fName := ExtractFileNameOnly(Filename);
+  If Not FileExists(Filename) Then Begin
+    exit;
+  End;
   hero := THero.create();
   hero.LoadFromFile(Filename);
   fPower := hero.Levels[high(hero.Levels)].bulletpower;
-  fName := ExtractFileNameOnly(Filename);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   text :=
     format('(%d/%d/%d/%d)', [
@@ -1388,7 +1402,13 @@ Begin
       hero.Levels[high(hero.Levels)].bulletpower[1],
       hero.Levels[high(hero.Levels)].bulletpower[2],
       hero.Levels[high(hero.Levels)].bulletpower[3]]);
-  LoadImage(fp + hero.Levels[high(hero.Levels)].image);
+  If FileExists(fp + hero.Levels[high(hero.Levels)].image) Then Begin
+    LoadImage(fp + hero.Levels[high(hero.Levels)].image);
+    fLoaded := true;
+  End
+  Else Begin
+    ClearImage();
+  End;
   hero.free;
 End;
 
@@ -1416,6 +1436,7 @@ Begin
     fMode := obj.fMode;
     fPower := obj.fPower;
     fName := obj.fName;
+    fLoaded := obj.fLoaded;
   End
   Else Begin
     text := '';
@@ -1426,6 +1447,7 @@ Begin
     fPower[1] := 0;
     fPower[2] := 0;
     fPower[3] := 0;
+    fLoaded := false;
   End;
 End;
 

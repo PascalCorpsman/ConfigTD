@@ -126,7 +126,7 @@ Type
     Procedure CreateFileSendRequest(MapName, Filename: String; UID: integer);
     Procedure HandleCreateMap(W, H: integer; MapName_: String; dc1, dc2, dc3, dc4: TPortableNetworkGraphic);
     Procedure HandleFileReceiveRequest(MapName_, Filename: String; CRC: Uint32; ResonceID, UID: integer);
-    Procedure HandleFileReceifed(MapName_, Filename: String; Const data: TStream; UID: integer);
+    Procedure HandleFileReceived(MapName_, Filename: String; Const data: TStream; UID: integer);
     Procedure HandleFileListrequest(Extension: String; ResponceID, UID: integer);
     Procedure HandleRequestSavegames(ResponceID, UID: integer);
     Procedure HandleRequestSaveGame(Filename: String; UID: integer);
@@ -474,7 +474,7 @@ Begin
         m := TMemoryStream.Create;
         m.CopyFrom(Chunk.Data, Chunk.Data.Size - Chunk.Data.Position);
         m.position := 0;
-        HandleFileReceifed(s, t, m, Chunk.UID);
+        HandleFileReceived(s, t, m, Chunk.UID);
         m.free;
       End;
     miRequestFileTransfer: Begin
@@ -878,7 +878,7 @@ Begin
   LogLeave;
 End;
 
-Procedure TServer.HandleFileReceifed(MapName_, Filename: String;
+Procedure TServer.HandleFileReceived(MapName_, Filename: String;
   Const data: TStream; UID: integer);
 Var
   f: TFileStream;

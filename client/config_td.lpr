@@ -18,7 +18,6 @@ Program config_td;
 
 Uses
 {$IFDEF UNIX}
-  cthreads, // Für TUpdater
   cmem,
 {$ENDIF}
   Interfaces, // this includes the LCL widgetset

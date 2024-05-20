@@ -198,7 +198,10 @@ End;
 
 Procedure TWaveFrame.PageControl1Change(Sender: TObject);
 Begin
-  If assigned(RefreshOppentList) Then RefreshOppentList(Nil);
+  // Deaktiviert, killt unter Windows alles
+  // GGF machen wir das nur noch rein, wenn der Opponent Editor ausgeführt wurde mit änderungen
+  //    dann aber bei allen !
+  // If assigned(RefreshOppentList) Then RefreshOppentList(Nil);
 End;
 
 Procedure TWaveFrame.SetWaveNum(AValue: integer);

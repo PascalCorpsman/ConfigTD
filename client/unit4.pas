@@ -176,6 +176,8 @@ Type
     Procedure RefreshOpponentsClick(Sender: TObject);
     Procedure ChangeWaveIndexClick(WaveIndex: integer; Direction: Boolean);
     Procedure OnCTDWaveClone(Sender: TObject; SourceWaveNum, DestWaveNum: Integer);
+
+    Procedure RefreshForm4Buyables;
   End;
 
 Var
@@ -282,6 +284,24 @@ Begin
   setValue('MapEditorForm', 'Width', inttostr(form4.Width));
   setValue('MapEditorForm', 'Height', inttostr(form4.Height));
   canclose := Not ctd.IsInEditMode;
+End;
+
+Procedure TForm4.RefreshForm4Buyables;
+Var
+  i: Integer;
+Begin
+  form4.ListBox1.Clear;
+  form4.ListBox1.Sorted := true;
+  For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
+    form1.AddForm4Buyable(ctd.Map.BuyAbles[i]);
+  End;
+  form4.Edit6.Text := '';
+  form4.Edit7.Text := '';
+  If form4.ListBox1.Items.Count = 0 Then Begin
+    form4.Edit6.Enabled := false;
+    form4.Edit7.Enabled := false;
+    form4.Button10.Enabled := false;
+  End;
 End;
 
 Procedure TForm4.ComboBox1Change(Sender: TObject);

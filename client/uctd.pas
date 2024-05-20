@@ -37,6 +37,7 @@ Type
   TOnGetBooleanEvent = Procedure(Sender: TObject; Suceed: Boolean) Of Object;
   TOnGetStreamEvent = Procedure(Sender: TObject; Const Data: TStream) Of Object;
   TOnWaveCloneEvent = Procedure(Sender: TObject; SourceWaveNum, DestWaveNum: Integer) Of Object;
+  TOnFileReceivedEvent = Procedure(Sender: TObject; MapName: String; Filename: String) Of Object;
 
   TOnShowGameStatistics = Procedure(Msg: String; Const Data: TStream) Of Object; // Zum Anzeigen der Spielstatistik am Ende des Spieles
 
@@ -323,7 +324,7 @@ Type
     Procedure SetMenuPosition(AValue: TMenuPosition);
     Function GetIsInEditMode: boolean;
     Function GetPlayer(index: integer): TPlayerInfos;
-    Procedure OnEndFiletransfer(); // Arbeiten die es zu tun gibt, wenn alle Filetransfer erfolgreich abgeschlossen sind
+    Procedure OnEndFiletransfer(MapName, Filename: String); // Arbeiten die es zu tun gibt, wenn alle Filetransfer erfolgreich abgeschlossen sind
 
     Procedure OnLevelUpButtonClick(Sender: TObject); // Der Level Up Button wurde gedrückt
     Procedure OnSellButtonClick(Sender: TObject); // Der Verkaufen Button wurde gedrückt
@@ -343,7 +344,7 @@ Type
     Procedure SendChunk(UserDefinedID: Integer; Const Data: TStream);
 
     Procedure HandleRequestFileTransfer(MapName, Filename: String; CRC: UInt32);
-    Procedure HandleFileReceifed(MapName, Filename: String; Const Data: TStream);
+    Procedure HandleFileReceived(MapName, Filename: String; Const Data: TStream);
     Procedure HandleOnConnectToServer(ServerUid: integer);
     Procedure HandleOnDisconnectFromServer;
     Procedure HandleUpdateMapProperty(MapProperty, SenderUID: Integer; Data: TStream);
@@ -413,6 +414,7 @@ Type
     HintShowHeroRange: Boolean; // Anzeige des Feuerradiusses eines Helden beim Hinting
     OnRefreshPlayerStats: TNotifyEvent;
     DarkMode: Boolean; // Wenn True, dann wird versucht möglichst viel im Spiel Dunkel zu rendern ..
+    OnFileReceivedEvent: TOnFileReceivedEvent;
     Property OnHostButtonClick: TNotifyEvent write SetOnHostButtonClick;
     Property OnJoinButtonClick: TNotifyEvent write SetOnJoinButtonClick;
     Property OnNewMapButtonClick: TNotifyEvent write SetOnNewMapButtonClick;
@@ -1778,13 +1780,16 @@ Begin
   result := fPlayerInfos[index];
 End;
 
-Procedure Tctd.OnEndFiletransfer;
+Procedure Tctd.OnEndFiletransfer(MapName, Filename: String);
 Var
   s: String;
   b: Boolean;
   m: TMemoryStream;
 Begin
   fFileReceivingCount := fFileReceivingCount + 1;
+  If assigned(OnFileReceivedEvent) Then Begin
+    OnFileReceivedEvent(self, MapName, Filename);
+  End;
   If high(FReceivingQueue) = -1 Then Begin // Wenn alle zu Empfangenen Dateien empfangen sind
     If FOnReceivingFilesFinish.Need Then Begin
       FOnReceivingFilesFinish.Need := false;
@@ -2966,7 +2971,17 @@ Begin
       End;
     miDelBuilding: Begin
         s := Chunk.Data.ReadAnsiString;
-        If assigned(fMap) Then fMap.delBuilding(s);
+        If assigned(fMap) Then Begin
+          fMap.delBuilding(s);
+          form4.RefreshForm4Buyables;
+        End;
+      End;
+    miDelHero: Begin
+        s := Chunk.Data.ReadAnsiString;
+        If assigned(fMap) Then Begin
+          fMap.delHero(s);
+          form4.RefreshForm4Buyables;
+        End;
       End;
     miDelOpponent: Begin
         s := Chunk.Data.ReadAnsiString;
@@ -3133,7 +3148,7 @@ Begin
         m := TMemoryStream.Create;
         m.CopyFrom(Chunk.Data, Chunk.Data.Size - Chunk.Data.Position);
         m.position := 0;
-        HandleFileReceifed(s, t, m);
+        HandleFileReceived(s, t, m);
         m.free;
       End;
     miLoadMap: Begin
@@ -3448,21 +3463,20 @@ Begin
     SendChunk(miStartFileTransfer, m);
   End
   Else Begin
-    // Bin nicht sicher, ob das hier je Kommen kann, nen schaden richtet es
-    // durch den Check auf .need aber auch nicht an, also bleibts mal drin.
-    OnEndFiletransfer();
+    // Die Datei ist schon da, braucht nicht gesendet werden -> also wird sie direkt als Fertig gemeldet !
+    OnEndFiletransfer(MapName, Filename);
   End;
   logleave;
 End;
 
-Procedure Tctd.HandleFileReceifed(MapName, Filename: String; Const Data: TStream
+Procedure Tctd.HandleFileReceived(MapName, Filename: String; Const Data: TStream
   );
 Var
   s: String;
   f: TFileStream;
   i, j: Integer;
 Begin
-  log(format('Tctd.HandleFileReceifed : %s, %s', [MapName, Filename]), lltrace);
+  log(format('Tctd.HandleFileReceived : %s, %s', [MapName, Filename]), lltrace);
   s := MapFolder + MapName;
   If Not DirectoryExistsUTF8(s) Then Begin
     If Not CreateDirUTF8(s) Then Begin
@@ -3484,7 +3498,7 @@ Begin
     End;
   End;
   // Warteschlange ist leer, soll die Karte geladen werden ?
-  OnEndFiletransfer();
+  OnEndFiletransfer(MapName, Filename);
   logleave;
 End;
 
@@ -3551,6 +3565,7 @@ Begin
   fSidemenuVisible := true;
   ResetPressKeys;
   fkeyRepeatTimeStamp := GetTick;
+  OnFileReceivedEvent := Nil;
   LogLeave;
 End;
 
@@ -4785,8 +4800,8 @@ Var
   Identifier: integer;
   r: TOnGetBooleanEventRecord;
 Begin
-  log('Tctd.TransferFile', llTrace);
-  If FileExistsUTF8(SourceFile) And (SourceFile <> '') Then Begin
+  log('Tctd.TransferFile: ' + SourceFile + ' -> ' + Dest, llTrace);
+  If FileExistsutf8(SourceFile) And (SourceFile <> '') Then Begin
     crc := CRC_of_File(SourceFile);
     m := TMemorystream.create;
     m.WriteAnsiString(MapName);
@@ -4802,6 +4817,7 @@ Begin
     SendChunk(miRequestFileTransfer Or Identifier, m);
   End
   Else Begin
+    // Wir sollen eine Datei senden die es gar nicht gibt -> Fehler
     Callback(self, false);
   End;
   LogLeave;

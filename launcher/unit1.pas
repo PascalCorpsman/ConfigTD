@@ -73,9 +73,6 @@ Type
     Version: Single;
     Procedure LoadSettings();
     Procedure StoreSettings();
-{$IFDEF Windows}
-    Function CheckAndMaybeExtract(Const RessourceDLL: String): Boolean;
-{$ENDIF}
   public
 
   End;
@@ -90,9 +87,34 @@ Implementation
 Uses unit2, Unit3, UTF8Process, LCLType, lclintf
 {$IFDEF Windows}
   , LResources
+  , ssl_openssl_lib, ssl_openssl, blcksock
 {$ENDIF}
   ;
 
+{$IFDEF Windows}
+
+Function CheckAndMaybeExtract(Const RessourceDLL: String): Boolean;
+Var
+  st: TLazarusResourceStream;
+Begin
+  result := FileExists(RessourceDLL + '.dll');
+  If Not result Then Begin
+    // https://wiki.freepascal.org/Lazarus_Resources
+    st := TLazarusResourceStream.Create(RessourceDLL, Nil);
+    Try
+      st.SaveToFile(ExtractFilePath(ParamStr(0)) + RessourceDLL + '.dll');
+      result := true;
+    Except
+      On av: exception Do Begin
+        log(av.Message);
+        st.free;
+        exit;
+      End;
+    End;
+    st.free;
+  End;
+End;
+{$ENDIF}
 
 { TForm1 }
 
@@ -165,41 +187,11 @@ Begin
   close;
 End;
 
-{$IFDEF Windows}
-
-Function TForm1.CheckAndMaybeExtract(Const RessourceDLL: String): Boolean;
-Var
-  st: TLazarusResourceStream;
-Begin
-  result := FileExists(RessourceDLL + '.dll');
-  If Not result Then Begin
-    // https://wiki.freepascal.org/Lazarus_Resources
-    st := TLazarusResourceStream.Create(RessourceDLL, Nil);
-    Try
-      st.SaveToFile(ExtractFilePath(ParamStr(0)) + RessourceDLL + '.dll');
-      result := true;
-    Except
-      On av: exception Do Begin
-        log(av.Message);
-        st.free;
-        exit;
-      End;
-    End;
-    st.free;
-  End;
-End;
-{$ENDIF}
-
 Procedure TForm1.Button1Click(Sender: TObject);
 Var
   tmpFolder: String;
 Begin
   ClearLog();
-  // 1. Prüfen ob wir überhaupt die Fähigkeit haben https zu sprechen
-{$IFDEF Windows}
-  If Not CheckAndMaybeExtract('ssleay32') Then exit;
-  If Not CheckAndMaybeExtract('libeay32') Then exit;
-{$ENDIF}
   // 2. Download der Version Info
   tmpFolder := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim;
   log('Tempfolder: ' + tmpFolder);
@@ -274,8 +266,19 @@ Begin
   ini := Nil;
 End;
 {$IFDEF Windows}
+
 Initialization
 {$I ctd_launcher.lrs}
+
+// 1. ggf. die Crypto libs entpacken und dann einrichten
+{$IFDEF Windows}
+  If Not CheckAndMaybeExtract('ssleay32') Then exit;
+  If Not CheckAndMaybeExtract('libeay32') Then exit;
+{$ENDIF}
+  If SSLImplementation = TSSLNone Then Begin
+    If InitSSLInterface Then
+      SSLImplementation := TSSLOpenSSL;
+  End;
 {$ENDIF}
 
 End.
