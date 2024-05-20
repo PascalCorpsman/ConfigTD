@@ -36,11 +36,12 @@ Const
    *                   FIX: logic for force was wrong
    * -Released- 0.08 = ADD: improoved UI and dialogs
    *                   Add: both ssL dll's for windows version
-   *            0.09 = FIX: SSL Loader did not work on Windows 11
+   * -Released- 0.09 = FIX: SSL Loader did not work on Windows 11
+   *            0.10 =
    *
    * Known Bugs :
    *)
-  LauncherVersion: integer = 9;
+  LauncherVersion: integer = 10;
 
 Type
 

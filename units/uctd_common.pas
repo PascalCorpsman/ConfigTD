@@ -84,9 +84,10 @@ Const
    * -Released- 0.11001 = DEL: uUpdate.pas
    * -Released- 0.11002 = FIX: Client did not send correct protocol version
    * -Released- 0.11003 = ADD: New Errormessage, if a user pulls the repository and tries to run the executable from the bin folder
-   *            0.11004 = FIX: Crash during add buildings to a map
+   * -Released- 0.11004 = FIX: Crash during add buildings to a map
    *                      Revert: Sorting of buildings / Opponents / Heros by Power (as it convues during Map editing)
    *                      FIX: Crash during delete Hero / building
+   *            0.11005 =
    *
    * Known Bugs :
    *)
@@ -95,7 +96,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.11004'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.11005'; // Die Versionsnummer die sich Server und Client Teilen      /
   defCaption = 'Config TD ver. ' + version
 {$IFDEF DebuggMode}
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
