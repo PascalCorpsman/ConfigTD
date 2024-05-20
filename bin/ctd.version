@@ -1,76 +1,76 @@
 {
   "config_td":  {
-    "Version":0.11003,
-    "LauncherVersion":8,
-    "VersionText":"FIX: ssl did not work on Windows 10 systems",
+    "Version":0.11004,
+    "LauncherVersion":9,
+    "VersionText":"Revert: Sortings of Buildings \/ Heros (is now again alphabetical)\nFIX: Crash on Add \/ Remove of Buildings \/ Heros\nFIX: launcher did nor work properly on Windows 11",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"e952aba3cdeba333ffbb4deb8b77ce76",
-          "SIZE":"3417088",
-          "HASH2":"126f0a9213eeceec186d64bbc493e47a",
-          "SIZE2":"7898520",
+          "HASH":"cbaf0ba75acdf003abb15de3745ab626",
+          "SIZE":"3424768",
+          "HASH2":"b5680366c906163638e16c39d116ddaa",
+          "SIZE2":"7795160",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
       },
       {
         "file":        {
-          "HASH":"8be50d69cd27117bfde0740b7ada0fbf",
-          "SIZE":"3078144",
-          "HASH2":"a6ed777d520baa7fae1e1d27362a14e4",
-          "SIZE2":"7836568",
+          "HASH":"2f332baaaa6f525ea770213175706e19",
+          "SIZE":"3089920",
+          "HASH2":"0f5685a398e5b008d77aff683bc52510",
+          "SIZE2":"7737304",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":        {
-          "HASH":"1f47d929ac5a233f90e8825c2dcfce4a",
-          "SIZE":"7048704",
-          "HASH2":"640f26945b399f270cfa4ceed7067e8e",
-          "SIZE2":"11488488",
+          "HASH":"5a7743d234bea5d3e1dced20ccc718ce",
+          "SIZE":"7187456",
+          "HASH2":"029e4ffa8cdb9fe9e50137eb0ba3167b",
+          "SIZE2":"11368952",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
       },
       {
         "file":        {
-          "HASH":"82165bb9250d158ee2b235e8d5b4c064",
-          "SIZE":"2675712",
-          "HASH2":"c07d5aaed01b99505e9c0a492897033c",
-          "SIZE2":"7010760",
+          "HASH":"bd8100ba9333fdfd801dde948ea425b3",
+          "SIZE":"2673664",
+          "HASH2":"1705ba1624e8a7919b6fe7dbb1a4e934",
+          "SIZE2":"6907400",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_updater.exe",
           "Filename":"ctd_updater.exe"
         }
       },
       {
         "file":        {
-          "HASH":"d09314356d12d5c00a327a552b0c1c4b",
-          "SIZE":"2854912",
-          "HASH2":"ac2b832eea1dcc95fd8ec148a4fc096b",
-          "SIZE2":"7658040",
+          "HASH":"5b05307abafdf0d18de0ff458630f577",
+          "SIZE":"2869760",
+          "HASH2":"282a1d7201e9012b81a9726a15623e13",
+          "SIZE2":"7558776",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"73488b07008dba8ed09bcf0ea340a17a",
-          "SIZE":"2769408",
-          "HASH2":"c3e6b10346d96689b076a4fc6925c95b",
-          "SIZE2":"7610424",
+          "HASH":"d080800bdc2e6f466a9939d41a0a6671",
+          "SIZE":"2779648",
+          "HASH2":"571d369ade11bcadd59d512ba15f7d67",
+          "SIZE2":"7507064",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"2bd466aa7496de12917b2b19fad397ea",
-          "SIZE":"4793856",
-          "HASH2":"a044971c691aaaeb9aa76d4df5f79b0d",
-          "SIZE2":"7377800",
+          "HASH":"a26a04b86b729824efd4aaf48d231acf",
+          "SIZE":"5780992",
+          "HASH2":"8a02e171e482796343406043c92cc2eb",
+          "SIZE2":"7274440",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
