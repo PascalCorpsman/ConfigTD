@@ -27,7 +27,7 @@ The additional "Maze" option wich extends the map types is just for information 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  (5) as we want to create a colored map we change the default damage class icons with the corresponding versions for colored maps. To do so click on each "set" button and choose the right image from the folder "graphics/damage_classes/colored"
 
-When finished the editor sould look like this: <br>![](images/demo_map_general2.png)
+When finished the editor should look like this: <br>![](images/demo_map_general2.png)
 
 4. Next change the complete maps terrain to not walkable but buildable ![](images/demo_map_terrain1.png)  
  (1) enable terrain editing  
