@@ -138,7 +138,7 @@ Begin
   fm := DefaultFormatSettings;
   fm.DecimalSeparator := '.';
   CheckBox2.Checked := ini.ReadBool('Global', 'ShowFPS', false);
-  CheckBox1.Checked := ini.ReadBool('Global', 'DarkMode', false);
+  CheckBox1.Checked := ini.ReadInteger('Global', 'DarkMode', 0) = 1;
   CheckBox1.Checked := ini.ReadBool('Global', 'AutoNextWave', true);
   edit1.text := ini.ReadString('Global', 'Joinusername', 'Player 1');
   edit2.text := ini.ReadString('Global', 'Hostusername', 'Player 2');
@@ -152,7 +152,7 @@ End;
 Procedure TForm1.StoreSettings;
 Begin
   ini.WriteBool('Global', 'ShowFPS', CheckBox2.Checked);
-  ini.WriteBool('Global', 'DarkMode', CheckBox1.Checked);
+  ini.WriteInteger('Global', 'DarkMode', ord(CheckBox1.Checked));
   ini.WriteBool('Global', 'AutoNextWave', CheckBox3.Checked);
   ini.WriteString('Global', 'Joinusername', edit1.text);
   ini.WriteString('Global', 'Hostusername', edit2.text);
@@ -226,6 +226,7 @@ Begin
   form2.top := form3.top;
   form2.Left := form3.left + form3.Width + 10;
   form3.ShowModal;
+  form2.Hide;
 End;
 
 Procedure TForm1.Button4Click(Sender: TObject);
@@ -270,7 +271,7 @@ End;
 Initialization
 {$I ctd_launcher.lrs}
 
-// 1. ggf. die Crypto libs entpacken und dann einrichten
+  // 1. ggf. die Crypto libs entpacken und dann einrichten
 {$IFDEF Windows}
   If Not CheckAndMaybeExtract('ssleay32') Then exit;
   If Not CheckAndMaybeExtract('libeay32') Then exit;

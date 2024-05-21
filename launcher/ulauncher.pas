@@ -37,7 +37,7 @@ Const
    * -Released- 0.08 = ADD: improoved UI and dialogs
    *                   Add: both ssL dll's for windows version
    * -Released- 0.09 = FIX: SSL Loader did not work on Windows 11
-   *            0.10 =
+   *            0.10 = FIX: Close log on close "check for Updates
    *
    * Known Bugs :
    *)
