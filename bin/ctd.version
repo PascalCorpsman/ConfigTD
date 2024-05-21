@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.11004,
-    "LauncherVersion":9,
-    "VersionText":"Revert: Sortings of Buildings \/ Heros (is now again alphabetical)\nFIX: Crash on Add \/ Remove of Buildings \/ Heros\nFIX: launcher did nor work properly on Windows 11",
+    "Version":0.11005,
+    "LauncherVersion":10,
+    "VersionText":"FIX: Crash if a opponent \/ building was deleted\nFIX: Opponent \/ Hero \/ Building dialog was not readable on Windows Darkmode\nADD: shrink player stats screen as requested\n",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"cbaf0ba75acdf003abb15de3745ab626",
+          "HASH":"1c796c45dae276f27742a79a1d94b743",
           "SIZE":"3424768",
-          "HASH2":"b5680366c906163638e16c39d116ddaa",
-          "SIZE2":"7795160",
+          "HASH2":"c62f20dbb736e152827a70bc04ae67aa",
+          "SIZE2":"7795176",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -27,10 +27,10 @@
       },
       {
         "file":        {
-          "HASH":"5a7743d234bea5d3e1dced20ccc718ce",
-          "SIZE":"7187456",
-          "HASH2":"029e4ffa8cdb9fe9e50137eb0ba3167b",
-          "SIZE2":"11368952",
+          "HASH":"cdfcb23b280c33faa9e32900ded11661",
+          "SIZE":"7187968",
+          "HASH2":"7ec6e8177b9604526e6bb78add01c2ee",
+          "SIZE2":"11373096",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
@@ -67,10 +67,10 @@
       },
       {
         "file":        {
-          "HASH":"a26a04b86b729824efd4aaf48d231acf",
-          "SIZE":"5780992",
-          "HASH2":"8a02e171e482796343406043c92cc2eb",
-          "SIZE2":"7274440",
+          "HASH":"72e99fa9252541a91f9b12a155efc5dc",
+          "SIZE":"5805568",
+          "HASH2":"0aceb18d06f999c9d93137f0b5c1fa36",
+          "SIZE2":"7298760",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
