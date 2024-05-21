@@ -87,10 +87,11 @@ Const
    * -Released- 0.11004 = FIX: Crash during add buildings to a map
    *                      Revert: Sorting of buildings / Opponents / Heros by Power (as it convues during Map editing)
    *                      FIX: Crash during delete Hero / building
-   *            0.11005 = FIX: Crash if a opponent / building was deleted
+   * -Released- 0.11005 = FIX: Crash if a opponent / building was deleted
    *                      FIX: Opponent / Hero / Building dialog was not readable on Windows Darkmode
-   *                      ADD: schrint player stats screen as requested
+   *                      ADD: shrink player stats screen as requested
    *                      ADD: Fileversion for savegames
+   *            0.11006 =
    *
    * Known Bugs :
    *)
@@ -99,7 +100,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.11005'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.11006'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
