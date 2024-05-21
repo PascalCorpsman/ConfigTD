@@ -95,7 +95,7 @@ Begin
   If ctd.PlayerCount = 0 Then exit; // Nil Pointer AV, unten verhinden, auch wenn das eigentlich unmöglich ist ..
   ScrollBar1.Position := 0;
   For i := 0 To ctd.PlayerCount - 1 Do Begin
-    f := TPlayerInfoFrame.Create(Panel1);
+    f := TPlayerInfoFrame.Create(Panel1, i = 0);
     f.Name := 'PlayerInfoFrame' + inttostr(i + 1);
     f.Parent := Panel1;
     f.left := 8;

@@ -67,6 +67,7 @@ Type
     Procedure Edit1KeyPress(Sender: TObject; Var Key: char);
     Procedure FormCloseQuery(Sender: TObject; Var CanClose: boolean);
     Procedure FormCreate(Sender: TObject);
+    Procedure FormHide(Sender: TObject);
     Procedure FormShow(Sender: TObject);
     Procedure ListBox1DblClick(Sender: TObject);
     Procedure ListBox1DrawItem(Control: TWinControl; Index: Integer;
@@ -133,6 +134,11 @@ Begin
   fTransferShareServerFiles.FileList := Nil;
 End;
 
+Procedure TForm14.FormHide(Sender: TObject);
+Begin
+  Form1.RestoreForm4;
+End;
+
 Procedure TForm14.FormCloseQuery(Sender: TObject; Var CanClose: boolean);
 Begin
   Case fmode Of
@@ -151,9 +157,6 @@ Begin
         setValue('QuestionHeroDlgForm', 'Top', inttostr(Form14.top));
         setValue('QuestionHeroDlgForm', 'Height', inttostr(Form14.Height));
       End;
-  End;
-  If Assigned(ctd.Map) Then Begin
-    Form1.RestoreForm4;
   End;
 End;
 
@@ -250,7 +253,7 @@ Begin
         End;
     End;
     obj := TItemObject(ListBox2.items.Objects[ListBox2.ItemIndex]);
-    If assigned(obj) Then obj.Unregister;
+    If assigned(obj) Then obj.UnRegisterFileClass;
     ListBox2.items.Delete(ListBox2.ItemIndex);
   End;
 End;
@@ -479,8 +482,10 @@ Var
   h, tw: integer;
   lb: TListBox;
 Begin
-  // TODO: Unter Windows sieht das so schlecht aus, dass man da Teilweise gar nicht sehen kann was angewählt ist ...
   lb := TListBox(Control);
+  // Erst mal sauber den Hintergrund löschen
+  lb.Canvas.pen.Color := lb.Canvas.Brush.Color;
+  lb.Canvas.Rectangle(ARect);
   h := 0;
   tw := ARect.Right;
   If assigned(lb.Items.Objects[index]) Then Begin

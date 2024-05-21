@@ -87,7 +87,10 @@ Const
    * -Released- 0.11004 = FIX: Crash during add buildings to a map
    *                      Revert: Sorting of buildings / Opponents / Heros by Power (as it convues during Map editing)
    *                      FIX: Crash during delete Hero / building
-   *            0.11005 =
+   *            0.11005 = FIX: Crash if a opponent / building was deleted
+   *                      FIX: Opponent / Hero / Building dialog was not readable on Windows Darkmode
+   *                      ADD: schrint player stats screen as requested
+   *                      ADD: Fileversion for savegames
    *
    * Known Bugs :
    *)
@@ -97,6 +100,8 @@ Const
    *)
   ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
   Version = '0.11005'; // Die Versionsnummer die sich Server und Client Teilen      /
+  FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
+
   defCaption = 'Config TD ver. ' + version
 {$IFDEF DebuggMode}
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
@@ -369,14 +374,15 @@ Type
     fFilename: String;
     Constructor Create;
     Destructor Destroy; override;
-    Procedure LoadOppInfo(Const Filename: String);
-    Procedure LoadGebInfo(Const Filename: String);
-    Procedure LoadHeroInfo(Const Filename: String);
+    Procedure LoadOppInfo(Const Filename: String); // TODO: Mergen in 1 und dann dort den case !
+    Procedure LoadGebInfo(Const Filename: String); // TODO: Mergen in 1 und dann dort den case !
+    Procedure LoadHeroInfo(Const Filename: String); // TODO: Mergen in 1 und dann dort den case !
     Procedure Clone(Const obj: TItemObject);
 
-    Procedure UnRegister;
+    Procedure UnRegisterFileClass; // entfernt alle Klassen aus dem Manager die den Selben Filename haben wir der eigene
 
     Class Procedure Reload(Const Filename: String);
+
     Procedure ReloadPrivate;
   End;
 {$ENDIF}
@@ -481,8 +487,8 @@ Uses FileUtil, LazUTF8, LazFileUtils, math
 {$IFDEF Client}
   , dglOpenGL
   , UTF8Process
-{$ENDIF}
   , process
+{$ENDIF}
   , ucrc
 {$IFDEF Client}
   , uctd_opp
@@ -510,7 +516,9 @@ Type
     Procedure LoadGebInfo(Const Filename: String; Var obj: TItemObject);
     Procedure LoadHeroInfo(Const Filename: String; Var obj: TItemObject);
 
-    Procedure UnRegister(Const obj: TItemObject);
+    Procedure UnRegisterFileClass(Const obj: TItemObject);
+    Procedure UnRegisterElement(Const obj: TItemObject);
+
     Procedure Reload(Const Filename: String);
   End;
 
@@ -1179,7 +1187,7 @@ Destructor TItemObjectManager.Destroy;
 Var
   i: Integer;
 Begin
-  For i := 0 To high(objs) Do Begin
+  For i := high(objs) Downto 0 Do Begin
     objs[i].free;
   End;
   setlength(objs, 0);
@@ -1221,17 +1229,32 @@ Begin
   append(iobj);
 End;
 
-Procedure TItemObjectManager.UnRegister(Const obj: TItemObject);
+Procedure TItemObjectManager.UnRegisterFileClass(Const obj: TItemObject);
 Var
   i, j: Integer;
 Begin
-  For i := 0 To high(objs) Do Begin
+  For i := high(objs) Downto 0 Do Begin
     If objs[i].fFilename = obj.fFilename Then Begin
       objs[i].Free;
       For j := i To high(objs) - 1 Do Begin
         objs[j] := objs[j + 1];
       End;
       setlength(objs, high(objs));
+    End;
+  End;
+End;
+
+Procedure TItemObjectManager.UnRegisterElement(Const obj: TItemObject);
+Var
+  i, j: Integer;
+Begin
+  For i := high(objs) Downto 0 Do Begin
+    If objs[i] = obj Then Begin
+      For j := i To high(objs) - 1 Do Begin
+        objs[j] := objs[j + 1];
+      End;
+      setlength(objs, high(objs));
+      exit;
     End;
   End;
 End;
@@ -1243,7 +1266,7 @@ Begin
   For i := 0 To high(objs) Do Begin
     If objs[i].fFilename = Filename Then Begin
       objs[i].ReloadPrivate();
-      break;
+      //break; -- Es kann durchaus mehrere Geben
     End;
   End;
 End;
@@ -1260,6 +1283,7 @@ End;
 
 Destructor TItemObject.Destroy;
 Begin
+  ItemObjectManager.UnRegisterElement(self);
   image.free;
 End;
 
@@ -1452,9 +1476,9 @@ Begin
   End;
 End;
 
-Procedure TItemObject.UnRegister;
+Procedure TItemObject.UnRegisterFileClass;
 Begin
-  ItemObjectManager.UnRegister(Self);
+  ItemObjectManager.UnRegisterFileClass(Self);
 End;
 
 Class Procedure TItemObject.Reload(Const Filename: String);

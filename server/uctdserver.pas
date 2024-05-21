@@ -2290,7 +2290,7 @@ Begin
   Flag := 1; // [0 = Normal, 1 = Bakup]
   stream.Write(flag, sizeof(flag));
   // Speichern der Versionsnummer beim Speichern
-  ver := ProtocollVersion;
+  ver := FileVersion;
   stream.Write(ver, sizeof(ver));
   i := fMap.Difficulty;
   stream.Write(i, sizeof(i));
@@ -2391,8 +2391,8 @@ Begin
   stream.read(flag, sizeof(flag)); // Ob Bakup oder Savegame ist uns egal
   ver := $FFFFFFFF;
   stream.Read(ver, SizeOf(ver)); // Auslesen der Versionsnummer des Spieles, als der Spielstand gespeichert wurde
-  If ver <> ProtocollVersion Then Begin
-    SendSplashMessage(format('Unable to load game, invalid file version %d need %d', [ver, Version]), DefaultSplashHintDelay, v3(1, 0, 0), uid);
+  If ver <> FileVersion Then Begin
+    SendSplashMessage(format('Unable to load game, invalid file version %d need %d', [ver, FileVersion]), DefaultSplashHintDelay, v3(1, 0, 0), uid);
     LogLeave;
     exit;
   End;

@@ -11,19 +11,20 @@ object Form14: TForm14
   LCLVersion = '3.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnHide = FormHide
   OnShow = FormShow
   object Label1: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 8
-    Width = 41
+    Width = 34
     Caption = 'Label1'
   end
   object Label2: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 32
-    Width = 40
+    Width = 34
     Caption = 'Global'
   end
   object ListBox1: TListBox
@@ -37,15 +38,14 @@ object Form14: TForm14
     ScrollWidth = 198
     Style = lbOwnerDrawFixed
     TabOrder = 0
-    TopIndex = -1
     OnDblClick = ListBox1DblClick
     OnDrawItem = ListBox1DrawItem
   end
   object Label3: TLabel
     Left = 307
-    Height = 16
+    Height = 15
     Top = 32
-    Width = 75
+    Width = 67
     Caption = 'Current map'
   end
   object ListBox2: TListBox
@@ -58,7 +58,6 @@ object Form14: TForm14
     ScrollWidth = 198
     Style = lbOwnerDrawFixed
     TabOrder = 3
-    TopIndex = -1
     OnDblClick = ListBox2DblClick
     OnDrawItem = ListBox1DrawItem
   end
@@ -74,16 +73,16 @@ object Form14: TForm14
   end
   object Label4: TLabel
     Left = 10
-    Height = 16
-    Top = 240
-    Width = 35
+    Height = 15
+    Top = 241
+    Width = 32
     Anchors = [akLeft, akBottom]
     Caption = 'Name'
   end
   object Edit1: TEdit
     Left = 10
-    Height = 26
-    Top = 254
+    Height = 23
+    Top = 257
     Width = 184
     Anchors = [akLeft, akBottom]
     TabOrder = 6

@@ -47,7 +47,7 @@ Type
     { public declarations }
     CashTransferCallback: TTransferCallback;
 
-    Constructor Create(AOwner: TComponent); override;
+    Constructor Create(AOwner: TComponent; WithLabels: Boolean); reintroduce;
   End;
 
 Implementation
@@ -56,10 +56,24 @@ Implementation
 
 { TPlayerInfoFrame }
 
-Constructor TPlayerInfoFrame.Create(AOwner: TComponent);
+Constructor TPlayerInfoFrame.Create(AOwner: TComponent; WithLabels: Boolean);
 Begin
   Inherited Create(AOwner);
   ComboBox1.text := '100';
+  If Not WithLabels Then Begin
+    Label1.Visible := false;
+    Label3.Visible := false;
+    Label5.Visible := false;
+    Label7.Visible := false;
+    Label9.Visible := false;
+    label2.top := label1.top;
+    label4.top := label1.top;
+    label6.top := label1.top;
+    label8.top := label1.top;
+    button1.top := label1.top;
+    ComboBox1.Top := label1.top;
+    height := label1.top + ComboBox1.Height + label1.top;
+  End;
 End;
 
 Procedure TPlayerInfoFrame.Button1Click(Sender: TObject);

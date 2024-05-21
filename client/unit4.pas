@@ -259,10 +259,6 @@ End;
 Procedure TForm4.FormCreate(Sender: TObject);
 Begin
   fOnTransferFileDoneReason := frUnknown;
-  Tform(self).Constraints.MaxHeight := Tform(self).Height;
-  Tform(self).Constraints.MinHeight := Tform(self).Height;
-  Tform(self).Constraints.Maxwidth := Tform(self).width;
-  Tform(self).Constraints.Minwidth := Tform(self).width;
   PageControl1.ActivePageIndex := 0;
   ComboBox2.Clear;
   Edit5.text := '1';
@@ -721,8 +717,13 @@ Procedure TForm4.FormShow(Sender: TObject);
 Begin
   form4.left := strtoint(GetValue('MapEditorForm', 'Left', inttostr(Form1.Left + Form1.Width)));
   form4.top := strtoint(GetValue('MapEditorForm', 'Top', inttostr(form1.Top)));
-  form4.Width := strtoint(GetValue('MapEditorForm', 'Width', inttostr(form4.Width)));
-  form4.Height := strtoint(GetValue('MapEditorForm', 'Height', inttostr(form4.Height)));
+  // Mit a bissl Glück reicht das schon für Scallierungen ?
+  //form4.Width := strtoint(GetValue('MapEditorForm', 'Width', inttostr(form4.Width)));
+  //form4.Height := strtoint(GetValue('MapEditorForm', 'Height', inttostr(form4.Height)));
+  Tform(self).Constraints.MaxHeight := Tform(self).Height;
+  Tform(self).Constraints.MinHeight := Tform(self).Height;
+  Tform(self).Constraints.Maxwidth := Tform(self).width;
+  Tform(self).Constraints.Minwidth := Tform(self).width;
   FixFormPosition(form4);
 End;
 
