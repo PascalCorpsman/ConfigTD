@@ -93,6 +93,7 @@ Const
    *                      ADD: Fileversion for savegames
    *            0.11006 = FIX: Leave Edit modes during round start
    *                      FIX: Background was black, if no Backtex was defined and game was startet.
+   *                      FIX: Sorting of Buildings / Heros / Opponents in Dialog was broken
    * Known Bugs :
    *)
   (*
@@ -108,7 +109,6 @@ Const
   + ' build: ' + {$I %DATE%} + '  ' + {$I %TIME%}
 {$ENDIF}
   ;
-  URL_CheckForUpdate = ''; // TODO: Need to be defined !
 
   RF_VersionInfo = 'Your version: %s' + LineEnding +
     'Online version: %s' + LineEnding +
@@ -550,33 +550,20 @@ End;
 
 Procedure ItemObjectItemsSort(Const List: TStrings);
 
-  Function CompareItem(a, b: integer): integer;
-  Var
-    aObj, bObj: TItemObject;
-  Begin
-    aobj := TItemObject(List.Objects[a]);
-    bObj := TItemObject(List.Objects[b]);
-    If assigned(aObj) And assigned(bObj) Then Begin
-      result := CompareStr(aObj.fName, bObj.fName);
-    End
-    Else Begin
-      result := CompareStr(list[a], list[b]);
-    End;
-  End;
-
   Procedure Quick(li, re: integer);
   Var
-    l, r, p: Integer;
+    l, r: Integer;
+    p: String;
   Begin
     If Li < Re Then Begin
-      // Achtung, das Pivotelement darf nur einam vor den While schleifen ausgelesen werden, danach nicht mehr !!
-      p := Trunc((li + re) / 2); // Auslesen des Pivo Elementes
+      // Achtung, das Pivotelement darf nur einal vor den While schleifen ausgelesen werden, danach nicht mehr !!
+      p := StringReplace(List[Trunc((li + re) / 2)], '_', '0', [rfReplaceAll]); // Auslesen des Pivo Elementes
       l := Li;
       r := re;
       While l < r Do Begin
-        While CompareItem(l, p) < 0 Do
+        While CompareStr(StringReplace(List[l], '_', '0', [rfReplaceAll]), p) < 0 Do
           inc(l);
-        While CompareItem(r, p) > 0 Do
+        While CompareStr(StringReplace(List[r], '_', '0', [rfReplaceAll]), p) > 0 Do
           dec(r);
         If L <= R Then Begin
           List.Exchange(l, r);
