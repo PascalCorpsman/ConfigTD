@@ -1189,6 +1189,16 @@ Begin
   ctd.Map.ShowBackTex := Not (GetValue('Global', 'DisableBackGroundTexturing', '0') = '1');
   MenuItem25.Enabled := true; // Abort Round
   MenuItem28.Enabled := true; // Player infos
+  // Abschalten aller Aktuell eingeschalteten Edit funktionen
+  form4.CheckBox2.Checked := false; // Terrain Editing
+  form4.CheckBox2Change(Nil);
+  form4.CheckBox6.Checked := false; // Placement Editing
+  form4.CheckBox6Change(Nil);
+  form4.CheckBox5.Checked := false; // Waypoint Editing
+  form4.CheckBox5Change(Nil);
+  form4.CheckBox7.Checked := false; // Waypoint area Editing
+  form4.CheckBox7Change(Nil);
+  // TODO: ggf müssen hier auch alle "edit" (Form14 ff) dialoge abgebrochen werden
   // Der Server Startet eine neue Runde
   // Schließen aller Fenster..
   If form4.Visible Then Begin // Der Editor Dialog
@@ -1338,19 +1348,20 @@ Begin
     If Form4.ListBox1.items[i] = s Then Begin
       // Über das Update Map Properties kann es sein, das das Objekt schon
       // geladen wurde obwohl es noch nicht "da" ist -> dann wird es nun aktualisiert
-      obj := Form4.ListBox1.items.Objects[i] as TItemObject;
-      if not assigned(obj) then begin
+      obj := Form4.ListBox1.items.Objects[i] As TItemObject;
+      If Not assigned(obj) Then Begin
         // TODO: Klären, was da dann gemacht werden muss ..
-      end else begin
+      End
+      Else Begin
         Case b.Kind Of
-            bkBuilding: Begin
-                obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
-              End;
-            bkHero: Begin
-                obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
-              End;
-        end;
-      end;
+          bkBuilding: Begin
+              obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
+            End;
+          bkHero: Begin
+              obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
+            End;
+        End;
+      End;
       exit;
     End;
   End;

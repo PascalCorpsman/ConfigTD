@@ -2203,7 +2203,7 @@ Begin
     RenderQuad(0, 0, fOpenGLBackTex);
     glPopMatrix;
   End;
-  If (Not ShowBackTex) Or EditTerrain Then Begin
+  If (fOpenGLBackTex.Image = 0) Or EditTerrain Then Begin
     // Der Hintergrund
     glPushMatrix;
     (*

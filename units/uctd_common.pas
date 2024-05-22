@@ -91,8 +91,8 @@ Const
    *                      FIX: Opponent / Hero / Building dialog was not readable on Windows Darkmode
    *                      ADD: shrink player stats screen as requested
    *                      ADD: Fileversion for savegames
-   *            0.11006 =
-   *
+   *            0.11006 = FIX: Leave Edit modes during round start
+   *                      FIX: Background was black, if no Backtex was defined and game was startet.
    * Known Bugs :
    *)
   (*
