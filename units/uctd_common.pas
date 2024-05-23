@@ -96,6 +96,7 @@ Const
    *                      FIX: Sorting of Buildings / Heros / Opponents in Dialog was broken
    *                      FIX: Crash of server if weakest opponent was not air
    * -Released- 0.12000 = FIX: Buyables got destroyed when map was switched to new map
+   *            0.12001 = 
    * Known Bugs :
    *)
   (*
@@ -103,7 +104,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12000'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12001'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
