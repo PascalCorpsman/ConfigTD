@@ -2958,6 +2958,14 @@ Begin
 {$ENDIF}
     log('Tctd.HandleReceivedData : ' + MessageIdentifierToString(Chunk.UserDefinedID), llTrace);
   Case (Chunk.UserDefinedID And $FFFF) Of
+    miCloseMap: Begin
+        If assigned(fMap) Then Begin
+          fMap.Save(MapName);
+          fMap.free;
+        End;
+        fMap := Nil;
+        fgameState := gs_EditMode;
+      End;
     miCleanupUnusedOpponents: Begin
         If assigned(fMap) Then Begin
           fMap.DeleteUnusedOpponents;

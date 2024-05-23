@@ -1337,6 +1337,8 @@ Begin
     log(format('Player %s requests map "%s"', [UidToUsername(Uid), MapName]), llInfo);
     fMap.Save(MapName); // Speichern, damit der User auf jeden Fall die Aktuellste Version der Karte bekommt.
     fGameState := gs_EditMode;
+    // 0. Erst mal dem User sagen er soll die Aktuelle Karte schließen, gleich gibt es eine Neue
+    SendChunk(miCloseMap, Nil, Uid);
     // 1. Alle Dateien in dem Karten Verzeichniss suchen und übertragungsanfrage an uid senden
     s := MapFolder + MapName;
     sl := findallfiles(s, '', false);

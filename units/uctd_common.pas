@@ -95,14 +95,15 @@ Const
    *                      FIX: Background was black, if no Backtex was defined and game was startet.
    *                      FIX: Sorting of Buildings / Heros / Opponents in Dialog was broken
    *                      FIX: Crash of server if weakest opponent was not air
+   * -Released- 0.12000 = FIX: Buyables got destroyed when map was switched to new map
    * Known Bugs :
    *)
   (*
    * Die ProtocollVersion ist immer für Client und Server Gleich, beim Verbinden
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
-  ProtocollVersion: uint32 = 11; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.11006'; // Die Versionsnummer die sich Server und Client Teilen      /
+  ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
+  Version = '0.12000'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version

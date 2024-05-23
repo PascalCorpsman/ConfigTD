@@ -124,6 +124,7 @@ Const
   miAddHero = 222; // der Server hat das bauen eines Heros Akzeptiert und fordert die Clients auf es auf ihrer Karte (ungeprüft) zu adden.
   miSetHerosToLevel = 223;
   miYouWereKickedOut = 224; // Der Server hat uns Raus geworfen
+  miCloseMap = 225; // Der Server teilt dem Client mit seine Karte zu schließen, das macht er nur weil er gleich eine neue sendet
 
   (*
    * MapProperties, werden mittels der miUpdateMapProperty Nachricht versand, müssen Disjunkt sein.
@@ -163,10 +164,8 @@ Const
   mpWCoord = 31; // Setzten oder Löschen einer Wegpunkt Fläche
 
 Function MessageIdentifierToString(value: integer): String;
-Inline;
 
 Function MessageMapPropertyToString(Value: integer): String;
-Inline;
 
 Implementation
 
@@ -219,6 +218,14 @@ Begin
     midelSaveGame: result := 'del savegame';
     midelSaveGames: result := 'del savegames';
     miRequestPlayerPosChange: result := 'Request player pos change';
+    miRequestMapHighscoresAndRating: result := 'Request map highscores and rating';
+    miRequestClearMapHighscores: result := 'Request clear map highscores';
+    miSendMapRating: result := 'Send map rating';
+    miAddRandomWave: result := 'Add random wave';
+    miBuyHero: result := 'Buy hero';
+    miChangeHeroStrategy: result := 'Change hero strategy';
+    miSetHeroTargets: result := 'Set hero targets';
+    miKickPlayerOut: result := 'Kick player out';
 
     miRequestLoginResult: result := 'RequestLoginResult';
     miRequestMapListResult: result := 'RequestMapListResult';
@@ -239,7 +246,13 @@ Begin
     miSaveGame: result := 'SaveGame';
     miRequestSavegamesResult: result := 'RequestSavegamesResult';
     miSetBuildingsToStage: result := 'SetBuildingsToStage';
-    miAddRandomWave: result := 'Add Random Wave';
+    miFilesToTransmitCount: result := 'Files to transmit count';
+    miRequestMapHighscoresAndRatingResult: result := 'Request map highscores and rating result';
+    miAddHero: result := 'Add hero';
+    miSetHerosToLevel: result := 'Set heros to level';
+    miYouWereKickedOut: result := 'You were kicked out';
+    miCloseMap: result := 'Close map';
+
   End;
 End;
 
@@ -277,6 +290,7 @@ Begin
     mpDC3Tex: result := 'Damageclass 3 image';
     mpDC4Tex: result := 'Damageclass 4 image';
     mpDelOppInWave: result := 'Delete Opponent in Wave';
+    mpWCoord: result := 'Set / clear coordinate';
   End;
 End;
 

@@ -986,13 +986,23 @@ Begin
         b.WaveNum := 0;
         b.Count := 0;
         b.Kind := bkBuilding;
-        m := TMemoryStream.Create;
-        m.WriteAnsiString(b.Item);
-        m.Write(b.WaveNum, sizeof(b.WaveNum));
-        m.Write(b.Count, sizeof(b.Count));
-        m.Write(b.Kind, sizeof(b.Kind));
+        // prüfen ob wir ein "doppeltes" erzeugen würden, nicht sicher ob man es wirklich braucht, schadet aber auch nicht ..
+        found := false;
+        For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
+          If ctd.Map.BuyAbles[i].item = b.item Then Begin
+            found := true;
+            break;
+          End;
+        End;
+        If Not found Then Begin
+          m := TMemoryStream.Create;
+          m.WriteAnsiString(b.Item);
+          m.Write(b.WaveNum, sizeof(b.WaveNum));
+          m.Write(b.Count, sizeof(b.Count));
+          m.Write(b.Kind, sizeof(b.Kind));
         //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
-        ctd.UpdateMapProperty(mpAddBuyable, m);
+          ctd.UpdateMapProperty(mpAddBuyable, m);
+        End;
         form1.AddForm4Buyable(b);
 
         // Freischalten des Editierens der Gebäude Eigenschaften
