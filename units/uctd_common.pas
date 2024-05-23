@@ -94,6 +94,7 @@ Const
    *            0.11006 = FIX: Leave Edit modes during round start
    *                      FIX: Background was black, if no Backtex was defined and game was startet.
    *                      FIX: Sorting of Buildings / Heros / Opponents in Dialog was broken
+   *                      FIX: Crash of server if weakest opponent was not air
    * Known Bugs :
    *)
   (*

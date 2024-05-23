@@ -3871,7 +3871,7 @@ Var
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
               s := sqr(fOpponents[Kandidats[0]].Obj.Position.x + fOpponents[Kandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
                 + sqr(fOpponents[Kandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
               result := fOpponents[Kandidats[0]].Obj;
@@ -3902,7 +3902,7 @@ Var
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
               s := sqr(fOpponents[Kandidats[0]].Obj.Position.x + fOpponents[Kandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
                 + sqr(fOpponents[Kandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
               result := fOpponents[Kandidats[0]].Obj;
@@ -3932,7 +3932,7 @@ Var
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
               s := fOpponents[Kandidats[0]].Obj.LifePoints[0] + fOpponents[Kandidats[0]].Obj.LifePoints[1] + fOpponents[Kandidats[0]].Obj.LifePoints[2] + fOpponents[Kandidats[0]].Obj.LifePoints[3];
               result := fOpponents[Kandidats[0]].Obj;
             End;
@@ -3960,7 +3960,7 @@ Var
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
               s := fOpponents[Kandidats[0]].Obj.LifePoints[0] + fOpponents[Kandidats[0]].Obj.LifePoints[1] + fOpponents[Kandidats[0]].Obj.LifePoints[2] + fOpponents[Kandidats[0]].Obj.LifePoints[3];
               result := fOpponents[Kandidats[0]].Obj;
             End;
