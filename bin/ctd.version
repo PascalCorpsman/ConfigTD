@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.11005,
+    "Version":0.12000,
     "LauncherVersion":10,
-    "VersionText":"FIX: Crash if a opponent \/ building was deleted\nFIX: Opponent \/ Hero \/ Building dialog was not readable on Windows Darkmode\nADD: shrink player stats screen as requested\n",
+    "VersionText":"FIX: Leave Edit modes during round start\nFIX: Background was black, if no Backtex was defined and game was startet.\nFIX: Sorting of Buildings \/ Heros \/ Opponents in Dialog was broken\nFIX: Crash of server if weakest opponent was not air\nFIX: Buyables got destroyed when map was switched to new map",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"1c796c45dae276f27742a79a1d94b743",
-          "SIZE":"3424768",
-          "HASH2":"c62f20dbb736e152827a70bc04ae67aa",
-          "SIZE2":"7795176",
+          "HASH":"5b97ca8b6e2a4de77e38261e74b2eb7b",
+          "SIZE":"3423232",
+          "HASH2":"5c5ded21f9fb5fbaec5eacedd9059298",
+          "SIZE2":"7785112",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -27,10 +27,10 @@
       },
       {
         "file":        {
-          "HASH":"cdfcb23b280c33faa9e32900ded11661",
-          "SIZE":"7187968",
-          "HASH2":"7ec6e8177b9604526e6bb78add01c2ee",
-          "SIZE2":"11373096",
+          "HASH":"de7e7f7ed0bb5d85861b7f8fd7802de9",
+          "SIZE":"7184384",
+          "HASH2":"0254f2833037006df1e0d2452200fdc5",
+          "SIZE2":"11358696",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
