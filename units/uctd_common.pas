@@ -97,6 +97,7 @@ Const
    *                      FIX: Crash of server if weakest opponent was not air
    * -Released- 0.12000 = FIX: Buyables got destroyed when map was switched to new map
    *            0.12001 = ADD: Map previews are now images of the map if background is not disabled
+   *            0.12002 = ADD: Reenable buyable sorting by wavenums as it was ..
    * Known Bugs :
    *)
   (*

@@ -419,6 +419,8 @@ Function IntToMapType(v: integer): TMapType;
 
 Function JitterCoord(index, ItemCount: integer): TVector2;
 
+Function CompareBuyAble(Const a, b: TBuyAble): integer;
+
 Implementation
 
 Uses Graphics, math, LCLIntf, FileUtil, LazFileUtils
@@ -458,6 +460,16 @@ Begin
     mtCoop: result := 1;
     mtSingleMaze: result := 2;
     mtCoopMaze: result := 3;
+  End;
+End;
+
+Function CompareBuyAble(Const a, b: TBuyAble): integer;
+Begin
+  If a.WaveNum = b.WaveNum Then Begin
+    result := CompareStr(lowercase(a.Item), lowercase(b.Item));
+  End
+  Else Begin
+    result := a.WaveNum - b.WaveNum;
   End;
 End;
 
@@ -772,22 +784,36 @@ Begin
 End;
 
 Procedure TMap.FixBuyableSorting;
-Var
-  t: TBuyAble;
-  j: Integer;
-  i: Integer;
-Begin
-  // Durch das Hotkey feature müssen die Buyables sortiert werden nach der "Wave", ab der sie gekauft werden können
-  // Wir nehmen hier absichtlich Bubblesort da dieser Ordnungserhaltend ist
-  For i := high(fBuyAbles) Downto 1 Do Begin
-    For j := 1 To i Do Begin
-      If fBuyAbles[j].WaveNum < fBuyAbles[j - 1].WaveNum Then Begin
-        t := fBuyAbles[j - 1];
-        fBuyAbles[j - 1] := fBuyAbles[j];
-        fBuyAbles[j] := t;
+
+  Procedure Quick(li, re: integer);
+  Var
+    l, r: Integer;
+    h, p: TBuyAble;
+  Begin
+    If Li < Re Then Begin
+      // Achtung, das Pivotelement darf nur einam vor den While schleifen ausgelesen werden, danach nicht mehr !!
+      p := fBuyAbles[Trunc((li + re) / 2)]; // Auslesen des Pivo Elementes
+      l := Li;
+      r := re;
+      While l < r Do Begin
+        While CompareBuyAble(fBuyAbles[l], p) < 0 Do
+          inc(l);
+        While CompareBuyAble(fBuyAbles[r], p) > 0 Do
+          dec(r);
+        If L <= R Then Begin
+          h := fBuyAbles[l];
+          fBuyAbles[l] := fBuyAbles[r];
+          fBuyAbles[r] := h;
+          inc(l);
+          dec(r);
+        End;
       End;
+      quick(li, r);
+      quick(l, re);
     End;
   End;
+Begin
+  quick(0, High(fBuyAbles));
 End;
 
 Procedure TMap.CalcWaypointFields;

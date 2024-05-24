@@ -178,6 +178,7 @@ Type
     Procedure OnCTDWaveClone(Sender: TObject; SourceWaveNum, DestWaveNum: Integer);
 
     Procedure RefreshForm4Buyables;
+    Procedure SortForm4Buyables;
   End;
 
 Var
@@ -287,7 +288,6 @@ Var
   i: Integer;
 Begin
   form4.ListBox1.Clear;
-  form4.ListBox1.Sorted := true;
   For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
     form1.AddForm4Buyable(ctd.Map.BuyAbles[i]);
   End;
@@ -298,6 +298,36 @@ Begin
     form4.Edit7.Enabled := false;
     form4.Button10.Enabled := false;
   End;
+End;
+
+Procedure TForm4.SortForm4Buyables;
+  Procedure Quick(li, re: integer);
+  Var
+    l, r: Integer;
+    p: TBuyAble;
+  Begin
+    If Li < Re Then Begin
+      // Achtung, das Pivotelement darf nur einam vor den While schleifen ausgelesen werden, danach nicht mehr !!
+      p := StringToBuyAble(ListBox1.Items[Trunc((li + re) / 2)]); // Auslesen des Pivo Elementes
+      l := Li;
+      r := re;
+      While l < r Do Begin
+        While CompareBuyAble(StringToBuyAble(ListBox1.Items[l]), p) < 0 Do
+          inc(l);
+        While CompareBuyAble(StringToBuyAble(ListBox1.Items[r]), p) > 0 Do
+          dec(r);
+        If L <= R Then Begin
+          ListBox1.Items.Exchange(l, r);
+          inc(l);
+          dec(r);
+        End;
+      End;
+      quick(li, r);
+      quick(l, re);
+    End;
+  End;
+Begin
+  quick(0, form4.listbox1.items.Count - 1);
 End;
 
 Procedure TForm4.ComboBox1Change(Sender: TObject);
@@ -558,6 +588,7 @@ Begin
   //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
   ctd.UpdateMapProperty(mpUpdateBuyable, m);
   ListBox1.Items[ListBox1.ItemIndex] := BuyableToString(b);
+  Form4.SortForm4Buyables;
   logleave;
 End;
 

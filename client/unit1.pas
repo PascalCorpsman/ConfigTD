@@ -1339,9 +1339,7 @@ Var
   s: String;
   i: Integer;
 Begin
-  // Die Listbox mach keinen Sinn nach Power zu sortieren
-  // -> Sortieren Nach Alphabet (sorted flag wird in Form14 gesetzt
-
+  // Buyables werden Sortiert nach Reihenfolge in der die Gebs in den Waves Kaufbar sind
   // Wenn es dann Ding schon gibt nicht mehr adden
   s := BuyableToString(b);
   For i := 0 To Form4.ListBox1.items.count - 1 Do Begin
@@ -1380,6 +1378,7 @@ Begin
       form4.listbox1.items.add(s);
     End;
   End;
+  Form4.SortForm4Buyables;
 End;
 
 Procedure TForm1.OnShowHighScores(Sender: TObject; Const Data: Tstream);
