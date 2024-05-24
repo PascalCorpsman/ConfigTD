@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.12000,
+    "Version":0.12001,
     "LauncherVersion":10,
-    "VersionText":"FIX: Leave Edit modes during round start\nFIX: Background was black, if no Backtex was defined and game was startet.\nFIX: Sorting of Buildings \/ Heros \/ Opponents in Dialog was broken\nFIX: Crash of server if weakest opponent was not air\nFIX: Buyables got destroyed when map was switched to new map",
+    "VersionText":"FIX: Reenable buyable sorting by wavenums as it was ..\nFIX: Crash on restart last round\nADD: Map previews are now images of the map if background is not disabled",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"5b97ca8b6e2a4de77e38261e74b2eb7b",
-          "SIZE":"3423232",
-          "HASH2":"5c5ded21f9fb5fbaec5eacedd9059298",
-          "SIZE2":"7785112",
+          "HASH":"20f2d2b381303c1696ac54f8ccac3228",
+          "SIZE":"3430912",
+          "HASH2":"1e2c78a2896efd12fc1fca708691bd37",
+          "SIZE2":"7785160",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -27,10 +27,10 @@
       },
       {
         "file":        {
-          "HASH":"de7e7f7ed0bb5d85861b7f8fd7802de9",
-          "SIZE":"7184384",
-          "HASH2":"0254f2833037006df1e0d2452200fdc5",
-          "SIZE2":"11358696",
+          "HASH":"508ad7a486baf99da7ca78fcb9328a1b",
+          "SIZE":"7185920",
+          "HASH2":"50b41f147b72e906ecbc18fe620ac0e7",
+          "SIZE2":"11362840",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
