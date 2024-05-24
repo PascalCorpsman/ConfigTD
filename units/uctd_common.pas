@@ -96,9 +96,10 @@ Const
    *                      FIX: Sorting of Buildings / Heros / Opponents in Dialog was broken
    *                      FIX: Crash of server if weakest opponent was not air
    * -Released- 0.12000 = FIX: Buyables got destroyed when map was switched to new map
-   *            0.12001 = ADD: Map previews are now images of the map if background is not disabled
-   * -Released- 0.12002 = ADD: Reenable buyable sorting by wavenums as it was ..
+   * -Released- 0.12001 = ADD: Map previews are now images of the map if background is not disabled
+   *                      ADD: Reenable buyable sorting by wavenums as it was ..
    *                      FIX: Crash on restart last round
+   *            0.12002 = 
    * Known Bugs :
    *)
   (*
@@ -106,7 +107,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12001'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12002'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
