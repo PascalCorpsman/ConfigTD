@@ -343,7 +343,7 @@ Begin
       label8.caption := format('%0.2f', [f]);
     End;
     PreviewIndex := ListBox1.ItemIndex;
-    ctd.getMapPrieviewInfo(ListBox1.Items[ListBox1.ItemIndex], @OnGetMapPrieviewInfoEvent);
+    ctd.getMapPrieviewInfo(ListBox1.Items[ListBox1.ItemIndex], not (GetValue('Global', 'DisableBackGroundTexturing', '0') = '1'), @OnGetMapPrieviewInfoEvent);
   End;
 End;
 

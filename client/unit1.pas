@@ -948,7 +948,7 @@ Begin
   MenuItem25.enabled := true; // Abort Wave
   MenuItem27.enabled := true; // Save game
   MenuItem29.enabled := true; // Map Tex Editor
-
+  ctd.Map.ShowBackTex := Not (GetValue('Global', 'DisableBackGroundTexturing', '0') = '1');
   LogLeave;
 End;
 

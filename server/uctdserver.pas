@@ -148,7 +148,7 @@ Type
     Procedure HandleRequestUserLogin(Username, Password: String; ClientVersion: uint32; UID: integer);
     Procedure HandleRequestMapList(ResponceID, Uid: integer);
     Procedure HandleRequestMap(ResponceID, Uid: integer);
-    Procedure HandleRequestMapPreviewInfo(MapName_: String; ResponceID, Uid: integer);
+    Procedure HandleRequestMapPreviewInfo(MapName_: String; aShowBackTex: Boolean; ResponceID, Uid: integer);
     Procedure HandleRequestLoadMap(MapName_: String; ResponceId, Uid: Integer);
     Procedure HandleUpdateMapProperty(MapProperty: integer; Const Data: TStream; UID: integer);
     Procedure HandleChatMessage(Text: String; Uid: integer);
@@ -574,7 +574,11 @@ Begin
       End;
     miRequestMapPreviewInfo: Begin
         s := Chunk.Data.ReadAnsiString;
-        HandleRequestMapPreviewInfo(s, responceID, chunk.UID);
+        b := true;
+        If Chunk.Data.Position < Chunk.Data.Size Then Begin
+          Chunk.Data.Read(b, SizeOf(b));
+        End;
+        HandleRequestMapPreviewInfo(s, b, responceID, chunk.UID);
       End;
     miNewMap: Begin
         w := 0;
@@ -1359,18 +1363,21 @@ Begin
   LogLeave;
 End;
 
-Procedure TServer.HandleRequestMapPreviewInfo(MapName_: String; ResponceID,
-  Uid: integer);
+Procedure TServer.HandleRequestMapPreviewInfo(MapName_: String;
+  aShowBackTex: Boolean; ResponceID, Uid: integer);
 Var
   m: TMemoryStream;
-  s: String;
+  backimg, s: String;
   p: TPoint;
-  b: tbitmap;
+  b, b2: tbitmap;
   ini: TIniFile;
   i, j: integer;
   c: Char;
   LazIntfImage: TLazIntfImage;
   ImgHandle, ImgMaskHandle: HBitmap;
+  did: Boolean;
+  jp: TJPEGImage;
+  png: TPortableNetworkGraphic;
 Begin
   log(format('TServer.HandleRequestMapPreviewInfo : %d, %s', [uid, MapName_]), llTrace);
   m := TMemoryStream.Create;
@@ -1382,33 +1389,66 @@ Begin
   If (p.x <> 0) And (p.y <> 0) Then Begin
     b.Width := p.x;
     b.Height := p.y;
-    LazIntfImage := TLazIntfImage.Create(0, 0);
-    LazIntfImage.LoadFromBitmap(b.Handle, b.MaskHandle);
-    For j := 0 To p.y - 1 Do Begin
-      s := ini.ReadString('data', 'row' + inttostr(j), '');
-      For i := 0 To p.x - 1 Do Begin
-        If i + 1 <= length(s) Then Begin
-          c := s[i + 1];
-        End
-        Else Begin
-          c := '0';
-        End;
-        Case c Of
-          '0', '4': LazIntfImage.Colors[i, j] := ColorToFPColor(Nichts_Col);
-          '1', '5': LazIntfImage.Colors[i, j] := ColorToFPColor(Begehbar_col);
-          '2', '6': LazIntfImage.Colors[i, j] := ColorToFPColor(Bebaubar_col);
-          '3', '7': LazIntfImage.Colors[i, j] := ColorToFPColor(Beides_Col);
-        Else Begin
-            Log('Error invalid symbol rowdata ' + s, llCritical);
-            LazIntfImage.Colors[i, j] := ColorToFPColor(Nichts_Col);
+    backimg := MapFolder + MapName_ + PathDelim + ini.ReadString('map', 'background', '');
+    did := false;
+    If FileExists(backimg) And aShowBackTex Then Begin
+      If LowerCase(ExtractFileExt(backimg)) = '.jpg' Then Begin
+        jp := TJPEGImage.Create;
+        jp.LoadFromFile(backimg);
+        b2 := TBitmap.Create;
+        b2.Assign(jp);
+        jp.free;
+        ugraphics.Stretchdraw(b, rect(0, 0, p.x, p.y), b2, imBilinear);
+        b2.free;
+        did := true;
+      End;
+      If LowerCase(ExtractFileExt(backimg)) = '.bmp' Then Begin
+        b2 := TBitmap.Create;
+        b2.LoadFromFile(backimg);
+        ugraphics.Stretchdraw(b, rect(0, 0, p.x, p.y), b2, imBilinear);
+        b2.free;
+        did := true;
+      End;
+      If LowerCase(ExtractFileExt(backimg)) = '.png' Then Begin
+        png := TPortableNetworkGraphic.Create;
+        png.LoadFromFile(backimg);
+        b2 := TBitmap.Create;
+        b2.Assign(png);
+        png.free;
+        ugraphics.Stretchdraw(b, rect(0, 0, p.x, p.y), b2, imBilinear);
+        b2.free;
+        did := true;
+      End;
+    End;
+    If Not did Then Begin
+      LazIntfImage := TLazIntfImage.Create(0, 0);
+      LazIntfImage.LoadFromBitmap(b.Handle, b.MaskHandle);
+      For j := 0 To p.y - 1 Do Begin
+        s := ini.ReadString('data', 'row' + inttostr(j), '');
+        For i := 0 To p.x - 1 Do Begin
+          If i + 1 <= length(s) Then Begin
+            c := s[i + 1];
+          End
+          Else Begin
+            c := '0';
+          End;
+          Case c Of
+            '0', '4': LazIntfImage.Colors[i, j] := ColorToFPColor(Nichts_Col);
+            '1', '5': LazIntfImage.Colors[i, j] := ColorToFPColor(Begehbar_col);
+            '2', '6': LazIntfImage.Colors[i, j] := ColorToFPColor(Bebaubar_col);
+            '3', '7': LazIntfImage.Colors[i, j] := ColorToFPColor(Beides_Col);
+          Else Begin
+              Log('Error invalid symbol rowdata ' + s, llCritical);
+              LazIntfImage.Colors[i, j] := ColorToFPColor(Nichts_Col);
+            End;
           End;
         End;
       End;
+      LazIntfImage.CreateBitmaps(ImgHandle, ImgMaskHandle, false);
+      b.Handle := ImgHandle;
+      b.MaskHandle := ImgMaskHandle;
+      LazIntfImage.free;
     End;
-    LazIntfImage.CreateBitmaps(ImgHandle, ImgMaskHandle, false);
-    b.Handle := ImgHandle;
-    b.MaskHandle := ImgMaskHandle;
-    LazIntfImage.free;
   End;
   ini.free;
   b.SaveToStream(m);

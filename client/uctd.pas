@@ -447,7 +447,7 @@ Type
     Procedure NewMap(w, h: Integer; n: String);
     Procedure LoadMap(MapName: String);
     Procedure getMapList(Callback: TOnGetStringListEvent);
-    Procedure getMapPrieviewInfo(MapName: String; Callback: TOnGetMapPrieviewInfoEvent);
+    Procedure getMapPrieviewInfo(MapName: String; aShowBackTex: Boolean; Callback: TOnGetMapPrieviewInfoEvent);
     Procedure CloneMapWave(SourceWaveNum, DestWaveNum: integer);
 
     Procedure UpdateMapProperty(MapProperty: integer; Const Stream: TStream);
@@ -1598,7 +1598,7 @@ Begin
   End;
 End;
 
-Procedure Tctd.FOnKeyPress();
+Procedure Tctd.FOnKeyPress;
 Var
   dx, dy: integer;
 Begin
@@ -4625,7 +4625,7 @@ Begin
   LogLeave;
 End;
 
-Procedure Tctd.getMapPrieviewInfo(MapName: String;
+Procedure Tctd.getMapPrieviewInfo(MapName: String; aShowBackTex: Boolean;
   Callback: TOnGetMapPrieviewInfoEvent);
 Var
   m: TMemoryStream;
@@ -4634,6 +4634,7 @@ Begin
   log('Tctd.getMapPrieviewInfo : ' + MapName, llTrace);
   m := TMemoryStream.Create;
   m.WriteAnsiString(MapName);
+  m.write(aShowBackTex, sizeof(aShowBackTex));
   Identifier := GetNextGlobalStreamQueueID Shl 16;
   If Not fsh.AddWaitIdentifier(Identifier, Callback) Then Begin
     LogShow('Tctd.getMapPrieviewInfo(' + MapName + ') Identifier already exists.', llCritical);
@@ -5010,7 +5011,7 @@ Begin
   SendChunk(miRequestPlayerPosChange, m);
 End;
 
-Procedure Tctd.CleanupUnusedOpponets();
+Procedure Tctd.CleanupUnusedOpponets;
 Begin
   SendChunk(miCleanupUnusedOpponents, Nil);
 End;
