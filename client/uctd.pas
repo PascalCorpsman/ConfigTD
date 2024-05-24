@@ -63,6 +63,10 @@ Type
     NeedRefreshDC2: Boolean;
     NeedRefreshDC3: Boolean;
     NeedRefreshDC4: Boolean;
+    // Verzögerter Neustart, nachdem eine Wave neu gestartet wurde..
+    NeedStartRound: Boolean;
+    NeedStartRound_Round: Integer;
+    NeedStartRound_Difficulty: Integer;
   End;
 
   TSubBuyMenu = Record
@@ -1873,6 +1877,10 @@ Begin
       End;
       BlockMapUpdateSending := b;
     End;
+    If FOnReceivingFilesFinish.NeedStartRound Then Begin
+      FOnReceivingFilesFinish.NeedStartRound := false;
+      HandleStartRound(FOnReceivingFilesFinish.NeedStartRound_Round, FOnReceivingFilesFinish.NeedStartRound_Difficulty);
+    End;
   End;
 End;
 
@@ -3296,6 +3304,15 @@ Begin
   ResetPressKeys();
   fgameState := gs_WaitToStart;
   fAktualWave := Round;
+
+  If (Not Assigned(fMap)) And (high(FReceivingQueue) <> -1) Then Begin
+    // Es laufen Noch Dateiübertragungen, wir müssen also alles verzögern und warten bis alles fertig ist
+    FOnReceivingFilesFinish.NeedStartRound := true;
+    FOnReceivingFilesFinish.NeedStartRound_Round := Round;
+    FOnReceivingFilesFinish.NeedStartRound_Difficulty := Difficulty;
+    LogLeave;
+    exit;
+  End;
   // Bei einem Komplett neuen Spiel resetten wir auch alles !
   If Round = 0 Then Begin
     FHintObject.Obj := Nil;
@@ -3527,6 +3544,7 @@ Begin
   setlength(FReceivingQueue, 0);
   BlockMapUpdateSending := false;
   FOnReceivingFilesFinish.Need := false;
+  FOnReceivingFilesFinish.NeedStartRound := false;
   FOnReceivingFilesFinish.NeedGamingData := false;
   FOnReceivingFilesFinish.NeedRefreshBackTex := false;
   FOnReceivingFilesFinish.NeedRefreshDC1 := false;
@@ -4417,6 +4435,7 @@ End;
 Function Tctd.GetMapObjUnderCursor(x, y: integer): tctd_mapopbject;
 Begin
   result := Nil;
+  If Not assigned(fMap) Then exit;
   // Ist die Maus überhaupt im Map Bereich ?
   If uctd_common.PointInRect(point(x, y), rect(fMapL, fMapT, fMapL + fMapW, fMapT + fMapH)) Then Begin
     result := fmap.GetObjUnderCursor(x + fsx - fMapL, y + fsy - fMapT);

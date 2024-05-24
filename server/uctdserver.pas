@@ -2196,6 +2196,9 @@ Begin
   If fRestartWave.Size <> 0 Then Begin
     fRestartWave.Position := 0;
     If LoadGame(fRestartWave, UID) Then Begin
+
+//      Hier muss ein Wait Ready rein genau wie Bei Start Game !
+
       HandleInitiateNewRound(fMap.Difficulty, fAktualRound, UID);
     End;
   End;
@@ -3202,4 +3205,5 @@ Begin
 End;
 
 End.
+
 
