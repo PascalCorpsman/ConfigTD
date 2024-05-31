@@ -562,6 +562,30 @@
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/license.md",
           "Filename":"license.md"
         }
+      },
+      {
+        "file":        {
+          "HASH":"62bdffee5498f32bd547fe02887eaee2",
+          "SIZE":"2717",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/help\/Keyboard_Shortcuts.html",
+          "Filename":"help\/Keyboard_Shortcuts.html"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"72a41b56d015d785d8d821aadae56466",
+          "SIZE":"95",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/help\/General.html",
+          "Filename":"help\/General.html"
+        }
+      },
+      {
+        "file":        {
+          "HASH":"41b8a57cf543b9c99962aa69d80c241a",
+          "SIZE":"219",
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/help\/index.txt",
+          "Filename":"help\/index.txt"
+        }
       }
     ],
     "Download":
