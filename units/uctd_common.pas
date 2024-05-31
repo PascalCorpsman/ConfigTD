@@ -101,6 +101,7 @@ Const
    *                      FIX: Crash on restart last round
    *            0.12002 = FIX: Off by one in wave info
    *                      ADD: Support for HTML-Online Help
+   *                      ADD: Rudimentary image Support for online help
    * Known Bugs :
    *)
   (*

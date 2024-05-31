@@ -21,6 +21,8 @@ Type
     Procedure FormCreate(Sender: TObject);
     Procedure TreeView1Click(Sender: TObject);
   private
+    Procedure HTMLGetImageX(Sender: TIpHtmlNode; Const URL: String;
+      Var Picture: TPicture);
     Procedure LoadPage(Const Filename: String);
 
   public
@@ -34,6 +36,12 @@ Var
 Implementation
 
 {$R *.lfm}
+
+Type
+  TSimpleIpHtml = Class(TIpHtml)
+  public
+    Property OnGetImageX;
+  End;
 
 { TForm20 }
 
@@ -57,14 +65,39 @@ Begin
   End;
 End;
 
+Procedure TForm20.HTMLGetImageX(Sender: TIpHtmlNode; Const URL: String;
+  Var Picture: TPicture);
+Var
+  dlurl: String;
+Begin
+  If PathDelim <> '/' Then Begin
+    dlurl := StringReplace(dlurl, '/', PathDelim, [rfReplaceAll]);
+  End
+  Else Begin
+    dlurl := URL;
+  End;
+  dlurl := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'help' + PathDelim + dlurl;
+  If FileExists(dlurl) Then Begin
+    If Picture = Nil Then Begin
+      Picture := TPicture.Create;
+      Picture.LoadFromFile(dlURL);
+    End;
+  End
+  Else Begin
+    Picture := Nil;
+    exit;
+  End;
+End;
+
 Procedure TForm20.LoadPage(Const Filename: String);
 Var
   error_404, fn: String;
-  NewHTML: TIpHtml;
+  NewHTML: TSimpleIpHtml;
   m: TMemoryStream;
 Begin
   fn := 'help' + PathDelim + Filename + '.html';
-  NewHTML := TIpHtml.Create;
+  NewHTML := TSimpleIpHtml.Create;
+  NewHTML.OnGetImageX := @HTMLGetImageX;
   m := TMemoryStream.Create;
   If FileExists(fn) Then Begin
     m.LoadFromFile(fn);
