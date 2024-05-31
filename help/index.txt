@@ -1,0 +1,11 @@
+#
+# The File is organized as following:
+#
+#  # lines will be ignored
+#
+#  <Parent Node>-><NodeName>
+#
+#  When clicking the online help the <NodeName>.html will be loaded an shown
+#
+->General
+General->Keyboard_Shortcuts
