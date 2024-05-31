@@ -102,6 +102,8 @@ Const
    *            0.12002 = FIX: Off by one in wave info
    *                      ADD: Support for HTML-Online Help
    *                      ADD: Rudimentary image Support for online help
+   *                      FIX: Crash on deletion of last opponent / geb in map
+   *                      FIX: on Ai-Wave the very first Opp on the new wave was set, but is not shown to the user in the editor
    * Known Bugs :
    *)
   (*
@@ -1228,9 +1230,11 @@ End;
 Procedure TItemObjectManager.UnRegisterFileClass(Const obj: TItemObject);
 Var
   i, j: Integer;
+  fn: String;
 Begin
+  fn := obj.fFilename;
   For i := high(objs) Downto 0 Do Begin
-    If objs[i].fFilename = obj.fFilename Then Begin
+    If objs[i].fFilename = fn Then Begin
       objs[i].Free;
       For j := i To high(objs) - 1 Do Begin
         objs[j] := objs[j + 1];

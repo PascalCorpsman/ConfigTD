@@ -1064,6 +1064,17 @@ Begin
         j := -1;
         data.Read(j, sizeof(j));
         s := Data.ReadAnsiString;
+        // ggf. den WaveOpponent anlegen, sollte dieser noch nicht existieren
+        b := false;
+        For c := 0 To TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items.count - 1 Do Begin
+          If TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items[c] = s Then Begin
+            b := true;
+            break;
+          End;
+        End;
+        If Not b Then Begin
+          TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).AddOpponentItem(s);
+        End;
         TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.Text := s;
       End;
     mpWaveOpponents: Begin
