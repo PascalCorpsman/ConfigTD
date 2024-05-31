@@ -99,7 +99,7 @@ Const
    * -Released- 0.12001 = ADD: Map previews are now images of the map if background is not disabled
    *                      ADD: Reenable buyable sorting by wavenums as it was ..
    *                      FIX: Crash on restart last round
-   *            0.12002 = 
+   *            0.12002 = FIX: Off by one in wave info
    * Known Bugs :
    *)
   (*

@@ -1181,7 +1181,7 @@ Begin
   log('TForm1.OnStartRound', lltrace);
   caption := defCaption + ' : ' + MapName + ' Round : ' + inttostr(ctd.AktualWave + 1);
   If GetValue('Global', 'ShowWaveOppHint', '1') = '1' Then Begin
-    s := 'Opponts for round ' + inttostr(ctd.AktualWave) + ':' + LineEnding + ctd.Map.WaveOppList(ctd.AktualWave);
+    s := 'Opponts for round ' + inttostr(ctd.AktualWave + 1) + ':' + LineEnding + ctd.Map.WaveOppList(ctd.AktualWave);
     form13.AddMessage(s);
     ctd.Splashhint(s, DefaultSplashHintColor);
   End;
