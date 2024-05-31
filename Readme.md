@@ -111,6 +111,7 @@ Inside Lazarus you need to install the following packages:
 - TaChartLazarusPkg (comes with lazarus, install via "Package" -> "Install Packages")
 - UniqueInstance (comes from the lazarus online package manager)
 - MetaDarkStyle (comes from the lazarus online package manager)
+- TurboPowerIPro (comes with lazarus, install via "Package" -> "Install Packages")
 
 Additional you need to download and copy the files from [DGLOpenGL](https://github.com/saschawillems/dglopengl) and [Synapse](http://www.ararat.cz/synapse/doku.php/download) 
 into a searchpath (e.g. units/)

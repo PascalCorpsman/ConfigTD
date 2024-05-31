@@ -1,0 +1,59 @@
+object Form20: TForm20
+  Left = 351
+  Height = 600
+  Top = 121
+  Width = 822
+  Caption = 'Form20'
+  ClientHeight = 600
+  ClientWidth = 822
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
+  OnCreate = FormCreate
+  object TreeView1: TTreeView
+    Left = 0
+    Height = 575
+    Top = 0
+    Width = 150
+    Align = alLeft
+    ReadOnly = True
+    TabOrder = 0
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+    OnClick = TreeView1Click
+  end
+  object Button1: TButton
+    Left = 0
+    Height = 25
+    Top = 575
+    Width = 822
+    Align = alBottom
+    Caption = 'OK'
+    TabOrder = 1
+    OnClick = Button1Click
+  end
+  object Splitter1: TSplitter
+    Left = 150
+    Height = 575
+    Top = 0
+    Width = 5
+  end
+  object IpHtmlPanel1: TIpHtmlPanel
+    Left = 155
+    Height = 575
+    Top = 0
+    Width = 667
+    Align = alClient
+    FixedTypeface = 'Courier New'
+    DefaultTypeFace = 'default'
+    DefaultFontSize = 12
+    FlagErrors = False
+    PrintSettings.MarginLeft = 0.5
+    PrintSettings.MarginTop = 0.5
+    PrintSettings.MarginRight = 0.5
+    PrintSettings.MarginBottom = 0.5
+    PrintSettings.Preview.Left = 480
+    PrintSettings.Preview.Top = 300
+    PrintSettings.Preview.Width = 1440
+    PrintSettings.Preview.Height = 900
+    TabOrder = 3
+  end
+end

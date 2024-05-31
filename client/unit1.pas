@@ -106,6 +106,7 @@ Type
     MenuItem3: TMenuItem;
     MenuItem30: TMenuItem;
     MenuItem31: TMenuItem;
+    MenuItem32: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
@@ -134,6 +135,7 @@ Type
     Procedure MenuItem28Click(Sender: TObject);
     Procedure MenuItem29Click(Sender: TObject);
     Procedure MenuItem31Click(Sender: TObject);
+    Procedure MenuItem32Click(Sender: TObject);
     Procedure MenuItem3Click(Sender: TObject);
     Procedure MenuItem4Click(Sender: TObject);
     Procedure MenuItem5Click(Sender: TObject);
@@ -238,6 +240,7 @@ Uses
   , unit17 // Map Texture Generator Dialog
   //, unit18 // Asynchrone Messagebox
   //, unit19 // Hero Editor
+  , unit20 // Online Help
   ;
 
 Var
@@ -1812,6 +1815,13 @@ Begin
   HideForm4;
   Form14.LoadHeroSettings(Nil);
   Form14.Show;
+End;
+
+Procedure TForm1.MenuItem32Click(Sender: TObject);
+Begin
+  // Online help
+  form20.LoadHelp;
+  form20.show;
 End;
 
 End.
