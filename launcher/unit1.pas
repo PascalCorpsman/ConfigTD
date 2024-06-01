@@ -139,7 +139,7 @@ Begin
   fm.DecimalSeparator := '.';
   CheckBox2.Checked := ini.ReadBool('Global', 'ShowFPS', false);
   CheckBox1.Checked := ini.ReadInteger('Global', 'DarkMode', 0) = 1;
-  CheckBox1.Checked := ini.ReadBool('Global', 'AutoNextWave', true);
+  CheckBox3.Checked := ini.ReadBool('Global', 'AutoNextWave', true);
   edit1.text := ini.ReadString('Global', 'Joinusername', 'Player 1');
   edit2.text := ini.ReadString('Global', 'Hostusername', 'Player 2');
   edit3.text := ini.ReadString('Global', 'Hostport', '1234');
