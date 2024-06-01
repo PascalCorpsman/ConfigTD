@@ -363,9 +363,8 @@ Begin
     If SelfFile.URL <> '' Then Begin
       updater := 'ctd_updater'{$IFDEF Windows} + '.exe'{$ENDIF};
       If Not FileExists(updater) Then Begin
-        log('Error, ' + updater + ' not found.');
-        form4.Close;
-        close;
+        showmessage('Error, ' + updater + ' not found, without updater launcher can not be updated.');
+        log('Error, ' + updater + ' not found, without updater launcher can not be updated.');
         exit;
       End;
       OwnFile := IncludeTrailingPathDelimiter(GetTempDir()) + 'ctd_update' + PathDelim + ExtractFileName(ParamStr(0));

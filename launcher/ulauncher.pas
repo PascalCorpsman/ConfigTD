@@ -40,6 +40,7 @@ Const
    * -Released- 0.10 = FIX: Close log on close "check for Updates
    *            0.11 = FIX: Autonextlevel wurde falsch geladen
    *                   FIX: "start next wave each" was not visible
+   *                   ADD: Improve error message, if launcher needs update and no updater is present.
    *
    * Known Bugs :
    *)
