@@ -104,6 +104,7 @@ Const
    *                      ADD: Rudimentary image Support for online help
    *                      FIX: Crash on deletion of last opponent / geb in map
    *                      FIX: on Ai-Wave the very first Opp on the new wave was set, but is not shown to the user in the editor
+   *                      FIX: Crash on restart last wave, if cursorobj was not nil
    * Known Bugs :
    *)
   (*

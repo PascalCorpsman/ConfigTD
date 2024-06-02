@@ -2434,6 +2434,10 @@ Begin
   log('Tctd.LoadMapFromShare : ' + MapName_, llTrace);
   SwitchToEditMode();
   If Assigned(fMap) Then fmap.free;
+  FHintObject.Obj := Nil;
+  fSideMenuObject := Nil;
+  If assigned(FBuyingObject) Then FBuyingObject.free;
+  fBuyingObject := Nil;
   fmap := TMap.Create;
   fmap.Load(MapName_);
   If assigned(OnLoadMap) Then
@@ -2971,6 +2975,10 @@ Begin
           fMap.Save(MapName);
           fMap.free;
         End;
+        FHintObject.Obj := Nil;
+        fSideMenuObject := Nil;
+        If assigned(FBuyingObject) Then FBuyingObject.free;
+        fBuyingObject := Nil;
         fMap := Nil;
         fgameState := gs_EditMode;
       End;
@@ -3317,6 +3325,7 @@ Begin
   If Round = 0 Then Begin
     FHintObject.Obj := Nil;
     fSideMenuObject := Nil;
+    If assigned(FBuyingObject) Then FBuyingObject.free;
     fBuyingObject := Nil;
     fmap.ResetAllBuyedObjects;
     fmap.CalcWaypointFields;
