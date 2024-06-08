@@ -29,12 +29,15 @@ Type
   TForm1 = Class(TForm)
     Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
     Edit1: TEdit;
     ListBox1: TListBox;
     ProgressBar1: TProgressBar;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     Procedure Button1Click(Sender: TObject);
     Procedure Button2Click(Sender: TObject);
+    Procedure Button3Click(Sender: TObject);
+    Procedure FormActivate(Sender: TObject);
     Procedure FormCreate(Sender: TObject);
     Procedure ListBox1Click(Sender: TObject);
     Procedure ListBox1DblClick(Sender: TObject);
@@ -43,81 +46,51 @@ Type
   private
     { private declarations }
     fListboxData: Array Of TBitmap;
+    Procedure LoadFolder(Const Folder: String);
   public
     { public declarations }
   End;
 
 Var
+  form1ShowOnce: Boolean = true;
   Form1: TForm1;
 
 Implementation
 
-Uses Clipbrd, math, lazutf8, LazFileUtils, uopengl_animation;
+Uses Clipbrd, math, lazutf8, LazFileUtils, uopengl_animation, Unit2;
 
 {$R *.lfm}
 
 { TForm1 }
 
 Procedure TForm1.Button1Click(Sender: TObject);
-Var
-  sl: TStringList;
-  p: TPortableNetworkGraphic;
-  b: TBitmap;
-  i, j, k: Integer;
-  ani: TOpenGL_Animation;
 Begin
   SelectDirectoryDialog1.FileName := ExtractFilePath(ParamStrUTF8(0));
   If SelectDirectoryDialog1.Execute Then Begin
-    sl := FindAllFiles(SelectDirectoryDialog1.FileName, '*.bmp;*.png;*.ani', true);
-    sl.Sorted := true;
-    sl.Sort;
-    For i := 0 To high(fListboxData) Do Begin
-      fListboxData[i].Free;
-    End;
-    ProgressBar1.Visible := true;
-    ProgressBar1.Max := sl.Count;
-    setlength(fListboxData, sl.Count);
-    ListBox1.Items.BeginUpdate;
-    ListBox1.Items.Clear;
-    For i := 0 To sl.Count - 1 Do Begin
-      If i Mod max(1, sl.count Div 10) = 0 Then Begin
-        ProgressBar1.Position := i;
-        Application.ProcessMessages;
-      End;
-      Case lowercase(ExtractFileExt(sl[i])) Of
-        '.png': Begin
-            p := TPortableNetworkGraphic.Create;
-            p.LoadFromFile(sl[i]);
-            b := TBitmap.Create;
-            b.Assign(p);
-            p.free;
-          End;
-        '.bmp': Begin
-            b := TBitmap.Create;
-            b.LoadFromFile(sl[i]);
-          End;
-        '.ani': Begin
-            ani := TOpenGL_Animation.Create;
-            ani.LoadFromFile(sl[i], false);
-            b := ani.GetFirstBitmap();
-            ani.free;
-          End;
-      End;
-      b.TransparentColor := clfuchsia;
-      b.Transparent := true;
-      fListboxData[i] := b;
-      listbox1.Items.Add(sl[i]);
-    End;
-    ProgressBar1.Visible := false;
-    ListBox1.Items.EndUpdate;
-    listbox1.Invalidate;
-    sl.free;
+    LoadFolder(SelectDirectoryDialog1.FileName);
   End;
 End;
 
 Procedure TForm1.Button2Click(Sender: TObject);
 Begin
   close;
+End;
+
+Procedure TForm1.Button3Click(Sender: TObject);
+Begin
+  If ListBox1.ItemIndex <> -1 Then Begin
+    Clipboard.AsText := ListBox1.Items[ListBox1.ItemIndex];
+  End;
+End;
+
+Procedure TForm1.FormActivate(Sender: TObject);
+Begin
+  If form1ShowOnce Then Begin
+    form1ShowOnce := false;
+    If DirectoryExists(ParamStr(1)) And (ParamStr(1) <> '') Then Begin
+      LoadFolder(ParamStr(1));
+    End;
+  End;
 End;
 
 Procedure TForm1.FormCreate(Sender: TObject);
@@ -127,8 +100,9 @@ Begin
    * 0.02 = Support Animations
    * 0.03 = Sort Elements
    * 0.04 = Speedup and Progressbar
+   * 0.05 = Evaluate Paramstr(1), image preview in Big
    *)
-  caption := 'Image shower ver. 0.04, by Corpsman, support : www.Corpsman.de';
+  caption := 'Image shower ver. 0.05, by Corpsman, support : www.Corpsman.de';
   fListboxData := Nil;
   ListBox1.Clear;
   edit1.text := '';
@@ -145,8 +119,9 @@ End;
 
 Procedure TForm1.ListBox1DblClick(Sender: TObject);
 Begin
+  // Preview
   If ListBox1.ItemIndex <> -1 Then Begin
-    Clipboard.AsText := ListBox1.Items[ListBox1.ItemIndex];
+    form2.LoadAndShow(ListBox1.Items[ListBox1.ItemIndex]);
   End;
 End;
 
@@ -178,6 +153,60 @@ Begin
   Else Begin
     listbox1.canvas.TextOut(arect.Left + 10 + arect.Bottom - arect.Top - 6, (arect.Bottom + ARect.Top - canvas.TextHeight(ListBox1.items[index])) Div 2, (ListBox1.items[index]));
   End;
+End;
+
+Procedure TForm1.LoadFolder(Const Folder: String);
+Var
+  sl: TStringList;
+  p: TPortableNetworkGraphic;
+  b: TBitmap;
+  i: Integer;
+  ani: TOpenGL_Animation;
+Begin
+  sl := FindAllFiles(Folder, '*.bmp;*.png;*.ani', true);
+  sl.Sorted := true;
+  sl.Sort;
+  For i := 0 To high(fListboxData) Do Begin
+    fListboxData[i].Free;
+  End;
+  ProgressBar1.Visible := true;
+  ProgressBar1.Max := sl.Count;
+  setlength(fListboxData, sl.Count);
+  ListBox1.Items.BeginUpdate;
+  ListBox1.Items.Clear;
+  For i := 0 To sl.Count - 1 Do Begin
+    If i Mod max(1, sl.count Div 10) = 0 Then Begin
+      ProgressBar1.Position := i;
+      Application.ProcessMessages;
+    End;
+    Case lowercase(ExtractFileExt(sl[i])) Of
+      '.png': Begin
+          p := TPortableNetworkGraphic.Create;
+          p.LoadFromFile(sl[i]);
+          b := TBitmap.Create;
+          b.Assign(p);
+          p.free;
+        End;
+      '.bmp': Begin
+          b := TBitmap.Create;
+          b.LoadFromFile(sl[i]);
+        End;
+      '.ani': Begin
+          ani := TOpenGL_Animation.Create;
+          ani.LoadFromFile(sl[i], false);
+          b := ani.GetFirstBitmap();
+          ani.free;
+        End;
+    End;
+    b.TransparentColor := clfuchsia;
+    b.Transparent := true;
+    fListboxData[i] := b;
+    listbox1.Items.Add(sl[i]);
+  End;
+  ProgressBar1.Visible := false;
+  ListBox1.Items.EndUpdate;
+  listbox1.Invalidate;
+  sl.free;
 End;
 
 End.

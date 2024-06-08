@@ -1,0 +1,60 @@
+object Form2: TForm2
+  Left = 347
+  Height = 422
+  Top = 107
+  Width = 529
+  BorderStyle = bsDialog
+  Caption = 'Form2'
+  ClientHeight = 422
+  ClientWidth = 529
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnHide = FormHide
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 384
+    Width = 512
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'OK'
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object OpenGLControl1: TOpenGLControl
+    Left = 8
+    Height = 344
+    Top = 8
+    Width = 512
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    OnMakeCurrent = OpenGLControl1MakeCurrent
+    OnPaint = OpenGLControl1Paint
+    OnResize = OpenGLControl1Resize
+  end
+  object ScrollBar1: TScrollBar
+    Left = 8
+    Height = 14
+    Top = 360
+    Width = 512
+    Anchors = [akLeft, akRight, akBottom]
+    Max = 360
+    PageSize = 0
+    TabOrder = 2
+  end
+  object Image1: TImage
+    Left = 8
+    Height = 344
+    Top = 8
+    Width = 512
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    AutoSize = True
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 25
+    OnTimer = Timer1Timer
+    Left = 24
+    Top = 24
+  end
+end

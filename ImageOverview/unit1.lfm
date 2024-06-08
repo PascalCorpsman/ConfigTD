@@ -8,6 +8,7 @@ object Form1: TForm1
   ClientWidth = 512
   Position = poScreenCenter
   LCLVersion = '3.99.0.0'
+  OnActivate = FormActivate
   OnCreate = FormCreate
   object Button1: TButton
     Left = 8
@@ -42,7 +43,7 @@ object Form1: TForm1
     Left = 8
     Height = 26
     Top = 434
-    Width = 496
+    Width = 344
     Anchors = [akLeft, akRight, akBottom]
     ReadOnly = True
     TabOrder = 2
@@ -66,6 +67,16 @@ object Form1: TForm1
     Anchors = [akTop, akLeft, akRight]
     TabOrder = 4
     Visible = False
+  end
+  object Button3: TButton
+    Left = 360
+    Height = 25
+    Top = 435
+    Width = 144
+    Anchors = [akRight, akBottom]
+    Caption = 'Filename to clipboard'
+    TabOrder = 5
+    OnClick = Button3Click
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog
     Left = 80
