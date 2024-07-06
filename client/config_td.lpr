@@ -25,7 +25,7 @@ Uses
   crt, // for Delay
   Unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, Unit9, unit10, unit11,
   unit12, unit13, unit14, unit15, unit16, unit17, Unit18, Unit19,
-  UniqueInstanceRaw, uctd_common, unit20;
+  UniqueInstanceRaw, uctd_common, unit20, uopengl_font_common;
 
 {$R *.res}
 

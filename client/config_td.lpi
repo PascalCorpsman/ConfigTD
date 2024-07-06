@@ -102,7 +102,7 @@
         <PackageName Value="LCL"/>
       </Item7>
     </RequiredPackages>
-    <Units Count="62">
+    <Units Count="63">
       <Unit0>
         <Filename Value="config_td.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -434,6 +434,10 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit20"/>
       </Unit61>
+      <Unit62>
+        <Filename Value="../../Sample/OpenGL/uopengl_font_common.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit62>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
