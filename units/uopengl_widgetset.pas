@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* uOpenGL_WidgetSet.pas                                           ??.??.???? *)
 (*                                                                            *)
-(* Version     : 0.08                                                         *)
+(* Version     : 0.11                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -34,6 +34,9 @@
 (*               0.06 = Umbau auf ueventer.pas                                *)
 (*               0.07 = Umstellen auf smClamp => deutlich bessere Graphiken   *)
 (*               0.08 = Support für OpenGLASCIIFont                           *)
+(*               0.09 = TOpenGL_Radiobutton                                   *)
+(*               0.10 = Fix Textglitch of TOpenGL_Radiobutton                 *)
+(*               0.11 = OnChange für TOpenGL_Radiobutton                      *)
 (*                                                                            *)
 (******************************************************************************)
 
@@ -144,14 +147,17 @@ Type
     Procedure KeyUp(Sender: TObject; Var Key: Word; Shift: TShiftState); override;
   public
     Caption: String;
+    RenderCaption: Boolean;
     Property OnClick;
+
+    Constructor Create(Owner: TOpenGLControl); override;
     (*
      * Lädt die 3 Texturen
      * Normal = die die immer angezeigt wird
      * Hover = die die angezeigt wird, solange sich dir Maus darüber bewegt
      * Down = die die angezeigt wird, solange die Maus gedrückt wurde
      *)
-    Procedure LoadTextures(Normal, Hover, Down: String);
+    Procedure LoadTextures(Normal, Hover, Down: String); virtual;
   End;
 
   { TOpenGL_Button_Alpha }
@@ -162,13 +168,13 @@ Type
     Procedure OnRender(); override;
   public
     (*
-     * Lädt die 3 Texturen
+     * Lädt die 4 Texturen
      * Normal = die die immer angezeigt wird
      * Hover = die die angezeigt wird, solange sich dir Maus darüber bewegt
      * Down = die die angezeigt wird, solange die Maus gedrückt wurde
      * Mask = Alpha Maske ( für alle Gleich )
      *)
-    Procedure LoadTextures(Normal, Hover, Down, Mask: String);
+    Procedure LoadTextures(Normal, Hover, Down, Mask: String); virtual; reintroduce;
   End;
 
   { TOpenGL_Scrollbar }
@@ -282,6 +288,32 @@ Type
     Constructor Create(Owner: TOpenGLControl; FontFile: String); override;
   End;
 
+  { TOpenGL_Radiobutton }
+
+  TOpenGL_Radiobutton = Class(TOpenGL_BaseFontClass)
+  private
+    fCaption: String;
+    fChecked: Boolean;
+    Procedure setCaption(AValue: String);
+    Procedure setChecked(AValue: Boolean);
+    Procedure UncheckOthers(Sender: TObject);
+  protected
+    Procedure OnRender(); override;
+    Procedure Click; override;
+  public
+
+    CircleColor: TVector3; // Die Farbe des "Selectiert" Bobbels
+    CircleBackColor: TVector3; // Die Hintergrundfarbe, des "Selectiert" Bobbels
+
+    GroupIndex: Integer; // Will man mehrere Groupboxen haben die auch mehrere Selektierungen zulassen benötigt man Gruppierungen!
+    OnChange: TNotifyEvent;
+
+    Property Caption: String read fCaption write setCaption;
+    Property Checked: Boolean read fChecked write setChecked;
+
+    Constructor Create(Owner: TOpenGLControl; FontFile: String); override;
+  End;
+
 Procedure WidgetSetGo2d(Width_2D, Height_2d: Integer);
 Procedure WidgetSetExit2d();
 Function ColorToVector(Color: TColor): TVector3;
@@ -289,7 +321,8 @@ Function ColorToVector(Color: TColor): TVector3;
 Implementation
 
 Var
-  _2DWidth, _2DHeight: integer;
+  _2DWidth: integer = 0;
+  _2DHeight: integer = 0;
 
 Procedure WidgetSetGo2d(Width_2D, Height_2d: Integer);
 Begin
@@ -617,6 +650,7 @@ End;
 
 Procedure TOpenGL_Button_Alpha.LoadTextures(Normal, Hover, Down, Mask: String);
 Begin
+  RenderCaption := false;
   FNormalTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(normal, Mask, smClamp);
   fHoverTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(hover, Mask, smClamp);
   fDownTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(down, Mask, smClamp);
@@ -1016,13 +1050,15 @@ Begin
   fHoverTex.StretchedWidth := round(fHoverTex.OrigWidth / s);
 End;
 
-Procedure TOpenGl_Button.OnRender();
+Procedure TOpenGl_Button.OnRender;
+Var
+  tex: String;
 Begin
   glColor4f(1, 1, 1, 1);
   If fMouseDown Then Begin
     If fDownTex.Image = 0 Then Begin
-      glcolor3f(1, 0, 0);
-      glbegin(GL_QUADS);
+      glcolor3f(0.8, 0, 0); // TODO: das könnte Konfigurierbar sein ..
+      glbegin(GL_LINE_LOOP);
       glVertex2f(left, top + Height);
       glVertex2f(left + Width, top + Height);
       glVertex2f(left + Width, Top);
@@ -1036,8 +1072,8 @@ Begin
   Else Begin
     If FMouseHover Then Begin
       If fHoverTex.Image = 0 Then Begin
-        glcolor3f(0, 1, 0);
-        glbegin(GL_QUADS);
+        glcolor3f(0.8, 0.8, 0.0); // TODO: das könnte Konfigurierbar sein ..
+        glbegin(GL_LINE_LOOP);
         glVertex2f(left, top + Height);
         glVertex2f(left + Width, top + Height);
         glVertex2f(left + Width, Top);
@@ -1050,8 +1086,8 @@ Begin
     End
     Else Begin
       If FNormalTex.Image = 0 Then Begin
-        glcolor3f(0, 0, 1);
-        glbegin(GL_QUADS);
+        glcolor3f(0.8, 0.8, 0.8); // TODO: das könnte Konfigurierbar sein ..
+        glbegin(GL_LINE_LOOP);
         glVertex2f(left, top + Height);
         glVertex2f(left + Width, top + Height);
         glVertex2f(left + Width, Top);
@@ -1062,6 +1098,19 @@ Begin
         RenderAlphaQuad(top, left, FNormalTex);
       End;
     End;
+  End;
+  If RenderCaption And (caption <> '') And assigned(OpenGL_ASCII_Font) Then Begin
+    tex := caption;
+    While (OpenGL_ASCII_Font.TextWidth(tex) > Width) And (tex <> '') Do Begin
+      delete(tex, 1, 1);
+      If tex <> '' Then delete(tex, length(tex), 1);
+    End;
+    glBindTexture(GL_TEXTURE_2D, 0);
+    OpenGL_ASCII_Font.ColorV3 := v3(1, 1, 1);
+    OpenGL_ASCII_Font.Textout(
+      left + (width - round(OpenGL_ASCII_Font.TextWidth(tex))) Div 2,
+      top + (height - round(OpenGL_ASCII_Font.TextHeight(tex))) Div 2,
+      tex);
   End;
 End;
 
@@ -1085,8 +1134,16 @@ Begin
   End;
 End;
 
+Constructor TOpenGl_Button.Create(Owner: TOpenGLControl);
+Begin
+  Inherited Create(Owner);
+  RenderCaption := true;
+  caption := self.ClassName;
+End;
+
 Procedure TOpenGl_Button.LoadTextures(Normal, Hover, Down: String);
 Begin
+  RenderCaption := false;
   FNormalTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(normal, smClamp);
   fHoverTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(hover, smClamp);
   fDownTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(down, smClamp);
@@ -1230,6 +1287,97 @@ Begin
       End;
     End;
   End;
+End;
+
+{ TOpenGL_Radiobutton }
+
+Procedure TOpenGL_Radiobutton.setChecked(AValue: Boolean);
+Begin
+  If fChecked = AValue Then Exit;
+  fChecked := AValue;
+  // Wenn Wir den "Checked" Bobbel bekommen haben, dann müssen alle in unserer Gruppe diesen Verlieren
+  If fChecked Then Begin
+    IterateAllEventClasses(@UncheckOthers);
+  End;
+  If assigned(OnChange) Then OnChange(self);
+End;
+
+Procedure TOpenGL_Radiobutton.setCaption(AValue: String);
+Begin
+  If fCaption = AValue Then Exit;
+  fCaption := AValue;
+  If assigned(FFont) Then Begin
+    Width := round(FFont.TextWidth(AValue) + FFont.TextHeight(AValue) + 6);
+  End;
+End;
+
+Procedure TOpenGL_Radiobutton.UncheckOthers(Sender: TObject);
+Begin
+  If Sender = self Then exit; // Sonst würden wir uns ja gleich selber wieder "löschen"
+  If Not (sender Is TOpenGL_Radiobutton) Then exit;
+  // Nur die aus der Gleichen Gruppe werden Platt gemacht ;)
+  If TOpenGL_Radiobutton(sender).GroupIndex = GroupIndex Then Begin
+    TOpenGL_Radiobutton(sender).Checked := false;
+  End;
+End;
+
+Procedure TOpenGL_Radiobutton.OnRender;
+  Procedure RenderCircle(x, y, r: integer);
+  Var
+    s, c: single;
+    i: Integer;
+  Begin
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glScalef(r, r, 0);
+    glbegin(GL_TRIANGLE_FAN);
+    glVertex2f(0, 0);
+    For i := 0 To 36 Do Begin
+      SinCos(2 * pi * i / 36, s, c);
+      glVertex2f(c, s);
+    End;
+    glend;
+    glPopMatrix();
+  End;
+
+Var
+  tex: String;
+  ch: Single;
+Begin
+  glBindTexture(GL_TEXTURE_2D, 0);
+  ch := FFont.TextHeight('A');
+  // Zuerst den "Punkt" sammt Hintergrund
+  glcolor3f(CircleBackColor.x, CircleBackColor.y, CircleBackColor.z);
+  RenderCircle(left + round(ch / 2), top + round(ch / 2), round(ch / 2) - 1);
+  If fChecked Then Begin
+    glcolor3f(CircleColor.x, CircleColor.y, CircleColor.z);
+    RenderCircle(left + round(ch / 2), top + round(ch / 2), round(ch / 3) - 1);
+  End;
+  // Dann den Text
+  tex := caption;
+  While (FFont.TextWidth(tex) > Width - 6 - ch) And (tex <> '') Do Begin
+    delete(tex, length(tex), 1);
+  End;
+  FFont.Colorv3 := FontColor;
+  FFont.Textout(left + 2 + round(ch), top + 2, tex);
+End;
+
+Procedure TOpenGL_Radiobutton.Click;
+Begin
+  Inherited Click;
+  // Enabled / Visible brauchen wir alles nicht mehr zu prüfen, dass macht schon der Eventer ;)
+  SetChecked(true);
+End;
+
+Constructor TOpenGL_Radiobutton.Create(Owner: TOpenGLControl; FontFile: String);
+Begin
+  Inherited Create(Owner, FontFile);
+  OnChange := Nil;
+  Caption := self.ClassName;
+  fChecked := false;
+  CircleColor := v3(0, 0, 0);
+  CircleBackColor := v3(1, 1, 1);
+  GroupIndex := 0;
 End;
 
 { TOpenGL_BaseFontClass }
