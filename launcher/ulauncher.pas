@@ -38,13 +38,13 @@ Const
    *                   Add: both ssL dll's for windows version
    * -Released- 0.09 = FIX: SSL Loader did not work on Windows 11
    * -Released- 0.10 = FIX: Close log on close "check for Updates
-   *            0.11 = FIX: Autonextlevel wurde falsch geladen
+   * -Released- 0.11 = FIX: Autonextlevel wurde falsch geladen
    *                   FIX: "start next wave each" was not visible
    *                   ADD: Improve error message, if launcher needs update and no updater is present.
-   *
+   *            0.12 =
    * Known Bugs :
    *)
-  LauncherVersion: integer = 11;
+  LauncherVersion: integer = 12;
 
 Type
 

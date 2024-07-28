@@ -99,12 +99,14 @@ Const
    * -Released- 0.12001 = ADD: Map previews are now images of the map if background is not disabled
    *                      ADD: Reenable buyable sorting by wavenums as it was ..
    *                      FIX: Crash on restart last round
-   *            0.12002 = FIX: Off by one in wave info
+   * -Released- 0.12002 = FIX: Off by one in wave info
    *                      ADD: Support for HTML-Online Help
    *                      ADD: Rudimentary image Support for online help
    *                      FIX: Crash on deletion of last opponent / geb in map
    *                      FIX: on Ai-Wave the very first Opp on the new wave was set, but is not shown to the user in the editor
    *                      FIX: Crash on restart last wave, if cursorobj was not nil
+   *                      FIX: rename "heros" -> "heroes"
+   *            0.12003 =
    * Known Bugs :
    *)
   (*
@@ -112,7 +114,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12002'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12003'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
