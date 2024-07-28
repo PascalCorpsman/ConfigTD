@@ -2180,9 +2180,9 @@ Begin
     m.free;
   End;
   // Ist noch ein Held am Bauen, dann brechen wir alle erst mal ab
-  m := fmap.ForceHerosReady;
+  m := fmap.ForceHeroesReady;
   If m.Size > 0 Then Begin
-    SendChunk(miSetHerosToLevel, m, 0);
+    SendChunk(miSetHeroesToLevel, m, 0);
   End
   Else Begin
     m.free;
@@ -2835,7 +2835,7 @@ Begin
   fmap.MoveAllOpponents(@UpdateEvent);
   // Alle Gebäude "Bauen"
   fmap.HandleAllBuildings();
-  fmap.HandleAllHeros();
+  fmap.HandleAllHeroes();
   // Alle Geschosse Bewegen
   fmap.HandleAllBullets(@UpdateEvent);
   // Ist das Spiel Vorbei ?
@@ -2929,9 +2929,9 @@ Procedure TServer.EndGameCheck;
       m.free;
     End;
     // Ist noch ein Held am Bauen, dann brechen wir alle erst mal ab
-    m := fmap.ForceHerosReady;
+    m := fmap.ForceHeroesReady;
     If m.Size > 0 Then Begin
-      SendChunk(miSetHerosToLevel, m, 0);
+      SendChunk(miSetHeroesToLevel, m, 0);
     End
     Else Begin
       m.free;

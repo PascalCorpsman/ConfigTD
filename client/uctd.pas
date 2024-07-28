@@ -248,7 +248,7 @@ Type
     fSideMenuObject: tctd_mapopbject;
     fSidemenuOpponent: TOpponent; // Zum Umgang mit dem Nebeneffekt von TMap.GetObjUnderCursor brauchen wir einen Dummy, welcher uns den Identifier speichert
     fSelectedBuildings: TBuildingArray; // Quasi Redundant zum fSideMenuObject aber nur für Gebäude, so das hier viele Angewählt werden können
-    fSelectedHeros: THeroArray; // Quasi Redundant zum fSideMenuObject aber nur für Helden, so das hier viele Angewählt werden können
+    fSelectedHeroes: THeroArray; // Quasi Redundant zum fSideMenuObject aber nur für Helden, so das hier viele Angewählt werden können
 
     fsx, fsy: integer; // Fürs Karten Scrolling
     fmDownPos: TPoint; // Die Mausposition beim MouseDown Event
@@ -361,7 +361,7 @@ Type
 
     Procedure HandleRefresPlayerStats(Const Data: TStream);
     Procedure HandleOnBuildingsToStage(Const List: TStream);
-    Procedure HandleOnHerosToLevel(Const List: TStream);
+    Procedure HandleOnHeroesToLevel(Const List: TStream);
 
     Procedure RenderBlackOutMapBorder;
     Procedure RenderBuyMenu;
@@ -484,7 +484,7 @@ Type
     Procedure TransferCompleteMapTerrain(Const Stream: TStream);
     Procedure DoSell;
     Procedure DoHeroStop;
-    Procedure DoSelectAllOwnHeros;
+    Procedure DoSelectAllOwnHeroes;
     Procedure DoUpdate;
     Procedure IncSpeed;
     Procedure DecSpeed;
@@ -1173,11 +1173,11 @@ Begin
           fSelectedBuildings := Nil;
         End;
         If FSideMenuObject Is THero Then Begin
-          setlength(fSelectedHeros, 1);
-          fSelectedHeros[0] := THero(FSideMenuObject);
+          setlength(fSelectedHeroes, 1);
+          fSelectedHeroes[0] := THero(FSideMenuObject);
         End
         Else Begin
-          fSelectedHeros := Nil;
+          fSelectedHeroes := Nil;
         End;
         If assigned(FBuyingObject) Then FBuyingObject.free;
         FBuyingObject := Nil;
@@ -1191,13 +1191,13 @@ Begin
         FBuyingObject := Nil;
         fSelectedBuildings := Nil;
         fStrategyToolTipp := '';
-        // Der Spieler will Heros an neue Koords schicken !
-        If assigned(fSelectedHeros) Then Begin
+        // Der Spieler will Heroes an neue Koords schicken !
+        If assigned(fSelectedHeroes) Then Begin
           If uctd_common.PointInRect(point(x, y), rect(fMapL, fMapT, fMapL + fMapW, fMapT + fMapH)) Then Begin
             xs := (fsx + x - fMapL) / MapBlockSize;
             ys := (fsy + y - fMapT) / MapBlockSize;
             SetheroTargets(xs, ys);
-            exit; // Sonst würden die Heros abgewählt werden, dass soll der User via Rechte Maus machen !
+            exit; // Sonst würden die Heroes abgewählt werden, dass soll der User via Rechte Maus machen !
           End;
         End;
       End;
@@ -1237,25 +1237,25 @@ Begin
       Else Begin
         If assigned(obj) And (obj Is THero) Then Begin // Das angeklickte Objekt ist ein Gebäude und Updatet sich gerade nicht
           // 2 Möglichkeiten
-          For i := 0 To high(fSelectedHeros) Do Begin
-            If fSelectedHeros[i] = obj Then Begin
+          For i := 0 To high(fSelectedHeroes) Do Begin
+            If fSelectedHeroes[i] = obj Then Begin
               // 2.1 das Geb ist drin, dann Abwahl
-              For j := i To high(fSelectedHeros) - 1 Do
-                fSelectedHeros[j] := fSelectedHeros[j + 1];
-              setlength(fSelectedHeros, high(fSelectedHeros));
-              If high(fSelectedHeros) = -1 Then Begin
+              For j := i To high(fSelectedHeroes) - 1 Do
+                fSelectedHeroes[j] := fSelectedHeroes[j + 1];
+              setlength(fSelectedHeroes, high(fSelectedHeroes));
+              If high(fSelectedHeroes) = -1 Then Begin
                 fSideMenuObject := Nil;
               End
               Else Begin
-                fSideMenuObject := fSelectedHeros[0]; // Egal welches hauptsache ein Gültiges
+                fSideMenuObject := fSelectedHeroes[0]; // Egal welches hauptsache ein Gültiges
               End;
               exit;
             End;
           End;
           // 2.2 das Geb ist nicht Drin, dann Anwahl
-          setlength(fSelectedHeros, high(fSelectedHeros) + 2);
-          fSelectedHeros[high(fSelectedHeros)] := THero(obj);
-          fSideMenuObject := fSelectedHeros[0]; // Egal welches hauptsache ein Gültiges
+          setlength(fSelectedHeroes, high(fSelectedHeroes) + 2);
+          fSelectedHeroes[high(fSelectedHeroes)] := THero(obj);
+          fSideMenuObject := fSelectedHeroes[0]; // Egal welches hauptsache ein Gültiges
           exit;
         End;
       End;
@@ -1355,7 +1355,7 @@ Begin
   If assigned(FBuyingObject) Then FBuyingObject.free;
   fBuyingObject := Nil;
   fSelectedBuildings := Nil;
-  fSelectedHeros := Nil;
+  fSelectedHeroes := Nil;
 End;
 
 Procedure Tctd.FOnMouseUp(Sender: TObject; Button: TMouseButton;
@@ -1371,18 +1371,18 @@ Begin
     End;
   End;
   If fLeftMousePressed And (fgameState = gs_Gaming) And (fMap.HeroCount > 0) And (Not assigned(fBuyingObject))
-    And (fSelectedHeros = Nil)
+    And (fSelectedHeroes = Nil)
     Then Begin
     // TODO: mittels shift in TShiftstate erlauben das die selektierungen "Erweitert" / Entfernt werden.
-    fSelectedHeros := fMap.GetAllHerosOfOwnerRect(fPlayerIndex,
+    fSelectedHeroes := fMap.GetAllHeroesOfOwnerRect(fPlayerIndex,
       rect(
       (fsx + min(fmDownPos.x, fCursorPos.X) - fMapL) Div MapBlockSize, (fsy + min(fmDownPos.y, fCursorPos.y) - fMapT) Div MapBlockSize,
       (fsx + max(fmDownPos.x, fCursorPos.X) - fMapL) Div MapBlockSize, (fsy + max(fmDownPos.y, fCursorPos.y) - fMapT) Div MapBlockSize
       )
       );
-    If assigned(fSelectedHeros) Then Begin
+    If assigned(fSelectedHeroes) Then Begin
       fSelectedBuildings := Nil;
-      fSideMenuObject := fSelectedHeros[0]; // den 1. Anwählen sonst sieht man das nicht
+      fSideMenuObject := fSelectedHeroes[0]; // den 1. Anwählen sonst sieht man das nicht
       If Assigned(fBuyingObject) Then Begin
         fBuyingObject.free;
         fBuyingObject := Nil;
@@ -1500,7 +1500,7 @@ Begin
     End;
     If assigned(fSideMenuObject) And (fSideMenuObject Is THero) And Not assigned(fBuyingObject) And (Not fCTRLPressed) Then Begin // Bugfix wenn STRG+ Leftklick (= anzeigen !) dann sollen die evtl angewählten Gebäude nicht mit angewählt werden.
       // Alle Anwählen die gerade Sichtbar und vom selben Typ sind.
-      fSelectedHeros := fMap.GetAllHerosOfSameTypeInRect(THero(fSideMenuObject),
+      fSelectedHeroes := fMap.GetAllHeroesOfSameTypeInRect(THero(fSideMenuObject),
         rect(fsx Div MapBlockSize, fsy Div MapBlockSize, (fMapW - fMapL + fsx) Div MapBlockSize, (fMapH - fMapT + fsy) Div MapBlockSize)
         );
     End;
@@ -1533,13 +1533,13 @@ Begin
     TogglePause;
   End;
   If key = ord('H') Then Begin
-    DoSelectAllOwnHeros;
+    DoSelectAllOwnHeroes;
   End;
   If key = ord('S') Then Begin
     If Assigned(fSelectedBuildings) Then Begin
       DoSell;
     End;
-    If assigned(fSelectedHeros) Then Begin
+    If assigned(fSelectedHeroes) Then Begin
       DoHeroStop;
     End;
   End;
@@ -2017,12 +2017,12 @@ Begin
     m := TMemoryStream.Create;
     i := fPlayerIndex;
     m.Write(i, SizeOf(i));
-    For j := 0 To high(fSelectedHeros) Do Begin
-      If fSelectedHeros[j].Owner = fPlayerIndex Then Begin
-        fSelectedHeros[j].strategy := TBuildingStrategyButton(Sender).Strategy;
-        i := fSelectedHeros[j].MapHeroIndex;
+    For j := 0 To high(fSelectedHeroes) Do Begin
+      If fSelectedHeroes[j].Owner = fPlayerIndex Then Begin
+        fSelectedHeroes[j].strategy := TBuildingStrategyButton(Sender).Strategy;
+        i := fSelectedHeroes[j].MapHeroIndex;
         m.Write(i, SizeOf(i));
-        b := fSelectedHeros[j].PreverAir;
+        b := fSelectedHeroes[j].PreverAir;
         m.Write(b, SizeOf(b));
         m.Write(TBuildingStrategyButton(Sender).Strategy, SizeOf(TBuildingStrategyButton(Sender).Strategy));
       End;
@@ -2079,12 +2079,12 @@ Begin
     m := TMemoryStream.Create;
     i := fPlayerIndex;
     m.Write(i, SizeOf(i));
-    For j := 0 To high(fSelectedHeros) Do Begin
-      If fSelectedHeros[j].Owner = fPlayerIndex Then Begin
-        fSelectedHeros[j].PreverAir := Not fSelectedHeros[0].PreverAir;
-        i := fSelectedHeros[j].MapHeroIndex;
+    For j := 0 To high(fSelectedHeroes) Do Begin
+      If fSelectedHeroes[j].Owner = fPlayerIndex Then Begin
+        fSelectedHeroes[j].PreverAir := Not fSelectedHeroes[0].PreverAir;
+        i := fSelectedHeroes[j].MapHeroIndex;
         m.Write(i, SizeOf(i));
-        b := fSelectedHeros[j].PreverAir;
+        b := fSelectedHeroes[j].PreverAir;
         m.Write(b, SizeOf(b));
         m.Write(TBuildingStrategyButton(Sender).Strategy, SizeOf(TBuildingStrategyButton(Sender).Strategy));
       End;
@@ -2363,7 +2363,7 @@ Procedure Tctd.HandleLoadGamingData(Const Stream: TStream);
 Begin
   Map.LoadGameingData(stream);
   fSelectedBuildings := Nil;
-  fSelectedHeros := Nil;
+  fSelectedHeroes := Nil;
   If assigned(OnHandleLoadGameingData) Then
     OnHandleLoadGameingData(self);
 End;
@@ -2526,7 +2526,7 @@ Begin
     fSelectedBuildings := fMap.GetAllBuildingsSameOfSameType(TBuilding(fSideMenuObject));
   End;
   If assigned(fSideMenuObject) And (fSideMenuObject Is THero) And Not assigned(fBuyingObject) Then Begin
-    fSelectedHeros := fMap.GetAllHerosOfSameType(THero(fSideMenuObject));
+    fSelectedHeroes := fMap.GetAllHeroesOfSameType(THero(fSideMenuObject));
   End;
 End;
 
@@ -2735,8 +2735,8 @@ Begin
       End;
     End;
     If fSideMenuObject Is THero Then Begin
-      For i := 0 To high(fSelectedHeros) Do Begin
-        RenderHeroSelector(fSelectedHeros[i]);
+      For i := 0 To high(fSelectedHeroes) Do Begin
+        RenderHeroSelector(fSelectedHeroes[i]);
       End;
     End;
     glPopMatrix;
@@ -2874,10 +2874,10 @@ Begin
     If (fSideMenuObject Is THero) Then Begin
       // Anzeigen der Ranges der Helden
       If HintShowHeroRange Then Begin
-        For i := 0 To high(fSelectedHeros) Do Begin
+        For i := 0 To high(fSelectedHeroes) Do Begin
           glPushMatrix;
-          glTranslatef(fSelectedHeros[i].Position.x * MapBlockSize - fsx + fMapL, fSelectedHeros[i].Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
-          fSelectedHeros[i].RenderRange();
+          glTranslatef(fSelectedHeroes[i].Position.x * MapBlockSize - fsx + fMapL, fSelectedHeroes[i].Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
+          fSelectedHeroes[i].RenderRange();
           glPopMatrix;
         End;
       End;
@@ -3063,8 +3063,8 @@ Begin
     miSetBuildingsToStage: Begin
         HandleOnBuildingsToStage(chunk.Data);
       End;
-    miSetHerosToLevel: Begin
-        HandleOnHerosToLevel(chunk.Data);
+    miSetHeroesToLevel: Begin
+        HandleOnHeroesToLevel(chunk.Data);
       End;
     miPing: Begin
         SendChunk(miPing, Nil);
@@ -3427,12 +3427,12 @@ Begin
   LogLeave;
 End;
 
-Procedure Tctd.HandleOnHerosToLevel(Const List: TStream);
+Procedure Tctd.HandleOnHeroesToLevel(Const List: TStream);
 Var
   cnt: integer;
   x, i, j: integer;
 Begin
-  log('Tctd.HandleOnHerosToLevel', llTrace);
+  log('Tctd.HandleOnHeroesToLevel', llTrace);
   If Not assigned(fMap) Then Begin
     LogLeave;
     exit;
@@ -3593,7 +3593,7 @@ Begin
   HintShowHeroRange := true;
   FBuyMenu.Items := Nil;
   fSelectedBuildings := Nil;
-  fSelectedHeros := Nil;
+  fSelectedHeroes := Nil;
   BlockMapUpdateSending := false;
   fSidemenuOpponent := TOpponent.create();
   fMenuPosition := mpBottom;
@@ -4487,7 +4487,7 @@ Begin
   fBuyingObject.LoadFromFile(obj.Filename);
   fSideMenuObject := fBuyingObject;
   fSelectedBuildings := Nil;
-  fSelectedHeros := Nil;
+  fSelectedHeroes := Nil;
   If fPlayerInfos[fPlayerIndex].Cash < fBuyingObject.GetBuyCost() Then Begin
     SplashHint('Warning, not enough money to buy ' + fBuyingObject.name, v3(1, 0, 0));
   End;
@@ -4502,9 +4502,9 @@ Begin
   m.Write(PlayerIndex, SizeOf(PlayerIndex));
   m.Write(x, SizeOf(x));
   m.Write(y, SizeOf(y));
-  For i := 0 To high(fSelectedHeros) Do Begin
-    If fSelectedHeros[i].Owner = fPlayerIndex Then Begin // Wir dürfen nur die Eigenen Heros steuern ;)
-      m.write(fSelectedHeros[i].MapHeroIndex, sizeof(fSelectedHeros[i].MapHeroIndex));
+  For i := 0 To high(fSelectedHeroes) Do Begin
+    If fSelectedHeroes[i].Owner = fPlayerIndex Then Begin // Wir dürfen nur die Eigenen Heroes steuern ;)
+      m.write(fSelectedHeroes[i].MapHeroIndex, sizeof(fSelectedHeroes[i].MapHeroIndex));
     End;
   End;
   If m.size <> (2 * SizeOf(x) + sizeof(PlayerIndex)) Then Begin
@@ -4585,7 +4585,7 @@ Begin
   fLeftMousePressed := false;
   fgameState := gs_EditMode;
   fSelectedBuildings := Nil;
-  fSelectedHeros := Nil;
+  fSelectedHeroes := Nil;
   If assigned(fMap) Then
     fmap.ClearMoveables;
   If assigned(OnForceEditMode) Then
@@ -4987,14 +4987,14 @@ Begin
   SetheroTargets(-1, -1);
 End;
 
-Procedure Tctd.DoSelectAllOwnHeros;
+Procedure Tctd.DoSelectAllOwnHeroes;
 Begin
   If Not assigned(fMap) Then exit;
   If (fgameState = gs_Gaming) Then Begin
-    fSelectedHeros := fMap.GetAllHerosOfOwner(fPlayerIndex);
-    If Assigned(fSelectedHeros) Then Begin
+    fSelectedHeroes := fMap.GetAllHeroesOfOwner(fPlayerIndex);
+    If Assigned(fSelectedHeroes) Then Begin
       fSelectedBuildings := Nil;
-      fSideMenuObject := fSelectedHeros[0]; // den 1. Anwählen sonst sieht man das nicht
+      fSideMenuObject := fSelectedHeroes[0]; // den 1. Anwählen sonst sieht man das nicht
       If Assigned(fBuyingObject) Then Begin
         fBuyingObject.free;
         fBuyingObject := Nil;

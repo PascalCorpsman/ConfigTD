@@ -1,10 +1,10 @@
 object Form1: TForm1
   Left = 331
-  Height = 1164
+  Height = 1208
   Top = 121
   Width = 1024
   Caption = 'Form1'
-  ClientHeight = 1164
+  ClientHeight = 1208
   ClientWidth = 1024
   Menu = MainMenu1
   Position = poScreenCenter
@@ -129,7 +129,7 @@ object Form1: TForm1
         OnClick = MenuItem15Click
       end
       object MenuItem31: TMenuItem
-        Caption = 'Heros'
+        Caption = 'Heroes'
         OnClick = MenuItem31Click
       end
     end

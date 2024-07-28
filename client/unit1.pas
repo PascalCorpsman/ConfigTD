@@ -1822,7 +1822,7 @@ End;
 
 Procedure TForm1.MenuItem31Click(Sender: TObject);
 Begin
-  // Heros
+  // Heroes
   HideForm4;
   Form14.LoadHeroSettings(Nil);
   Form14.Show;

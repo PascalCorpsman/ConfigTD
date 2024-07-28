@@ -59,7 +59,7 @@ Const
    *                      Im Nicht-Koop Spiel: Türme priorisieren "eigene" Gegner über die der anderen Spieler
    *                      FIX AV, wenn connect mit bereits vergebenen Usernamen aufgerufen wurde
    * -Released- 0.09000 = FIX AV, wenn ein Gebäude Editiert wurde und mit OK bestätigt, konnten keine weitere Gebs mehr editiert werden
-   *                      Heros
+   *                      Heroes
    *                      Protokolchange zwischen Server und Client, deswegen 8 -> 9 !
    * -Released- 0.09001 = Improve Helden Handling
    * -Released- 0.09002 = Feature "-kick <playername>"
@@ -77,7 +77,7 @@ Const
    *            0.10001 = ADD: #6 Move / Zoom Keys
    *                      ADD: If Chat is empty and "Return" -> Close dialog
    *            0.10002 = ADD: Feature Request, show map texture and terrain at same time
-   *            0.10003 = ADD: Icons for Gebs / Opps / Heros in menus
+   *            0.10003 = ADD: Icons for Gebs / Opps / Heroes in menus
    *                      FIX: Reduce loading times by TItemObjectManager
    *                      ADD: Custom Sorting for TItemObject Lists
    * -Released- 0.11000 = ADD: Load Map dialog bekommt Filter "playable" = count(Waves) > 0
@@ -85,7 +85,7 @@ Const
    * -Released- 0.11002 = FIX: Client did not send correct protocol version
    * -Released- 0.11003 = ADD: New Errormessage, if a user pulls the repository and tries to run the executable from the bin folder
    * -Released- 0.11004 = FIX: Crash during add buildings to a map
-   *                      Revert: Sorting of buildings / Opponents / Heros by Power (as it convues during Map editing)
+   *                      Revert: Sorting of buildings / Opponents / Heroes by Power (as it convues during Map editing)
    *                      FIX: Crash during delete Hero / building
    * -Released- 0.11005 = FIX: Crash if a opponent / building was deleted
    *                      FIX: Opponent / Hero / Building dialog was not readable on Windows Darkmode
@@ -93,7 +93,7 @@ Const
    *                      ADD: Fileversion for savegames
    *            0.11006 = FIX: Leave Edit modes during round start
    *                      FIX: Background was black, if no Backtex was defined and game was startet.
-   *                      FIX: Sorting of Buildings / Heros / Opponents in Dialog was broken
+   *                      FIX: Sorting of Buildings / Heroes / Opponents in Dialog was broken
    *                      FIX: Crash of server if weakest opponent was not air
    * -Released- 0.12000 = FIX: Buyables got destroyed when map was switched to new map
    * -Released- 0.12001 = ADD: Map previews are now images of the map if background is not disabled
@@ -291,7 +291,7 @@ Type
 
   TLogShowHandler = Procedure(Msg: String; WarnLevel: TLogLevel);
 
-  TDialogMode = (dmBuildings, dmOpponents, dmHeros);
+  TDialogMode = (dmBuildings, dmOpponents, dmHeroes);
 
   TSlowDown = Record
     slowdownstatic: single;
@@ -347,7 +347,7 @@ Type
     LifePoints: TPower;
   End;
 
-  TRenderHero = Record // Datensatz, welcher für die Heros übertragen wird
+  TRenderHero = Record // Datensatz, welcher für die Heroes übertragen wird
     Position: TVector2;
     AnimationOffset: uint16;
     Angle: int16;
@@ -404,7 +404,7 @@ Const
   MapBlockSize = 1; // Der Server Rechnet alles 1:1, damit kann der Client direkt mit Blockwidth hochscallieren
   SpawnGrid = 0.6; // Grid nach welchem TOpponents beim Spawning angeordnet werden
   MinDistanceBetweenOpponents = 0.6; // Mindestabstand zwischen 2 Oppoents
-  MinDistanceBetweenHeros = 2; // Mindestabstand zwischen 2 Helden
+  MinDistanceBetweenHeroes = 2; // Mindestabstand zwischen 2 Helden
 {$ENDIF}
 {$IFDEF Client}
 Const
@@ -1412,7 +1412,7 @@ Var
   fp: String;
 Begin
   fLoaded := false;
-  fMode := dmHeros;
+  fMode := dmHeroes;
   fFilename := Filename;
   fName := ExtractFileNameOnly(Filename);
   If Not FileExists(Filename) Then Begin
@@ -1447,7 +1447,7 @@ Begin
     dmOpponents: Begin
         LoadOppInfo_private(fFilename);
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         LoadHeroInfo_private(fFilename);
       End;
   End;

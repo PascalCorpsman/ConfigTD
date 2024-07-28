@@ -134,7 +134,7 @@ Begin
   s := hero.Check();
   If s <> '' Then Begin
     showmessage(s + LineEnding + LineEnding +
-      'Invalid heros are not allowed to be saved.');
+      'Invalid heroes are not allowed to be saved.');
     exit;
   End;
   hero.SaveToFile(hero.Filename);

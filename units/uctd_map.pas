@@ -197,7 +197,7 @@ Type
     FIndexMapper: Array Of TIndexMapper;
 {$ENDIF}
     Fbuildings: Array Of TBuilding; // Die Liste der durch Benutzer gebauten Gebäude
-    fHeros: Array Of THero;
+    fHeroes: Array Of THero;
     FBulletIndexes: Array Of TBulletIndex; // Der Index des jeweiligen Geschosses damit Client und Server die Richtigen Texturen haben ...
 {$IFDEF Server}
     fHighscoreEngine: TIniHighscoreEngine;
@@ -244,7 +244,7 @@ Type
     Procedure KillOpponent(Const Opponent: TOpponent);
     Procedure ResetRating;
     Function GetRating(): Single;
-    Procedure MoveAllHeros;
+    Procedure MoveAllHeroes;
 {$ENDIF}
     Procedure SortBuildingsByYCoordinate;
     Procedure UpdatePlacemantBlocked(); // Aktualisiert die .Blocked eigenschaft in Fterrain
@@ -325,11 +325,11 @@ Type
     Function UpdateOpponentData(Const op: TOpponent): Boolean;
     Procedure RefreshBackTex;
     Function GetAllBuildingsSameOfSameType(Const b: TBuilding): TBuildingArray;
-    Function GetAllHerosOfSameType(Const h: THero): THeroArray;
-    Function GetAllHerosOfOwner(Owner: integer): THeroArray;
+    Function GetAllHeroesOfSameType(Const h: THero): THeroArray;
+    Function GetAllHeroesOfOwner(Owner: integer): THeroArray;
     Function GetAllBuildingsSameOfSameTypeInRect(Const b: TBuilding; r: TRect): TBuildingArray;
-    Function GetAllHerosOfSameTypeInRect(Const h: THero; r: TRect): THeroArray;
-    Function GetAllHerosOfOwnerRect(Owner: Integer; r: TRect): THeroArray;
+    Function GetAllHeroesOfSameTypeInRect(Const h: THero; r: TRect): THeroArray;
+    Function GetAllHeroesOfOwnerRect(Owner: Integer; r: TRect): THeroArray;
     Procedure SetBuildingStage(x, y, Stage: integer);
     Procedure SetHeroToLevel(HeroIndex, Level: Integer);
     Procedure ResetAllUpdateBuildings;
@@ -362,12 +362,12 @@ Type
     Function CalcOpponentPaths: Boolean;
 {$IFDEF Server}
     Function ForceBuildingsBuildReady: TMemoryStream;
-    Function ForceHerosReady: TMemoryStream; // Die helden sind entweder Fertig gebaut, oder halten an !
+    Function ForceHeroesReady: TMemoryStream; // Die helden sind entweder Fertig gebaut, oder halten an !
 
     Procedure AddOpponentObject(Const obj: TOpponent; Owner: integer);
     Procedure MoveAllOpponents(Const UpdateEvent: TUpdateEvent);
     Procedure HandleAllBuildings;
-    Procedure HandleAllHeros;
+    Procedure HandleAllHeroes;
     Procedure HandleAllBullets(Const UpdateEvent: TUpdateEvent);
     Procedure Start(); // Wird durch HandleStartRound aufgerufen
     Procedure GetMovingObjectsState(Const Stream: TSTream);
@@ -762,7 +762,7 @@ Begin
   fRenderOpponents := Nil;
 {$ELSE}
   fHighscoreEngine := TIniHighscoreEngine.create;
-  fHeros := Nil;
+  fHeroes := Nil;
 {$ENDIF}
   Clear;
 End;
@@ -863,7 +863,7 @@ End;
 
 Function TMap.getHeroCount: integer;
 Begin
-  result := length(fHeros);
+  result := length(fHeroes);
 End;
 
 Function TMap.getOpenGLDamageClassTex(index: integer): TGraphikItem;
@@ -1393,21 +1393,21 @@ Begin
   log('Updated Buildings in last wave : ' + inttostr(result.Size Div (3 * sizeof(integer))), lldebug);
 End;
 
-Function TMap.ForceHerosReady: TMemoryStream;
+Function TMap.ForceHeroesReady: TMemoryStream;
 Var
   s, i: Integer;
 Begin
   result := TMemoryStream.Create;
-  For i := 0 To high(fHeros) Do Begin
-    fHeros[i].TargetPos := v2(-1, -1); // Egal wie alle Helden Soppen das laufen
-    If fHeros[i].ForceBuilded() Then Begin
+  For i := 0 To high(fHeroes) Do Begin
+    fHeroes[i].TargetPos := v2(-1, -1); // Egal wie alle Helden Soppen das laufen
+    If fHeroes[i].ForceBuilded() Then Begin
       // Sicherstellen, dass am Ende alle Gebs genau diesen Stage haben
-      s := fHeros[i].Level;
+      s := fHeroes[i].Level;
       result.Write(i, SizeOf(i));
       result.Write(s, SizeOf(s));
     End;
   End;
-  log('Updated Heros in last wave : ' + inttostr(result.Size Div (3 * sizeof(integer))), lldebug);
+  log('Updated Heroes in last wave : ' + inttostr(result.Size Div (3 * sizeof(integer))), lldebug);
 End;
 {$ENDIF}
 
@@ -1831,10 +1831,10 @@ Begin
     Fbuildings[i].Free;
   End;
   setlength(Fbuildings, 0);
-  For i := 0 To high(fHeros) Do Begin
-    fHeros[i].Free;
+  For i := 0 To high(fHeroes) Do Begin
+    fHeroes[i].Free;
   End;
-  setlength(fHeros, 0);
+  setlength(fHeroes, 0);
   For i := 0 To high(fTerrain) Do Begin
     For j := 0 To high(fTerrain[i]) Do Begin
       fTerrain[i, j].blocked := false;
@@ -1925,19 +1925,19 @@ Begin
   // 3. Die Helden
   u16 := 0;
   data.Read(u16, sizeof(u16));
-  If u16 <> length(fHeros) Then Begin
+  If u16 <> length(fHeroes) Then Begin
     Raise exception.create('Oh oh, da ist wohl was schief gegangen...');
   End;
-  For i := 0 To high(fHeros) Do Begin
+  For i := 0 To high(fHeroes) Do Begin
     h.Position := v2(-1, -1);
     data.Read(h, sizeof(h));
-    fHeros[i].ApplyRenderData(h);
+    fHeroes[i].ApplyRenderData(h);
   End;
-  //  SetLength(fRenderHeros, u16);
-  //  For i := 0 To high(fRenderHeros) Do Begin
+  //  SetLength(fRenderHeroes, u16);
+  //  For i := 0 To high(fRenderHeroes) Do Begin
   //    h.Index := 65535;
   //    data.Read(h, sizeof(h));
-  //    fRenderHeros[i] := h;
+  //    fRenderHeroes[i] := h;
   //  End;
 End;
 
@@ -2004,28 +2004,28 @@ Begin
   setlength(result, c);
 End;
 
-Function TMap.GetAllHerosOfSameType(Const h: THero): THeroArray;
+Function TMap.GetAllHeroesOfSameType(Const h: THero): THeroArray;
 Var
   i: Integer;
 Begin
   result := Nil;
-  For i := 0 To high(fHeros) Do Begin
-    If (fHeros[i].Filename = h.Filename) And (h.Owner = fHeros[i].Owner) Then Begin
+  For i := 0 To high(fHeroes) Do Begin
+    If (fHeroes[i].Filename = h.Filename) And (h.Owner = fHeroes[i].Owner) Then Begin
       setlength(result, high(result) + 2);
-      result[high(Result)] := fHeros[i];
+      result[high(Result)] := fHeroes[i];
     End;
   End;
 End;
 
-Function TMap.GetAllHerosOfOwner(Owner: integer): THeroArray;
+Function TMap.GetAllHeroesOfOwner(Owner: integer): THeroArray;
 Var
   i: Integer;
 Begin
   result := Nil;
-  For i := 0 To high(fHeros) Do Begin
-    If fHeros[i].Owner = Owner Then Begin
+  For i := 0 To high(fHeroes) Do Begin
+    If fHeroes[i].Owner = Owner Then Begin
       setlength(result, high(result) + 2);
-      result[high(Result)] := fHeros[i];
+      result[high(Result)] := fHeroes[i];
     End;
   End;
 End;
@@ -2052,39 +2052,39 @@ Begin
   setlength(result, c);
 End;
 
-Function TMap.GetAllHerosOfSameTypeInRect(Const h: THero; r: TRect): THeroArray;
+Function TMap.GetAllHeroesOfSameTypeInRect(Const h: THero; r: TRect): THeroArray;
 Var
   i: Integer;
 Begin
   result := Nil;
-  For i := 0 To high(fHeros) Do Begin
+  For i := 0 To high(fHeroes) Do Begin
     // TODO: Da muss noch der Positionsshift mit rein !
-    If (fHeros[i].Filename = h.Filename) And (h.Owner = fHeros[i].Owner) Then Begin
-      If (fHeros[i].Position.x >= r.Left) And
-        (fHeros[i].Position.x <= r.Right) And
-        (fHeros[i].Position.y >= r.Top) And
-        (fHeros[i].Position.y <= r.Bottom) Then Begin
+    If (fHeroes[i].Filename = h.Filename) And (h.Owner = fHeroes[i].Owner) Then Begin
+      If (fHeroes[i].Position.x >= r.Left) And
+        (fHeroes[i].Position.x <= r.Right) And
+        (fHeroes[i].Position.y >= r.Top) And
+        (fHeroes[i].Position.y <= r.Bottom) Then Begin
         setlength(result, high(result) + 2);
-        result[high(Result)] := fHeros[i];
+        result[high(Result)] := fHeroes[i];
       End;
     End;
   End;
 End;
 
-Function TMap.GetAllHerosOfOwnerRect(Owner: Integer; r: TRect): THeroArray;
+Function TMap.GetAllHeroesOfOwnerRect(Owner: Integer; r: TRect): THeroArray;
 Var
   i: Integer;
 Begin
   result := Nil;
-  For i := 0 To high(fHeros) Do Begin
+  For i := 0 To high(fHeroes) Do Begin
     // TODO: Da muss noch der Positionsshift mit rein !
-    If (Owner = fHeros[i].Owner) Then Begin
-      If (fHeros[i].Position.x >= r.Left) And
-        (fHeros[i].Position.x <= r.Right) And
-        (fHeros[i].Position.y >= r.Top) And
-        (fHeros[i].Position.y <= r.Bottom) Then Begin
+    If (Owner = fHeroes[i].Owner) Then Begin
+      If (fHeroes[i].Position.x >= r.Left) And
+        (fHeroes[i].Position.x <= r.Right) And
+        (fHeroes[i].Position.y >= r.Top) And
+        (fHeroes[i].Position.y <= r.Bottom) Then Begin
         setlength(result, high(result) + 2);
-        result[high(Result)] := fHeros[i];
+        result[high(Result)] := fHeroes[i];
       End;
     End;
   End;
@@ -2107,10 +2107,10 @@ End;
 
 Procedure TMap.SetHeroToLevel(HeroIndex, Level: Integer);
 Begin
-  If (HeroIndex < 0) Or (HeroIndex >= Length(fHeros)) Then Begin
+  If (HeroIndex < 0) Or (HeroIndex >= Length(fHeroes)) Then Begin
     Raise Exception.Create('TMap.SetHeroToLevel: Index out of bounds.');
   End;
-  fHeros[HeroIndex].Level := Level;
+  fHeroes[HeroIndex].Level := Level;
 End;
 
 Procedure TMap.ResetAllUpdateBuildings;
@@ -2347,11 +2347,11 @@ Begin
   // Alle Flug Einheiten
   glTranslatef(0, 0, ctd_EPSILON);
 
-  For i := 0 To high(fHeros) Do Begin
+  For i := 0 To high(fHeroes) Do Begin
     glPushMatrix;
-    glTranslatef(fHeros[i].Position.x * MapBlockSize, fHeros[i].Position.y * MapBlockSize, 0);
-    fHeros[i].ShowLifePoints := Not HideLifePoints;
-    fHeros[i].Render((UserIndex <> -1) And (UserIndex <> fHeros[i].Owner));
+    glTranslatef(fHeroes[i].Position.x * MapBlockSize, fHeroes[i].Position.y * MapBlockSize, 0);
+    fHeroes[i].ShowLifePoints := Not HideLifePoints;
+    fHeroes[i].Render((UserIndex <> -1) And (UserIndex <> fHeroes[i].Owner));
     glPopMatrix;
   End;
 
@@ -3035,7 +3035,7 @@ Begin
   msg := trim(msg);
   If msg <> '' Then Begin
     warning := warning + LineEnding +
-      'The following buildings / heros are in the map folder but not used by map:' + LineEnding + '  ' + msg;
+      'The following buildings / heroes are in the map folder but not used by map:' + LineEnding + '  ' + msg;
   End;
   sl1.free;
   sl2.free;
@@ -3538,7 +3538,7 @@ Begin
   End;
 End;
 
-Procedure TMap.HandleAllHeros;
+Procedure TMap.HandleAllHeroes;
 Const
   defSlowDown: TSlowDown = (slowdownstatic: 1.0; slowdowndynamic: 1.0; slowdowntime: 0);
 Var
@@ -3555,23 +3555,23 @@ Begin
     t0 := t0 * (int64(Speedup) - 1);
   End;
   fHandleBuildingTime := t;
-  MoveAllHeros;
-  For i := 0 To high(Fheros) Do Begin
-    Fheros[i].Update(); // Falls das Gebäude erst noch gebaut werden muss..
-    If (Fheros[i].Level >= 0) And (Fheros[i].Levels[Fheros[i].Level].range > 0) Then Begin
+  MoveAllHeroes;
+  For i := 0 To high(Fheroes) Do Begin
+    Fheroes[i].Update(); // Falls das Gebäude erst noch gebaut werden muss..
+    If (Fheroes[i].Level >= 0) And (Fheroes[i].Levels[Fheroes[i].Level].range > 0) Then Begin
       If Speedup <> 1 Then Begin // Verschieben der Zuletzt geballert Zeit, beim Speedup in Richtung Vergangenheit
-        Fheros[i].LastShootTime := Fheros[i].LastShootTime - t0;
+        Fheroes[i].LastShootTime := Fheroes[i].LastShootTime - t0;
       End;
-      If ((t - Fheros[i].LastShootTime) >= Fheros[i].Levels[Fheros[i].Level].reloadtime) Then Begin
+      If ((t - Fheroes[i].LastShootTime) >= Fheroes[i].Levels[Fheroes[i].Level].reloadtime) Then Begin
         // Der Austrittspunkt der Waffe
-        p.x := (Fheros[i].Position.x + Fheros[i].levels[Fheros[i].Level].w / 2);
-        p.y := (Fheros[i].Position.y + 1 - Fheros[i].levels[Fheros[i].Level].h / 2);
-        r := Fheros[i].Levels[Fheros[i].Level].range + 1;
+        p.x := (Fheroes[i].Position.x + Fheroes[i].levels[Fheroes[i].Level].w / 2);
+        p.y := (Fheroes[i].Position.y + 1 - Fheroes[i].levels[Fheroes[i].Level].h / 2);
+        r := Fheroes[i].Levels[Fheroes[i].Level].range + 1;
         // Wir könnten wieder Schießen, aber ist auch was zum Abballern da ?
-        tg := GetTarget(p, r, Fheros[i].Levels[Fheros[i].Level].bulletpower, defSlowDown, 0, Fheros[i].strategy, Fheros[i].PreverAir, Fheros[i], Nil);
+        tg := GetTarget(p, r, Fheroes[i].Levels[Fheroes[i].Level].bulletpower, defSlowDown, 0, Fheroes[i].strategy, Fheroes[i].PreverAir, Fheroes[i], Nil);
         If assigned(tg) Then Begin
-          Fheros[i].LastShootTime := t;
-          CreateBullet(tg, p, Fheros[i]);
+          Fheroes[i].LastShootTime := t;
+          CreateBullet(tg, p, Fheroes[i]);
         End;
       End;
     End;
@@ -3685,8 +3685,8 @@ Begin
   For i := 0 To high(Fbuildings) Do Begin
     Fbuildings[i].start;
   End;
-  For i := 0 To high(Fheros) Do Begin
-    Fheros[i].start;
+  For i := 0 To high(Fheroes) Do Begin
+    Fheroes[i].start;
   End;
   CalcWaypointFields();
 End;
@@ -3712,11 +3712,11 @@ Begin
   For i := 0 To high(FBullets) Do Begin
     FBullets[i].GetMovingState(Stream);
   End;
-  // 3. Heros
-  u16 := length(fHeros);
+  // 3. Heroes
+  u16 := length(fHeroes);
   stream.Write(u16, SizeOf(u16));
-  For i := 0 To high(fHeros) Do Begin
-    fHeros[i].getMovingState(Stream);
+  For i := 0 To high(fHeroes) Do Begin
+    fHeroes[i].getMovingState(Stream);
   End;
 End;
 
@@ -3758,25 +3758,25 @@ Begin
     stream.Write(b, SizeOf(b));
   End;
   // Alles was mit den Helden zu tun hat ..
-  i := length(fHeros);
+  i := length(fHeroes);
   stream.write(i, sizeof(i));
-  For i := 0 To high(fHeros) Do Begin
-    s := extractfilename(fHeros[i].Filename);
+  For i := 0 To high(fHeroes) Do Begin
+    s := extractfilename(fHeroes[i].Filename);
     stream.WriteAnsiString(s);
-    f := fHeros[i].Position.x;
+    f := fHeroes[i].Position.x;
     stream.Write(f, SizeOf(f));
-    f := fHeros[i].Position.y;
+    f := fHeroes[i].Position.y;
     stream.Write(f, SizeOf(f));
-    j := fHeros[i].Level;
+    j := fHeroes[i].Level;
     stream.Write(j, SizeOf(j));
-    j := fHeros[i].CollectedDamages;
+    j := fHeroes[i].CollectedDamages;
     stream.Write(j, SizeOf(j));
-    j := fHeros[i].Direction;
+    j := fHeroes[i].Direction;
     stream.Write(j, SizeOf(j));
-    j := fHeros[i].Owner;
+    j := fHeroes[i].Owner;
     stream.Write(j, SizeOf(j));
-    stream.Write(fHeros[i].strategy, SizeOf(fHeros[i].strategy));
-    b := fHeros[i].PreverAir;
+    stream.Write(fHeroes[i].strategy, SizeOf(fHeroes[i].strategy));
+    b := fHeroes[i].PreverAir;
     stream.Write(b, SizeOf(b));
   End;
   result := true;
@@ -4094,25 +4094,25 @@ End;
 Procedure TMap.ChangeHeroStrategy(HeroIndex, Owner: integer;
   Strategy: TBuildingStrategy; PreverAir: Boolean);
 Begin
-  If (HeroIndex < 0) Or (HeroIndex > high(fHeros)) Then Begin
+  If (HeroIndex < 0) Or (HeroIndex > high(fHeroes)) Then Begin
     Log('TMap.ChangeHeroStrategy: invalid heroindex', llFatal);
   End;
-  If fHeros[HeroIndex].Owner <> Owner Then Begin
+  If fHeroes[HeroIndex].Owner <> Owner Then Begin
     Log('TMap.ChangeHeroStrategy: invalid owner', llFatal);
   End;
-  fHeros[HeroIndex].strategy := Strategy;
-  fHeros[HeroIndex].PreverAir := PreverAir;
+  fHeroes[HeroIndex].strategy := Strategy;
+  fHeroes[HeroIndex].PreverAir := PreverAir;
 End;
 
 Procedure TMap.SetheroTarget(HeroIndex, Owner: integer; x, y: Single);
 Begin
-  If (HeroIndex < 0) Or (HeroIndex > high(fHeros)) Then Begin
+  If (HeroIndex < 0) Or (HeroIndex > high(fHeroes)) Then Begin
     Log('TMap.ChangeHeroStrategy: invalid heroindex', llFatal);
   End;
-  If fHeros[HeroIndex].Owner <> Owner Then Begin
+  If fHeroes[HeroIndex].Owner <> Owner Then Begin
     Log('TMap.ChangeHeroStrategy: invalid owner', llFatal);
   End;
-  fHeros[HeroIndex].targetpos := v2(x, y);
+  fHeroes[HeroIndex].targetpos := v2(x, y);
 End;
 
 Procedure TMap.AddHighScore(aPlayerName: String; aTimeStamp: TDateTime;
@@ -4435,7 +4435,7 @@ Begin
   End;
 End;
 
-Procedure TMap.MoveAllHeros;
+Procedure TMap.MoveAllHeroes;
 Var
   delta, i, j: integer; // Der Zeit
   n: int64;
@@ -4449,20 +4449,20 @@ Begin
   delta := delta * Speedup; // Berücksichtigen eines evtl existierenden Speedups
   fLastHeroMoveTime := n;
 
-  For i := high(fheros) Downto 0 Do Begin
-    If (fheros[i].Level >= 0) And (fheros[i].targetpos.x <> -1) And (fheros[i].targetpos.y <> -1) Then Begin
+  For i := high(fheroes) Downto 0 Do Begin
+    If (fheroes[i].Level >= 0) And (fheroes[i].targetpos.x <> -1) And (fheroes[i].targetpos.y <> -1) Then Begin
       // Fliegende Gegner sind deutlich einfacher ;)
       // 1. Suchen des "kürzesten" Wegpunktes im WegpunktFeld
-      wx := fheros[i].targetpos.x * MapBlockSize;
-      wy := fheros[i].targetpos.y * MapBlockSize;
+      wx := fheroes[i].targetpos.x * MapBlockSize;
+      wy := fheroes[i].targetpos.y * MapBlockSize;
       // Offset für die Level Textur mit Rein Rechnen
-      wx := wx - fheros[i].Levels[fheros[i].Level].w / 2;
-      wy := wy - 1 + fheros[i].Levels[fheros[i].Level].h / 2;
+      wx := wx - fheroes[i].Levels[fheroes[i].Level].w / 2;
+      wy := wy - 1 + fheroes[i].Levels[fheroes[i].Level].h / 2;
 
-      ll := sqr(wx - fheros[i].Position.x) + sqr(wy - fheros[i].Position.y);
+      ll := sqr(wx - fheroes[i].Position.x) + sqr(wy - fheroes[i].Position.y);
       // 2. Berechnen Delta
-      dx := wx - fheros[i].Position.x;
-      dy := wy - fheros[i].Position.y;
+      dx := wx - fheroes[i].Position.x;
+      dy := wy - fheroes[i].Position.y;
       // 3. Berechnen der Länge in Pixeln
       l := sqrt(sqr(dx) + sqr(dy));
       If l = 0 Then l := 1;
@@ -4470,7 +4470,7 @@ Begin
       dx := dx / l;
       dy := dy / l;
       // 5. Berechnen der Schaffbaren Wegstrecke, bei der Geschwindigkeit die unser Opponent hat
-      ll := fheros[i].levels[fheros[i].level].Speed * MapBlockSize; // MapBlockSize Pro Sekunde
+      ll := fheroes[i].levels[fheroes[i].level].Speed * MapBlockSize; // MapBlockSize Pro Sekunde
       ll := ll * delta / 1000; // Pixel in der Vergangenen Zeit.
       // 6. Wenn wir übers Ziel hinausschießen würden (weil der Benutzer den Opponent zu schnell gemacht hat
       If ll > l Then ll := l;
@@ -4478,42 +4478,42 @@ Begin
       dx := dx * ll;
       dy := dy * ll;
       // 8. Tatsächlich fliegen
-      fheros[i].Position.x := fheros[i].Position.x + dx;
-      fheros[i].Position.y := fheros[i].Position.y + dy;
-      fheros[i].Direction := round(radtodeg(arctan2(-dy, dx)));
+      fheroes[i].Position.x := fheroes[i].Position.x + dx;
+      fheroes[i].Position.y := fheroes[i].Position.y + dy;
+      fheroes[i].Direction := round(radtodeg(arctan2(-dy, dx)));
       // Haben wir den Wegpunkt ereicht ?
       If (l < 0.1) Then Begin // Wir haben den Wegpunkt Erreicht, nächsten anvisieren
-        fheros[i].targetpos := v2(-1, -1);
+        fheroes[i].targetpos := v2(-1, -1);
       End;
     End
   End;
   // Die Opponents Mögen sich nicht, Einbauen einer gewissen Divergenz
-  SQR_Min_Dist := sqr(MinDistanceBetweenHeros);
-  For i := 0 To high(fHeros) - 1 Do Begin
-    For j := i + 1 To high(fHeros) Do Begin
-      l := sqr(fHeros[i].Position.x - fHeros[j].Position.x) + sqr(fHeros[i].Position.y - fHeros[j].Position.y);
+  SQR_Min_Dist := sqr(MinDistanceBetweenHeroes);
+  For i := 0 To high(fHeroes) - 1 Do Begin
+    For j := i + 1 To high(fHeroes) Do Begin
+      l := sqr(fHeroes[i].Position.x - fHeroes[j].Position.x) + sqr(fHeroes[i].Position.y - fHeroes[j].Position.y);
       // Zwei Gegner sind sich zu nahe gekommen und befinden sich in der Selben Ebene (Flug oder Boden)
       If (l <= SQR_Min_Dist) Then Begin
         l := sqrt(l); // Die eigentliche Strecke Ausrechnen
         If l = 0 Then l := 1;
         // Von i nach j
-        dx := fHeros[i].Position.x - fHeros[j].Position.x;
-        dy := fHeros[i].Position.y - fHeros[j].Position.y;
+        dx := fHeroes[i].Position.x - fHeroes[j].Position.x;
+        dy := fHeroes[i].Position.y - fHeroes[j].Position.y;
         If (dx = 0) And (dy = 0) Then dx := 0.1; // stehen die beiden Gegner exakt aufeinander, dann nehmen wir hier "Künstlich" eine Distanz an.
         dx := dx / l;
         dy := dy / l;
-        ll := max(fHeros[i].Levels[fHeros[i].Level].Speed, fHeros[j].levels[fHeros[j].level].Speed) * MapBlockSize;
+        ll := max(fHeroes[i].Levels[fHeroes[i].Level].Speed, fHeroes[j].levels[fHeroes[j].level].Speed) * MapBlockSize;
         ll := ll * delta / 1000;
         // Beide Auseinanderdrücken
         // Wenn 2 Gegner direkt hintereinander sind und der Vordere Stoppt, und sie in die Gleiche Richtung Wollen, dann
         // Blockiert der Vordere den Hinteren komplett. Damit dies nicht geschieht
         // Werten die beiden Gegner zusätzlich Rechtwinklig zur Bewegungsrichtung mit halber Geschwindigkeit verschoben (2. * ll *0.5 Term)
-        fHeros[i].Position.x := fHeros[i].Position.x + dx * ll + dy * ll * 0.5;
-        fHeros[i].Position.y := fHeros[i].Position.y + dy * ll - dx * ll * 0.5;
+        fHeroes[i].Position.x := fHeroes[i].Position.x + dx * ll + dy * ll * 0.5;
+        fHeroes[i].Position.y := fHeroes[i].Position.y + dy * ll - dx * ll * 0.5;
 
         // Prüfen ob wir den Gegner nicht ausversehen in eine nicht begehbare Kachel geschoben haben
-        fHeros[j].Position.x := fHeros[j].Position.x - dx * ll - dy * ll;
-        fHeros[j].Position.y := fHeros[j].Position.y - dy * ll + dx * ll;
+        fHeroes[j].Position.x := fHeroes[j].Position.x - dx * ll - dy * ll;
+        fHeroes[j].Position.y := fHeroes[j].Position.y - dy * ll + dx * ll;
       End;
     End;
   End;
@@ -4565,26 +4565,26 @@ Begin
   End;
   i := 0;
   stream.Read(i, SizeOf(i));
-  setlength(fHeros, i);
-  For i := 0 To high(fHeros) Do Begin
-    fHeros[i] := THero.create();
+  setlength(fHeroes, i);
+  For i := 0 To high(fHeroes) Do Begin
+    fHeroes[i] := THero.create();
     s := stream.ReadAnsiString;
-    fHeros[i].LoadFromFile(MapFolder + MapName + PathDelim + s);
+    fHeroes[i].LoadFromFile(MapFolder + MapName + PathDelim + s);
     stream.Read(f, sizeof(f));
-    fHeros[i].Position.x := f;
+    fHeroes[i].Position.x := f;
     stream.Read(f, sizeof(f));
-    fHeros[i].Position.y := f;
+    fHeroes[i].Position.y := f;
     stream.Read(j, SizeOf(j));
-    fHeros[i].Level := j;
+    fHeroes[i].Level := j;
     stream.Read(j, SizeOf(j));
-    fHeros[i].CollectedDamages := j;
+    fHeroes[i].CollectedDamages := j;
     stream.Read(j, SizeOf(j));
-    fHeros[i].Direction := j;
+    fHeroes[i].Direction := j;
     stream.Read(j, SizeOf(j));
-    fHeros[i].Owner := j;
-    stream.Read(fHeros[i].strategy, SizeOf(fHeros[i].strategy));
+    fHeroes[i].Owner := j;
+    stream.Read(fHeroes[i].strategy, SizeOf(fHeroes[i].strategy));
     stream.read(b, SizeOf(b));
-    fHeros[i].PreverAir := b;
+    fHeroes[i].PreverAir := b;
   End;
   SortBuildingsByYCoordinate; // Notwendig, damit es beim Rendern "schöner" aussieht
   SortPlacementByYCoordinate; // Notwendig, damit es beim Rendern "schöner" aussieht
@@ -4618,8 +4618,8 @@ Begin
   For j := 0 To high(Fbuildings) Do Begin
     Fbuildings[j].pause(value);
   End;
-  For j := 0 To high(fHeros) Do Begin
-    fHeros[j].Pause(value);
+  For j := 0 To high(fHeroes) Do Begin
+    fHeroes[j].Pause(value);
   End;
 End;
 
@@ -5057,27 +5057,27 @@ Begin
   If j = -1 Then Raise exception.create('Oh oh, BUG in TMap.AddHero !!');
   // prüfen auf maximal erlaubte Anzahl
   If j > 0 Then Begin
-    For i := 0 To high(fHeros) Do Begin
-      If (fHeros[i].Filename = hero.Filename) And (fHeros[i].Owner = hero.Owner) Then dec(j);
+    For i := 0 To high(fHeroes) Do Begin
+      If (fHeroes[i].Filename = hero.Filename) And (fHeroes[i].Owner = hero.Owner) Then dec(j);
     End;
     If j <= 0 Then Begin
       result := false;
       exit;
     End;
   End;
-  result := true; // CoordIsBuildable(x, y, building); -- Heros haben keinen Buildable Check
+  result := true; // CoordIsBuildable(x, y, building); -- Heroes haben keinen Buildable Check
 
   // einfügen in die Karte
 {$ENDIF}
-  setlength(fHeros, high(fHeros) + 2);
-  fHeros[high(fHeros)] := hero;
-  Fheros[high(fHeros)].MapHeroIndex := high(fHeros);
+  setlength(fHeroes, high(fHeroes) + 2);
+  fHeroes[high(fHeroes)] := hero;
+  fHeroes[high(fHeroes)].MapHeroIndex := high(fHeroes);
   // Das Gebäude kann Plaziert werden, ab jetzt kümmert sich die Karte darum
   // Weitere Objekte können hier natürlich nicht mehr gebaut werden, also Sperren wir das Bebaubarflag
-  fHeros[high(fHeros)].Position.x := x;
-  fHeros[high(fHeros)].Position.y := y;
+  fHeroes[high(fHeroes)].Position.x := x;
+  fHeroes[high(fHeroes)].Position.y := y;
   // Der Held ist natürlich Sofort Schusbereit
-  fHeros[high(fHeros)].LastShootTime := GetTick() - fHeros[high(fHeros)].Levels[0].reloadtime;
+  fHeroes[high(fHeroes)].LastShootTime := GetTick() - fHeroes[high(fHeroes)].Levels[0].reloadtime;
   // Suchen des BulletImages für das Spätere Rendering
   For i := 0 To high(Hero.Levels) Do Begin
     s := nam + '_' + inttostr(i);
@@ -5266,13 +5266,13 @@ Begin
         exit;
       End;
     End;
-    For i := 0 To high(fHeros) Do Begin
-      lev := max(0, fHeros[i].level); // So können auch Helden angewählt werden die gerade gebaut werden
-      If ((fHeros[i].Position.x + 0) * MapBlockSize <= x) And
-        ((fHeros[i].Position.x + fHeros[i].Levels[lev].w) * MapBlockSize >= x) And
-        ((fHeros[i].Position.y + 1) * MapBlockSize >= y) And
-        ((fHeros[i].Position.y + 1 - fHeros[i].Levels[lev].h) * MapBlockSize <= y) Then Begin
-        result := fHeros[i];
+    For i := 0 To high(fHeroes) Do Begin
+      lev := max(0, fHeroes[i].level); // So können auch Helden angewählt werden die gerade gebaut werden
+      If ((fHeroes[i].Position.x + 0) * MapBlockSize <= x) And
+        ((fHeroes[i].Position.x + fHeroes[i].Levels[lev].w) * MapBlockSize >= x) And
+        ((fHeroes[i].Position.y + 1) * MapBlockSize >= y) And
+        ((fHeroes[i].Position.y + 1 - fHeroes[i].Levels[lev].h) * MapBlockSize <= y) Then Begin
+        result := fHeroes[i];
         exit;
       End;
     End;

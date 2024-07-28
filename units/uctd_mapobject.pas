@@ -52,7 +52,7 @@ Type
     Function SaveToFile(Const Filename_: String): Boolean; // virtual;
     Function SaveToStream(Const Stream: TStream): Boolean; virtual;
 {$IFDEF Client}
-    Function GetBuyCost: integer; virtual; abstract; // Für Gebs und Heros
+    Function GetBuyCost: integer; virtual; abstract; // Für Gebs und Heroes
     Function GetHint(): THint; virtual; abstract; // Die Hint Informationen für Im Spiel
     Procedure Render(Grayed: Boolean); virtual; abstract; // Grayed ist optional und aktuell nur für gebäude implementiert
 {$ENDIF}

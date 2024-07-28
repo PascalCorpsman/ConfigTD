@@ -85,9 +85,9 @@ Type
 {$ENDIF}
     Level: integer; // -1 = Der Gegner wird gerade initial erzeugt, danach das aktuelle Level
     AnimationOffset: uint16;
-    Direction: integer; // Die Richtung in die der Gegner geht (Angabe in Winkelgrad, wird von Map.HandleAllHeros gesetzt)
+    Direction: integer; // Die Richtung in die der Gegner geht (Angabe in Winkelgrad, wird von Map.HandleAllHeroes gesetzt)
     CollectedDamages: integer; // Die Schadenspunkte die in der Aktuellen Stufe gesammelt wurden
-    MapHeroIndex: uInt16; // Index in TMap.FHeros ! ( ACHTUNG, wenn der geändert wird, dann muss er auch in "TServer.HandleSetHeroTargets" geändert werden !! )
+    MapHeroIndex: uInt16; // Index in TMap.FHeroes ! ( ACHTUNG, wenn der geändert wird, dann muss er auch in "TServer.HandleSetHeroTargets" geändert werden !! )
     fUpdating: TUpdating; // Todo : Private machen
     LastShootTime: int64; // zwischenspeichervariable für das Spiel
 
@@ -450,7 +450,7 @@ Begin
   If cost <= 0 Then exit('Invalid cost value');
   If Buildtime <= 0 Then exit('Invalid buildtime value');
   If high(Levels) < 0 Then exit('Invalid Level count');
-  If high(levels) > 65535 Then exit('only max 65535 levels allowed for heros.');
+  If high(levels) > 65535 Then exit('only max 65535 levels allowed for heroes.');
   For i := 0 To high(Levels) Do Begin
     If Levels[i].Image = '' Then exit('Level ' + inttostr(i + 1) + ' invalid image');
     If Not FileExists(path + Levels[i].image) Then exit('Invalide image in level' + inttostr(i + 1));

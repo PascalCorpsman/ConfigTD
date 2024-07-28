@@ -121,8 +121,8 @@ Const
   miSetBuildingsToStage = 219; // Ersetzt miForceBuildReady
   miFilesToTransmitCount = 220; // Anzahl an Dateien für die der Server gleich einen Request senden wird -> für den lade Fortschrittsbalken
   miRequestMapHighscoresAndRatingResult = 221; // Der Server sendet dem Client alle Hichscores der Karte
-  miAddHero = 222; // der Server hat das bauen eines Heros Akzeptiert und fordert die Clients auf es auf ihrer Karte (ungeprüft) zu adden.
-  miSetHerosToLevel = 223;
+  miAddHero = 222; // der Server hat das bauen eines Heroes Akzeptiert und fordert die Clients auf es auf ihrer Karte (ungeprüft) zu adden.
+  miSetHeroesToLevel = 223;
   miYouWereKickedOut = 224; // Der Server hat uns Raus geworfen
   miCloseMap = 225; // Der Server teilt dem Client mit seine Karte zu schließen, das macht er nur weil er gleich eine neue sendet
 
@@ -249,7 +249,7 @@ Begin
     miFilesToTransmitCount: result := 'Files to transmit count';
     miRequestMapHighscoresAndRatingResult: result := 'Request map highscores and rating result';
     miAddHero: result := 'Add hero';
-    miSetHerosToLevel: result := 'Set heros to level';
+    miSetHeroesToLevel: result := 'Set heroes to level';
     miYouWereKickedOut: result := 'You were kicked out';
     miCloseMap: result := 'Close map';
 

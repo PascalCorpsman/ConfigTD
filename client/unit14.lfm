@@ -15,16 +15,16 @@ object Form14: TForm14
   OnShow = FormShow
   object Label1: TLabel
     Left = 8
-    Height = 15
+    Height = 16
     Top = 8
-    Width = 34
+    Width = 41
     Caption = 'Label1'
   end
   object Label2: TLabel
     Left = 8
-    Height = 15
+    Height = 16
     Top = 32
-    Width = 34
+    Width = 40
     Caption = 'Global'
   end
   object ListBox1: TListBox
@@ -38,14 +38,15 @@ object Form14: TForm14
     ScrollWidth = 198
     Style = lbOwnerDrawFixed
     TabOrder = 0
+    TopIndex = -1
     OnDblClick = ListBox1DblClick
     OnDrawItem = ListBox1DrawItem
   end
   object Label3: TLabel
     Left = 307
-    Height = 15
+    Height = 16
     Top = 32
-    Width = 67
+    Width = 75
     Caption = 'Current map'
   end
   object ListBox2: TListBox
@@ -58,6 +59,7 @@ object Form14: TForm14
     ScrollWidth = 198
     Style = lbOwnerDrawFixed
     TabOrder = 3
+    TopIndex = -1
     OnDblClick = ListBox2DblClick
     OnDrawItem = ListBox1DrawItem
   end
@@ -73,16 +75,16 @@ object Form14: TForm14
   end
   object Label4: TLabel
     Left = 10
-    Height = 15
-    Top = 241
-    Width = 32
+    Height = 16
+    Top = 240
+    Width = 35
     Anchors = [akLeft, akBottom]
     Caption = 'Name'
   end
   object Edit1: TEdit
     Left = 10
-    Height = 23
-    Top = 257
+    Height = 26
+    Top = 254
     Width = 184
     Anchors = [akLeft, akBottom]
     TabOrder = 6

@@ -152,7 +152,7 @@ Begin
         setValue('QuestionOppDlgForm', 'Top', inttostr(Form14.top));
         setValue('QuestionOppDlgForm', 'Height', inttostr(Form14.Height));
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         setValue('QuestionHeroDlgForm', 'Left', inttostr(Form14.left));
         setValue('QuestionHeroDlgForm', 'Top', inttostr(Form14.top));
         setValue('QuestionHeroDlgForm', 'Height', inttostr(Form14.Height));
@@ -175,7 +175,7 @@ Begin
       Case fmode Of
         dmBuildings: LogShow('Building name already exists.', llWarning);
         dmOpponents: LogShow('Opponent name already exists.', llWarning);
-        dmHeros: LogShow('Hero name already exists.', llWarning);
+        dmHeroes: LogShow('Hero name already exists.', llWarning);
       End;
       LogLeave;
       exit;
@@ -214,7 +214,7 @@ Begin
           CloseFile(f);
         End;
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         Hero.free;
         Hero := THero.create;
         If Not FileExistsUTF8(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.hero') Then Begin
@@ -247,7 +247,7 @@ Begin
           ctd.DelOpponent(ListBox2.items[ListBox2.ItemIndex] + '.opp');
           form4.RefreshOpponentsClick(Nil);
         End;
-      dmHeros: Begin
+      dmHeroes: Begin
           ctd.Delhero(ListBox2.items[ListBox2.ItemIndex] + '.hero');
           form4.RefreshForm4Buyables;
         End;
@@ -299,7 +299,7 @@ Begin
         form7.Show;
         Hide;
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         form19.ClearAll;
         unit19.Hero.LoadFromFile(fTruncedMapfolder + s + PathDelim + s + '.hero');
         form19.herotolcl(ctd.Map);
@@ -343,7 +343,7 @@ Begin
         form7.Show;
         hide;
       End;
-    dmHeros: Begin // Hero
+    dmHeroes: Begin // Hero
         form19.ClearAll;
         unit19.hero.LoadFromFile(Mapfolder + mapname + PathDelim + s + '.hero');
         form19.Herotolcl(ctd.Map);
@@ -393,7 +393,7 @@ Begin
             TransferLocalServer(fTruncedMapfolder + s + PathDelim + s + '.opp', n + '.opp');
             form4.Timer1.Enabled := true;
           End;
-        dmHeros: Begin
+        dmHeroes: Begin
             TransferLocalServer(fTruncedMapfolder + s + PathDelim + s + '.hero', n + '.hero');
           End;
       End;
@@ -433,7 +433,7 @@ Begin
       dmOpponents: Begin
           TransferShareLocal(MapFolder + MapName + PathDelim + s + '.opp', n);
         End;
-      dmHeros: Begin
+      dmHeroes: Begin
           TransferShareLocal(MapFolder + MapName + PathDelim + s + '.hero', n);
         End;
     End;
@@ -460,7 +460,7 @@ Begin
         Form14.top := strtoint(GetValue('QuestionOppDlgForm', 'Top', inttostr(Form14.top)));
         Form14.Height := strtoint(GetValue('QuestionOppDlgForm', 'Height', inttostr(Form14.Height)));
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         Form14.left := strtoint(GetValue('QuestionHeroDlgForm', 'Left', inttostr(Form14.left)));
         Form14.top := strtoint(GetValue('QuestionHeroDlgForm', 'Top', inttostr(Form14.top)));
         Form14.Height := strtoint(GetValue('QuestionHeroDlgForm', 'Height', inttostr(Form14.Height)));
@@ -594,7 +594,7 @@ Begin
           obj.LoadGebInfo(Mapfolder + mapname + PathDelim + Data[i]);
           ListBox2.Items.AddObject(ExtractFileNameOnly(Data[i]), obj);
         End;
-      dmHeros: Begin
+      dmHeroes: Begin
           obj := TItemObject.Create;
           obj.LoadHeroInfo(Mapfolder + mapname + PathDelim + Data[i]);
           ListBox2.Items.AddObject(ExtractFileNameOnly(Data[i]), obj);
@@ -703,9 +703,9 @@ Begin
   If form6.visible Then form6.Close; // Building Editor
   If form7.visible Then form7.Close; // Opponent Editor
   If form19.visible Then form19.Close; // Hero Editor
-  fmode := dmHeros;
-  caption := 'Select heros for map';
-  label1.Caption := 'Available heros:';
+  fmode := dmHeroes;
+  caption := 'Select heroes for map';
+  label1.Caption := 'Available heroes:';
   button5.Enabled := Assigned(ctd.Map);
   button6.Enabled := Assigned(ctd.Map);
   button7.Enabled := Assigned(ctd.Map);
@@ -715,7 +715,7 @@ Begin
   While fTruncedMapfolder[length(fTruncedMapfolder)] <> PathDelim Do Begin
     delete(fTruncedMapfolder, length(fTruncedMapfolder), 1);
   End;
-  fTruncedMapfolder := fTruncedMapfolder + 'heros' + PathDelim;
+  fTruncedMapfolder := fTruncedMapfolder + 'heroes' + PathDelim;
   sl := ListAllSubdirs(fTruncedMapfolder);
   For i := 0 To sl.count - 1 Do Begin
     fn := fTruncedMapfolder + sl[i] + PathDelim + sl[i] + '.hero';
@@ -810,7 +810,7 @@ Begin
   log('TForm14.TransferShareLocal', llTrace);
   ext := lowercase(ExtractFileExt(ShareName));
   If ext = '.hero' Then Begin
-    Raise exception.create('TForm14.TransferShareLocal, vergessener Code für heros?');
+    Raise exception.create('TForm14.TransferShareLocal, vergessener Code für heroes?');
   End;
   If ext = '.geb' Then Begin
     obj := TBuilding.create();
@@ -885,7 +885,7 @@ Begin
         iobj.LoadOppInfo(ShareName);
         AddSortAndSelect(Listbox1, p, iobj);
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         iobj := TItemObject.Create;
         iobj.LoadHeroInfo(ShareName);
         AddSortAndSelect(Listbox1, p, iobj);
@@ -919,7 +919,7 @@ Begin
           obj := TItemObject(ListBox1.Items.Objects[ListBox1.ItemIndex]);
         End;
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         If form19.transfer Then Begin
           obj := TItemObject(ListBox2.Items.Objects[ListBox2.ItemIndex]);
         End
@@ -954,7 +954,7 @@ Begin
   If Not (
     ((ext = '.geb') And (fmode = dmBuildings)) Or
     ((ext = '.opp') And (fmode = dmOpponents)) Or
-    ((ext = '.hero') And (fmode = dmHeros))
+    ((ext = '.hero') And (fmode = dmHeroes))
     ) Then exit;
   If Not Assigned(ctd.Map) Then exit;
   t := ExtractFileNameOnly(t);
@@ -1013,7 +1013,7 @@ Begin
     dmOpponents: Begin
         // For the Future ?
       End;
-    dmHeros: Begin
+    dmHeroes: Begin
         // Das Gebäude ist vollständig übertragen dann wird es automatisch mit Wave 1 hinzugefügt.
         b.Item := t + '.hero';
         b.WaveNum := 0;
