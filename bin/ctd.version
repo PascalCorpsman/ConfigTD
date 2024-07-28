@@ -1,15 +1,15 @@
 {
   "config_td":  {
-    "Version":0.12001,
-    "LauncherVersion":10,
-    "VersionText":"FIX: Reenable buyable sorting by wavenums as it was ..\nFIX: Crash on restart last round\nADD: Map previews are now images of the map if background is not disabled",
+    "Version":0.12002,
+    "LauncherVersion":11,
+    "VersionText":"FIX: reneame Heros -> heroes",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"20f2d2b381303c1696ac54f8ccac3228",
+          "HASH":"02b9452eb244b6e986f18a758b1017ec",
           "SIZE":"3430912",
-          "HASH2":"1e2c78a2896efd12fc1fca708691bd37",
+          "HASH2":"0e56d4b420d2a6c3c4acb73dd20af428",
           "SIZE2":"7785160",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
@@ -17,20 +17,20 @@
       },
       {
         "file":        {
-          "HASH":"2f332baaaa6f525ea770213175706e19",
+          "HASH":"d8ce068f7de732b6d16c2b15ec11df7f",
           "SIZE":"3089920",
-          "HASH2":"0f5685a398e5b008d77aff683bc52510",
-          "SIZE2":"7737304",
+          "HASH2":"8a9b6b1643fa500e36440a1694176e99",
+          "SIZE2":"7733208",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":        {
-          "HASH":"508ad7a486baf99da7ca78fcb9328a1b",
-          "SIZE":"7185920",
-          "HASH2":"50b41f147b72e906ecbc18fe620ac0e7",
-          "SIZE2":"11362840",
+          "HASH":"55481d71f19ebc88b0f7ccc451d5a7ee",
+          "SIZE":"7676928",
+          "HASH2":"5307ee6979596ee43e9c259160ea71c2",
+          "SIZE2":"12221160",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
@@ -47,30 +47,30 @@
       },
       {
         "file":        {
-          "HASH":"5b05307abafdf0d18de0ff458630f577",
+          "HASH":"197ad13ffc6c5efd4d3832ce3c9c7f99",
           "SIZE":"2869760",
-          "HASH2":"282a1d7201e9012b81a9726a15623e13",
-          "SIZE2":"7558776",
+          "HASH2":"ca16a1cfdb767f0409525f24e466e5e1",
+          "SIZE2":"7554680",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"d080800bdc2e6f466a9939d41a0a6671",
-          "SIZE":"2779648",
-          "HASH2":"571d369ade11bcadd59d512ba15f7d67",
-          "SIZE2":"7507064",
+          "HASH":"bb9bf4796aab613449ce53f5c081b698",
+          "SIZE":"3049472",
+          "HASH2":"0c0ad4edd4645aba01fc83a74757816d",
+          "SIZE2":"7704392",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"72e99fa9252541a91f9b12a155efc5dc",
+          "HASH":"8a0c15b77cc6b59c07ffbabaf1e5d8b0",
           "SIZE":"5805568",
-          "HASH2":"0aceb18d06f999c9d93137f0b5c1fa36",
-          "SIZE2":"7298760",
+          "HASH2":"a21ab4cde7b39c6d90caafafd1346590",
+          "SIZE2":"7298776",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
@@ -549,8 +549,8 @@
       },
       {
         "file":        {
-          "HASH":"ea0a7d2567c096284bd58d98a8519acf",
-          "SIZE":"6709",
+          "HASH":"ce8ffef58dc53ff1d8d3a2bc2a5394fa",
+          "SIZE":"6792",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/Readme.md",
           "Filename":"Readme.md"
         }
