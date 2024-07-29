@@ -106,7 +106,7 @@ Const
    *                      FIX: on Ai-Wave the very first Opp on the new wave was set, but is not shown to the user in the editor
    *                      FIX: Crash on restart last wave, if cursorobj was not nil
    *                      FIX: rename "heros" -> "heroes"
-   *            0.12003 =
+   *            0.12003 = ADD: improove warning on check for errors
    * Known Bugs :
    *)
   (*

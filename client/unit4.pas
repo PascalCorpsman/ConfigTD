@@ -363,6 +363,8 @@ End;
 Procedure TForm4.Button5Click(Sender: TObject);
 Var
   sl: TStringList;
+  i: Integer;
+  s: String;
 Begin
   // Check and Save Map
   log('TForm4.Button5Click', llTrace);
@@ -372,7 +374,12 @@ Begin
   Else Begin
     sl := ctd.Map.GetListOfUnusedOpponents();
     If sl.count <> 0 Then Begin
-      If ID_YES = Application.MessageBox('There are opponents which where spawned in no wave, do you want to remove them now ?', 'Question', mb_iconquestion Or MB_YESNO) Then Begin
+      s := '';
+      For i := 0 To sl.count - 1 Do Begin
+        If i <> 0 Then s := s + ', ';
+        s := s + ExtractFileName(ExtractFileNameWithoutExt(sl[i]));
+      End;
+      If ID_YES = Application.MessageBox(pchar('There are opponents [' + s + '] which where spawned in no wave, do you want to remove them now ?'), 'Question', mb_iconquestion Or MB_YESNO) Then Begin
         ctd.CleanupUnusedOpponets();
       End;
     End;
