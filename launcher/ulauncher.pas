@@ -41,7 +41,7 @@ Const
    * -Released- 0.11 = FIX: Autonextlevel wurde falsch geladen
    *                   FIX: "start next wave each" was not visible
    *                   ADD: Improve error message, if launcher needs update and no updater is present.
-   *            0.12 =
+   *            0.12 = FIX: Übernehmen der Localen Version, wenn config_td binary runter geladen wurde.
    * Known Bugs :
    *)
   LauncherVersion: integer = 12;

@@ -74,6 +74,7 @@ Type
     Procedure LoadSettings();
     Procedure StoreSettings();
   public
+    Procedure StoreVersion(NewVersion: single);
 
   End;
 
@@ -159,6 +160,16 @@ Begin
   ini.WriteString('Global', 'Hostport', edit3.text);
   ini.WriteString('Global', 'AutoNextWaveDelay', edit4.text);
   ini.WriteString('Global', 'Menupos', ComboBox1.text);
+End;
+
+Procedure TForm1.StoreVersion(NewVersion: single);
+Var
+  fm: TFormatSettings;
+Begin
+  fm := DefaultFormatSettings;
+  fm.DecimalSeparator := '.';
+  ini.WriteString('Global', 'Version', format('%0.3f', [NewVersion], fm));
+  Version := NewVersion;
 End;
 
 Procedure TForm1.Button3Click(Sender: TObject);

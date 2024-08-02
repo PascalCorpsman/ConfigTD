@@ -52,6 +52,7 @@ Type
   private
     SelfFile: TFile;
     fforce: Boolean;
+    fNewVersion: Single;
     Procedure CheckAddFile(Const ListBox: TCheckListBox; Const aFile: TFile; Force: Boolean);
     Function dlFile(aFile: TFile): int64;
     Procedure TriggerUpdater(Executable: String);
@@ -66,7 +67,7 @@ Var
 
 Implementation
 
-Uses lazfileutils, md5, Zipper, FileUtil, process, UTF8Process, unit4, LCLType;
+Uses lazfileutils, md5, Zipper, FileUtil, process, UTF8Process, unit4, LCLType, unit1;
 
 {$R *.lfm}
 
@@ -163,6 +164,10 @@ Begin
       pr.Execute;
       pr.free;
 {$ENDIF}
+      // Die Locale Versionsanzeige "umbiegen", falls jemand 2 mal Check for update clickt ;)
+      If lowercase(ExtractFileName(fn)) = 'config_td'{$IFDEF Windows} + '.exe'{$ENDIF} Then Begin
+        Form1.StoreVersion(fNewVersion);
+      End;
     End;
     If aFile.Kind = fkZip Then Begin
       UnZipper := TUnZipper.Create;
@@ -404,6 +409,7 @@ Procedure TForm3.InitWith(Const aVersion: TCTD_Version; Force: Boolean);
 Var
   i: Integer;
 Begin
+  fNewVersion := aVersion.Version;
   SelfFile.URL := '';
   SelfFile.Size := 0;
   SelfFile.Size2 := 0;
