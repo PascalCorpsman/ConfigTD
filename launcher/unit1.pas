@@ -168,7 +168,8 @@ Var
 Begin
   fm := DefaultFormatSettings;
   fm.DecimalSeparator := '.';
-  ini.WriteString('Global', 'Version', format('%0.3f', [NewVersion], fm));
+  ini.WriteString('Global', 'Version', format('%0.5f', [NewVersion], fm));
+  ini.UpdateFile;
   Version := NewVersion;
 End;
 
