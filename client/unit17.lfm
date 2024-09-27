@@ -6,10 +6,10 @@ object Form17: TForm17
   Caption = 'Form17'
   ClientHeight = 377
   ClientWidth = 545
+  Position = poScreenCenter
+  LCLVersion = '3.99.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  Position = poScreenCenter
-  LCLVersion = '2.1.0.0'
   object Button1: TButton
     Left = 168
     Height = 25
@@ -17,8 +17,8 @@ object Form17: TForm17
     Width = 368
     Cancel = True
     Caption = 'Close'
-    OnClick = Button1Click
     TabOrder = 0
+    OnClick = Button1Click
   end
   object Image1: TImage
     Left = 8
@@ -115,8 +115,8 @@ object Form17: TForm17
       Top = 144
       Width = 90
       Caption = '&1. Load'
-      OnClick = Button2Click
       TabOrder = 0
+      OnClick = Button2Click
     end
     object Button3: TButton
       Left = 112
@@ -124,8 +124,8 @@ object Form17: TForm17
       Top = 144
       Width = 90
       Caption = '&2. Load'
-      OnClick = Button3Click
       TabOrder = 1
+      OnClick = Button3Click
     end
     object Button4: TButton
       Left = 216
@@ -133,8 +133,8 @@ object Form17: TForm17
       Top = 144
       Width = 90
       Caption = '&3. Load'
-      OnClick = Button4Click
       TabOrder = 2
+      OnClick = Button4Click
     end
     object Button5: TButton
       Left = 320
@@ -142,8 +142,8 @@ object Form17: TForm17
       Top = 144
       Width = 90
       Caption = '&4. Load'
-      OnClick = Button5Click
       TabOrder = 3
+      OnClick = Button5Click
     end
   end
   object Button6: TButton
@@ -152,8 +152,8 @@ object Form17: TForm17
     Top = 248
     Width = 368
     Caption = 'Create &Texture'
-    OnClick = Button6Click
     TabOrder = 2
+    OnClick = Button6Click
   end
   object Label6: TLabel
     Left = 168
@@ -165,7 +165,7 @@ object Form17: TForm17
   end
   object Edit1: TEdit
     Left = 240
-    Height = 25
+    Height = 26
     Top = 216
     Width = 80
     TabOrder = 3
@@ -181,7 +181,7 @@ object Form17: TForm17
   end
   object Edit2: TEdit
     Left = 440
-    Height = 25
+    Height = 26
     Top = 216
     Width = 80
     TabOrder = 4
@@ -201,8 +201,8 @@ object Form17: TForm17
     Top = 280
     Width = 368
     Caption = '&Save texture'
-    OnClick = Button7Click
     TabOrder = 5
+    OnClick = Button7Click
   end
   object OpenPictureDialog1: TOpenPictureDialog
     Filter = 'Graphic (*.png;*.bmp;*.jpg)|*.png;*.bmp;*.jpg|Portable Network Graphic (*.png)|*.png|Bitmaps (*.bmp)|*.bmp|Joint Picture Expert Group |*.jpg|All files (*)|*|'
@@ -211,7 +211,7 @@ object Form17: TForm17
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.jpg'
-    Filter = 'JPG|*.jpg'
+    Filter = 'JPG|*.jpg|PNG|*.png'
     Left = 184
     Top = 264
   end

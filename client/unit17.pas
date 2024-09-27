@@ -168,12 +168,21 @@ End;
 Procedure TForm17.Button7Click(Sender: TObject);
 Var
   jp: TJPEGImage;
+  png: TPortableNetworkGraphic;
 Begin
   If SaveDialog1.Execute Then Begin
-    jp := TJPEGImage.Create;
-    jp.Assign(Image6.Picture.Bitmap);
-    jp.SaveToFile(SaveDialog1.FileName);
-    jp.free;
+    If lowercase(ExtractFileExt(SaveDialog1.FileName)) = '.png' Then Begin
+      png := TPortableNetworkGraphic.Create;
+      png.Assign(Image6.Picture.Bitmap);
+      png.SaveToFile(SaveDialog1.FileName);
+      png.free;
+    End
+    Else Begin
+      jp := TJPEGImage.Create;
+      jp.Assign(Image6.Picture.Bitmap);
+      jp.SaveToFile(SaveDialog1.FileName);
+      jp.free;
+    End;
   End;
 End;
 

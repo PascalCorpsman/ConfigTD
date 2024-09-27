@@ -107,6 +107,8 @@ Const
    *                      FIX: Crash on restart last wave, if cursorobj was not nil
    *                      FIX: rename "heros" -> "heroes"
    *            0.12003 = ADD: improove warning on check for errors
+   *                      ADD: export map Backtex as .png
+   *
    * Known Bugs :
    *)
   (*
