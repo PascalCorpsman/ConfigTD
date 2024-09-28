@@ -151,7 +151,7 @@ object Form17: TForm17
     Height = 25
     Top = 248
     Width = 368
-    Caption = 'Create &Texture'
+    Caption = 'Create &texture'
     TabOrder = 2
     OnClick = Button6Click
   end
