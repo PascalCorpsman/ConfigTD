@@ -1,36 +1,36 @@
 {
   "config_td":  {
-    "Version":0.12002,
+    "Version":0.12003,
     "LauncherVersion":11,
-    "VersionText":"FIX: reneame Heros -> heroes",
+    "VersionText":"ADD: improve warning on check for errors\nADD: export map Backtex as .png",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"02b9452eb244b6e986f18a758b1017ec",
+          "HASH":"240648b070f2c19bdbe8924a7718ab21",
           "SIZE":"3430912",
-          "HASH2":"0e56d4b420d2a6c3c4acb73dd20af428",
-          "SIZE2":"7785160",
+          "HASH2":"bbdefc3003ea7545b24ac9e1e7f06eed",
+          "SIZE2":"7785192",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
       },
       {
         "file":        {
-          "HASH":"d8ce068f7de732b6d16c2b15ec11df7f",
+          "HASH":"29b5899a73ff45ee1ad5c3fb771b62fc",
           "SIZE":"3089920",
-          "HASH2":"8a9b6b1643fa500e36440a1694176e99",
-          "SIZE2":"7733208",
+          "HASH2":"508b4ba43f8c625b09958d6354700860",
+          "SIZE2":"7733240",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":        {
-          "HASH":"55481d71f19ebc88b0f7ccc451d5a7ee",
-          "SIZE":"7676928",
-          "HASH2":"5307ee6979596ee43e9c259160ea71c2",
-          "SIZE2":"12221160",
+          "HASH":"de0c62cc0a1f89cd79b3407cba3aca23",
+          "SIZE":"7677952",
+          "HASH2":"85888fa48fc64b380365309f9d093bc2",
+          "SIZE2":"12221240",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
@@ -47,20 +47,20 @@
       },
       {
         "file":        {
-          "HASH":"197ad13ffc6c5efd4d3832ce3c9c7f99",
+          "HASH":"6727f851437652670b6f7f9c8c55208c",
           "SIZE":"2869760",
-          "HASH2":"ca16a1cfdb767f0409525f24e466e5e1",
-          "SIZE2":"7554680",
+          "HASH2":"5e5de2aa2bfff092b0ecea5c2fe09ff8",
+          "SIZE2":"7554712",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"bb9bf4796aab613449ce53f5c081b698",
+          "HASH":"a231d388976bcfb72904c623cd5a0379",
           "SIZE":"3049472",
-          "HASH2":"0c0ad4edd4645aba01fc83a74757816d",
-          "SIZE2":"7704392",
+          "HASH2":"1bae214285daf2a0f7aef74bfa3ec9b0",
+          "SIZE2":"7704424",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
@@ -594,7 +594,7 @@
         "zip":        {
           "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD_Data\/archive\/refs\/heads\/main.zip",
           "InFileOffset":"ConfigTD_Data-main",
-          "SIZE":"11380301",
+          "SIZE":"17949028",
           "Description":"CTD_Data pack as repository zip import"
         }
       }
