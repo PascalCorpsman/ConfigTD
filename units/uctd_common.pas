@@ -106,8 +106,9 @@ Const
    *                      FIX: on Ai-Wave the very first Opp on the new wave was set, but is not shown to the user in the editor
    *                      FIX: Crash on restart last wave, if cursorobj was not nil
    *                      FIX: rename "heros" -> "heroes"
-   *            0.12003 = ADD: improove warning on check for errors
+   * -Released- 0.12003 = ADD: improve warning on check for errors
    *                      ADD: export map Backtex as .png
+   *            0.12004 = 
    *
    * Known Bugs :
    *)
@@ -116,7 +117,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12003'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12004'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
