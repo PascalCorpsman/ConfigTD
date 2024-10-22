@@ -1,7 +1,7 @@
 (******************************************************************************)
 (* uOpenGL_WidgetSet.pas                                           ??.??.???? *)
 (*                                                                            *)
-(* Version     : 0.11                                                         *)
+(* Version     : 0.13                                                         *)
 (*                                                                            *)
 (* Author      : Uwe Schächterle (Corpsman)                                   *)
 (*                                                                            *)
@@ -37,6 +37,8 @@
 (*               0.09 = TOpenGL_Radiobutton                                   *)
 (*               0.10 = Fix Textglitch of TOpenGL_Radiobutton                 *)
 (*               0.11 = OnChange für TOpenGL_Radiobutton                      *)
+(*               0.12 = Fix Font colors where not per instance                *)
+(*               0.13 = TOpenGl_BaseClass.Hint                                *)
 (*                                                                            *)
 (******************************************************************************)
 
@@ -47,6 +49,7 @@ Unit uopengl_widgetset;
 Interface
 
 Uses
+  ExtCtrls,
   OpenGLContext,
   dglOpenGL,
   uvectormath,
@@ -64,18 +67,34 @@ Uses
   uopengl_font_common,
   ueventer;
 
+Const
+  ShowHintTimeIntervalInMS = 1000; // Time in ms how long the cursor need to stay on the Element that the "fShowHint" flag is set
+
 Type
 
   { TOpenGl_BaseClass }
 
   TOpenGl_BaseClass = Class(TEventerClass) // Die Basisklasse, welche die ganzen Captures und Events Handled, alles im Protected Teil steht zum freien "Override" bereit.
   private
+    fHintTimer: TTimer;
+    Procedure OnHintTimer(Sender: TObject);
   protected
+    fShowHint: Boolean; // Wenn True, dann muss im OnRender der Hint gezeigt werden..
     Procedure OnRender(); virtual; abstract;
+
+    Procedure MouseEnter(Sender: TObject); override;
+    Procedure MouseLeave(Sender: TObject); override;
   public
     Name: String; // Einfach nur so, wird intern eigentlich nicht benötig.
 
+    Hint: String;
+
+    IgnoreDepthtest: Boolean; // Default = true (Nur für die Abwärtskompatibilität, im Idealfall, sollte hier false sein !)
+
+    OnShowHint: TNotifyEvent;
+
     Constructor Create(Owner: TOpenGLControl); override;
+    Destructor Destroy(); override;
 
     Procedure Render(); // Damit alles Funktionieren kann wie gewünscht muss vorher die Routine WidgetSetGo2d aufgerufen werden !!
   End;
@@ -84,17 +103,17 @@ Type
 
   TOpenGl_BaseFontClass = Class(TOpenGL_BaseClass)
   protected
-    Function fGetFontColor: TVector3;
-    Procedure fSetFontColor(Value: TVector3);
-    Function FGetFontSize: single;
-    Procedure FSetFontSize(value: Single);
+    Function fGetFontColor: TVector3; virtual;
+    Procedure fSetFontColor(Value: TVector3); virtual;
+    Function FGetFontSize: single; virtual;
+    Procedure FSetFontSize(value: Single); virtual;
   protected
     FFont: TOpenGL_Font; // Das Kontrollelement bekommt noch zusätzlich eine OpenGLFont
     Property FontColor: TVector3 read fGetFontColor write fSetFontColor;
     Property FontSize: Single read FGetFontSize write FSetFontSize;
   public
     Constructor Create(Owner: TOpenGLControl; FontFile: String); virtual; reintroduce;
-    Destructor destroy; override;
+    Destructor Destroy; override;
   End;
 
   { TOpenGl_Image }
@@ -107,6 +126,7 @@ Type
   public
     Transparent: Boolean; // Das ist noch nicht wirklich schön funktionert aber erst mal ..
     Property OnClick;
+    Property OnDblClick;
     Property OnMouseDown;
     Property OnMouseMove;
     Property OnMouseUp;
@@ -122,15 +142,18 @@ Type
   { TOpenGL_Label }
 
   TOpenGl_Label = Class(TOpenGL_BaseFontClass)
-  private
-    fcaption: String;
   protected
+    fcaption: String;
+    FFontColor: TVector3;
     Procedure OnRender(); override;
-    Procedure Setcaption(value: String);
+    Procedure Setcaption(value: String); virtual;
+    Function fGetFontColor: TVector3; override;
+    Procedure fSetFontColor(Value: TVector3); override;
   public
     Property Caption: String read fcaption write Setcaption;
     Property FontColor;
     Property FontSize;
+    Constructor Create(Owner: TOpenGLControl; FontFile: String); override;
   End;
 
   { TOpenGL_Button }
@@ -273,10 +296,13 @@ Type
   private
     FLastTimeStamp: Dword;
     FDashVisible: Boolean;
+    FFontColor: TVector3;
   protected
     Procedure OnRender(); override;
     Function GetHeight: Integer; override;
     Procedure SetHeight(AValue: integer); override;
+    Function fGetFontColor: TVector3; override;
+    Procedure fSetFontColor(Value: TVector3); override;
 
     Procedure KeyUp(Sender: TObject; Var Key: Word; Shift: TShiftState); override;
   public
@@ -284,6 +310,7 @@ Type
     Color: TVector3; // Die Hintergrundfarbe
     BorderColor: TVector3; // Die "RandFarbe"
     PassWordChar: Char;
+    Property FontColor;
     Property OnKeyPress;
     Constructor Create(Owner: TOpenGLControl; FontFile: String); override;
   End;
@@ -1157,24 +1184,26 @@ End;
 
 { TOpenGL_Label }
 
-Procedure TOpenGL_Label.OnRender;
+Procedure TOpenGl_Label.OnRender;
 Var
   nw, ps: Single;
   d: Boolean;
   dim: Array[0..3] Of Integer;
 Begin
   If Visible Then Begin
+    glBindTexture(GL_TEXTURE_2D, 0);
     glGetIntegerv(GL_VIEWPORT, @dim[0]);
     nw := max(dim[2] / _2DWidth, dim[3] / _2DHeight);
     glGetFloatv(GL_POINT_SIZE, @ps);
     glPointSize(nw);
     d := glIsEnabled(GL_DEPTH_TEST);
-    If d Then Begin
+    If d And IgnoreDepthtest Then Begin
       glDisable(GL_DEPTH_TEST);
     End;
+    ffont.ColorV3 := FontColor;
     ffont.Textout(left, top, Caption);
     glPointSize(ps);
-    If d Then Begin
+    If d And IgnoreDepthtest Then Begin
       glenable(GL_DEPTH_TEST);
     End;
   End;
@@ -1185,6 +1214,22 @@ Begin
   fcaption := value;
   Height := round(FFont.TextHeight(Caption));
   Width := round(FFont.TextWidth(Caption));
+End;
+
+Function TOpenGl_Label.fGetFontColor: TVector3;
+Begin
+  Result := FFontColor;
+End;
+
+Procedure TOpenGl_Label.fSetFontColor(Value: TVector3);
+Begin
+  FFontColor := value;
+End;
+
+Constructor TOpenGl_Label.Create(Owner: TOpenGLControl; FontFile: String);
+Begin
+  Inherited Create(Owner, FontFile);
+  FFontColor := v3(1, 1, 1);
 End;
 
 { TOPenGL_Edit }
@@ -1201,7 +1246,7 @@ Begin
   Text := Self.ClassName;
 End;
 
-Procedure TOpenGl_Edit.OnRender();
+Procedure TOpenGl_Edit.OnRender;
 Var
   lw: Single;
   tw: integer;
@@ -1238,7 +1283,7 @@ Begin
   FFont.Colorv3 := FontColor;
   FFont.Textout(left + 2, top + 2, tex);
   // Dann den Cursor
-  If FFocus Then Begin
+  If FFocus And Enabled Then Begin
     If FDashVisible Then Begin
       tw := round(FFont.TextWidth(Tex));
       glcolor3f(BorderColor.x, BorderColor.y, BorderColor.z);
@@ -1264,6 +1309,16 @@ Procedure TOpenGl_Edit.SetHeight(AValue: integer);
 Begin
   // Die Höhe eines TEdit kann nicht geändert werden, bzw passt sich das Edit immer an die schrifthöhe an !
   Inherited SetHeight(GetHeight);
+End;
+
+Function TOpenGl_Edit.fGetFontColor: TVector3;
+Begin
+  Result := FFontColor;
+End;
+
+Procedure TOpenGl_Edit.fSetFontColor(Value: TVector3);
+Begin
+  FFontColor := Value;
 End;
 
 Procedure TOpenGl_Edit.KeyUp(Sender: TObject; Var Key: Word; Shift: TShiftState
@@ -1421,7 +1476,7 @@ Begin
   Inherited create(Owner);
 End;
 
-Destructor TOpenGL_BaseFontClass.destroy;
+Destructor TOpenGL_BaseFontClass.Destroy;
 Begin
   If OpenGL_ASCII_Font <> FFont Then Begin
     ffont.free;
@@ -1431,17 +1486,52 @@ End;
 
 { TOpenGL_BaseClass }
 
+Procedure TOpenGl_BaseClass.OnHintTimer(Sender: TObject);
+Begin
+  fHintTimer.Enabled := false;
+  fShowHint := true;
+  If assigned(OnShowHint) Then OnShowHint(self);
+End;
+
+Procedure TOpenGl_BaseClass.MouseEnter(Sender: TObject);
+Begin
+  Inherited MouseEnter(Sender);
+  fHintTimer.Enabled := true;
+End;
+
+Procedure TOpenGl_BaseClass.MouseLeave(Sender: TObject);
+Begin
+  Inherited MouseLeave(Sender);
+  fHintTimer.Enabled := false;
+  fShowHint := false;
+End;
+
 Constructor TOpenGl_BaseClass.Create(Owner: TOpenGLControl);
 Begin
   Inherited create(Owner);
+  Hint := '';
   Name := '';
   Top := 10;
   Left := 10;
   Width := 100;
   Height := 25;
+  fHintTimer := TTimer.Create(Nil);
+  fHintTimer.Enabled := false;
+  fHintTimer.Interval := ShowHintTimeIntervalInMS;
+  fHintTimer.OnTimer := @OnHintTimer;
+  fShowHint := false;
+  OnShowHint := Nil;
+  IgnoreDepthtest := true;
 End;
 
-Procedure TOpenGl_BaseClass.Render();
+Destructor TOpenGl_BaseClass.Destroy;
+Begin
+  fHintTimer.free;
+  fHintTimer := Nil;
+  Inherited Destroy();
+End;
+
+Procedure TOpenGl_BaseClass.Render;
 Var
   l, d: Boolean;
 Begin
@@ -1451,12 +1541,12 @@ Begin
       glDisable(GL_LIGHTING);
     End;
     d := glIsEnabled(GL_DEPTH_TEST);
-    If d Then Begin
+    If d And IgnoreDepthtest Then Begin
       glDisable(GL_DEPTH_TEST);
     End;
     glcolor4f(1, 1, 1, 1);
     OnRender();
-    If d Then Begin
+    If d And IgnoreDepthtest Then Begin
       glenable(GL_DEPTH_TEST);
     End;
     If l Then Begin
