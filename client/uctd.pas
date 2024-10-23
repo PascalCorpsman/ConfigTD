@@ -3736,14 +3736,12 @@ Begin
   fWaveinfo.DarkMode := DarkMode;
 
   Level_Up_Image := TOpenGl_Image.create(Owner);
-  Level_Up_Image.Hint := '';
   i := OpenGL_GraphikEngine.LoadAlphaGraphik(p + Levelup, smStretchHard);
   AssertLog(i = 0, 'Could not load : ' + p + Levelup, llError);
   Level_Up_Image.SetImage(i);
   Level_Up_Image.OnClick := @OnLevelUpButtonClick;
   Level_Up_Image.OnMouseMove := @OnUpgradeSellMouseMove;
   Sell_Image := TOpenGl_Image.create(Owner);
-  Sell_Image.Hint := '';
   i := OpenGL_GraphikEngine.LoadAlphaGraphik(p + Sell, smStretchHard);
   AssertLog(i = 0, 'Could not load : ' + p + Sell, llError);
   sell_Image.SetImage(i);
