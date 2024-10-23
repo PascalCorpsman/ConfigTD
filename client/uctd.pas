@@ -187,14 +187,6 @@ Type
     Function GetIdentifierStreamEventCallback(Identifier: integer): TOnGetStreamEvent;
   End;
 
-  (*
-   * Das Ding ist so ein Pfush
-   *)
-  TOpenGl_HintImage = Class(TOpenGl_Image)
-  public
-    Hint: String;
-  End;
-
   { Tctd }
 
   Tctd = Class
@@ -230,8 +222,8 @@ Type
     fPassword: String;
     FuserName: String;
 
-    Level_Up_Image: TOpenGl_HintImage;
-    Sell_Image: TOpenGl_HintImage;
+    Level_Up_Image: TOpenGl_Image;
+    Sell_Image: TOpenGl_Image;
     Tab_Image: TOpenGl_Image;
     BuildingStrategyButtons: Array[0..7] Of TBuildingStrategyButton;
 
@@ -2122,7 +2114,7 @@ Begin
     If Sell_Image.Hint = '' Then exit;
     fStrategyToolTipp := Sell_Image.Hint;
   End;
-  fStrategyToolTippPos := point(TOpenGl_HintImage(sender).left + x, TOpenGl_HintImage(sender).Top + y);
+  fStrategyToolTippPos := point(TOpenGl_Image(sender).left + x, TOpenGl_Image(sender).Top + y);
 End;
 
 Procedure Tctd.Connection_Connect(aSocket: TLSocket);
@@ -3743,14 +3735,14 @@ Begin
     fWaveinfo := TCTDDualinfoField.Create(Owner, p + 'wave.png');
   fWaveinfo.DarkMode := DarkMode;
 
-  Level_Up_Image := TOpenGl_HintImage.create(Owner);
+  Level_Up_Image := TOpenGl_Image.create(Owner);
   Level_Up_Image.Hint := '';
   i := OpenGL_GraphikEngine.LoadAlphaGraphik(p + Levelup, smStretchHard);
   AssertLog(i = 0, 'Could not load : ' + p + Levelup, llError);
   Level_Up_Image.SetImage(i);
   Level_Up_Image.OnClick := @OnLevelUpButtonClick;
   Level_Up_Image.OnMouseMove := @OnUpgradeSellMouseMove;
-  Sell_Image := TOpenGl_HintImage.create(Owner);
+  Sell_Image := TOpenGl_Image.create(Owner);
   Sell_Image.Hint := '';
   i := OpenGL_GraphikEngine.LoadAlphaGraphik(p + Sell, smStretchHard);
   AssertLog(i = 0, 'Could not load : ' + p + Sell, llError);
