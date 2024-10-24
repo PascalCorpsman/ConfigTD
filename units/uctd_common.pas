@@ -108,7 +108,7 @@ Const
    *                      FIX: rename "heros" -> "heroes"
    * -Released- 0.12003 = ADD: improve warning on check for errors
    *                      ADD: export map Backtex as .png
-   *            0.12004 = 
+   *            0.12004 = FIX: rendering Tooltipps "glitched" / did not render correct
    *
    * Known Bugs :
    *)

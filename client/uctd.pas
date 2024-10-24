@@ -552,12 +552,14 @@ Begin
   OpenGL_ASCII_Font.Size := OpenGL_ASCII_Font.Size * fontscale;
   w := OpenGL_ASCII_Font.TextWidth(Tipp);
   h := OpenGL_ASCII_Font.TextHeight(Tipp);
-  glGetIntegerv(GL_VIEWPORT, @dim[0]);
-  If (x + w > dim[2]) And (AllowAdjusting) Then Begin // Wenn der Tooltip Rechts aus dem Bild geht
-    x := x - 2 * 15 - integer(round(w));
-  End;
-  If (y + h > dim[3]) And (AllowAdjusting) Then Begin // Wenn der Tooltip unten aus dem Bild geht
-    y := y - round(h);
+  If AllowAdjusting Then Begin
+    glGetIntegerv(GL_VIEWPORT, @dim[0]);
+    If (x + w > dim[2]) Then Begin // Wenn der Tooltip Rechts aus dem Bild geht
+      x := x - 2 * 15 - integer(round(w));
+    End;
+    If (y + h > dim[3]) Then Begin // Wenn der Tooltip unten aus dem Bild geht
+      y := y - round(h);
+    End;
   End;
   // Einen Schwarzen hintergrund unter den Text
   glPushMatrix;
@@ -572,7 +574,7 @@ Begin
   glVertex2f(0, h);
   glend;
   // der Eigentliche Text oben drüber
-  glTranslatef(0, 0, ctd_EPSILON);
+  glTranslatef(0, 0, ctd_EPSILON / 2);
   OpenGL_ASCII_Font.Color := clGray;
   OpenGL_ASCII_Font.Textout(0, 0, tipp);
   glPopMatrix;
@@ -2813,7 +2815,6 @@ Begin
           Sell_Image.Render();
           Sell_Image.Hint := 'Refund: ' + inttostr(Sellrefund);
           glPopMatrix;
-          RenderToolTipp(Sell_Image.Left - 15, fDestT + 30, 'Refund: ' + inttostr(Sellrefund), false);
           // Die Strategie Buttons Anzeigen aber nur, wenn wir auch eine Strategie fahren können ;)
           If (TBuilding(FSideMenuObject).Stages[TBuilding(FSideMenuObject).Stage].range <> 0) Then Begin
             // Die 7 Strategien
@@ -2845,6 +2846,8 @@ Begin
             hi.Name := LineEnding + hi.Name;
             RenderHint(fDestL - 10, fDestT + 30, hi, false);
           End;
+          // Das muss nach den "Cost" Infos gerendert werden, da diese sonst das "Ref" übermalt
+          RenderToolTipp(Sell_Image.Left - 15, fDestT + 30, 'Refund: ' + inttostr(Sellrefund), false);
         End
         Else Begin
           // Das Gebäude wird gerade "geupdated" -> da geht nix nur ne kurze Info anzeigen
@@ -3986,10 +3989,16 @@ Begin
         RenderGameInfos;
         // Anzeigen Tooltip für Obj unter Mausposition
         If fBuyMenuToolTipp <> '' Then Begin
+          glPushMatrix;
+          glTranslatef(0, 0, 1.25 * ctd_EPSILON);
           RenderToolTipp(fCursorPos.x, fCursorPos.y, fBuyMenuToolTipp);
+          glPopMatrix;
         End;
         If fStrategyToolTipp <> '' Then Begin
+          glPushMatrix;
+          glTranslatef(0, 0, 1.25 * ctd_EPSILON);
           RenderToolTipp(fStrategyToolTippPos.x, fStrategyToolTippPos.y, fStrategyToolTipp);
+          glPopMatrix;
         End;
         If assigned(FHintObject.Obj) Then Begin
           If GetTick() - FHintObject.Time > DefaultShowToolTippTime Then Begin
