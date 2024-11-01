@@ -122,7 +122,7 @@ Type
     Selected: Boolean;
     Property OnClick;
     Procedure Click; override;
-    Constructor Create(Owner: TOpenGLControl); override;
+    Constructor Create(aOwner: TOpenGLControl); override;
     Procedure SetImage(Filename: String);
   End;
 
@@ -136,7 +136,7 @@ Type
   public
     Text: String;
     DarkMode: Boolean;
-    Constructor Create(Owner: TOpenGLControl; Texture: String); reintroduce; virtual;
+    Constructor Create(aOwner: TOpenGLControl; Texture: String); reintroduce; virtual;
   End;
 
   { TCTDDualinfoField }
@@ -146,7 +146,7 @@ Type
     Procedure OnRender(); override;
   public
     Text2: String;
-    Constructor Create(Owner: TOpenGLControl; Texture: String); override;
+    Constructor Create(aOwner: TOpenGLControl; Texture: String); override;
   End;
 
   TOnGetBooleanEventRecord = Record
@@ -778,9 +778,9 @@ Begin
   glPopMatrix;
 End;
 
-Constructor TCTDDualinfoField.Create(Owner: TOpenGLControl; Texture: String);
+Constructor TCTDDualinfoField.Create(aOwner: TOpenGLControl; Texture: String);
 Begin
-  Inherited Create(Owner, Texture);
+  Inherited Create(aOwner, Texture);
   Text2 := '';
 End;
 
@@ -815,9 +815,9 @@ Begin
   glPopMatrix;
 End;
 
-Constructor TCTDinfofield.Create(Owner: TOpenGLControl; Texture: String);
+Constructor TCTDinfofield.Create(aOwner: TOpenGLControl; Texture: String);
 Begin
-  Inherited Create(Owner);
+  Inherited Create(aOwner);
   ftexture := OpenGL_GraphikEngine.LoadAlphaGraphik(Texture, smStretchHard);
   DarkMode := false;
 End;
@@ -1041,9 +1041,9 @@ End;
 
 { TBuildingStrategyButton }
 
-Constructor TBuildingStrategyButton.Create(Owner: TOpenGLControl);
+Constructor TBuildingStrategyButton.Create(aOwner: TOpenGLControl);
 Begin
-  Inherited Create(Owner);
+  Inherited Create(aOwner);
   Selected := false;
   Strategy := bsFirst;
   Fimage := 0;
