@@ -2459,9 +2459,9 @@ Begin
           For j := 0 To high(Waypoints[i]) Do Begin
             If j = 0 Then Begin
               glColor4f(1, 1, 1, 1);
-              RenderObj(point(Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[i, j].Point.y * MapBlockSize),
+              RenderObjItem(point(Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[i, j].Point.y * MapBlockSize),
                 MapBlockSize, MapBlockSize,
-                OpenGL_GraphikEngine.Find(PlayerStartPointTex));
+                OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
               OpenGL_ASCII_Font.Color := clred;
               OpenGL_ASCII_Font.Textout(Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
               glBindTexture(GL_TEXTURE_2D, 0);
@@ -2481,9 +2481,9 @@ Begin
         OpenGL_ASCII_Font.Color := clred;
         For j := 0 To high(Waypoints[ViewWaypoints]) Do Begin
           If j = 0 Then Begin
-            RenderObj(point(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[ViewWaypoints, j].Point.y * MapBlockSize),
+            RenderObjItem(point(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[ViewWaypoints, j].Point.y * MapBlockSize),
               MapBlockSize, MapBlockSize,
-              OpenGL_GraphikEngine.Find(PlayerStartPointTex));
+              OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
             OpenGL_ASCII_Font.Textout(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(ViewWaypoints + 1));
           End
           Else Begin
