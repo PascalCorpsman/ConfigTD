@@ -201,10 +201,12 @@ Type
 
     fHostButton: TOpenGl_Button;
     fJoinButton: TOpenGl_Button;
+    fHostJoinBackTex: TGraphikItem;
 
     fNewMapButton: TOpenGl_Button;
     fLoadMapButton: TOpenGl_Button;
     fLoadGameButton: TOpenGl_Button;
+    fLoadMapGameBackTex: TGraphikItem;
 
     fSideMenuVisible: Boolean; // True, dann ist das Seitenmenü (unten oder Rechts) sichtbar
     fMenuPosition: TMenuPosition;
@@ -3677,6 +3679,9 @@ Begin
   fLoadGameButton.caption := 'L&oad game';
 
   p := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0))) + 'textures' + PathDelim;
+  fHostJoinBackTex := OpenGL_GraphikEngine.LoadGraphikItem(p + 'host_join_back.png', smClamp);
+  fLoadMapGameBackTex := OpenGL_GraphikEngine.LoadGraphikItem(p + 'load_map_back.png', smClamp);
+
   fHostButton.LoadTextures(p + 'BTN_host_game_n.png', p + 'BTN_host_game_s.png', p + 'BTN_host_game_s.png');
   fJoinButton.LoadTextures(p + 'BTN_join_game_n.png', p + 'BTN_join_game_s.png', p + 'BTN_join_game_s.png');
   fNewMapButton.LoadTextures(p + 'BTN_new_map_n.png', p + 'BTN_new_map_s.png', p + 'BTN_new_map_s.png');
@@ -3886,7 +3891,13 @@ Begin
 
   Case fgameState Of
     gs_WaitForJoin: Begin
-        OpenGL_ASCII_Font.Color := clgreen;
+        glColor4f(1, 1, 1, 1);
+        glPushMatrix;
+        glTranslatef(0, 0, -0.1);
+        glScalef(w / fHostJoinBackTex.OrigWidth, h / fHostJoinBackTex.OrigHeight, 1);
+        RenderQuad(0, 0, fHostJoinBackTex);
+        glPopMatrix;
+        OpenGL_ASCII_Font.Color := clWhite;
         fHostButton.Render();
         fJoinButton.Render();
         CenterTextOut(w, h, 'Please host or join a session.');
@@ -4187,11 +4198,17 @@ Begin
           RenderMenuTabButton();
         End
         Else Begin
+          glColor4f(1, 1, 1, 1);
+          glPushMatrix;
+          glTranslatef(0, 0, -0.1);
+          glScalef(w / fLoadMapGameBackTex.OrigWidth, h / fLoadMapGameBackTex.OrigHeight, 1);
+          RenderQuad(0, 0, fLoadMapGameBackTex);
+          glPopMatrix;
           fNewMapButton.Render();
           fLoadMapButton.Render();
           fLoadGameButton.Render();
           // Print instructions
-          OpenGL_ASCII_Font.Color := clYellow;
+          OpenGL_ASCII_Font.Color := clWhite;
           CenterTextOut(w, h, 'Please create or load a map, or load a old game.');
           If VersionInfoString <> '' Then Begin
             RenderToolTipp(w - 10, h - 10, VersionInfoString);

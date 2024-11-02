@@ -112,6 +112,7 @@ Const
    *                      CHG: Renderenginge for PNG graphics updated
    *            0.12005 = FIX: Did not render ranges (Buildings / Opponents), when sidemenu was not shown
    *                      FIX: prevent unwanted errormessage when delete not existing files
+   *                      ADD: Show backtextures during menus
    *
    * Known Bugs :
    *)
