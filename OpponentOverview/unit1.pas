@@ -410,10 +410,11 @@ Begin
     showmessage('Error, no existing opp selected.');
     exit;
   End;
+  OpenPictureDialog1.title := 'Select Opponent image';
   If OpenPictureDialog1.Execute Then Begin
     s := '';
     Repeat
-      s := InputBox('Select new name', '', s);
+      s := InputBox('Select new name for opponent', '', s);
       If s = '' Then Begin // Abbruch durch Nutzer
         exit;
       End;
