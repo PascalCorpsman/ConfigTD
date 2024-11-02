@@ -111,6 +111,7 @@ Const
    * -Released- 0.12004 = FIX: rendering Tooltipps "glitched" / did not render correct
    *                      CHG: Renderenginge for PNG graphics updated
    *            0.12005 = FIX: Did not render ranges (Buildings / Opponents), when sidemenu was not shown
+   *                      FIX: prevent unwanted errormessage when delete not existing files
    *
    * Known Bugs :
    *)

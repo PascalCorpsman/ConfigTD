@@ -4804,7 +4804,7 @@ Begin
   // Alle osl die nicht in sl sind können nun gelöscht werden ;)
   For i := 0 To osl.Count - 1 Do Begin
     If pos(ap + osl[i], sl.Text) <> 0 Then Continue; // Die Datei wird offensichtlich von irgendwas benötigt.
-    If Not DeleteFileUTF8(ap + osl[i]) Then result := false;
+    If FileExistsUTF8(ap + osl[i]) And (Not DeleteFileUTF8(ap + osl[i])) Then result := false;
   End;
   // Durch Alle Placements durch
   For i := high(fPlacements) Downto 0 Do Begin
@@ -4816,7 +4816,7 @@ Begin
       setlength(fPlacements, high(fPlacements));
     End;
   End;
-  If Not DeleteFileUTF8(ap + Opp) Then result := false;
+  If FileExistsUTF8(ap + Opp) And (Not DeleteFileUTF8(ap + Opp)) Then result := false;
   opp := ExtractFileName(opp);
   // Durch alle Waves gehen, wenn dort der Opp drin ist den "Löschen"
   For i := 0 To high(Waves) Do Begin
@@ -4853,7 +4853,7 @@ Begin
   // Alle osl die nicht in sl sind können nun gelöscht werden ;)
   For i := 0 To osl.Count - 1 Do Begin
     If pos(ap + osl[i], sl.Text) <> 0 Then Continue; // Die Datei wird offensichtlich von irgendwas benötigt.
-    If Not DeleteFileUTF8(ap + osl[i]) Then result := false;
+    If FileExistsUTF8(ap + osl[i]) And (Not DeleteFileUTF8(ap + osl[i])) Then result := false;
   End;
   // Durch Alle Placements durch
   For i := high(fPlacements) Downto 0 Do Begin
@@ -4874,7 +4874,7 @@ Begin
       setlength(fBuyAbles, high(fBuyAbles));
     End;
   End;
-  If Not DeleteFileUTF8(ap + Geb) Then result := false;
+  If FileExistsUTF8(ap + Geb) And (Not DeleteFileUTF8(ap + Geb)) Then result := false;
   osl.free;
   sl.free;
 End;
@@ -4900,7 +4900,7 @@ Begin
   // Alle osl die nicht in sl sind können nun gelöscht werden ;)
   For i := 0 To osl.Count - 1 Do Begin
     If pos(ap + osl[i], sl.Text) <> 0 Then Continue; // Die Datei wird offensichtlich von irgendwas benötigt.
-    If Not DeleteFileUTF8(ap + osl[i]) Then result := false;
+    If FileExistsUTF8(ap + osl[i]) And (Not DeleteFileUTF8(ap + osl[i])) Then result := false;
   End;
   // Durch Alle Placements durch
   For i := high(fPlacements) Downto 0 Do Begin
@@ -4921,7 +4921,7 @@ Begin
       setlength(fBuyAbles, high(fBuyAbles));
     End;
   End;
-  If Not DeleteFileUTF8(ap + Hero) Then result := false;
+  If FileExistsUTF8(ap + Hero) And (Not DeleteFileUTF8(ap + Hero)) Then result := false;
   osl.free;
   sl.free;
 End;
