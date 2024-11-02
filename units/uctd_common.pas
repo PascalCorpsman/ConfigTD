@@ -108,7 +108,9 @@ Const
    *                      FIX: rename "heros" -> "heroes"
    * -Released- 0.12003 = ADD: improve warning on check for errors
    *                      ADD: export map Backtex as .png
-   *            0.12004 = FIX: rendering Tooltipps "glitched" / did not render correct
+   * -Released- 0.12004 = FIX: rendering Tooltipps "glitched" / did not render correct
+   *                      CHG: Renderenginge for PNG graphics updated
+   *            0.12005 = 
    *
    * Known Bugs :
    *)
@@ -117,7 +119,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12004'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12005'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
