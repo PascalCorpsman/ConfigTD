@@ -2762,16 +2762,8 @@ Var
   nshi, hi: THint;
   Sellrefund: integer;
 Begin
-  (*
-   * Eigentlich hat Resize fDestL passend gesetzt dass all das hier "rausgeschoben" wird.
-   * Das Problem ist aber das RenderToolTipp den Screen berücksichtigt und explizit den
-   * Text wieder nach "innen" Rückt
-   *
-   * -> Wir Canceln einfach alles komplett
-   *)
-  If fDestL >= fwold - 1 Then exit;
-  If fDestT >= fhold - 1 Then exit;
   If assigned(FBuyingObject) Then Begin
+    If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
     // Wenn wir gerade dabei sind ein Gebäude zu kaufen
     hi := FBuyingObject.GetHint();
     hi.Name := 'Cost: ' + inttostr(FBuyingObject.GetBuyCost);
@@ -2780,6 +2772,7 @@ Begin
   End
   Else Begin
     If (FSideMenuObject Is TOpponent) Then Begin
+      If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
       If fMap.UpdateOpponentData(fSidemenuOpponent) Then Begin
         TOpponent(FSideMenuObject).LifePoints := fSidemenuOpponent.LifePoints;
         RenderHint(fDestL - 10, fDestT + 30, FSideMenuObject.GetHint(), false);
@@ -2800,6 +2793,7 @@ Begin
           glPopMatrix;
         End;
       End;
+      If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
       // Alle nachfolgenden Element sind Menü Elemente und müssen in das MenüLayer gerendert werden
       Sell_Image.Hint := '';
       Level_Up_Image.Hint := '';
@@ -2877,6 +2871,7 @@ Begin
         End;
       End;
       // Alle nachfolgenden Element sind Menü Elemente und müssen in das MenüLayer gerendert werden
+      If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
       Sell_Image.Hint := '';
       Level_Up_Image.Hint := '';
       hi := FSideMenuObject.GetHint();
