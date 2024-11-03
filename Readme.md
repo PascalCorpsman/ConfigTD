@@ -54,8 +54,8 @@ If not in playing mode the game is always in editor mode, so the game is editor 
   * splash (bullets can hit multiple opponents)
   * free choosable damage classes
   * supports multiple attack strategies
-    o first / last / weakest / stronges / nearest / farest / random
-    o prever air over floor / prever floor over air
+    * first / last / weakest / stronges / nearest / farest / random
+    * prever air over floor / prever floor over air
 - heros (more or less same as buildings, but can be moved free on the map)  
 
 ## What needs to be done to play the game
