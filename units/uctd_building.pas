@@ -430,16 +430,16 @@ Begin
       a := TOpenGL_Animation.Create;
       a.LoadFromFile(ap + image, false);
       b := a.GetFirstBitmap();
-      Fimage := OpenGL_GraphikEngine.LoadAlphaColorGraphik(b, ap + image + '_Image', ugraphics.ColorToRGB(clFuchsia), smStretchHard);
+      Fimage := OpenGL_GraphikEngine.LoadAlphaColorGraphikitem(b, ap + image + '_Image', ugraphics.ColorToRGB(clFuchsia), smStretchHard);
       b.free;
       a.free;
     End
     Else Begin
-      Fimage := OpenGL_GraphikEngine.LoadAlphaGraphik(ap + image, smStretchHard);
+      Fimage := OpenGL_GraphikEngine.LoadAlphaGraphikitem(ap + image, smStretchHard);
     End;
   End
   Else Begin
-    Fimage := 0;
+    Fimage.Image := 0;
   End;
   For i := 0 To high(Stages) Do Begin
     If FileExistsUTF8(ap + stages[i].image) And (stages[i].image <> '') Then Begin

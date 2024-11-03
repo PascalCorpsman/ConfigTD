@@ -95,7 +95,9 @@ Type
     Index: Integer;
     Filename: String;
     // Die Daten
-    Image: Integer; // Statisch
+{$IFDEF Client}
+    Image: TGraphikItem; // Statisch
+{$ENDIF}
     SizeX: single; // Statisch
     SizeY: single; // Statisch
     TotalLifePoints: integer; // Statisch
@@ -2323,7 +2325,7 @@ Begin
           Not HideLifePoints);
       End
       Else Begin
-        RenderMoveable(
+        RenderMoveableitem(
           FIndexMapper[fRenderOpponents[i].Index].Image,
           -fRenderOpponents[i].Angle,
           FIndexMapper[fRenderOpponents[i].Index].SizeX,
@@ -2373,7 +2375,7 @@ Begin
           Not HideLifePoints);
       End
       Else Begin
-        RenderMoveable(
+        RenderMoveableItem(
           FIndexMapper[fRenderOpponents[i].Index].Image,
           -fRenderOpponents[i].Angle,
           FIndexMapper[fRenderOpponents[i].Index].SizeX,
@@ -5140,10 +5142,10 @@ Begin
     op := TOpponent.create();
     op.LoadFromFile(p + Waves[Wave].Opponents[i].opponent);
     If lowercase(ExtractFileExt(op.Image)) = '.ani' Then Begin
-      FIndexMapper[i].Image := 0; // Die haben Ihre Animationen, die wiederrum vom Server gesteuert werden.
+      FIndexMapper[i].Image.image := 0; // Die haben Ihre Animationen, die wiederrum vom Server gesteuert werden.
     End
     Else Begin
-      FIndexMapper[i].Image := OpenGL_GraphikEngine.LoadAlphaGraphik(p + op.Image, smStretchHard);
+      FIndexMapper[i].Image := OpenGL_GraphikEngine.LoadAlphaGraphikItem(p + op.Image, smClamp);
     End;
     FIndexMapper[i].SizeX := op.SizeX;
     FIndexMapper[i].Sizey := op.Sizey;

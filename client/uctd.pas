@@ -2634,7 +2634,7 @@ Begin
     // Im Buy Menü gibt es keine Animationen -> Hier Reicht also RenderObj
     RenderObj(point(x + round(FBuyMenu.Items[i].obj.Width * MapBlockSize) Div 2, y + round(FBuyMenu.Items[i].obj.Height * MapBlockSize) Div 2),
       round(FBuyMenu.Items[i].obj.Width * MapBlockSize), round(FBuyMenu.Items[i].obj.Height * MapBlockSize),
-      FBuyMenu.Items[i].obj.Fimage);
+      FBuyMenu.Items[i].obj.Fimage.Image);
   End;
   glPopMatrix;
   glPopMatrix;
@@ -3688,7 +3688,7 @@ Begin
   fLoadMapButton.LoadTextures(p + 'BTN_load_map_n.png', p + 'BTN_load_map_s.png', p + 'BTN_load_map_s.png');
   fLoadGameButton.LoadTextures(p + 'BTN_load_game_n.png', p + 'BTN_load_game_s.png', p + 'BTN_load_game_s.png');
 
-  i := OpenGL_GraphikEngine.LoadAlphaGraphik(p + PlayerStartPointTex, smStretchHard);
+  i := OpenGL_GraphikEngine.LoadAlphaGraphik(p + PlayerStartPointTex, smClamp);
   AssertLog(i = 0, 'Could not load : ' + p + PlayerStartPointTex, llError);
   fBuyKachel := OpenGL_GraphikEngine.LoadAlphaGraphikItem(P + BuyKachel, smClamp);
   AssertLog(fBuyKachel.Image = 0, 'Could not load : ' + p + BuyKachel, llError);

@@ -113,6 +113,7 @@ Const
    *            0.12005 = FIX: Did not render ranges (Buildings / Opponents), when sidemenu was not shown
    *                      FIX: prevent unwanted errormessage when delete not existing files
    *                      ADD: Show backtextures during menus
+   *                      FIX: Start fixing stretchhard -> clamp bugs, this improves render quality of nearly everything !
    *
    * Known Bugs :
    *)
@@ -448,8 +449,8 @@ Function WriteAccessToDirectory(Const Dir: String): Boolean;
 {$IFDEF Client}
 Procedure RenderLifeBar(sizex, sizey, lifepointspercent: Single);
 
-Procedure RenderMoveable(
-  Image, Direction: integer;
+Procedure RenderMoveableItem(
+  Image: TGraphikItem; Direction: integer;
   Sizex, sizey, lifepointspercent: Single;
   ShowLifePoints: Boolean
   );
@@ -956,7 +957,7 @@ Begin
   glPopMatrix;
 End;
 
-Procedure RenderMoveable(Image, Direction: integer; Sizex, sizey,
+Procedure RenderMoveableItem(Image: TGraphikItem; Direction: integer; Sizex, sizey,
   lifepointspercent: Single; ShowLifePoints: Boolean);
 Begin
   glPushMatrix;
@@ -968,7 +969,7 @@ Begin
     glPopMatrix;
   End;
   glColor4f(1, 1, 1, 1);
-  RenderObj(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
+  RenderObjItem(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
   glPopMatrix;
 End;
 

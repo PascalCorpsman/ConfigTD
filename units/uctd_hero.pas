@@ -388,16 +388,16 @@ Begin
       a := TOpenGL_Animation.Create;
       a.LoadFromFile(ap + image, false);
       b := a.GetFirstBitmap();
-      Fimage := OpenGL_GraphikEngine.LoadAlphaColorGraphik(b, ap + image + '_Image', ugraphics.ColorToRGB(clFuchsia), smStretchHard);
+      Fimage := OpenGL_GraphikEngine.LoadAlphaColorGraphikitem(b, ap + image + '_Image', ugraphics.ColorToRGB(clFuchsia), smStretchHard);
       b.free;
       a.free;
     End
     Else Begin
-      Fimage := OpenGL_GraphikEngine.LoadAlphaGraphik(ap + image, smStretchHard);
+      Fimage := OpenGL_GraphikEngine.LoadAlphaGraphikitem(ap + image, smStretchHard);
     End;
   End
   Else Begin
-    Fimage := 0;
+    Fimage.image := 0;
   End;
 {$IFDEF Server}
   AnimationOffset := random(65536);
@@ -600,7 +600,7 @@ Begin
     RenderMoveableAnim(AnimationOffset, Levels[aLevel].Animation, Direction, Levels[aLevel].w, Levels[aLevel].h, lps, ShowLifePoints);
   End
   Else Begin
-    RenderMoveable(Levels[aLevel].Fimage.Image, direction, Levels[aLevel].w, Levels[aLevel].h, lps, ShowLifePoints);
+    RenderMoveableItem(Levels[aLevel].Fimage, direction, Levels[aLevel].w, Levels[aLevel].h, lps, ShowLifePoints);
   End;
   If level = -1 Then Begin
     RenderBar(lps);

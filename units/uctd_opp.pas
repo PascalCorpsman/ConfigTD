@@ -278,7 +278,7 @@ Begin
     RenderAnim(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
   End
   Else Begin
-    RenderObj(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Fimage, Direction);
+    RenderObjItem(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Fimage, Direction);
   End;
   glPopMatrix;
 End;
@@ -349,11 +349,11 @@ Begin
       Animation.LoadFromFile(MapFolder + MapName + PathDelim + Image);
       b := Animation.GetFirstBitmap();
       Animation.AnimationOffset := random(Animation.Sprite[0].FrameCount * Animation.Sprite[0].TimePerFrame); // Dafür sorgen, dass alle Animationen "unterschiedlich" sind.
-      Fimage := OpenGL_GraphikEngine.LoadAlphaColorGraphik(b, MapFolder + MapName + PathDelim + Image + 'Preview', ugraphics.ColorToRGB(clfuchsia), smStretchHard);
+      Fimage := OpenGL_GraphikEngine.LoadAlphaColorGraphikitem(b, MapFolder + MapName + PathDelim + Image + 'Preview', ugraphics.ColorToRGB(clfuchsia), smClamp);
       b.free;
     End
     Else Begin
-      Fimage := OpenGL_GraphikEngine.LoadAlphaGraphik(MapFolder + MapName + PathDelim + Image, smStretchHard);
+      Fimage := OpenGL_GraphikEngine.LoadAlphaGraphikitem(MapFolder + MapName + PathDelim + Image, smClamp);
     End;
   End;
 {$ENDIF}

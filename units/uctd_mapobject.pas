@@ -21,7 +21,11 @@ Unit uctd_mapobject;
 Interface
 
 Uses
-  Classes, SysUtils, uvectormath, uctd_common;
+  Classes, SysUtils, uvectormath, uctd_common
+{$IFDEF Client}
+  , uopengl_graphikengine
+{$ENDIF}
+  ;
 
 Type
 
@@ -35,7 +39,9 @@ Type
   public
     name: String;
     Image: String;
-    Fimage: integer; // Image als OpenGL Version (eigentlich sollte das Protected sein, aber das Build Menü braucht die Texturen auch.
+{$IFDEF Client}
+    Fimage: TGraphikItem; // Image als OpenGL Version (eigentlich sollte das Protected sein, aber das Build Menü braucht die Texturen auch.
+{$ENDIF}
     Filename: String;
     Position: TVector2; // Gebäude nutzen nur den ganzzahlantei, alle anderen voll
     Width: Single; // Dass muss Single sein für Opponent, die Buildings nutzen nur den Integer teil
@@ -102,7 +108,9 @@ Constructor tctd_mapopbject.Create;
 Begin
   Inherited Create;
   fChanged := false;
-  Fimage := 0;
+{$IFDEF Client}
+  Fimage.image := 0;
+{$ENDIF}
   Filename := '';
   Position := point(0, 0);
   Width := 0;
