@@ -22,6 +22,10 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 #### Preview theme comic
 ![](documentation/images/preview_comic.png)
 
+#### Preview theme MiniTD
+
+![](documentation/images/preview_minitd.png)
+
 ### Features
 - 1 to 16 player (theoretically there is no limitiation to the player count, but in reallity the game does not support more than 65535 enemies at the map, which gives an upper limit for the playercount) (also the bandwidth which is used and the rendering performance of the computer could limit the game)
 - client-server based (server runs in console mode, so dedicated server is possible)
