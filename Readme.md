@@ -12,7 +12,11 @@ Creeps are send in waves. The player has to defeat them all, if not the player l
 
 If not in playing mode the game is always in editor mode, so the game is editor and game in one program. Maps can be played during creation which makes map creation the same fun as playing the maps.
 
-#### Preview theme color
+#### Preview theme Classic Pixelart
+
+![](documentation/images/preview_classic_pixelart.png)
+
+#### Preview theme colored
 ![](documentation/images/preview_color.png)
 
 #### Preview theme comic
