@@ -42,7 +42,7 @@ Const
    *                   FIX: "start next wave each" was not visible
    *                   ADD: Improve error message, if launcher needs update and no updater is present.
    * -Released- 0.12 = FIX: Übernehmen der Localen Version, wenn config_td binary runter geladen wurde.
-   *            0.13 = 
+   *            0.13 = ADD: Improve download progress view
    *
    * Known Bugs :
    *)
@@ -101,11 +101,9 @@ Procedure Log(Logtext: String);
 
 Function FileSizeToString(Value: Int64): String;
 
-Function DownloadFile(URL, Filename: String): boolean;
-
 Implementation
 
-Uses unit1, unit2, ssl_openssl, httpsend, synautil;
+Uses unit1, unit2;
 
 Procedure ClearLog();
 Begin
@@ -169,119 +167,6 @@ Begin
     result := inttostr(value) + ',' + inttostr(r Div 100) + s + 'B'
   Else
     result := inttostr(value) + s + 'B'
-End;
-
-(*
- * Verfolgt 302 und 301 Weiterleitungen
- *)
-
-Procedure Follow_Links(Connection: THTTPSend; BaseURL: String);
-  Function ExtractBaseURL(U: String): String;
-  Var
-    Prot, User, Pass, Host, Port, Path, Para: String;
-  Begin
-    Prot := '';
-    User := '';
-    Pass := '';
-    Host := '';
-    Port := '';
-    Path := '';
-    Para := '';
-    ParseURL(u, Prot, User, Pass, Host, Port, Path, Para);
-    result := Prot + '://' + host + '/';
-  End;
-Var
-  t: String;
-  timeout, i: Integer;
-Begin
-  If BaseURL = '' Then exit;
-  BaseURL := ExtractBaseURL(BaseURL);
-  timeout := 20;
-  While ((Connection.ResultCode = 303) Or (Connection.ResultCode = 302) Or (Connection.ResultCode = 301)) And (timeout >= 0) Do Begin
-    dec(timeout);
-    t := '';
-    For i := 0 To Connection.Headers.Count - 1 Do Begin
-      If pos('location', lowercase(Connection.Headers[i])) <> 0 Then Begin
-        t := Connection.Headers[i];
-        t := copy(t, pos(':', t) + 1, length(t));
-        t := trim(t);
-        If pos('http', lowercase(t)) = 0 Then Begin
-          If t[1] = '/' Then delete(t, 1, 1);
-          t := BaseURL + t;
-        End;
-        Connection.Headers.Clear;
-        Connection.Document.Clear;
-        BaseURL := ExtractBaseURL(t);
-        Connection.HTTPMethod('GET', t);
-        break;
-      End;
-    End;
-    If t = '' Then Begin
-      // das Location feld konnte im Header nicht gefunden werden.
-      exit;
-    End;
-  End;
-End;
-
-Function DownloadFile(URL, Filename: String): boolean;
-Var
-  f: TFileStream;
-  http: THTTPSend;
-  dir: String;
-Begin
-  result := false;
-  If FileExists(Filename) Then Begin
-    If Not DeleteFile(Filename) Then Begin
-      log('Error, unable to delete old file: ' + Filename);
-      exit;
-    End;
-  End;
-  http := THTTPSend.Create;
-  // Log
-  log('Download: ' + URL);
-  // TODO: Proxy support ?
-  //http.ProxyHost := ProxyHost;
-  //http.ProxyPass := ProxyPass;
-  //http.ProxyPort := ProxyPort;
-  //http.ProxyUser := ProxyUser;
-  If Not Http.HTTPMethod('GET', url) Then Begin
-    Log(
-      '\-HTTP.ResultCode: ' + inttostr(Http.ResultCode) + ' ; ' + Http.ResultString + LineEnding +
-      '\-HTTP.Sock.LastError: ' + inttostr(Http.Sock.LastError) + ' ; ' + Http.Sock.LastErrorDesc + LineEnding +
-      '\-HTTP.Sock.SSL.LastError: ' + inttostr(Http.Sock.SSL.LastError) + ' ; ' + Http.Sock.SSL.LastErrorDesc);
-    http.free;
-    exit;
-  End;
-  Follow_Links(http, url);
-  If http.Document.Size <> 0 Then Begin
-    dir := ExtractFileDir(Filename);
-    If dir <> '' Then Begin
-      If Not ForceDirectories(dir) Then Begin
-        log('Error, could not create: ' + ExtractFileDir(Filename));
-        http.free;
-        exit;
-      End;
-    End;
-    Try
-      f := TFileStream.Create(Filename, fmOpenWrite Or fmCreate);
-      f.CopyFrom(http.Document, http.Document.Size);
-      f.Free;
-      result := true;
-    Except
-      On av: Exception Do Begin
-        Log(av.Message);
-        http.free;
-        f.Free;
-        exit;
-      End;
-    End;
-  End
-  Else Begin
-    Log('\-No document received.');
-    exit;
-  End;
-  http.free;
-  // form1.Log('\-succeed.');
 End;
 
 { TCTD_Version }

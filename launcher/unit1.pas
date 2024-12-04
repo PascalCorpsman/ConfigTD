@@ -85,7 +85,7 @@ Implementation
 
 {$R *.lfm}
 
-Uses unit2, Unit3, UTF8Process, LCLType, lclintf
+Uses unit2, Unit3, UTF8Process, LCLType, lclintf, usynapsedownloader
 {$IFDEF Windows}
   , LResources
   , ssl_openssl_lib, ssl_openssl, blcksock
@@ -202,6 +202,7 @@ End;
 Procedure TForm1.Button1Click(Sender: TObject);
 Var
   tmpFolder: String;
+  dl: TSynapesDownloader;
 Begin
   ClearLog();
   // 2. Download der Version Info
@@ -211,12 +212,15 @@ Begin
     log('Error, could not create: ' + tmpFolder);
     exit;
   End;
-  If Not DownloadFile(VersionInfoUrl, tmpFolder + 'ctd_version.json') Then Begin
+  dl := TSynapesDownloader.Create;
+  If Not dl.DownloadFile(VersionInfoUrl, tmpFolder + 'ctd_version.json') Then Begin
 {$IFDEF Linux}
     log('try installing ssl support: sudo aptitude install libssl-dev');
 {$ENDIF}
+    dl.free;
     exit;
   End;
+  dl.free;
   If Not CTD_Version.LoadFromFile(tmpFolder + 'ctd_version.json') Then exit;
   log('Online version: ' + format('%0.5f', [CTD_Version.Version]));
   If Version = -1 Then Begin

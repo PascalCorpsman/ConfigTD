@@ -24,7 +24,7 @@ Uses
   athreads,
 {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, unit1, unit2, uJSON, uncommenter, ulauncher, unit3, unit4;
+  Forms, unit1, unit2, uJSON, uncommenter, usynapsedownloader, ulauncher, unit3;
 
 {$R *.res}
 
@@ -35,7 +35,6 @@ Begin
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TForm2, Form2);
   Application.CreateForm(TForm3, Form3);
-  Application.CreateForm(TForm4, Form4);
   Application.Run;
 End.
 
