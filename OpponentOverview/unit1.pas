@@ -525,10 +525,10 @@ Begin
   (*
    * Historie: 0.01 = Initialversion
    *           0.02 = Support für Animationen
-   *           0.03 = Crash wegen Readonly Checkboxen gefixt
+   * Released  0.03 = Crash wegen Readonly Checkboxen gefixt
    *                  Image changer, Edit erlaubt
    *)
-  caption := 'Opponent viewer ver. 0.03';
+  caption := 'Opponent viewer ver. 0.04';
   OppList := Nil;
   edit1.text := '';
   edit2.text := '';

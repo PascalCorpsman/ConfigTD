@@ -42,11 +42,12 @@ Const
    *                   FIX: "start next wave each" was not visible
    *                   ADD: Improve error message, if launcher needs update and no updater is present.
    * -Released- 0.12 = FIX: Übernehmen der Localen Version, wenn config_td binary runter geladen wurde.
-   *            0.13 = ADD: Improve download progress view
+   * -Released- 0.13 = ADD: Improve download progress view
+   *            0.14 =
    *
    * Known Bugs :
    *)
-  LauncherVersion: integer = 13;
+  LauncherVersion: integer = 14;
 
 Type
 

@@ -265,7 +265,6 @@ Begin
     If CheckListBox2.Checked[i] Then inc(result);
   End;
   If CheckBox1.Checked Then inc(result);
-
 End;
 
 Procedure TForm3.Button2Click(Sender: TObject);
@@ -369,7 +368,6 @@ Begin
       exit;
     End;
   End;
-
   ProgressBar2.Max := total;
   ProgressBar2.Position := 0;
   total := 0;

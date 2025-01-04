@@ -110,10 +110,11 @@ Const
    *                      ADD: export map Backtex as .png
    * -Released- 0.12004 = FIX: rendering Tooltipps "glitched" / did not render correct
    *                      CHG: Renderenginge for PNG graphics updated
-   *            0.12005 = FIX: Did not render ranges (Buildings / Opponents), when sidemenu was not shown
+   * -Released- 0.12005 = FIX: Did not render ranges (Buildings / Opponents), when sidemenu was not shown
    *                      FIX: prevent unwanted errormessage when delete not existing files
    *                      ADD: Show backtextures during menus
    *                      FIX: Start fixing stretchhard -> clamp bugs, this improves render quality of nearly everything !
+   *            0.12006 =
    *
    * Known Bugs :
    *)
@@ -122,7 +123,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12005'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12006'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version

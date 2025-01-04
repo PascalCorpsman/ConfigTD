@@ -96,13 +96,14 @@ End;
 Procedure TForm1.FormCreate(Sender: TObject);
 Begin
   (*
-   * 0.01 = Initialversion
-   * 0.02 = Support Animations
-   * 0.03 = Sort Elements
-   * 0.04 = Speedup and Progressbar
-   * 0.05 = Evaluate Paramstr(1), image preview in Big
+   *            0.01 = Initialversion
+   *            0.02 = Support Animations
+   *            0.03 = Sort Elements
+   *            0.04 = Speedup and Progressbar
+   * Released - 0.05 = Evaluate Paramstr(1), image preview in Big
+   *
    *)
-  caption := 'Image shower ver. 0.05, by Corpsman, support : www.Corpsman.de';
+  caption := 'Image shower ver. 0.06, by Corpsman, support : www.Corpsman.de';
   fListboxData := Nil;
   ListBox1.Clear;
   edit1.text := '';
