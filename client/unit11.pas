@@ -59,7 +59,7 @@ Var
 
 Implementation
 
-Uses uctd, uctd_common;
+Uses uctd, uctd_common, math;
 
 {$R *.lfm}
 
@@ -107,6 +107,7 @@ Begin
     exit;
   End;
   ctd.ChangePlayerPos(listbox1.ItemIndex, true);
+  listbox1.ItemIndex := max(0, listbox1.ItemIndex - 1);
 End;
 
 Procedure TForm11.Button6Click(Sender: TObject);
@@ -117,6 +118,7 @@ Begin
     exit;
   End;
   ctd.ChangePlayerPos(listbox1.ItemIndex, false);
+  listbox1.ItemIndex := min(listbox1.ItemIndex + 1, listbox1.Items.Count - 1);
 End;
 
 Procedure TForm11.FormShow(Sender: TObject);

@@ -1262,17 +1262,19 @@ End;
 
 Procedure TForm1.OnRefreshPlayerStats(Sendet: TObject);
 Var
-  i: Integer;
+  i, index: Integer;
 Begin
   // Aktualisieren der Player Info im Player Dialog
   If form12.Visible Then
     form12.Button1.Click;
   // Aktualisieren der Spieler Reihenfolge im Start Game Dialog
   If form11.Visible Then Begin
+    index := form11.ListBox1.ItemIndex;
     form11.ListBox1.Items.Clear;
     For i := 0 To ctd.PlayerCount - 1 Do Begin
       form11.ListBox1.Items.Add(format('%d - %s', [i + 1, ctd.Player[i].Name]));
     End;
+    form11.ListBox1.ItemIndex := index;
   End;
 End;
 

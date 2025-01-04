@@ -1,23 +1,23 @@
 object Form11: TForm11
-  Left = 240
+  Left = 330
   Height = 317
-  Top = 121
+  Top = 107
   Width = 286
   Caption = 'New Game'
   ClientHeight = 317
   ClientWidth = 286
+  Position = poScreenCenter
+  LCLVersion = '4.99.0.0'
   OnCreate = FormCreate
   OnShow = FormShow
-  Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
   object Button1: TButton
     Left = 8
     Height = 25
     Top = 232
     Width = 75
     Caption = '&1. Easy'
-    OnClick = Button1Click
     TabOrder = 0
+    OnClick = Button1Click
   end
   object Button2: TButton
     Left = 104
@@ -25,8 +25,8 @@ object Form11: TForm11
     Top = 232
     Width = 75
     Caption = '&2. Normal'
-    OnClick = Button2Click
     TabOrder = 1
+    OnClick = Button2Click
   end
   object Button3: TButton
     Left = 200
@@ -34,35 +34,35 @@ object Form11: TForm11
     Top = 232
     Width = 75
     Caption = '&3. Hard'
-    OnClick = Button3Click
     TabOrder = 2
+    OnClick = Button3Click
   end
   object Label1: TLabel
     Left = 8
-    Height = 15
+    Height = 16
     Top = 184
-    Width = 97
+    Width = 110
     Caption = 'Lives to play with :'
   end
   object Label2: TLabel
     Left = 32
-    Height = 15
+    Height = 16
     Top = 208
-    Width = 34
+    Width = 41
     Caption = 'Label2'
   end
   object Label3: TLabel
     Left = 128
-    Height = 15
+    Height = 16
     Top = 211
-    Width = 34
+    Width = 41
     Caption = 'Label3'
   end
   object Label4: TLabel
     Left = 224
-    Height = 15
+    Height = 16
     Top = 211
-    Width = 34
+    Width = 41
     Caption = 'Label4'
   end
   object Button4: TButton
@@ -72,8 +72,8 @@ object Form11: TForm11
     Width = 267
     Cancel = True
     Caption = '&Abort'
-    OnClick = Button4Click
     TabOrder = 3
+    OnClick = Button4Click
   end
   object ListBox1: TListBox
     Left = 8
@@ -83,12 +83,13 @@ object Form11: TForm11
     ItemHeight = 0
     ScrollWidth = 230
     TabOrder = 4
+    TopIndex = -1
   end
   object Label6: TLabel
     Left = 8
-    Height = 15
+    Height = 16
     Top = 8
-    Width = 40
+    Width = 47
     Caption = 'Players:'
   end
   object Button5: TButton
@@ -97,8 +98,8 @@ object Form11: TForm11
     Top = 32
     Width = 27
     Caption = '/\'
-    OnClick = Button5Click
     TabOrder = 5
+    OnClick = Button5Click
   end
   object Button6: TButton
     Left = 248
@@ -106,7 +107,7 @@ object Form11: TForm11
     Top = 102
     Width = 27
     Caption = '\/'
-    OnClick = Button6Click
     TabOrder = 6
+    OnClick = Button6Click
   end
 end

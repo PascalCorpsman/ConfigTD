@@ -114,7 +114,7 @@ Const
    *                      FIX: prevent unwanted errormessage when delete not existing files
    *                      ADD: Show backtextures during menus
    *                      FIX: Start fixing stretchhard -> clamp bugs, this improves render quality of nearly everything !
-   *            0.12006 =
+   *            0.12006 = FIX: In Start Game Dialog, keep "moved" Player selected in Listbox
    *
    * Known Bugs :
    *)
