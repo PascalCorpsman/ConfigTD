@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.12005,
+    "Version":0.12006,
     "LauncherVersion":13,
-    "VersionText":"FIX: Did not render ranges (Buildings \/ Opponents), when sidemenu was not shown\nFIX: prevent unwanted errormessage when delete not existing files\nADD: Show backtextures during menus\nFIX: Start fixing stretchhard -> clamp bugs, this improves render quality of nearly everything !",
+    "VersionText":"FIX: In Start Game Dialog, keep \"moved\" Player selected in Listbox\nFIX: Add buyable with more than 1 player in game creates invald maps",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"e4ccc697b4ef2dcecd04fed4c43fc358",
+          "HASH":"b08719de849ab7c5f1b1da417160b799",
           "SIZE":"3431424",
-          "HASH2":"4c2a587d0dd929e7288789b37a6d6e43",
-          "SIZE2":"7800264",
+          "HASH2":"c9ab08eb5e965e6953edc7cb5ed90bb4",
+          "SIZE2":"7808616",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -19,18 +19,18 @@
         "file":        {
           "HASH":"29b5899a73ff45ee1ad5c3fb771b62fc",
           "SIZE":"3089920",
-          "HASH2":"4eea15f862dbb1a982513357dd187ece",
-          "SIZE2":"7754424",
+          "HASH2":"55daec2b420fe1beab9521ef86040fc2",
+          "SIZE2":"7762776",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":        {
-          "HASH":"cf68a0af64c865a9bf2ba40ca9f1f389",
-          "SIZE":"7684608",
-          "HASH2":"b80153b1d4b5b7568a07a82bbfc17bfd",
-          "SIZE2":"12311784",
+          "HASH":"dbad09f61d3d01112277a77bb6449a29",
+          "SIZE":"7594496",
+          "HASH2":"a797646f6a9e31540e1c7c9535095fd2",
+          "SIZE2":"12338856",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
@@ -39,28 +39,28 @@
         "file":        {
           "HASH":"bd8100ba9333fdfd801dde948ea425b3",
           "SIZE":"2673664",
-          "HASH2":"d368605242a8ff736b24466a58bc616d",
-          "SIZE2":"6922488",
+          "HASH2":"ca5dc499d68cd2d961651207ffc408f3",
+          "SIZE2":"6934920",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_updater.exe",
           "Filename":"ctd_updater.exe"
         }
       },
       {
         "file":        {
-          "HASH":"478c7151ba6407b2c923ea58dd2d17ab",
+          "HASH":"c8ba92fb6d3d792b0921123fc4d8b633",
           "SIZE":"2869760",
-          "HASH2":"522bec0c58f6504185768e5f15f53b69",
-          "SIZE2":"7569928",
+          "HASH2":"f97c0b18665786ffa697421681da18a7",
+          "SIZE2":"7582376",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"a231d388976bcfb72904c623cd5a0379",
+          "HASH":"9e04d962a6eb31aa0a25709eda7acce8",
           "SIZE":"3049472",
-          "HASH2":"d110e9c431a961230df84e3121a5db90",
-          "SIZE2":"7725592",
+          "HASH2":"591c3bd154e68d1a90505229fa3ebbd6",
+          "SIZE2":"7733944",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
