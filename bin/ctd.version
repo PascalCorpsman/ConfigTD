@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.12006,
+    "Version":0.12007,
     "LauncherVersion":13,
-    "VersionText":"FIX: In Start Game Dialog, keep \"moved\" Player selected in Listbox\nFIX: Add buyable with more than 1 player in game creates invald maps",
+    "VersionText":"FIX: realtime calculation under Windows",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"b08719de849ab7c5f1b1da417160b799",
-          "SIZE":"3431424",
-          "HASH2":"c9ab08eb5e965e6953edc7cb5ed90bb4",
-          "SIZE2":"7808616",
+          "HASH":"4c792b99d478e1c2cf8d899e643d81b2",
+          "SIZE":"3598336",
+          "HASH2":"330614dd407fd2898d76955f09a4f879",
+          "SIZE2":"8034728",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -27,9 +27,9 @@
       },
       {
         "file":        {
-          "HASH":"dbad09f61d3d01112277a77bb6449a29",
+          "HASH":"ec81fdd6d74bd9d9e9694e8cdda2aed4",
           "SIZE":"7594496",
-          "HASH2":"a797646f6a9e31540e1c7c9535095fd2",
+          "HASH2":"b0472b17f43a5b5ec43ef33a020c95a0",
           "SIZE2":"12338856",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
