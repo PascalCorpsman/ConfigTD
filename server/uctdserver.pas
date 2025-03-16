@@ -2197,7 +2197,7 @@ Begin
     fRestartWave.Position := 0;
     If LoadGame(fRestartWave, UID) Then Begin
 
-//      Hier muss ein Wait Ready rein genau wie Bei Start Game !
+      //      Hier muss ein Wait Ready rein genau wie Bei Start Game !
 
       HandleInitiateNewRound(fMap.Difficulty, fAktualRound, UID);
     End;
@@ -3170,7 +3170,16 @@ Begin
       End;
       }
     End;
-    sleep(1);
+    If fGameState = gs_Gaming Then Begin
+{$IFDEF Windows}
+      sleep(0);
+{$ELSE}
+      sleep(1);
+{$ENDIF}
+    End
+    Else Begin
+      sleep(1);
+    End;
   End;
   LogLeave;
 End;
@@ -3205,5 +3214,4 @@ Begin
 End;
 
 End.
-
 

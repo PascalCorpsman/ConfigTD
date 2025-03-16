@@ -4743,7 +4743,16 @@ End;
 
 Procedure TMap.addBuyable(Item: String; Kind: TBuyAbleKind; Wave, Count: integer
   );
+Var
+  i: Integer;
 Begin
+  // TODO: Prüfen ob wir hier auch noch den Kind brauchen ...
+  // Verhindern das das "Selbe" Item 2 mal hinzugefügt wird
+  For i := 0 To high(fBuyAbles) Do Begin
+    If fBuyAbles[i].Item = Item Then Begin
+      exit;
+    End;
+  End;
   setlength(fBuyAbles, high(fBuyAbles) + 2);
   fBuyAbles[high(fBuyAbles)].Item := Item;
   fBuyAbles[high(fBuyAbles)].WaveNum := Wave;

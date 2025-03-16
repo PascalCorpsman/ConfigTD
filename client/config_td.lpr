@@ -60,6 +60,7 @@ Begin
   End;
   If IgnoreInstance Or Not InstanceRunning('Config_TD_Client', false, true) Then Begin
     RequireDerivedFormResource := True;
+  Application.Scaled:=True;
     Application.Initialize;
     Application.CreateForm(TForm1, Form1);
     Application.CreateForm(TForm2, Form2);

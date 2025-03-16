@@ -114,7 +114,9 @@ Const
    *                      FIX: prevent unwanted errormessage when delete not existing files
    *                      ADD: Show backtextures during menus
    *                      FIX: Start fixing stretchhard -> clamp bugs, this improves render quality of nearly everything !
-   *            0.12006 = FIX: In Start Game Dialog, keep "moved" Player selected in Listbox
+   * -Released- 0.12006 = FIX: In Start Game Dialog, keep "moved" Player selected in Listbox
+   *                      FIX: Add buyable with more than 1 player in game creates invald maps
+   *            0.12007 =
    *
    * Known Bugs :
    *)
@@ -123,7 +125,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 12; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.12006'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.12007'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
