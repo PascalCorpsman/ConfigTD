@@ -3129,8 +3129,8 @@ Begin
         End;
         // Egal, welcher Speedup, das Spiel wird mit konstanter Rate Aktualisiert
         If fLastClientUpdateTimestamp + UpdateRate <= n Then Begin
+          fOverAllRealGameingTime := fOverAllRealGameingTime + (n - fLastClientUpdateTimestamp);
           fLastClientUpdateTimestamp := n; // fLastClientUpdateTimestamp + UpdateRate; Verhindern von oben beschriebener Situation
-          fOverAllRealGameingTime := fOverAllRealGameingTime + UpdateRate;
           UpdateAllClients;
           // Alle 10s werden alle Spielerstatistiken weg geschrieben ;)
           fCounterfor10s := fCounterfor10s + 1;
@@ -3170,16 +3170,7 @@ Begin
       End;
       }
     End;
-    If fGameState = gs_Gaming Then Begin
-{$IFDEF Windows}
-      sleep(0);
-{$ELSE}
-      sleep(1);
-{$ENDIF}
-    End
-    Else Begin
-      sleep(1);
-    End;
+    sleep(1);
   End;
   LogLeave;
 End;
