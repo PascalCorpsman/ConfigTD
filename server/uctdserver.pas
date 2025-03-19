@@ -2981,12 +2981,6 @@ Begin
   fTCP.OnDisconnect := @OnDisconnect;
   fUDP := TLUdp.Create(Nil);
   fUDP.OnReceive := @OnUDPReceiveEvent;
-  If Not fUDP.Listen(UDPPingPort) Then Begin
-    log('Error could not listen on port: ' + inttostr(UDPPingPort), llFatal);
-    LogLeave;
-    halt;
-  End;
-
   fChunkManager := TChunkManager.create;
   fChunkManager.RegisterConnection(fTCP);
   fChunkManager.OnReceivedChunk := @OnReceivedChunk;
@@ -2997,10 +2991,17 @@ Begin
 {$ENDIF}
   fPLayer := Nil;
   fTCPPort := Port;
+  If Not fUDP.Listen(UDPPingPort) Then Begin
+    log('Error could not listen on port: ' + inttostr(UDPPingPort), llFatal);
+    factive := false;
+    LogLeave;
+    exit;
+  End;
   If Not fChunkManager.Listen(Port) Then Begin
     log('Error could not listen on port: ' + inttostr(port), llFatal);
+    factive := false;
     LogLeave;
-    halt;
+    exit;
   End;
   LogLeave;
 End;
@@ -3170,7 +3171,16 @@ Begin
       End;
       }
     End;
+{$IFDEF Windows}
+    If fGameState = gs_Gaming Then Begin
+      sleep(0); // In FPC_Atomic ist das hier unter Windows Notwendig weil sonst das ganze Spiel "Laggy" ist, aber braucht CTD das auch ?
+    End
+    Else Begin
+      sleep(1);
+    End;
+{$ELSE}
     sleep(1);
+{$ENDIF}
   End;
   LogLeave;
 End;
