@@ -2966,6 +2966,7 @@ Constructor TServer.create(Port, AutoTimeOut: Integer; Password: String);
 Begin
   log('TServer.create', lltrace);
   Inherited create;
+  factive := false;
   fLastSaveable := TMemoryStream.Create;
   fRestartWave := TMemoryStream.Create;
   fGameState := gs_EditMode;
@@ -2984,7 +2985,6 @@ Begin
   fChunkManager := TChunkManager.create;
   fChunkManager.RegisterConnection(fTCP);
   fChunkManager.OnReceivedChunk := @OnReceivedChunk;
-  factive := true;
   fLastActiveTickTimestamp := gettick();
 {$IFDEF WinXPMode}
   LogShow('Attention using WinXP mode make shure client is also compiled in WinXP mode.', llInfo);
@@ -2993,16 +2993,15 @@ Begin
   fTCPPort := Port;
   If Not fUDP.Listen(UDPPingPort) Then Begin
     log('Error could not listen on port: ' + inttostr(UDPPingPort), llFatal);
-    factive := false;
     LogLeave;
     exit;
   End;
   If Not fChunkManager.Listen(Port) Then Begin
     log('Error could not listen on port: ' + inttostr(port), llFatal);
-    factive := false;
     LogLeave;
     exit;
   End;
+  factive := true;
   LogLeave;
 End;
 
