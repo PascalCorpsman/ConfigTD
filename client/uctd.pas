@@ -2211,30 +2211,35 @@ End;
 Procedure Tctd.ModifyTerrain(kx, ky: integer);
 Var
   m: TMemoryStream;
-  i, j, c, d: integer;
+  o, x, y, i, j, c: integer;
 Begin
   c := 0;
   If form4.CheckBox3.Checked Then
-    c := c Or Begehbar;
+    c := c Or Walkable;
   If form4.CheckBox4.Checked Then
-    c := c Or Bebaubar;
-  For i := -form4.ScrollBar1.Position To +form4.ScrollBar1.Position Do
-    For j := -form4.ScrollBar1.Position To +form4.ScrollBar1.Position Do Begin
-      // If sqr(form4.ScrollBar1.Position) >= sqr(i) + sqr(j) Then -- Macht nen Runden Cursor
-      If (kx + i >= 0) And (kx + i < map.Width) And
-        (ky + j >= 0) And (ky + j < map.Height) And
-        (Map.fTerrain[kx + i, ky + j].data <> c) Then Begin
-        Map.fTerrain[kx + i, ky + j].data := c;
-        map.UpdateBackTexCoord(kx + i, ky + j);
+    c := c Or Buildable;
+  If form4.ScrollBar1.Position Mod 2 = 0 Then Begin
+    o := form4.ScrollBar1.Position Div 2;
+  End
+  Else Begin
+    o := form4.ScrollBar1.Position Div 2 + 1;
+  End;
+  For i := 0 To form4.ScrollBar1.Position Do Begin
+    x := kx + i - o;
+    For j := 0 To form4.ScrollBar1.Position Do Begin
+      y := ky + j - o;
+      If (x >= 0) And (x < map.Width) And
+        (y >= 0) And (y < map.Height) And
+        (Map.fTerrain[x, y].data <> c) Then Begin
+        map.UpdateBackTexCoord(x, y);
         m := TMemoryStream.Create;
-        d := kx + i;
-        m.write(d, sizeof(d));
-        d := ky + j;
-        m.write(d, sizeof(d));
+        m.write(x, sizeof(x));
+        m.write(y, sizeof(y));
         m.write(c, sizeof(c));
         UpdateMapProperty(mpCoord, m);
       End;
     End;
+  End;
 End;
 
 Procedure Tctd.ModifyWaypointArea(kx, ky: integer);
@@ -4125,11 +4130,18 @@ Begin
             glEnable(GL_BLEND);
             glColor4f(1, 0, 0, 0.5);
             glBindTexture(GL_TEXTURE_2D, 0);
+            glScalef(MapBlockSize, MapBlockSize, 1);
+            If i Mod 2 = 0 Then Begin
+              glTranslatef(-i / 2, -i / 2, 0);
+            End
+            Else Begin
+              glTranslatef(-i / 2 - 0.5, -i / 2 - 0.5, 0);
+            End;
             glBegin(GL_QUADS);
-            glVertex2f(-i * MapBlockSize, -i * MapBlockSize);
-            glVertex2f((i + 1) * MapBlockSize, -i * MapBlockSize);
-            glVertex2f((i + 1) * MapBlockSize, (i + 1) * MapBlockSize);
-            glVertex2f(-i * MapBlockSize, (i + 1) * MapBlockSize);
+            glVertex2f(0, 0);
+            glVertex2f(i + 1, 0);
+            glVertex2f(i + 1, i + 1);
+            glVertex2f(0, i + 1);
             glend;
             glDisable(GL_BLEND);
             glPopMatrix;

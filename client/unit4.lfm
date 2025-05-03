@@ -9,7 +9,7 @@ object Form4: TForm4
   ClientWidth = 323
   FormStyle = fsStayOnTop
   Position = poScreenCenter
-  LCLVersion = '3.99.0.0'
+  LCLVersion = '4.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -19,24 +19,24 @@ object Form4: TForm4
     Height = 465
     Top = 0
     Width = 323
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     Align = alClient
-    TabIndex = 3
+    TabIndex = 1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'General'
-      ClientHeight = 437
-      ClientWidth = 315
+      ClientHeight = 431
+      ClientWidth = 317
       object Label1: TLabel
         Left = 8
-        Height = 15
+        Height = 16
         Top = 8
-        Width = 60
+        Width = 69
         Caption = 'Description'
       end
       object Memo1: TMemo
         Left = 144
-        Height = 120
+        Height = 114
         Top = 8
         Width = 168
         Anchors = [akTop, akLeft, akBottom]
@@ -50,17 +50,17 @@ object Form4: TForm4
       end
       object Label2: TLabel
         Left = 8
-        Height = 15
+        Height = 16
         Top = 128
-        Width = 50
+        Width = 57
         Caption = 'Map type'
       end
       object ComboBox1: TComboBox
         Left = 144
-        Height = 23
+        Height = 26
         Top = 128
         Width = 168
-        ItemHeight = 15
+        ItemHeight = 0
         ItemIndex = 0
         Items.Strings = (
           'Single'
@@ -75,14 +75,14 @@ object Form4: TForm4
       end
       object Label3: TLabel
         Left = 8
-        Height = 15
+        Height = 16
         Top = 160
-        Width = 97
+        Width = 111
         Caption = 'Max players count'
       end
       object Edit1: TEdit
         Left = 144
-        Height = 23
+        Height = 26
         Top = 160
         Width = 168
         TabOrder = 2
@@ -95,33 +95,33 @@ object Form4: TForm4
         Top = 192
         Width = 304
         Caption = ' Lives count for every Player'
-        ClientHeight = 52
-        ClientWidth = 300
+        ClientHeight = 70
+        ClientWidth = 302
         TabOrder = 3
         object Label4: TLabel
           Left = 8
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 23
+          Width = 28
           Caption = 'Easy'
         end
         object Label5: TLabel
           Left = 108
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 40
+          Width = 45
           Caption = 'Normal'
         end
         object Label6: TLabel
           Left = 208
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 26
+          Width = 29
           Caption = 'Hard'
         end
         object Edit2: TEdit
           Left = 8
-          Height = 23
+          Height = 26
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
@@ -133,7 +133,7 @@ object Form4: TForm4
         end
         object Edit3: TEdit
           Left = 108
-          Height = 23
+          Height = 26
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
@@ -145,7 +145,7 @@ object Form4: TForm4
         end
         object Edit4: TEdit
           Left = 208
-          Height = 23
+          Height = 26
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
@@ -162,14 +162,14 @@ object Form4: TForm4
         Top = 264
         Width = 305
         Caption = ' Background Image '
-        ClientHeight = 36
-        ClientWidth = 301
+        ClientHeight = 39
+        ClientWidth = 303
         TabOrder = 4
         object CheckBox1: TCheckBox
           Left = 8
-          Height = 19
+          Height = 22
           Top = 8
-          Width = 47
+          Width = 57
           Caption = 'Show'
           TabOrder = 0
           OnChange = CheckBox1Change
@@ -235,8 +235,8 @@ object Form4: TForm4
         Top = 320
         Width = 305
         Caption = ' Damage classes '
-        ClientHeight = 28
-        ClientWidth = 301
+        ClientHeight = 46
+        ClientWidth = 303
         TabOrder = 8
         object Button13: TButton
           Left = 36
@@ -257,9 +257,9 @@ object Form4: TForm4
         end
         object Label14: TLabel
           Left = 8
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 6
+          Width = 8
           Caption = '1'
         end
         object Button14: TButton
@@ -281,9 +281,9 @@ object Form4: TForm4
         end
         object Label15: TLabel
           Left = 86
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 6
+          Width = 8
           Caption = '2'
         end
         object Button15: TButton
@@ -305,9 +305,9 @@ object Form4: TForm4
         end
         object Label16: TLabel
           Left = 160
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 6
+          Width = 8
           Caption = '3'
         end
         object Button16: TButton
@@ -329,17 +329,17 @@ object Form4: TForm4
         end
         object Label17: TLabel
           Left = 232
-          Height = 15
+          Height = 16
           Top = 8
-          Width = 6
+          Width = 8
           Caption = '4'
         end
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Terrain'
-      ClientHeight = 437
-      ClientWidth = 315
+      ClientHeight = 431
+      ClientWidth = 317
       object Button3: TButton
         Left = 8
         Height = 25
@@ -355,39 +355,39 @@ object Form4: TForm4
         Top = 40
         Width = 304
         Caption = ' Edit Terrain '
-        ClientHeight = 85
-        ClientWidth = 300
+        ClientHeight = 88
+        ClientWidth = 302
         TabOrder = 1
         object CheckBox2: TCheckBox
           Left = 8
-          Height = 19
+          Height = 22
           Top = 7
-          Width = 93
+          Width = 111
           Caption = 'Enable editing'
           TabOrder = 0
           OnChange = CheckBox2Change
         end
         object CheckBox3: TCheckBox
           Left = 145
-          Height = 19
+          Height = 22
           Top = 7
-          Width = 120
+          Width = 139
           Caption = 'Creeps can walk on'
           TabOrder = 1
         end
         object CheckBox4: TCheckBox
           Left = 145
-          Height = 19
+          Height = 22
           Top = 31
-          Width = 124
+          Width = 145
           Caption = 'Players can build on'
           TabOrder = 2
         end
         object Label7: TLabel
           Left = 8
-          Height = 15
+          Height = 16
           Top = 63
-          Width = 69
+          Width = 79
           Caption = 'Cursor size: 1'
         end
         object ScrollBar1: TScrollBar
@@ -395,16 +395,16 @@ object Form4: TForm4
           Height = 14
           Top = 64
           Width = 148
-          Max = 5
+          Max = 10
           PageSize = 0
           TabOrder = 3
           OnChange = ScrollBar1Change
         end
         object CheckBox8: TCheckBox
           Left = 8
-          Height = 19
+          Height = 22
           Top = 31
-          Width = 91
+          Width = 107
           Caption = 'Show backtex'
           TabOrder = 4
           OnChange = CheckBox1Change
@@ -416,23 +416,23 @@ object Form4: TForm4
         Top = 160
         Width = 304
         Caption = ' Placements '
-        ClientHeight = 77
-        ClientWidth = 300
+        ClientHeight = 80
+        ClientWidth = 302
         TabOrder = 2
         object CheckBox6: TCheckBox
           Left = 8
-          Height = 19
+          Height = 22
           Top = 8
-          Width = 93
+          Width = 111
           Caption = 'Enable editing'
           TabOrder = 0
           OnChange = CheckBox6Change
         end
         object RadioButton4: TRadioButton
           Left = 7
-          Height = 19
+          Height = 22
           Top = 40
-          Width = 40
+          Width = 49
           Caption = 'Add'
           Checked = True
           TabOrder = 1
@@ -440,18 +440,18 @@ object Form4: TForm4
         end
         object RadioButton5: TRadioButton
           Left = 62
-          Height = 19
+          Height = 22
           Top = 40
-          Width = 35
+          Width = 45
           Caption = 'Del'
           TabOrder = 2
         end
         object ComboBox2: TComboBox
           Left = 144
-          Height = 23
+          Height = 30
           Top = 8
           Width = 119
-          ItemHeight = 15
+          ItemHeight = 0
           Style = csDropDownList
           TabOrder = 3
           OnChange = ComboBox2Change
@@ -467,14 +467,14 @@ object Form4: TForm4
         end
         object Label9: TLabel
           Left = 145
-          Height = 15
+          Height = 16
           Top = 44
-          Width = 29
+          Width = 34
           Caption = 'Stage'
         end
         object Edit5: TEdit
           Left = 213
-          Height = 23
+          Height = 26
           Top = 40
           Width = 80
           TabOrder = 5
@@ -484,36 +484,36 @@ object Form4: TForm4
     end
     object TabSheet5: TTabSheet
       Caption = 'Waypoints'
-      ClientHeight = 437
-      ClientWidth = 315
+      ClientHeight = 431
+      ClientWidth = 317
       object GroupBox4: TGroupBox
         Left = 8
         Height = 97
         Top = 8
         Width = 304
         Caption = ' Waypoints '
-        ClientHeight = 77
-        ClientWidth = 300
+        ClientHeight = 95
+        ClientWidth = 302
         TabOrder = 0
         object CheckBox5: TCheckBox
           Left = 8
-          Height = 19
+          Height = 22
           Top = 8
-          Width = 93
+          Width = 111
           Caption = 'Enable editing'
           TabOrder = 0
           OnChange = CheckBox5Change
         end
         object Label8: TLabel
           Left = 8
-          Height = 15
+          Height = 16
           Top = 41
-          Width = 32
+          Width = 38
           Caption = 'Player'
         end
         object SpinEdit1: TSpinEdit
           Left = 56
-          Height = 23
+          Height = 26
           Top = 33
           Width = 50
           MaxValue = 100
@@ -524,9 +524,9 @@ object Form4: TForm4
         end
         object RadioButton1: TRadioButton
           Left = 165
-          Height = 19
+          Height = 22
           Top = 8
-          Width = 120
+          Width = 139
           Caption = 'Add new way point'
           Checked = True
           TabOrder = 2
@@ -534,17 +534,17 @@ object Form4: TForm4
         end
         object RadioButton2: TRadioButton
           Left = 165
-          Height = 19
+          Height = 22
           Top = 29
-          Width = 125
+          Width = 144
           Caption = 'Remove a way point'
           TabOrder = 3
         end
         object RadioButton3: TRadioButton
           Left = 165
-          Height = 19
+          Height = 22
           Top = 51
-          Width = 100
+          Width = 118
           Caption = 'Dec point order'
           TabOrder = 4
         end
@@ -555,23 +555,23 @@ object Form4: TForm4
         Top = 160
         Width = 304
         Caption = ' Waypoint areas '
-        ClientHeight = 148
-        ClientWidth = 300
+        ClientHeight = 166
+        ClientWidth = 302
         TabOrder = 1
         object CheckBox7: TCheckBox
           Left = 8
-          Height = 19
+          Height = 22
           Top = 8
-          Width = 93
+          Width = 111
           Caption = 'Enable editing'
           TabOrder = 0
           OnChange = CheckBox7Change
         end
         object Label18: TLabel
           Left = 8
-          Height = 15
+          Height = 16
           Top = 63
-          Width = 69
+          Width = 79
           Caption = 'Cursor size: 1'
         end
         object ScrollBar2: TScrollBar
@@ -586,9 +586,9 @@ object Form4: TForm4
         end
         object RadioButton6: TRadioButton
           Left = 165
-          Height = 19
+          Height = 22
           Top = 8
-          Width = 40
+          Width = 49
           Caption = 'Add'
           Checked = True
           TabOrder = 2
@@ -596,9 +596,9 @@ object Form4: TForm4
         end
         object RadioButton7: TRadioButton
           Left = 165
-          Height = 19
+          Height = 22
           Top = 32
-          Width = 61
+          Width = 72
           Caption = 'Remove'
           TabOrder = 3
         end
@@ -606,27 +606,27 @@ object Form4: TForm4
     end
     object TabSheet3: TTabSheet
       Caption = 'Buyables'
-      ClientHeight = 437
-      ClientWidth = 315
+      ClientHeight = 431
+      ClientWidth = 317
       object Label10: TLabel
         Left = 8
-        Height = 15
+        Height = 16
         Top = 24
-        Width = 101
+        Width = 118
         Caption = 'All available towers'
       end
       object Label11: TLabel
         Left = 8
-        Height = 15
-        Top = 398
-        Width = 127
+        Height = 16
+        Top = 391
+        Width = 140
         Anchors = [akLeft, akBottom]
         Caption = 'Minimum wave to build'
       end
       object Edit6: TEdit
         Left = 152
-        Height = 23
-        Top = 386
+        Height = 26
+        Top = 377
         Width = 80
         Anchors = [akLeft, akBottom]
         TabOrder = 0
@@ -635,7 +635,7 @@ object Form4: TForm4
       object Button10: TButton
         Left = 240
         Height = 49
-        Top = 386
+        Top = 380
         Width = 75
         Anchors = [akLeft, akBottom]
         Caption = 'Set'
@@ -644,7 +644,7 @@ object Form4: TForm4
       end
       object ListBox1: TListBox
         Left = 8
-        Height = 332
+        Height = 326
         Top = 48
         Width = 304
         Anchors = [akTop, akLeft, akBottom]
@@ -652,23 +652,24 @@ object Form4: TForm4
         ScrollWidth = 262
         Style = lbOwnerDrawFixed
         TabOrder = 2
+        TopIndex = -1
         OnClick = ListBox1Click
         OnDblClick = ListBox1DblClick
         OnDrawItem = ListBox1DrawItem
       end
       object Label12: TLabel
         Left = 8
-        Height = 15
-        Top = 422
-        Width = 111
+        Height = 16
+        Top = 415
+        Width = 126
         Anchors = [akLeft, akBottom]
         Caption = 'Upper limit of towers'
       end
       object Edit7: TEdit
         Left = 152
-        Height = 23
+        Height = 26
         Hint = '0 = Build as many items as you want'
-        Top = 414
+        Top = 405
         Width = 80
         Anchors = [akLeft, akBottom]
         ParentShowHint = False
@@ -697,8 +698,8 @@ object Form4: TForm4
     end
     object TabSheet4: TTabSheet
       Caption = 'Waves'
-      ClientHeight = 437
-      ClientWidth = 315
+      ClientHeight = 431
+      ClientWidth = 317
       object Label13: TLabel
         Left = 8
         Height = 25

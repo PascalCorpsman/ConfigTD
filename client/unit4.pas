@@ -835,7 +835,7 @@ End;
 
 Procedure TForm4.ScrollBar1Change(Sender: TObject);
 Begin
-  label7.caption := 'Cursor size: ' + inttostr((ScrollBar1.Position * 2) + 1);
+  label7.caption := 'Cursor size: ' + inttostr(ScrollBar1.Position + 1);
 End;
 
 Procedure TForm4.ScrollBar2Change(Sender: TObject);

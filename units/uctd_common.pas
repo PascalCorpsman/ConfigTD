@@ -117,6 +117,7 @@ Const
    * -Released- 0.12006 = FIX: In Start Game Dialog, keep "moved" Player selected in Listbox
    *                      FIX: Add buyable with more than 1 player in game creates invald maps
    *            0.12007 = FIX: Realtime calculation under windows was wrong
+   *                      ADD: improve Ux for terrain editing (more cursor steps)
    *
    * Known Bugs :
    *)
@@ -207,8 +208,8 @@ Const
   (*
    * Bitmasken für die Raw Data in den Karten
    *)
-  Begehbar = 1;
-  Bebaubar = 2;
+  Walkable = 1;
+  Buildable = 2;
 
   (*
    * Die Callbacks der Karte, welche dem Hauptspiel Mitteilt, dass

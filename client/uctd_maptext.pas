@@ -66,13 +66,13 @@ Begin
     For j := 0 To fmap.Height - 1 Do Begin
       c := graphics.RGBToColor(0, 0, 0); // Farbe für Nichts
       Case fmap.fTerrain[i, j].data Of
-        Begehbar: Begin
+        Walkable: Begin
             c := graphics.RGBToColor(64, 64, 64);
           End;
-        Bebaubar: Begin
+        Buildable: Begin
             c := graphics.RGBToColor(128, 128, 128);
           End;
-        Bebaubar + Begehbar: Begin
+        Buildable + Walkable: Begin
             c := graphics.RGBToColor(192, 192, 192);
           End;
       End;

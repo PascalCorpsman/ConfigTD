@@ -346,16 +346,22 @@ End;
 Procedure TForm1.OpenGLControl1MouseWheelDown(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; Var Handled: Boolean);
 Begin
-  If (GetValue('Global', 'Autozoom', '1') = '1') Then Begin
+  If (GetValue('Global', 'Autozoom', '1') = '1') And (shift = []) Then Begin
     ctd.Zoom(True);
+  End;
+  If (ssCtrl In Shift) And form4.CheckBox2.Checked Then Begin
+    form4.ScrollBar1.Position := form4.ScrollBar1.Position + 1;
   End;
 End;
 
 Procedure TForm1.OpenGLControl1MouseWheelUp(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; Var Handled: Boolean);
 Begin
-  If (GetValue('Global', 'Autozoom', '1') = '1') Then Begin
+  If (GetValue('Global', 'Autozoom', '1') = '1') And (shift = []) Then Begin
     ctd.Zoom(false);
+  End;
+  If (ssCtrl In Shift) And form4.CheckBox2.Checked Then Begin
+    form4.ScrollBar1.Position := form4.ScrollBar1.Position - 1;
   End;
 End;
 
@@ -630,10 +636,10 @@ Begin
         d := 0;
         If c <> clred Then Begin
           If Not (c = clwhite) Then Begin
-            d := d Or Begehbar;
+            d := d Or Walkable;
           End;
           If Not (c = clBlack) Then Begin
-            d := d Or Bebaubar;
+            d := d Or Buildable;
           End;
         End;
         fMapTransferStream.write(d, sizeof(d));

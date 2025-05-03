@@ -482,9 +482,9 @@ Var
   c: TColor;
 Begin
   Case col Of
-    Begehbar: c := Begehbar_col;
-    Bebaubar: c := Bebaubar_col;
-    Begehbar + Bebaubar: c := Beides_Col
+    Walkable: c := Begehbar_col;
+    Buildable: c := Bebaubar_col;
+    Walkable + Buildable: c := Beides_Col
   Else
     c := Nichts_Col;
   End;
@@ -1341,14 +1341,14 @@ Begin
     setlength(fTerrain, NewWidth, NewHeight);
     For i := ow To NewWidth - 1 Do Begin
       For j := oh To NewHeight - 1 Do Begin
-        fTerrain[i, j].data := Begehbar Or Bebaubar;
+        fTerrain[i, j].data := Walkable Or Buildable;
         fTerrain[i, j].WArea := false;
         fTerrain[i, j].blocked := false;
       End;
     End;
     For j := oh To NewHeight - 1 Do Begin
       For i := ow To NewWidth - 1 Do Begin
-        fTerrain[i, j].data := Begehbar Or Bebaubar;
+        fTerrain[i, j].data := Walkable Or Buildable;
         fTerrain[i, j].blocked := false;
         fTerrain[i, j].WArea := false;
       End;
@@ -1630,7 +1630,7 @@ Begin
   // Sind alle überdekten Pixel Bebaubar ?
   For i := 0 To round(building.Width) - 1 Do Begin
     For j := 0 To round(building.Height) - 1 Do Begin
-      If (getfield(x + i, y - j) And Bebaubar) = 0 Then Begin
+      If (getfield(x + i, y - j) And Buildable) = 0 Then Begin
         result := false;
         exit;
       End;
@@ -1664,7 +1664,7 @@ Begin
   setlength(bblocked, round(building.Width), round(building.Height));
   For i := 0 To round(building.Width) - 1 Do
     For j := 0 To round(building.Height) - 1 Do Begin
-      If (fTerrain[x + i, y - j].data And Begehbar) <> 0 Then sc := false; // Jop, mindestens ein Feld wird nachher nicht mehr begehbar sein
+      If (fTerrain[x + i, y - j].data And Walkable) <> 0 Then sc := false; // Jop, mindestens ein Feld wird nachher nicht mehr begehbar sein
       bblocked[i, j] := fTerrain[x + i, y - j].blocked;
       fTerrain[x + i, y - j].blocked := true;
     End;
@@ -1697,7 +1697,7 @@ End;
 Function TMap.CoordIsBuildable2(x, y: integer): Boolean;
 Begin
   result := true;
-  If (getfield(x, y) And Bebaubar) = 0 Then Begin
+  If (getfield(x, y) And Buildable) = 0 Then Begin
     result := false;
     exit;
   End;
@@ -1723,7 +1723,7 @@ Begin
   If (x >= 0) And (x <= high(fterrain)) And
     (y >= 0) And (y <= high(fterrain[x])) Then Begin
     // Prüfen auf Begehbarkeit durch Karte
-    If ((fterrain[x, y].data And Begehbar) = Begehbar) Then
+    If ((fterrain[x, y].data And Walkable) = Walkable) Then
       result := true;
     If fterrain[x, y].blocked Then result := false; // Hier Steht ein Gebäude
   End;
@@ -1952,9 +1952,9 @@ End;
 Function ValueToColor(Value: integer): TColor;
 Begin
   Case value Of
-    Begehbar: result := Begehbar_col;
-    Bebaubar: result := Bebaubar_col;
-    Begehbar + Bebaubar: result := Beides_Col
+    Walkable: result := Begehbar_col;
+    Buildable: result := Bebaubar_col;
+    Walkable + Buildable: result := Beides_Col
   Else
     result := Nichts_Col;
   End;
@@ -4648,7 +4648,7 @@ Begin
           yy := max(0, round(Fbuildings[i].Position.y) - y);
           fTerrain[xx, yy].blocked := false;
 {$IFDEF Server}
-          If (fTerrain[xx, yy].data And begehbar) <> 0 Then sc := true;
+          If (fTerrain[xx, yy].data And Walkable) <> 0 Then sc := true;
 {$ENDIF}
         End;
 {$IFDEF Server}
@@ -4993,7 +4993,7 @@ Begin
     For i := 0 To round(building.Width) - 1 Do
       For j := 0 To round(building.Height) - 1 Do Begin
 {$IFDEF Server}
-        If (fTerrain[x + i, y - j].data And Begehbar) <> 0 Then sc := false; // Jop, mindestens ein Feld wird nachher nicht mehr begehbar sein
+        If (fTerrain[x + i, y - j].data And Walkable) <> 0 Then sc := false; // Jop, mindestens ein Feld wird nachher nicht mehr begehbar sein
 {$ENDIF}
         fTerrain[x + i, y - j].blocked := true;
       End;
