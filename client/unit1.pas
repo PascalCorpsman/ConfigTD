@@ -346,7 +346,7 @@ End;
 Procedure TForm1.OpenGLControl1MouseWheelDown(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; Var Handled: Boolean);
 Begin
-  If (GetValue('Global', 'Autozoom', '1') = '1') And (shift = []) Then Begin
+  If (GetValue('Global', 'Autozoom', '1') = '1') And ((shift = []) Or (ctd.GameState = gs_Gaming) Or (Not form4.CheckBox2.Checked)) Then Begin
     ctd.Zoom(True);
   End;
   If (ssCtrl In Shift) And form4.CheckBox2.Checked Then Begin
@@ -357,7 +357,7 @@ End;
 Procedure TForm1.OpenGLControl1MouseWheelUp(Sender: TObject;
   Shift: TShiftState; MousePos: TPoint; Var Handled: Boolean);
 Begin
-  If (GetValue('Global', 'Autozoom', '1') = '1') And (shift = []) Then Begin
+  If (GetValue('Global', 'Autozoom', '1') = '1') And ((shift = []) Or (ctd.GameState = gs_Gaming) Or (Not form4.CheckBox2.Checked)) Then Begin
     ctd.Zoom(false);
   End;
   If (ssCtrl In Shift) And form4.CheckBox2.Checked Then Begin

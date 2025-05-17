@@ -338,6 +338,7 @@ Type
     Procedure CreateDamageClassTextures;
     Function WaveOppList(WaveNum: integer): String;
 {$ENDIF}
+    Procedure SecureWaveOpponent(MinWaveCount, MinOpponentCount: Integer);
     Function CheckForErrors(ShowWarnings: Boolean): TCheckResult;
     Function GetListOfUnusedOpponents(): TStringList;
     Procedure DeleteUnusedOpponents();
@@ -2544,6 +2545,12 @@ Begin
 End;
 
 {$ENDIF}
+
+Procedure TMap.SecureWaveOpponent(MinWaveCount, MinOpponentCount: Integer);
+Begin
+  If length(Waves) < MinWaveCount Then setlength(Waves, MinWaveCount);
+  If length(Waves[MinWaveCount - 1].Opponents) < MinOpponentCount Then setlength(Waves[MinWaveCount - 1].Opponents, MinOpponentCount);
+End;
 
 Function TMap.CheckForErrors(ShowWarnings: Boolean): TCheckResult;
 Var
