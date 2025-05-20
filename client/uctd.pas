@@ -31,12 +31,13 @@ Uses
 
 Type
 
-  TUpdateMapPropertyEvent = Procedure(Sender: TObject; MapProperty: Integer; Const Data: TStream) Of Object;
+  TUpdateMapPropertyEvent = Procedure(Sender: TObject; MapProperty: Integer; SenderUid: Integer; Const Data: TStream) Of Object;
   TEndRoundEvent = Procedure(Sender: TObject; Succeed: Boolean; Round: Integer) Of Object;
   TOnGetStringListEvent = Procedure(Sender: TObject; Const Data: TStringlist) Of Object;
   TOnGetBooleanEvent = Procedure(Sender: TObject; Suceed: Boolean) Of Object;
   TOnGetStreamEvent = Procedure(Sender: TObject; Const Data: TStream) Of Object;
-  TOnWaveCloneEvent = Procedure(Sender: TObject; SourceWaveNum, DestWaveNum: Integer) Of Object;
+  TOnWaveCloneEvent = Procedure(Sender: TObject; SourceWaveNum, SenderUid: Integer) Of Object;
+  TOnWaveExchangeEvent = Procedure(Sender: TObject; SourceWaveNum, DestWaveNum, SenderUid: Integer) Of Object;
   TOnFileReceivedEvent = Procedure(Sender: TObject; MapName: String; Filename: String) Of Object;
 
   TOnShowGameStatistics = Procedure(Msg: String; Const Data: TStream) Of Object; // Zum Anzeigen der Spielstatistik am Ende des Spieles
@@ -229,7 +230,7 @@ Type
     Tab_Image: TOpenGl_Image;
     BuildingStrategyButtons: Array[0..7] Of TBuildingStrategyButton;
 
-    fServerUid: Integer; // Die vom Server Zugeteilte UID
+    fServerUid: Integer; // Die vom Server für uns Zugeteilte UID
     fstatebeforeloading, fgameState: TGameState;
     fMap: TMap; // Die Aktuelle Karte
     fChunkManager: TChunkManager;
@@ -383,7 +384,8 @@ Type
 
     Procedure CalcSumKillsLives(Out SumKills: integer; Out SumLives: integer);
 
-    Procedure DoWaveClone(SourceWaveNum, DestWaveNum: integer);
+    Procedure DoWaveClone(SourceWaveNum, SenderID: integer);
+    Procedure DoWaveExchange(w1, w2, SenderID: integer);
     Procedure RenderHint(x, y: integer; Const Hint: THint; AllowAdjusting: Boolean = true);
 
     Procedure ResetPressKeys; // Setzt alle "gedrückten" tasten zurück
@@ -406,6 +408,7 @@ Type
     OnHandleLoadGameingData: TNotifyEvent;
     OnShowGameStatistics: TOnShowGameStatistics;
     OnWaveCloneEvent: TOnWaveCloneEvent;
+    OnWaveExchangeEvent: TOnWaveExchangeEvent;
     OnGetHighscores: TOnGetStreamEvent;
     ShowLifepoints: Boolean; // Sollen beim Rendern die Lebenspunkte der Gegnerischen Einheiten angezeigt werden ?
     HintShowBuildingRange: Boolean; // Anzeige des Feuerradiusses eines Gebäudes beim Hinting
@@ -413,6 +416,7 @@ Type
     OnRefreshPlayerStats: TNotifyEvent;
     DarkMode: Boolean; // Wenn True, dann wird versucht möglichst viel im Spiel Dunkel zu rendern ..
     OnFileReceivedEvent: TOnFileReceivedEvent;
+
     Property OnHostButtonClick: TNotifyEvent write SetOnHostButtonClick;
     Property OnJoinButtonClick: TNotifyEvent write SetOnJoinButtonClick;
     Property OnNewMapButtonClick: TNotifyEvent write SetOnNewMapButtonClick;
@@ -427,6 +431,8 @@ Type
     Property Map: TMap read fMap;
     Property PlayerCount: integer read fGetPlayerCount;
     Property PlayerIndex: integer read fPlayerIndex;
+
+    Property OwnServerUid: Integer read fServerUid; // Nach Außen Verfügbare eigene Uid, welche vom Server zugeteilt wurde..
 
     Constructor Create;
     Destructor Destroy; override;
@@ -446,7 +452,8 @@ Type
     Procedure LoadMap(MapName: String);
     Procedure getMapList(Callback: TOnGetStringListEvent);
     Procedure getMapPrieviewInfo(MapName: String; aShowBackTex: Boolean; Callback: TOnGetMapPrieviewInfoEvent);
-    Procedure CloneMapWave(SourceWaveNum, DestWaveNum: integer);
+    Procedure CloneMapWave(SourceWaveNum: integer);
+    Procedure ExchangeWaves(w1, w2: integer);
 
     Procedure UpdateMapProperty(MapProperty: integer; Const Stream: TStream);
     Procedure InitiateNewGame(Difficulty: integer);
@@ -1783,7 +1790,6 @@ End;
 Procedure Tctd.OnEndFiletransfer(MapName, Filename: String);
 Var
   s: String;
-  b: Boolean;
   m: TMemoryStream;
 Begin
   fFileReceivingCount := fFileReceivingCount + 1;
@@ -1801,17 +1807,12 @@ Begin
       FOnReceivingFilesFinish.Data.free;
     End;
     If FOnReceivingFilesFinish.NeedRefreshBackTex Then Begin
-      b := BlockMapUpdateSending;
-      BlockMapUpdateSending := true;
       // Sieht unsinnig aus, funktioniert aber, weil Backtex nen Setter hat ;)
       s := fMap.BackTex;
       fMap.BackTex := '';
       fMap.BackTex := s;
-      BlockMapUpdateSending := b;
     End;
     If FOnReceivingFilesFinish.NeedRefreshDC1 Then Begin
-      b := BlockMapUpdateSending;
-      BlockMapUpdateSending := true;
       // Sieht unsinnig aus, funktioniert aber, weil DamageClass*Tex nen Setter hat ;)
       s := fMap.DamageClass1Tex;
       fMap.DamageClass1Tex := '';
@@ -1820,14 +1821,11 @@ Begin
         m := TMemoryStream.Create;
         m.WriteAnsiString(s);
         m.Position := 0;
-        OnUpdateMapProperty(self, mpDC1Tex, m);
+        OnUpdateMapProperty(self, mpDC1Tex, fServerUid, m);
         m.free;
       End;
-      BlockMapUpdateSending := b;
     End;
     If FOnReceivingFilesFinish.NeedRefreshDC2 Then Begin
-      b := BlockMapUpdateSending;
-      BlockMapUpdateSending := true;
       // Sieht unsinnig aus, funktioniert aber, weil DamageClass*Tex nen Setter hat ;)
       s := fMap.DamageClass2Tex;
       fMap.DamageClass2Tex := '';
@@ -1836,14 +1834,11 @@ Begin
         m := TMemoryStream.Create;
         m.WriteAnsiString(s);
         m.Position := 0;
-        OnUpdateMapProperty(self, mpDC2Tex, m);
+        OnUpdateMapProperty(self, mpDC2Tex, fServerUid, m);
         m.free;
       End;
-      BlockMapUpdateSending := b;
     End;
     If FOnReceivingFilesFinish.NeedRefreshDC3 Then Begin
-      b := BlockMapUpdateSending;
-      BlockMapUpdateSending := true;
       // Sieht unsinnig aus, funktioniert aber, weil DamageClass*Tex nen Setter hat ;)
       s := fMap.DamageClass3Tex;
       fMap.DamageClass3Tex := '';
@@ -1852,14 +1847,11 @@ Begin
         m := TMemoryStream.Create;
         m.WriteAnsiString(s);
         m.Position := 0;
-        OnUpdateMapProperty(self, mpDC3Tex, m);
+        OnUpdateMapProperty(self, mpDC3Tex, fServerUid, m);
         m.free;
       End;
-      BlockMapUpdateSending := b;
     End;
     If FOnReceivingFilesFinish.NeedRefreshDC4 Then Begin
-      b := BlockMapUpdateSending;
-      BlockMapUpdateSending := true;
       // Sieht unsinnig aus, funktioniert aber, weil DamageClass*Tex nen Setter hat ;)
       s := fMap.DamageClass4Tex;
       fMap.DamageClass4Tex := '';
@@ -1868,10 +1860,9 @@ Begin
         m := TMemoryStream.Create;
         m.WriteAnsiString(s);
         m.Position := 0;
-        OnUpdateMapProperty(self, mpDC4Tex, m);
+        OnUpdateMapProperty(self, mpDC4Tex, fServerUid, m);
         m.free;
       End;
-      BlockMapUpdateSending := b;
     End;
     If FOnReceivingFilesFinish.NeedStartRound Then Begin
       FOnReceivingFilesFinish.NeedStartRound := false;
@@ -2297,12 +2288,22 @@ Begin
   End;
 End;
 
-Procedure Tctd.DoWaveClone(SourceWaveNum, DestWaveNum: integer);
+Procedure Tctd.DoWaveClone(SourceWaveNum, SenderID: integer);
 Begin
   If assigned(fMap) Then Begin
-    fMap.CloneWave(SourceWaveNum, DestWaveNum);
+    fMap.CloneWave(SourceWaveNum);
     If assigned(OnWaveCloneEvent) Then Begin // Die LCL- Updaten
-      OnWaveCloneEvent(self, SourceWaveNum, DestWaveNum);
+      OnWaveCloneEvent(self, SourceWaveNum, SenderID);
+    End;
+  End;
+End;
+
+Procedure Tctd.DoWaveExchange(w1, w2, SenderID: integer);
+Begin
+  If assigned(fMap) Then Begin
+    fMap.ExChangeWaves(w1, w2);
+    If assigned(OnWaveExchangeEvent) Then Begin // Die LCL- Updaten
+      OnWaveExchangeEvent(self, w1, w2, SenderID);
     End;
   End;
 End;
@@ -2324,12 +2325,9 @@ Var
   p: int64;
   i, j, c: Integer;
   tmp: Tpoint;
-  b: Boolean;
   bk: TBuyAbleKind;
 Begin
   log('Tctd.HandleUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
-  b := BlockMapUpdateSending;
-  BlockMapUpdateSending := true; // Unterdrücken dass die LCL Komponenten irgendwelche Refreshes zum Server Senden
   p := data.Position;
   (*
    * Der Code in HandleUpdateMapProperty.inc übernimmt die Informationen aus Data und schreibt sie in FMap
@@ -2353,10 +2351,9 @@ Begin
   If (MapProperty = mpDC4Tex) And (high(FReceivingQueue) <> -1) Then Begin // Wenn die Textur erst übertragen wird, dann wird sie hier nicht Richtig geladen, so wird sie nach Abschluss der Dateiübertragung noch mal gesetzt
     FOnReceivingFilesFinish.NeedRefreshDC4 := true;
   End;
-  // Wenn wir selbst der Absender sind, brauchen wirs nicht an die LCL mitteilen, die stimmt ja dann schon
-  If assigned(OnUpdateMapProperty) And (fServerUid <> SenderUID) Then { #todo -cFIXME : Die Bedingung fServerUID <> SenderUID raus nehmen und alles nur noch im Event abhandeln, das müsste den Code deutlich entschlacken .. }
-    OnUpdateMapProperty(self, MapProperty, data);
-  BlockMapUpdateSending := b; // Unterdrücken dass die LCL Komponenten irgendwelche Refreshes zum Server Senden
+  // Weiterleiten an LCL
+  If assigned(OnUpdateMapProperty) Then
+    OnUpdateMapProperty(self, MapProperty, SenderUID, data);
   LogLeave;
 End;
 
@@ -2572,6 +2569,16 @@ Begin
   If fSideMenuObject = Obj Then Begin
     fSideMenuObject := Nil;
   End;
+End;
+
+Procedure Tctd.ExchangeWaves(w1, w2: integer);
+Var
+  m: TMemoryStream;
+Begin
+  m := TMemoryStream.Create;
+  m.Write(w1, sizeof(w1));
+  m.Write(w2, sizeof(w2));
+  SendChunk(miExchangeWaves, m);
 End;
 
 Procedure Tctd.RenderBlackOutMapBorder;
@@ -2967,6 +2974,15 @@ Begin
 {$ENDIF}
     log('Tctd.HandleReceivedData : ' + MessageIdentifierToString(Chunk.UserDefinedID), llTrace);
   Case (Chunk.UserDefinedID And $FFFF) Of
+    miExchangeWaves: Begin
+        i := -1;
+        chunk.Data.Read(i, sizeof(i));
+        j := -1;
+        chunk.Data.Read(j, sizeof(j));
+        k := -1;
+        chunk.Data.Read(k, sizeof(k));
+        DoWaveExchange(i, j, k);
+      End;
     miCloseMap: Begin
         If assigned(fMap) Then Begin
           fMap.Save(MapName);
@@ -3585,6 +3601,7 @@ Begin
   OnConnectToServer := Nil;
   OnDisconnectFromServer := Nil;
   OnWaveCloneEvent := Nil;
+  OnWaveExchangeEvent := Nil;
   ShowGrid := false;
   HintShowBuildingRange := true;
   HintShowHeroRange := true;
@@ -4694,16 +4711,14 @@ Begin
   LogLeave;
 End;
 
-Procedure Tctd.CloneMapWave(SourceWaveNum, DestWaveNum: integer);
+Procedure Tctd.CloneMapWave(SourceWaveNum: integer);
 Var
   m: TMemoryStream;
 Begin
-  log('Tctd.CloneMapWave : ' + inttostr(SourceWaveNum) + ' -> ' + inttostr(DestWaveNum), llTrace);
+  log('Tctd.CloneMapWave : ' + inttostr(SourceWaveNum), llTrace);
   m := TMemoryStream.Create;
   m.Write(SourceWaveNum, sizeof(SourceWaveNum));
-  m.Write(DestWaveNum, sizeof(DestWaveNum));
   SendChunk(miCloneMapWave, m);
-  DoWaveClone(SourceWaveNum, DestWaveNum);
   LogLeave;
 End;
 

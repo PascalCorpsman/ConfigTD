@@ -410,7 +410,8 @@ Type
     Procedure ResetAllMovingObjects;
     Function AddBuilding(x, y: integer; Const building: TBuilding): Boolean;
     Function AddHero(x, y: integer; Const hero: THero): Boolean;
-    Procedure CloneWave(SourceWaveNum, DestWaveNum: integer); // 0 - basiert, beide Parameter, wenn DestwaveIndex nicht existiert, wird er angelegt.
+    Procedure CloneWave(SourceWaveNum: integer); // 0 - basiert, Clont SourceWaveNum und fügt sie als "letzte" wave hinten an.
+    Procedure ExChangeWaves(w1, w2: integer);
     Procedure CreateMovableObjectList(Wave: integer); // Wird zu jeder neuen Runde aufgerufen und übernimmt auch das Init
 
     // TODO: Wenn alle Attribute mal "Sauber" implementiert sind, dann kann Change wieder Private werden.!
@@ -5113,13 +5114,12 @@ Begin
 {$ENDIF}
 End;
 
-Procedure TMap.CloneWave(SourceWaveNum, DestWaveNum: integer);
+Procedure TMap.CloneWave(SourceWaveNum: integer);
 Var
-  i: Integer;
+  i, DestWaveNum: Integer;
 Begin
-  If length(Waves) < DestWaveNum + 1 Then Begin
-    setlength(Waves, DestWaveNum + 1);
-  End;
+  setlength(Waves, high(Waves) + 2);
+  DestWaveNum := high(Waves);
   Waves[DestWaveNum].ChashOnStart := Waves[SourceWaveNum].ChashOnStart;
   Waves[DestWaveNum].WaveHint := Waves[SourceWaveNum].WaveHint;
   setlength(Waves[DestWaveNum].Opponents, length(Waves[SourceWaveNum].Opponents));
@@ -5239,6 +5239,15 @@ Begin
   End;
 {$ENDIF}
   LogLeave;
+End;
+
+Procedure TMap.ExChangeWaves(w1, w2: integer);
+Var
+  tmp: TWave;
+Begin
+  tmp := Waves[w1];
+  Waves[w1] := Waves[w2];
+  Waves[w2] := tmp;
 End;
 
 Function TMap.GetObjUnderCursor(x, y: integer): tctd_mapopbject;

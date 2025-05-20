@@ -3,6 +3,7 @@ object WaveFrame: TWaveFrame
   Height = 341
   Top = 0
   Width = 282
+  Anchors = [akTop, akLeft, akRight, akBottom]
   ClientHeight = 341
   ClientWidth = 282
   TabOrder = 0
@@ -19,7 +20,7 @@ object WaveFrame: TWaveFrame
   end
   object Edit2: TEdit
     Left = 95
-    Height = 26
+    Height = 23
     Top = 10
     Width = 80
     TabOrder = 0
@@ -55,7 +56,7 @@ object WaveFrame: TWaveFrame
   end
   object Edit1: TEdit
     Left = 95
-    Height = 26
+    Height = 23
     Top = 40
     Width = 80
     TabOrder = 1
@@ -67,6 +68,7 @@ object WaveFrame: TWaveFrame
     Height = 232
     Top = 104
     Width = 270
+    Anchors = [akTop, akLeft, akRight, akBottom]
     TabOrder = 5
     OnChange = PageControl1Change
   end
@@ -90,9 +92,9 @@ object WaveFrame: TWaveFrame
   end
   object Label1: TLabel
     Left = 235
-    Height = 16
+    Height = 15
     Top = 6
-    Width = 33
+    Width = 30
     Caption = 'move'
   end
   object Button4: TButton

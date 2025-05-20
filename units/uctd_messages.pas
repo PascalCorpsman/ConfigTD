@@ -95,6 +95,7 @@ Const
   miChangeHeroStrategy = 131;
   miSetHeroTargets = 132;
   miKickPlayerOut = 133; // Der Server soll den Spieler xy raus werfen (zum Retten wenn ein Spieler aus dem Netzwerk geflogen ist.
+  miExchangeWaves = 134;
 
   (*
    * Nachrichten vom Server an den Client

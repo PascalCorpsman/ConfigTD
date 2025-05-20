@@ -93,7 +93,6 @@ Begin
   m.Write(OpponnetNum, sizeof(OpponnetNum));
   m.WriteAnsiString(ComboBox1.Text);
   ctd.UpdateMapProperty(mpWaveOpponent, m);
-  ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].opponent := ComboBox1.Text;
 End;
 
 Procedure TWaveOpponentFrame.ComboBox1DrawItem(Control: TWinControl;
@@ -135,7 +134,6 @@ Begin
   i := strtointdef(edit1.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentCount, m);
-  ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].Count := i;
 End;
 
 Procedure TWaveOpponentFrame.Edit2Change(Sender: TObject);
@@ -150,7 +148,6 @@ Begin
   i := strtointdef(edit2.text, 0);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentCashPerUnit, m);
-  ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].refund := i;
 End;
 
 Procedure TWaveOpponentFrame.Edit3Change(Sender: TObject);
@@ -165,7 +162,6 @@ Begin
   i := strtointdef(edit3.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentUnitsPerSpawn, m);
-  ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].UnitsPerSpawn := i;
 End;
 
 Procedure TWaveOpponentFrame.Edit4Change(Sender: TObject);
@@ -180,7 +176,6 @@ Begin
   i := strtointdef(edit4.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentSpawnDelay, m);
-  ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].SpawnDelay := i;
 End;
 
 Procedure TWaveOpponentFrame.Edit5Change(Sender: TObject);
@@ -195,7 +190,6 @@ Begin
   i := strtointdef(edit5.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentSpawnDelta, m);
-  ctd.Map.Waves[WaveNum].Opponents[OpponnetNum].Spawndelta := i;
 End;
 
 Procedure TWaveOpponentFrame.SpeedButton1Click(Sender: TObject);
@@ -216,7 +210,6 @@ End;
 Procedure TWaveOpponentFrame.Reset();
 Begin
   ComboBox1.Text := '';
-  If ComboBox1.items.count <> 0 Then ComboBox1.ItemIndex := 0;
   edit1.text := '10'; // Count
   edit2.text := '1'; // Cash per unit
   edit3.text := '1'; // Units per Spawn

@@ -66,13 +66,13 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <CommandLineParams Value="-p 9876 -t 0 -l 1 -m /sda5/sda5/Tools/Projects/config_td2/maps"/>
+        <CommandLineParams Value="-p 9876 -t 0 -l 1 -m /sda5/sda5/Tools/Projects/config_td2/maps_test"/>
       </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="-p 9876 -t 0 -l 1 -m /sda5/sda5/Tools/Projects/config_td2/maps"/>
+            <CommandLineParams Value="-p 9876 -t 0 -l 1 -m /sda5/sda5/Tools/Projects/config_td2/maps_test"/>
           </local>
         </Mode0>
       </Modes>

@@ -43,7 +43,7 @@ Type
     Property OnGetImageX;
   End;
 
-{ TForm20 }
+  { TForm20 }
 
 Procedure TForm20.Button1Click(Sender: TObject);
 Begin
@@ -71,6 +71,7 @@ Var
   dlurl: String;
 Begin
   If PathDelim <> '/' Then Begin
+    dlurl := URL;
     dlurl := StringReplace(dlurl, '/', PathDelim, [rfReplaceAll]);
   End
   Else Begin

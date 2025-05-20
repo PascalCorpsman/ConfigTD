@@ -158,7 +158,7 @@ Type
     Procedure HandleSellBuilding(Owner: integer; Const Stream: TStream);
     Procedure HandleLevelUpBuilding(Owner: integer; Const Stream: TStream);
     Procedure HandleReceiveHeartBeat(p: integer; t: int64);
-    Procedure HandleSendLastWaveToAll();
+    Procedure HandleSendLastWaveToAll(Uid: integer);
 
     Procedure HandleStartRound(); // Alle Vorarbeiten sind Geleistet, es geht nun Tatsächlich los
     Procedure HandleInitiateNewRound(Difficulty, Round, UID: integer); // Startet ein neues Spiel
@@ -312,7 +312,7 @@ Begin
             fMap.Save(MapName);
             // Alle informieren
             //  HandleRequestMap(0, 0); -- Das Killt auch die gekauften Geaddeten Sachen der Karte -> wir müssen alles von "hand" an Alle senden
-            HandleSendLastWaveToAll();
+            HandleSendLastWaveToAll(Chunk.uid);
           End
           Else Begin
             // Dem User sagen warum es nicht geklappt hat.
@@ -373,14 +373,28 @@ Begin
     miCloneMapWave: Begin
         k := -1;
         chunk.Data.Read(k, sizeof(k));
-        w := -1;
-        chunk.Data.Read(w, sizeof(w));
         If assigned(fMap) Then Begin
-          fMap.CloneWave(k, w);
+          fMap.CloneWave(k);
           m := TMemoryStream.Create;
           m.Write(k, sizeof(k));
+          w := Chunk.UID;
           m.Write(w, sizeof(w));
-          SendChunk(miCloneMapWave, m, -Chunk.UID); // An alle außer dem Absender melden was sache ist ;)
+          SendChunk(miCloneMapWave, m, 0);
+        End;
+      End;
+    miExchangeWaves: Begin
+        If assigned(fMap) Then Begin
+          w := -1;
+          chunk.Data.Read(w, sizeof(w));
+          k := -1;
+          chunk.Data.Read(k, sizeof(k));
+          fmap.ExChangeWaves(w, k);
+          m := TMemoryStream.Create;
+          m.Write(w, sizeof(w));
+          m.Write(k, sizeof(k));
+          w := Chunk.UID;
+          m.Write(w, sizeof(w));
+          SendChunk(miExchangeWaves, m, 0);
         End;
       End;
     midecSpeed: Begin
@@ -1803,11 +1817,11 @@ Begin
   fPLayer[p].LastSynchronTimeStamp := t;
 End;
 
-Procedure TServer.HandleSendLastWaveToAll;
+Procedure TServer.HandleSendLastWaveToAll(Uid: integer);
 (*
  * Der miUpdateMapProperty Stream ist wie folgt aufgebaut
  * <integer= MapProperty-ID>
- * <integer= Sender ID -> immer 0>
+ * <integer= Sender ID -> Uid>
  * <integer= WaveNum [0-Bassiert]>
  * [Jeweilige WaveProp Nutzdaten]
  *)
@@ -1817,7 +1831,7 @@ Procedure TServer.HandleSendLastWaveToAll;
   Begin
     result := TMemoryStream.Create;
     result.Write(id, sizeof(id));
-    id := 0;
+    id := Uid;
     result.Write(id, sizeof(id));
     For i := 0 To high(data) Do Begin
       h := data[i];

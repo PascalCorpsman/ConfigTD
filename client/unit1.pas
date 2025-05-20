@@ -39,7 +39,7 @@ Uses
   Graphics, Dialogs, Menus, ExtCtrls, StdCtrls,
   UniqueInstance, // Wird in der .lpr Benutzt
   dglOpenGL, // http://wiki.delphigl.com/index.php/dglOpenGL.pas (innerhalb der .pas datei muss am Anfang stehen  {$HINTS off} und am Ende  {$HINTS on}
-  uctd_common, uctd_map, uctd, uopengl_widgetset, uwave_frame, uwave_oppenent_frame,
+  uctd_common, uctd_map, uctd, uopengl_widgetset, uwave_frame,
 {$IFDEF Windows} // Windows 10/11 Lazarus Darkmode compatiblity
   uDarkStyleParams, uMetaDarkStyle, uDarkStyleSchemes,
   uWin32WidgetSetDark,
@@ -172,12 +172,13 @@ Type
     Procedure OnIdle(Sender: TObject; Var Done: Boolean);
     Procedure OnShowGameStatistics(Msg: String; Const Data: TStream);
     Procedure OnFileReceivedEvent(Sender: TObject; MapName: String; Filename: String);
+    Procedure OnWaveExchangeEvent(Sender: TObject; SourceWaveNum, DestWaveNum, SenderUid: Integer);
   public
     { public declarations }
     Procedure OnConnectToServer(Sender: TObject);
     Procedure OnDisconnectFromServer(Sender: TObject);
     Procedure OnLoadMap(Sender: TObject);
-    Procedure OnUpdateMapProperty(Sender: TObject; MapProperty: Integer; Const Data: TStream);
+    Procedure OnUpdateMapProperty(Sender: TObject; MapProperty: Integer; SenderUid: Integer; Const Data: TStream);
     Procedure OnStartRound(Sender: TObject);
     Procedure OnEndRound(Sender: TObject; Succeed: Boolean; Round_: Integer);
     Procedure OnForceEditMode(Sender: TObject);
@@ -190,11 +191,10 @@ Type
     Procedure Load_CT_Settings;
 
     (*
-     * ggf sollte das nicht nur auf form4 bezogen sondern auf alles bezogen werden, dann bit einem Stack und hide all expect ?
+     * ggf. sollte das nicht nur auf form4 sondern auf alles bezogen werden, dann mit einem Stack und hide all except ?
      *)
     Procedure HideForm4;
     Procedure RestoreForm4;
-    Procedure AddForm4Buyable(b: TBuyAble);
   End;
 
 Var
@@ -335,6 +335,7 @@ Begin
     ctd.OnRefreshPlayerStats := @OnRefreshPlayerStats;
     ctd.OnShowGameStatistics := @OnShowGameStatistics;
     ctd.OnWaveCloneEvent := @form4.OnCTDWaveClone;
+    ctd.OnWaveExchangeEvent := @OnWaveExchangeEvent;
     ctd.OnFileReceivedEvent := @OnFileReceivedEvent;
 
     ctd.RegisterTCPConnection(LTCPComponent1);
@@ -783,6 +784,12 @@ Begin
     // Anzeigen der Nachricht
     ShowMessage(msg); // Unter Windows ist das nicht Blockend, deswegen muss die Nachricht gelöscht werden bevor sie angezeigt wird
   End;
+  // TODO: Immer alles lesen oder immer nur 1 ?
+  If assigned(LclFifo) Then Begin
+    While Not LclFifo.isempty Do Begin
+      form4.HandleLCLEvent(LclFifo.Pop);
+    End;
+  End;
 End;
 
 Procedure TForm1.StartHostGame;
@@ -878,16 +885,13 @@ Var
   i: Integer;
   f: TWaveFrame;
   m: TMemoryStream;
-  b: Boolean;
   s: String;
 Begin
   // Wenn eine Neue Karte geladen wurde
   log('TForm1.OnLoadMap', lltrace);
   caption := defCaption + ' : ' + MapName;
   form4.caption := 'Map Editor : ' + MapName;
-  b := ctd.BlockMapUpdateSending;
-  ctd.BlockMapUpdateSending := true; // Unterdrücken dass die LCL Komponenten irgendwelche Refreshes zum Server Senden
-
+  ctd.BlockMapUpdateSending := true;
   // Laden aller Kartenparameter aus CTD.Map
 
   // --- Karte General ---
@@ -928,7 +932,7 @@ Begin
   // --- Buyables ---
   Form4.RefreshForm4Buyables;
   // --- Waves ---
-  form4.SetWaveCountTo(high(ctd.Map.Waves) + 1);
+  form4.SetWaveCountTo(high(ctd.Map.Waves) + 1, ctd.OwnServerUid);
   Form4updating := true; // Das Laden einer Wave fragt die Opponentliste ab, das darf aber nur 1 mal gemacht werden, und da macht es der Timer, also wird das laden hier geblockt.
   For i := 0 To high(ctd.map.waves) Do Begin
     f := form4.PageControl2.pages[i].Components[0] As twaveFrame;
@@ -936,7 +940,7 @@ Begin
   End;
   Form4updating := false;
 
-  ctd.BlockMapUpdateSending := b; // Das Aktualisieren zum Server wieder freischalten
+  ctd.BlockMapUpdateSending := false;
   // starten der Aufgaben, welche nicht jetzt sondern erst später erledigt werden können
   form4.Timer1.Enabled := true;
 
@@ -962,235 +966,41 @@ Begin
 End;
 
 Procedure TForm1.OnUpdateMapProperty(Sender: TObject; MapProperty: Integer;
-  Const Data: TStream);
+  SenderUid: Integer; Const Data: TStream);
 Var
-  s: String;
-  i, j, c: integer;
-  by: TBuyAble;
-  b: Boolean;
-  bk: TBuyAbleKind;
+  Event: TLCLRecord;
 Begin
   log('TForm1.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
-  b := ctd.BlockMapUpdateSending;
-  ctd.BlockMapUpdateSending := true;
-  Case MapProperty Of
-    mpDelOppInWave: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        ctd.Map.DelOppInWave(i, j);
-        TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Free;
-        TWaveFrame(form4.PageControl2.Pages[i].Components[0]).FixOpponentNums();
-      End;
-    mpDC1Tex: Begin
-        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
-        If FileExistsUTF8(s) Then Begin
-          form4.Image1.Picture.LoadFromFile(UTF8ToSys(s));
-        End
-        Else Begin
-          form4.Image1.Picture.Clear;
-        End;
-      End;
-    mpDC2Tex: Begin
-        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
-        If FileExistsUTF8(s) Then Begin
-          form4.Image2.Picture.LoadFromFile(UTF8ToSys(s));
-        End
-        Else Begin
-          form4.Image2.Picture.Clear;
-        End;
-      End;
-    mpDC3Tex: Begin
-        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
-        If FileExistsUTF8(s) Then Begin
-          form4.Image3.Picture.LoadFromFile(UTF8ToSys(s));
-        End
-        Else Begin
-          form4.Image3.Picture.Clear;
-        End;
-      End;
-    mpDC4Tex: Begin
-        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
-        If FileExistsUTF8(s) Then Begin
-          form4.Image4.Picture.LoadFromFile(UTF8ToSys(s));
-        End
-        Else Begin
-          form4.Image4.Picture.Clear;
-        End;
-      End;
-    mpWaveOpponentCount: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        c := -1;
-        data.Read(c, sizeof(c));
-        TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit1.Text := inttostr(c);
-      End;
-    mpWaveOpponentCashPerUnit: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        c := -1;
-        data.Read(c, sizeof(c));
-        TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit2.Text := inttostr(c);
-      End;
-    mpWaveOpponentSpawnDelta: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        c := -1;
-        data.Read(c, sizeof(c));
-        TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit5.Text := inttostr(c);
-      End;
-    mpWaveOpponentSpawnDelay: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        c := -1;
-        data.Read(c, sizeof(c));
-        TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit4.Text := inttostr(c);
-      End;
-    mpWaveOpponentUnitsPerSpawn: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        c := -1;
-        data.Read(c, sizeof(c));
-        TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit3.Text := inttostr(c);
-      End;
-    mpWaveOpponent: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        s := Data.ReadAnsiString;
-        // ggf. den WaveOpponent anlegen, sollte dieser noch nicht existieren
-        b := false;
-        For c := 0 To TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items.count - 1 Do Begin
-          If TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items[c] = s Then Begin
-            b := true;
-            break;
-          End;
-        End;
-        If Not b Then Begin
-          TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).AddOpponentItem(s);
-        End;
-        TWaveOpponentFrame(TWaveFrame(form4.PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.Text := s;
-      End;
-    mpWaveOpponents: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        TWaveFrame(form4.PageControl2.Pages[i].Components[0]).SetOppenentCountTo(j);
-        Form4.RefreshOpponentsClick(Nil);
-      End;
-    mpWaveHint: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        s := data.ReadAnsiString;
-        TWaveFrame(form4.PageControl2.Pages[i].Components[0]).Edit1.Text := s;
-      End;
-    mpCashOnWaveStart: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        TWaveFrame(form4.PageControl2.Pages[i].Components[0]).Edit2.Text := inttostr(j);
-      End;
-    mpWaveCount: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        form4.SetWaveCountTo(i);
-        form4.Timer1.Enabled := true; // refresh aller möglichen listen
-      End;
-    mpMapType: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        form4.ComboBox1.ItemIndex := i;
-      End;
-    mpMaxPlayer: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        form4.edit1.text := inttostr(i);
-      End;
-    mpDescription: Begin
-        s := Data.ReadAnsiString;
-        form4.Memo1.Text := DeSerialize(s);
-      End;
-    mpLives: Begin
-        i := -1;
-        data.Read(i, sizeof(i));
-        form4.edit2.text := inttostr(i);
-        i := -1;
-        data.Read(i, sizeof(i));
-        form4.edit3.text := inttostr(i);
-        i := -1;
-        data.Read(i, sizeof(i));
-        form4.edit4.text := inttostr(i);
-      End;
-    mpAddBuyable: Begin
-        s := Data.ReadAnsiString;
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        bk := bkBuilding;
-        data.read(bk, sizeof(bk));
-        by.Item := s;
-        by.WaveNum := i;
-        by.Count := j;
-        by.Kind := bk;
-        AddForm4Buyable(by);
-      End;
-    {mpDelBuyable: Begin
-        s := Data.ReadAnsiString;
-        i := -1;
-        data.Read(i, sizeof(i));
-        j := -1;
-        data.Read(j, sizeof(j));
-        bk := bkBuilding;
-        data.read(bk, sizeof(bk));
-        by.Item := s;
-        by.WaveNum := i;
-        by.Count := j;
-        by.Kind := bk;
-        s := BuyableToString(by);
-        For i := 0 To Form4.ListBox1.Items.Count - 1 Do
-          If Form4.ListBox1.Items[i] = s Then Begin
-            Form4.ListBox1.Items.Delete(i);
-            break;
-          End;
-      End; }
-    mpUpdateBuyable: Begin
-        s := Data.ReadAnsiString;
-        i := -1;
-        data.Read(c, sizeof(c));
-        j := -1;
-        data.Read(j, sizeof(j));
-        bk := bkBuilding;
-        data.read(bk, sizeof(bk));
-        For i := 0 To Form4.ListBox1.Items.Count - 1 Do Begin
-          by := StringToBuyAble(Form4.ListBox1.Items[i]);
-          If by.Item = s Then Begin
-            by.Item := s;
-            by.WaveNum := c;
-            by.Count := j;
-            by.Kind := bk;
-            Form4.ListBox1.Items[i] := BuyableToString(by);
-            break;
-          End;
-        End;
-      End;
-  End;
-  ctd.BlockMapUpdateSending := b;
+  (*
+   * OnUpdateMapProperty wird von allen möglichen L-Net Events aus aufgerufen
+   * Die LclFifo entkoppelt das und kümmert sich drum ;)
+   *)
+  Event.Cmd := cUpdateMapProperty;
+  Event.AdditionalInfo := MapProperty;
+  Event.SenderUid := SenderUid;
+  Event.data := TMemoryStream.Create;
+  Event.data.CopyFrom(data, data.Size - data.Position);
+  Event.data.Position := 0;
+  LclFifo.Push(Event);
   LogLeave;
+End;
+
+Procedure TForm1.OnWaveExchangeEvent(Sender: TObject; SourceWaveNum,
+  DestWaveNum, SenderUid: Integer);
+Var
+  Event: TLCLRecord;
+Begin
+  (*
+   * Die LclFifo entkoppelt von L-Net Events und kümmert sich drum ;)
+   *)
+  Event.Cmd := cExchangeWave;
+  Event.AdditionalInfo := -1;
+  Event.SenderUid := SenderUid;
+  Event.data := TMemoryStream.Create;
+  Event.data.Write(SourceWaveNum, sizeof(SourceWaveNum));
+  Event.data.Write(DestWaveNum, sizeof(DestWaveNum));
+  Event.data.Position := 0;
+  LclFifo.Push(Event);
 End;
 
 Procedure TForm1.OnStartRound(Sender: TObject);
@@ -1355,54 +1165,6 @@ Begin
   End;
 End;
 
-Procedure TForm1.AddForm4Buyable(b: TBuyAble);
-Var
-  obj: TItemObject;
-  s: String;
-  i: Integer;
-Begin
-  // Buyables werden Sortiert nach Reihenfolge in der die Gebs in den Waves Kaufbar sind
-  // Wenn es dann Ding schon gibt nicht mehr adden
-  s := BuyableToString(b);
-  For i := 0 To Form4.ListBox1.items.count - 1 Do Begin
-    If Form4.ListBox1.items[i] = s Then Begin
-      // Über das Update Map Properties kann es sein, das das Objekt schon
-      // geladen wurde obwohl es noch nicht "da" ist -> dann wird es nun aktualisiert
-      obj := Form4.ListBox1.items.Objects[i] As TItemObject;
-      If Not assigned(obj) Then Begin
-        // TODO: Klären, was da dann gemacht werden muss ..
-      End
-      Else Begin
-        Case b.Kind Of
-          bkBuilding: Begin
-              obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
-            End;
-          bkHero: Begin
-              obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
-            End;
-        End;
-      End;
-      exit;
-    End;
-  End;
-  Case b.Kind Of
-    bkBuilding: Begin
-        obj := TItemObject.Create;
-        obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
-        form4.listbox1.Items.AddObject(s, obj);
-      End;
-    bkHero: Begin
-        obj := TItemObject.Create;
-        obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
-        form4.listbox1.Items.AddObject(s, obj);
-      End;
-  Else Begin
-      form4.listbox1.items.add(s);
-    End;
-  End;
-  Form4.SortForm4Buyables;
-End;
-
 Procedure TForm1.OnShowHighScores(Sender: TObject; Const Data: Tstream);
 Begin
   If form9.LoadHighscoresFromStream(Data) Then Begin
@@ -1472,6 +1234,7 @@ Var
   i: integer;
   dummy: Boolean;
 Begin
+  LclFifo := TLCLFifo.create;
   DefFormat := DefaultFormatSettings;
   DefFormat.DecimalSeparator := '.';
   LogShowHandler := @ShowUserMessage;
@@ -1593,6 +1356,8 @@ Begin
     ctd.free;
   ctd := Nil;
   fMapTransferStream.free;
+  LclFifo.free;
+  LclFifo := Nil;
   LogLeave;
 End;
 

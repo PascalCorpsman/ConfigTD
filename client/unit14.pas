@@ -1003,7 +1003,7 @@ Begin
         //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
           ctd.UpdateMapProperty(mpAddBuyable, m);
         End;
-        form1.AddForm4Buyable(b);
+        form4.AddForm4Buyable(b);
 
         // Freischalten des Editierens der Gebäude Eigenschaften
         form4.Edit6.Enabled := true;
@@ -1026,7 +1026,7 @@ Begin
         m.Write(b.Kind, sizeof(b.Kind));
         //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
         ctd.UpdateMapProperty(mpAddBuyable, m);
-        form1.AddForm4Buyable(b);
+        form4.AddForm4Buyable(b);
 
         // Freischalten des Editierens der Gebäude Eigenschaften
         form4.Edit6.Enabled := true;

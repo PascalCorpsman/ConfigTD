@@ -20,10 +20,30 @@ Interface
 
 Uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  ComCtrls, StdCtrls, Spin, ExtDlgs, Buttons, uctd_mapobject, uctd_map,
-  uwave_frame, Types;
+  ComCtrls, StdCtrls, Spin, ExtDlgs, Buttons, Types,
+  uctd_mapobject, uctd_map, ufifo, uwave_frame, uwave_oppenent_frame;
 
 Type
+
+  (*
+   * Liste aller Events die über den OnIdle Process verarbeitet werden (und damit nicht mehr im L-Net Task)
+   *)
+
+  TCmd = (
+    cNone
+    , cUpdateMapProperty
+    , cCloneWave
+    , cExchangeWave
+    );
+
+  TLCLRecord = Record
+    Cmd: TCmd;
+    AdditionalInfo: Integer;
+    SenderUid: Integer;
+    Data: TStream;
+  End;
+
+  TLCLFifo = specialize TFifo < TLCLRecord > ;
 
   TOnTransferFileDoneReason = (frUnknown, frBackTex, frDC1Tex, frDC2Tex, frDC3Tex, frDC4Tex);
 
@@ -167,25 +187,33 @@ Type
     Procedure OnGetPageControl2Content(Sender: TObject; Const Data: TStringlist);
     Procedure OnTransferFileDone(Sender: TObject; Suceed: Boolean);
     Procedure AdjustMoveWaveButtons;
+    Procedure SendSetWaveCountTo(WaveCount: integer);
+    Procedure AddWave(Reset: Boolean = true);
+    Procedure SortForm4Buyables;
+    Procedure DoUpdateMapProperty(Sender: TObject; MapProperty: Integer;
+      SenderUid: Integer; Const Data: TStream);
+    Procedure DoLCLWaveClone(Sender: TObject; SourceWaveNum, SenderUid: Integer);
+    Procedure DoWaveExChange(Sender: TObject; SenderUid: Integer; Const Data: TStream);
   public
     { public declarations }
-    Procedure SetWaveCountTo(WaveCount: integer);
-    Procedure AddWave(Reset: Boolean = true);
+    Procedure SetWaveCountTo(WaveCount: integer; SenderUid: Integer);
+    Procedure AddForm4Buyable(b: TBuyAble);
+
     Procedure ResetWave(Const Page: TTabSheet);
     Procedure DelLastWave;
     Procedure RefreshOpponentsClick(Sender: TObject);
     Procedure ChangeWaveIndexClick(WaveIndex: integer; Direction: Boolean);
-    Procedure OnCTDWaveClone(Sender: TObject; SourceWaveNum, DestWaveNum: Integer);
+    Procedure OnCTDWaveClone(Sender: TObject; SourceWaveNum, SenderUid: Integer);
 
     Procedure RefreshForm4Buyables;
-    Procedure SortForm4Buyables;
+    Procedure HandleLCLEvent(Const Event: TLCLRecord);
   End;
 
 Var
   Form4: TForm4;
   PlacementeObject: tctd_mapopbject = Nil;
   Form4updating: Boolean = false;
-  JumpToLastWave: Boolean = false;
+  LclFifo: TLCLFifo; // Sync Fifo Lnet Incomming Msg's to LCL
 
 Function BuyableToString(Const data: TBuyAble): String;
 Function StringToBuyAble(Data: String): TBuyAble;
@@ -289,7 +317,7 @@ Var
 Begin
   form4.ListBox1.Clear;
   For i := 0 To ctd.Map.BuyAblesCount - 1 Do Begin
-    form1.AddForm4Buyable(ctd.Map.BuyAbles[i]);
+    AddForm4Buyable(ctd.Map.BuyAbles[i]);
   End;
   form4.Edit6.Text := '';
   form4.Edit7.Text := '';
@@ -330,11 +358,69 @@ Begin
   quick(0, form4.listbox1.items.Count - 1);
 End;
 
+Procedure TForm4.DoLCLWaveClone(Sender: TObject; SourceWaveNum,
+  SenderUid: Integer);
+Var
+  DestWaveIndex: Integer;
+  fcloneWave: Twave;
+Begin
+  AddWave(false); // Die Neue Wave in der LCL anlegen
+  DestWaveIndex := PageControl2.PageCount - 1;
+  If ctd.OwnServerUid = SenderUid Then Begin
+    PageControl2.ActivePageIndex := DestWaveIndex;
+  End;
+  fcloneWave := ctd.Map.Waves[SourceWaveNum];
+  (PageControl2.Pages[DestWaveIndex].Components[0] As TWaveFrame).LoadWave(fcloneWave);
+  Timer1.Enabled := true; // Refresh der Comboboxen anstoßen
+  AdjustMoveWaveButtons;
+End;
+
+Procedure TForm4.DoWaveExChange(Sender: TObject; SenderUid: Integer;
+  Const Data: TStream);
+Var
+  w1i, w2i: integer;
+  w1, w2: TWave;
+Begin
+  w1i := -1;
+  data.Read(w1i, sizeof(w1i));
+  w2i := -1;
+  data.Read(w2i, sizeof(w2i));
+  w1 := (PageControl2.Pages[w1i].Components[0] As TWaveFrame).GetWave();
+  w2 := (PageControl2.Pages[w2i].Components[0] As TWaveFrame).GetWave();
+  (PageControl2.Pages[w1i].Components[0] As TWaveFrame).LoadWave(w2);
+  (PageControl2.Pages[w2i].Components[0] As TWaveFrame).LoadWave(w1);
+  If SenderUid = ctd.OwnServerUid Then Begin
+    PageControl2.PageIndex := w2i;
+  End;
+  Timer1.Enabled := true; // Refresh der Comboboxen anstoßen
+  AdjustMoveWaveButtons;
+End;
+
+Procedure TForm4.HandleLCLEvent(Const Event: TLCLRecord);
+Begin
+  // Wenn die LCL Aktualisiert wird darf nicht erneut Update generiert werden -> Block an (nur hier und beim Laden)
+  ctd.BlockMapUpdateSending := true;
+  Case event.Cmd Of
+    cUpdateMapProperty: Begin
+        DoUpdateMapProperty(self, event.AdditionalInfo, event.SenderUid, event.Data);
+      End;
+    cCloneWave: Begin
+        DoLCLWaveClone(self, event.AdditionalInfo, event.SenderUid);
+      End;
+    cExchangeWave: Begin
+        DoWaveExChange(self, event.SenderUid, event.Data);
+      End;
+  End;
+  If assigned(event.Data) Then event.Data.Free;
+  ctd.BlockMapUpdateSending := false;
+End;
+
 Procedure TForm4.ComboBox1Change(Sender: TObject);
 Var
   m: TMemoryStream;
   i: integer;
 Begin
+  If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
   m := TMemoryStream.Create;
   i := ComboBox1.ItemIndex;
   m.Write(i, sizeof(i));
@@ -397,28 +483,27 @@ End;
 Procedure TForm4.Button7Click(Sender: TObject);
 Begin
   // Add new Wave
-  SetWaveCountTo(length(ctd.Map.Waves) + 1);
+  SendSetWaveCountTo(length(ctd.Map.Waves) + 1);
 End;
 
-Procedure TForm4.SetWaveCountTo(WaveCount: integer);
+Procedure TForm4.SendSetWaveCountTo(WaveCount: integer);
+Var
+  m: TMemoryStream;
+Begin
+  If Not ctd.BlockMapUpdateSending Then Begin
+    m := TMemoryStream.Create;
+    m.write(WaveCount, sizeof(WaveCount));
+    ctd.UpdateMapProperty(mpWaveCount, m);
+  End;
+End;
+
+Procedure TForm4.SetWaveCountTo(WaveCount: integer; SenderUid: Integer);
 Var
   waves: Integer;
-  m: TMemoryStream;
-  JumpToLast: Boolean;
 Begin
   // Set Waves
   Form4updating := true;
   waves := WaveCount;
-  JumpToLast := false;
-  If length(ctd.Map.Waves) <> waves Then Begin
-    JumpToLast := waves > length(ctd.Map.Waves);
-    setlength(ctd.Map.Waves, waves);
-  End;
-  If Not ctd.BlockMapUpdateSending Then Begin
-    m := TMemoryStream.Create;
-    m.write(waves, sizeof(waves));
-    ctd.UpdateMapProperty(mpWaveCount, m);
-  End;
   While waves > PageControl2.PageCount Do Begin
     AddWave;
     ResetWave(PageControl2.pages[PageControl2.PageCount - 1]);
@@ -427,51 +512,29 @@ Begin
     DelLastWave;
   AdjustMoveWaveButtons;
 
-  If JumpToLast Or JumpToLastWave Then Begin
+  If (SenderUid = ctd.OwnServerUid) Then Begin
     PageControl2.ActivePageIndex := PageControl2.PageCount - 1;
   End;
-  JumpToLastWave := false;
   Timer1.Enabled := true; // Refresh der Comboboxen anstoßen
   Form4updating := false;
 End;
 
 Procedure TForm4.OnCTDWaveClone(Sender: TObject; SourceWaveNum,
-  DestWaveNum: Integer);
+  SenderUid: Integer);
 Var
-  fcloneWave: Twave;
-  diff: integer;
-  b: Boolean;
+  Event: TLCLRecord;
 Begin
-  fcloneWave := ctd.Map.Waves[SourceWaveNum];
-  diff := DestWaveNum + 1 - length(ctd.Map.Waves);
-  If diff <> 0 Then Begin
-    While diff <> 0 Do Begin
-      If diff > 0 Then Begin
-        AddWave(false);
-        diff := diff - 1;
-      End
-      Else Begin
-        DelLastWave;
-        diff := diff + 1;
-      End;
-    End;
-  End;
-  PageControl2.ActivePageIndex := DestWaveNum;
-  // Die Wave wurde bereits vom Server behandelt, sonst käme
-  // der Event ja nicht, alle Infos dazu brauchen also nicht nochmal
-  // gesendet werden ..
-  b := ctd.BlockMapUpdateSending;
-  ctd.BlockMapUpdateSending := true;
-  (PageControl2.Pages[PageControl2.ActivePageIndex].Components[0] As TWaveFrame).LoadWave(fcloneWave);
-  ctd.BlockMapUpdateSending := b;
-  AdjustMoveWaveButtons;
+  event.cmd := cCloneWave;
+  Event.AdditionalInfo := SourceWaveNum;
+  Event.SenderUid := SenderUid;
+  Event.data := Nil;
+  LclFifo.Push(Event);
 End;
 
 Procedure TForm4.Button8Click(Sender: TObject);
 Begin
   If (PageControl2.PageCount = 0) Then exit; // Es gibt keine Waves zum Clonen
-  AddWave(false); // Die Neue Wave in der LCL schon mal anlegen
-  ctd.CloneMapWave((PageControl2.Pages[PageControl2.ActivePageIndex].Components[0] As TWaveFrame).WaveNum, PageControl2.PageCount - 1);
+  ctd.CloneMapWave((PageControl2.Pages[PageControl2.ActivePageIndex].Components[0] As TWaveFrame).WaveNum);
 End;
 
 Procedure TForm4.Button9Click(Sender: TObject);
@@ -594,8 +657,6 @@ Begin
   m.Write(b.Kind, sizeof(b.Kind));
   //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
   ctd.UpdateMapProperty(mpUpdateBuyable, m);
-  ListBox1.Items[ListBox1.ItemIndex] := BuyableToString(b);
-  Form4.SortForm4Buyables;
   logleave;
 End;
 
@@ -610,7 +671,7 @@ Procedure TForm4.Button12Click(Sender: TObject);
 Begin
   // Remove last wave
   If high(ctd.Map.Waves) > -1 Then Begin
-    SetWaveCountTo(high(ctd.Map.Waves));
+    SendSetWaveCountTo(high(ctd.Map.Waves));
   End;
 End;
 
@@ -681,7 +742,6 @@ Begin
     mrOK: i := 2;
   End;
   If i In [0..2] Then Begin
-    JumpToLastWave := true;
     ctd.AddNewRandomWave(i);
   End;
 End;
@@ -729,6 +789,7 @@ Var
   m: TMemoryStream;
   i: integer;
 Begin
+  If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
   m := TMemoryStream.Create;
   i := max(1, strtointdef(Edit1.text, 1));
   Edit1.text := inttostr(i);
@@ -741,6 +802,7 @@ Var
   m: TMemoryStream;
   i: integer;
 Begin
+  If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
   m := TMemoryStream.Create;
   i := StrToIntDef(edit2.text, 1);
   m.Write(i, sizeof(i));
@@ -758,9 +820,10 @@ Begin
   // Mit a bissl Glück reicht das schon für Scallierungen ?
   //form4.Width := strtoint(GetValue('MapEditorForm', 'Width', inttostr(form4.Width)));
   //form4.Height := strtoint(GetValue('MapEditorForm', 'Height', inttostr(form4.Height)));
-  Tform(self).Constraints.MaxHeight := Tform(self).Height;
+
+  Tform(self).Constraints.MaxHeight := Tform(self).Height; // TODO: remove Limit
   Tform(self).Constraints.MinHeight := Tform(self).Height;
-  Tform(self).Constraints.Maxwidth := Tform(self).width;
+  Tform(self).Constraints.Maxwidth := Tform(self).width; // TODO: remove Limit
   Tform(self).Constraints.Minwidth := Tform(self).width;
   FixFormPosition(form4);
 End;
@@ -810,7 +873,8 @@ Begin
   If assigned(lb.Items.Objects[index]) Then Begin
     h := ARect.Bottom - ARect.top;
   End;
-  // Erst mal Den "alten" Text wie gewohnt rendern
+  lb.Canvas.Pen.Color := lb.Canvas.Brush.Color;
+  lb.Canvas.Rectangle(ARect);
   lb.Canvas.TextRect(aRect, ARect.Left + h, (ARect.Bottom + ARect.top - lb.Canvas.TextHeight('8')) Div 2, ' ' + lb.Items[index]);
   // Gibt es Meta Infos -> Anzeigen
   If assigned(lb.Items.Objects[index]) Then Begin
@@ -822,6 +886,7 @@ Procedure TForm4.Memo1Change(Sender: TObject);
 Var
   m: TMemoryStream;
 Begin
+  If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
   m := TMemoryStream.Create;
   m.WriteAnsiString(Serialize(memo1.Text));
   ctd.UpdateMapProperty(mpDescription, m);
@@ -994,6 +1059,249 @@ Begin
   End;
 End;
 
+Procedure TForm4.DoUpdateMapProperty(Sender: TObject; MapProperty: Integer;
+  SenderUid: Integer; Const Data: TStream);
+Var
+  i, j, c: Integer;
+  s: String;
+  b: Boolean;
+  by: TBuyAble;
+  bk: TBuyAbleKind;
+Begin
+  (*
+   * ! WICHTIG !
+   * Hier dürfen nur LCL-Sachen gesetzt werden, fMap wird automatisch beim Empfangen gesetzt !
+   *)
+  log('TForm4.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
+  Case MapProperty Of
+    mpSaveMap: Begin
+        // Nichts, irgend ein Client wollte lediglich dass alle "Speichern"
+      End;
+    // General
+    mpDescription: Begin
+        s := Data.ReadAnsiString;
+        Memo1.Text := DeSerialize(s);
+      End;
+    mpMapType: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        ComboBox1.ItemIndex := i;
+      End;
+    mpMaxPlayer: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        edit1.text := inttostr(i);
+      End;
+    mpLives: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        edit2.text := inttostr(i);
+        i := -1;
+        data.Read(i, sizeof(i));
+        edit3.text := inttostr(i);
+        i := -1;
+        data.Read(i, sizeof(i));
+        edit4.text := inttostr(i);
+      End;
+    mpDC1Tex: Begin
+        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
+        If FileExistsUTF8(s) Then Begin
+          Image1.Picture.LoadFromFile(UTF8ToSys(s));
+        End
+        Else Begin
+          Image1.Picture.Clear;
+        End;
+      End;
+    mpDC2Tex: Begin
+        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
+        If FileExistsUTF8(s) Then Begin
+          Image2.Picture.LoadFromFile(UTF8ToSys(s));
+        End
+        Else Begin
+          Image2.Picture.Clear;
+        End;
+      End;
+    mpDC3Tex: Begin
+        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
+        If FileExistsUTF8(s) Then Begin
+          Image3.Picture.LoadFromFile(UTF8ToSys(s));
+        End
+        Else Begin
+          Image3.Picture.Clear;
+        End;
+      End;
+    mpDC4Tex: Begin
+        s := MapFolder + MapName + PathDelim + data.ReadAnsiString;
+        If FileExistsUTF8(s) Then Begin
+          Image4.Picture.LoadFromFile(UTF8ToSys(s));
+        End
+        Else Begin
+          Image4.Picture.Clear;
+        End;
+      End;
+    // Terrain
+    // Waypoints
+    // Buyables
+    mpAddBuyable: Begin
+        s := Data.ReadAnsiString;
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        bk := bkBuilding;
+        data.read(bk, sizeof(bk));
+        by.Item := s;
+        by.WaveNum := i;
+        by.Count := j;
+        by.Kind := bk;
+        AddForm4Buyable(by);
+      End;
+    {mpDelBuyable: Begin
+        s := Data.ReadAnsiString;
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        bk := bkBuilding;
+        data.read(bk, sizeof(bk));
+        by.Item := s;
+        by.WaveNum := i;
+        by.Count := j;
+        by.Kind := bk;
+        s := BuyableToString(by);
+        For i := 0 To Form4.ListBox1.Items.Count - 1 Do
+          If Form4.ListBox1.Items[i] = s Then Begin
+            Form4.ListBox1.Items.Delete(i);
+            break;
+          End;
+      End; }
+    mpUpdateBuyable: Begin
+        s := Data.ReadAnsiString;
+        c := -1;
+        data.Read(c, sizeof(c));
+        j := -1;
+        data.Read(j, sizeof(j));
+        bk := bkBuilding;
+        data.read(bk, sizeof(bk));
+        For i := 0 To ListBox1.Items.Count - 1 Do Begin
+          by := StringToBuyAble(ListBox1.Items[i]);
+          If by.Item = s Then Begin
+            by.Item := s;
+            by.WaveNum := c;
+            by.Count := j;
+            by.Kind := bk;
+            ListBox1.Items[i] := BuyableToString(by);
+            break;
+          End;
+        End;
+        SortForm4Buyables;
+      End;
+    // Waves
+    mpWaveCount: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        SetWaveCountTo(i, SenderUid);
+      End;
+    mpDelOppInWave: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Free;
+        TWaveFrame(PageControl2.Pages[i].Components[0]).FixOpponentNums();
+      End;
+    mpCashOnWaveStart: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        TWaveFrame(PageControl2.Pages[i].Components[0]).Edit2.Text := inttostr(j);
+      End;
+    mpWaveHint: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        s := data.ReadAnsiString;
+        TWaveFrame(PageControl2.Pages[i].Components[0]).Edit1.Text := s;
+      End;
+    mpWaveOpponents: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        TWaveFrame(PageControl2.Pages[i].Components[0]).SetOppenentCountTo(j, SenderUid);
+        RefreshOpponentsClick(Nil);
+      End;
+    mpWaveOpponent: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        s := Data.ReadAnsiString;
+        // ggf. den WaveOpponent anlegen, sollte dieser noch nicht existieren
+        b := false;
+        For c := 0 To TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items.count - 1 Do Begin
+          If TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items[c] = s Then Begin
+            b := true;
+            break;
+          End;
+        End;
+        If Not b Then Begin
+          TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).AddOpponentItem(s);
+        End;
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.Text := s;
+      End;
+    mpWaveOpponentCount: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        c := -1;
+        data.Read(c, sizeof(c));
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit1.Text := inttostr(c);
+      End;
+    mpWaveOpponentCashPerUnit: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        c := -1;
+        data.Read(c, sizeof(c));
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit2.Text := inttostr(c);
+      End;
+    mpWaveOpponentUnitsPerSpawn: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        c := -1;
+        data.Read(c, sizeof(c));
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit3.Text := inttostr(c);
+      End;
+    mpWaveOpponentSpawnDelay: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        c := -1;
+        data.Read(c, sizeof(c));
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit4.Text := inttostr(c);
+      End;
+    mpWaveOpponentSpawnDelta: Begin
+        i := -1;
+        data.Read(i, sizeof(i));
+        j := -1;
+        data.Read(j, sizeof(j));
+        c := -1;
+        data.Read(c, sizeof(c));
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).Edit5.Text := inttostr(c);
+      End
+  Else Begin
+      LogShow('Form4.OnUpdateMapProperty: missing handler for ' + inttostr(MapProperty), llWarning);
+    End;
+  End;
+  LogLeave;
+End;
+
 Procedure TForm4.RefreshOpponentsClick(Sender: TObject);
 Begin
   If Form4updating Then exit;
@@ -1002,23 +1310,18 @@ End;
 
 Procedure TForm4.ChangeWaveIndexClick(WaveIndex: integer; Direction: Boolean);
 Var
-  w1, w2: TWave;
+  w1i, w2i: Integer;
 Begin
   // Verschieben einer Kompletten Wave entlang der Richtung
   If Direction Then Begin
-    w1 := (PageControl2.Pages[WaveIndex].Components[0] As TWaveFrame).GetWave();
-    w2 := (PageControl2.Pages[WaveIndex + 1].Components[0] As TWaveFrame).GetWave();
-    (PageControl2.Pages[WaveIndex].Components[0] As TWaveFrame).LoadWave(w2);
-    (PageControl2.Pages[WaveIndex + 1].Components[0] As TWaveFrame).LoadWave(w1);
-    PageControl2.PageIndex := WaveIndex + 1;
+    w1i := WaveIndex;
+    w2i := WaveIndex + 1;
   End
   Else Begin
-    w1 := (PageControl2.Pages[WaveIndex].Components[0] As TWaveFrame).GetWave();
-    w2 := (PageControl2.Pages[WaveIndex - 1].Components[0] As TWaveFrame).GetWave();
-    (PageControl2.Pages[WaveIndex].Components[0] As TWaveFrame).LoadWave(w2);
-    (PageControl2.Pages[WaveIndex - 1].Components[0] As TWaveFrame).LoadWave(w1);
-    PageControl2.PageIndex := WaveIndex - 1;
+    w1i := WaveIndex;
+    w2i := WaveIndex - 1;
   End;
+  ctd.ExchangeWaves(w1i, w2i);
 End;
 
 Procedure TForm4.AddWave(Reset: Boolean);
@@ -1038,6 +1341,54 @@ Begin
   If reset Then Begin
     ResetWave(t);
   End;
+End;
+
+Procedure TForm4.AddForm4Buyable(b: TBuyAble);
+Var
+  obj: TItemObject;
+  s: String;
+  i: Integer;
+Begin
+  // Buyables werden Sortiert nach Reihenfolge in der die Gebs in den Waves Kaufbar sind
+  // Wenn es dann Ding schon gibt nicht mehr adden
+  s := BuyableToString(b);
+  For i := 0 To ListBox1.items.count - 1 Do Begin
+    If ListBox1.items[i] = s Then Begin
+      // Über das Update Map Properties kann es sein, das das Objekt schon
+      // geladen wurde obwohl es noch nicht "da" ist -> dann wird es nun aktualisiert
+      obj := ListBox1.items.Objects[i] As TItemObject;
+      If Not assigned(obj) Then Begin
+        // TODO: Klären, was da dann gemacht werden muss ..
+      End
+      Else Begin
+        Case b.Kind Of
+          bkBuilding: Begin
+              obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
+            End;
+          bkHero: Begin
+              obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
+            End;
+        End;
+      End;
+      exit;
+    End;
+  End;
+  Case b.Kind Of
+    bkBuilding: Begin
+        obj := TItemObject.Create;
+        obj.LoadGebInfo(MapFolder + MapName + PathDelim + b.Item);
+        listbox1.Items.AddObject(s, obj);
+      End;
+    bkHero: Begin
+        obj := TItemObject.Create;
+        obj.LoadHeroInfo(MapFolder + MapName + PathDelim + b.Item);
+        listbox1.Items.AddObject(s, obj);
+      End;
+  Else Begin
+      listbox1.items.add(s);
+    End;
+  End;
+  SortForm4Buyables;
 End;
 
 Procedure TForm4.ResetWave(Const Page: TTabSheet);

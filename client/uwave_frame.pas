@@ -51,9 +51,11 @@ Type
     Procedure Reset();
     Function GetWave(): TWave; // Nur für die Change Wave Routine
   private
+    { private declarations }
     FWaveNume: integer;
     Procedure SetWaveNum(AValue: integer);
-    { private declarations }
+    Procedure SendSetOppenentCountTo(OpponentCount: integer);
+
   public
     { public declarations }
     RefreshOppentList: TNotifyEvent;
@@ -63,7 +65,7 @@ Type
     Procedure ResetOpponent(Const t: TTabsheet);
     Procedure UpdateOpponents(Const CommaList: String);
     Procedure LoadWave(Const Wave: TWave);
-    Procedure SetOppenentCountTo(OpponentCount: integer);
+    Procedure SetOppenentCountTo(OpponentCount, SenderUid: integer);
 
     Procedure FixOpponentNums(); // Repariert die Opponent Frame Nummern nachdem ein Beliebiger Opp gelöscht wurde
   End;
@@ -76,26 +78,28 @@ Uses uctd, uctd_messages, unit1;
 
 { TWaveFrame }
 
-Procedure TWaveFrame.SetOppenentCountTo(OpponentCount: integer);
+
+Procedure TWaveFrame.SendSetOppenentCountTo(OpponentCount: integer);
 Var
-  ops: integer;
-  t: TTabSheet;
-  f: TWaveOpponentFrame;
   m: TMemoryStream;
-  b: Boolean;
-  opstr: String;
 Begin
-  ops := OpponentCount;
-  // Muss zuerst gesendet werden, da sonst die anderen Clients eine AV bekommen, weil ResetOpponent bereits Sendebefehle auf die Controls schreibt.
   If Not assigned(ctd) Then exit;
   If Not ctd.BlockMapUpdateSending Then Begin
     m := TMemoryStream.Create;
     m.Write(WaveNum, sizeof(WaveNum));
-    m.Write(ops, sizeof(ops));
+    m.Write(OpponentCount, sizeof(OpponentCount));
     ctd.UpdateMapProperty(mpWaveOpponents, m);
   End;
-  b := ctd.BlockMapUpdateSending;
-  ctd.BlockMapUpdateSending := true;
+End;
+
+Procedure TWaveFrame.SetOppenentCountTo(OpponentCount, SenderUid: integer);
+Var
+  ops: integer;
+  t: TTabSheet;
+  f: TWaveOpponentFrame;
+  opstr: String;
+Begin
+  ops := OpponentCount;
   (*
    * Wir hohlen uns eine Opponent Liste falls es schon eine gibt.
    *)
@@ -104,7 +108,6 @@ Begin
     f := PageControl1.Pages[0].Components[0] As TWaveOpponentFrame;
     opstr := f.ComboBox1.Items.CommaText;
   End;
-
   While ops > PageControl1.PageCount Do Begin
     t := PageControl1.AddTabSheet;
     t.caption := 'Opponent' + inttostr(PageControl1.PageCount);
@@ -121,7 +124,9 @@ Begin
   End;
   While ops < PageControl1.PageCount Do
     PageControl1.Pages[PageControl1.PageCount - 1].free;
-  ctd.BlockMapUpdateSending := b;
+  If ctd.OwnServerUid = SenderUid Then Begin
+    PageControl1.ActivePageIndex := PageControl1.PageCount - 1;
+  End;
 End;
 
 Procedure TWaveFrame.FixOpponentNums;
@@ -130,13 +135,16 @@ Var
 Begin
   For i := 0 To PageControl1.PageCount - 1 Do Begin
     TWaveOpponentFrame(PageControl1.Pages[i].Components[0]).OpponnetNum := i;
+    TWaveOpponentFrame(PageControl1.Pages[i].Components[0]).Name := 'WaveOpponentFrame' + inttostr(i);
+    PageControl1.Pages[i].Name := 'optabs' + inttostr(i);
+    PageControl1.Pages[i].Caption := 'Opponent' + inttostr(i + 1);
   End;
 End;
 
 Procedure TWaveFrame.Button1Click(Sender: TObject);
 Begin
   // Add one Oppenent
-  SetOppenentCountTo(length(ctd.Map.Waves[WaveNum].Opponents) + 1);
+  SendSetOppenentCountTo(length(ctd.Map.Waves[WaveNum].Opponents) + 1);
   PageControl1.ActivePageIndex := PageControl1.PageCount - 1;
 End;
 
@@ -164,9 +172,6 @@ Begin
     h := PageControl1.ActivePageIndex;
     m.Write(h, sizeof(h));
     ctd.UpdateMapProperty(mpDelOppInWave, m);
-    // ctd.Map.DelOppInWave(WaveNum, h); -- Das macht HandleUpdateMapProperty
-    PageControl1.Pages[PageControl1.ActivePageIndex].Free;
-    FixOpponentNums();
   End;
 End;
 
@@ -175,7 +180,6 @@ Var
   m: TMemoryStream;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
-  ctd.Map.Waves[WaveNum].WaveHint := edit1.text;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.WriteAnsiString(edit1.text);
@@ -189,7 +193,6 @@ Var
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
   i := StrToIntDef(Edit2.Text, 0);
-  ctd.Map.Waves[WaveNum].ChashOnStart := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(i, sizeof(i));
@@ -213,10 +216,10 @@ End;
 
 Procedure TWaveFrame.Reset;
 Begin
+  SetOppenentCountTo(1, ctd.OwnServerUid);
   Edit2.text := '0'; // Cash on Start
-  SetOppenentCountTo(1);
   Edit1.text := ''; // Wave hint
-  //  ResetOpponent(PageControl1.Pages[0]);
+  // ResetOpponent(PageControl1.Pages[0]); -- Es geht auch ohne, wenn es auch Merkwrüdig ist ..
 End;
 
 Constructor TWaveFrame.Create(AOwner: TComponent);
@@ -240,6 +243,7 @@ Var
   f: TWaveOpponentFrame;
   s: String;
   sl, sl2: TStringList;
+  b: Boolean;
 Begin
   // Alphabetisch sortieren der Opps
   sl := TStringList.Create;
@@ -268,6 +272,17 @@ Begin
         break;
       End;
     End;
+    // Init mit dem 1. Element, falls dieses vorher undefiniert war !
+    If (s = '') And (f.ComboBox1.Items.Count > 0) Then Begin
+      f.ComboBox1.Text := f.ComboBox1.Items[0];
+      (*
+       * Default initialisiert der Server das nicht -> hier müssen die Clients explizit informiert werden !
+       *)
+      b := ctd.BlockMapUpdateSending;
+      ctd.BlockMapUpdateSending := false;
+      f.ComboBox1Change(f.ComboBox1);
+      ctd.BlockMapUpdateSending := b;
+    End;
   End;
   sl2.free;
 End;
@@ -278,7 +293,7 @@ Var
   f: TWaveOpponentFrame;
 Begin
   Edit2.text := inttostr(Wave.ChashOnStart); // Cash on Start
-  SetOppenentCountTo(high(Wave.Opponents) + 1); // Opponents
+  SetOppenentCountTo(high(Wave.Opponents) + 1, ctd.OwnServerUid); // Opponents
   Edit1.text := Wave.WaveHint; // Wave Hint
   For j := 0 To high(Wave.Opponents) Do Begin
     f := PageControl1.Pages[j].Components[0] As TWaveOpponentFrame;
