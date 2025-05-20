@@ -92,7 +92,6 @@ Case MapProperty Of
       data.Read(j, sizeof(j));
       c := -1;
       data.Read(c, sizeof(c));
-      fMap.SecureWaveOpponent(i + 1, j + 1);
       fMap.Waves[i].Opponents[j].Count := c;
     End;
   mpWaveOpponentCashPerUnit: Begin
@@ -103,7 +102,6 @@ Case MapProperty Of
       data.Read(j, sizeof(j));
       c := -1;
       data.Read(c, sizeof(c));
-      fMap.SecureWaveOpponent(i + 1, j + 1);
       fMap.Waves[i].Opponents[j].refund := c;
     End;
   mpWaveOpponentUnitsPerSpawn: Begin
@@ -114,7 +112,6 @@ Case MapProperty Of
       data.Read(j, sizeof(j));
       c := -1;
       data.Read(c, sizeof(c));
-      fMap.SecureWaveOpponent(i + 1, j + 1);
       fMap.Waves[i].Opponents[j].UnitsPerSpawn := c;
     End;
   mpWaveOpponentSpawnDelay: Begin
@@ -125,7 +122,6 @@ Case MapProperty Of
       data.Read(j, sizeof(j));
       c := -1;
       data.Read(c, sizeof(c));
-      fMap.SecureWaveOpponent(i + 1, j + 1);
       fMap.Waves[i].Opponents[j].SpawnDelay := c;
     End;
   mpWaveOpponentSpawnDelta: Begin
@@ -136,7 +132,6 @@ Case MapProperty Of
       data.Read(j, sizeof(j));
       c := -1;
       data.Read(c, sizeof(c));
-      fMap.SecureWaveOpponent(i + 1, j + 1);
       fMap.Waves[i].Opponents[j].Spawndelta := c;
     End;
   mpWaveOpponent: Begin
@@ -146,7 +141,6 @@ Case MapProperty Of
       j := -1;
       data.Read(j, sizeof(j));
       s := Data.ReadAnsiString;
-      fMap.SecureWaveOpponent(i + 1, j + 1);
       fMap.Waves[i].Opponents[j].opponent := s;
     End;
   mpWaveOpponents: Begin
@@ -156,7 +150,6 @@ Case MapProperty Of
       j := -1;
       data.Read(j, sizeof(j));
       c := high(fMap.Waves[i].Opponents) + 1;
-      fMap.SecureWaveOpponent(i + 1, j);
       setlength(fMap.Waves[i].Opponents, j);
       For j := c To high(fMap.Waves[i].Opponents) Do Begin
         fmap.Waves[i].Opponents[j].opponent := '';
