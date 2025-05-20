@@ -867,18 +867,23 @@ Procedure TForm4.ListBox1DrawItem(Control: TWinControl; Index: Integer;
 Var
   h: integer;
   lb: TListBox;
+  t: String;
+  obj: TItemObject;
 Begin
   lb := TListBox(Control);
   h := 0;
-  If assigned(lb.Items.Objects[index]) Then Begin
+  t := lb.Items[index];
+  obj := TItemObject(lb.Items.Objects[index]);
+  If assigned(obj) Then Begin
     h := ARect.Bottom - ARect.top;
+    t := t + ' : ' + obj.Text;
   End;
   lb.Canvas.Pen.Color := lb.Canvas.Brush.Color;
   lb.Canvas.Rectangle(ARect);
-  lb.Canvas.TextRect(aRect, ARect.Left + h, (ARect.Bottom + ARect.top - lb.Canvas.TextHeight('8')) Div 2, ' ' + lb.Items[index]);
+  lb.Canvas.TextRect(aRect, ARect.Left + h, (ARect.Bottom + ARect.top - lb.Canvas.TextHeight('8')) Div 2, ' ' + t);
   // Gibt es Meta Infos -> Anzeigen
-  If assigned(lb.Items.Objects[index]) Then Begin
-    lb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + h, ARect.Bottom), TItemObject(lb.Items.Objects[index]).Image);
+  If assigned(obj) Then Begin
+    lb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + h, ARect.Bottom), obj.Image);
   End;
 End;
 

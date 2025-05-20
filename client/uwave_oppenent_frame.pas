@@ -101,18 +101,22 @@ Var
   cb: TComboBox;
   obj: TItemObject;
   l: Integer;
+  t: String;
 Begin
   cb := TComboBox(Control);
   obj := TItemObject(cb.items.Objects[index]);
   l := 0;
+  t := cb.Items[index];
   If assigned(obj) Then Begin
     l := ARect.Bottom - ARect.Top;
     cb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + l, ARect.Bottom), obj.Image);
+    // t := t + ' ' + obj.Text; // -- So sieht man die Powers nach Schadensklasse sortiert
+    t := t + ' ' + obj.PowerSum; // -- So sieht man die Summe aller Powers, ist nicht so breit und der Name sollte eigentlich auch sagen was sache ist ;)
   End;
   cb.Canvas.TextRect(arect,
     l,
     (ARect.Bottom + ARect.Top - cb.canvas.TextHeight('8')) Div 2
-    , '  ' + cb.Items[index]);
+    , '  ' + t);
 End;
 
 Procedure TWaveOpponentFrame.ComboBox1KeyDown(Sender: TObject; Var Key: Word;

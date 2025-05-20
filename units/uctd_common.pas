@@ -396,8 +396,9 @@ Type
     Procedure LoadImage(Const Filename: String);
     Procedure ClearImage(); // Eigentlich macht das keinen Sinn ..
   public
-    Image: TBitmap;
-    Text: String;
+    Image: TBitmap; // Preview bild
+    Text: String; // (%d/%d/%d/%d)  = alle Schadensklassen im Detail
+    PowerSum: String; // (%d) = Summe aller Schadensklassen
     fFilename: String;
     Constructor Create;
     Destructor Destroy; override;
@@ -1295,6 +1296,7 @@ Begin
   image := Tbitmap.create;
   Image.Transparent := true;
   fLoaded := false;
+  PowerSum := '';
 End;
 
 Destructor TItemObject.Destroy;
@@ -1378,6 +1380,7 @@ Begin
   opp.LoadFromFile(Filename);
   fPower := opp.LifePoints;
   Text := format('(%d/%d/%d/%d)', [opp.LifePoints[0], opp.LifePoints[1], opp.LifePoints[2], opp.LifePoints[3]]);
+  PowerSum := format('(%d)', [opp.LifePoints[0] + opp.LifePoints[1] + opp.LifePoints[2] + opp.LifePoints[3]]);
   fp := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   If FileExists(fp + opp.Image) Then Begin
     LoadImage(fp + opp.Image);
@@ -1411,6 +1414,11 @@ Begin
       geb.Stages[high(geb.Stages)].bulletpower[1],
       geb.Stages[high(geb.Stages)].bulletpower[2],
       geb.Stages[high(geb.Stages)].bulletpower[3]]);
+  PowerSum := format('(%d)', [
+    geb.Stages[high(geb.Stages)].bulletpower[0] +
+      geb.Stages[high(geb.Stages)].bulletpower[1] +
+      geb.Stages[high(geb.Stages)].bulletpower[2] +
+      geb.Stages[high(geb.Stages)].bulletpower[3]]);
   If FileExists(fp + geb.Stages[high(geb.Stages)].image) Then Begin
     LoadImage(fp + geb.Stages[high(geb.Stages)].image);
     fLoaded := true;
@@ -1443,6 +1451,12 @@ Begin
       hero.Levels[high(hero.Levels)].bulletpower[1],
       hero.Levels[high(hero.Levels)].bulletpower[2],
       hero.Levels[high(hero.Levels)].bulletpower[3]]);
+  PowerSum :=
+    format('(%d)', [
+    hero.Levels[high(hero.Levels)].bulletpower[0] +
+      hero.Levels[high(hero.Levels)].bulletpower[1] +
+      hero.Levels[high(hero.Levels)].bulletpower[2] +
+      hero.Levels[high(hero.Levels)].bulletpower[3]]);
   If FileExists(fp + hero.Levels[high(hero.Levels)].image) Then Begin
     LoadImage(fp + hero.Levels[high(hero.Levels)].image);
     fLoaded := true;
@@ -1473,6 +1487,7 @@ Begin
   If assigned(obj) Then Begin
     fFilename := obj.fFilename;
     text := obj.Text;
+    PowerSum := obj.PowerSum;
     image.Assign(obj.Image);
     fMode := obj.fMode;
     fPower := obj.fPower;
@@ -1481,6 +1496,7 @@ Begin
   End
   Else Begin
     text := '';
+    PowerSum := '';
     image.Clear;
     fFilename := '';
     fName := '';

@@ -2583,7 +2583,7 @@ Var
     s: String;
     h: THero;
     sl: TStringList;
-    j: Integer;
+    j, i: Integer;
   Begin
     // TODO: Alles Relevante prüfen was mit Helden zu tun hat.
     result := true;
@@ -2604,8 +2604,21 @@ Var
       result := false;
       exit;
     End;
-    // hier gehts weiter
+    For i := 0 To high(h.Levels) Do Begin
+      For j := 0 To 3 Do Begin
+        If h.Levels[i].bulletpower[j] > 0 Then Begin
+          OverAllGebDamagePoints := OverAllGebDamagePoints Or (1 Shl j);
+        End;
+        If h.Levels[i].bulletpower[j] < 0 Then Begin
+          LogShow(format('bulletpower < 0, "%s", level %d', [Filename, i + 1]), llError);
+          h.free;
+          result := false;
+          exit;
+        End;
+      End;
+    End;
 
+    // hier gehts weiter
 
     sl := h.ListOfImages();
     For j := 0 To sl.count - 1 Do Begin
