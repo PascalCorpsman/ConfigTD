@@ -110,8 +110,8 @@ Begin
   If assigned(obj) Then Begin
     l := ARect.Bottom - ARect.Top;
     cb.Canvas.StretchDraw(rect(ARect.Left, arect.Top, ARect.Left + l, ARect.Bottom), obj.Image);
-    // t := t + ' ' + obj.Text; // -- So sieht man die Powers nach Schadensklasse sortiert
-    t := t + ' ' + obj.PowerSum; // -- So sieht man die Summe aller Powers, ist nicht so breit und der Name sollte eigentlich auch sagen was sache ist ;)
+    // t := obj.DisplayName + ' ' + obj.Text; // -- So sieht man die Powers nach Schadensklasse sortiert
+    t := obj.DisplayName + ' ' + obj.PowerSum; // -- So sieht man die Summe aller Powers, ist nicht so breit und der Name sollte eigentlich auch sagen was sache ist ;)
   End;
   cb.Canvas.TextRect(arect,
     l,

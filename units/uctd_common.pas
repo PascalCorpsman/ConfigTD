@@ -119,6 +119,7 @@ Const
    *            0.12007 = FIX: Realtime calculation under windows was wrong
    *                      ADD: improve Ux for terrain editing (more cursor steps)
    *            0.13000 = ADD: Porting all MapProperty Messages to "LCLFifo" -> Shall improve stability when multiple users edit waves..
+   *                      ADD: remove ".opp" in wave comboboxes
    *
    * Known Bugs :
    *)
@@ -400,6 +401,7 @@ Type
     Text: String; // (%d/%d/%d/%d)  = alle Schadensklassen im Detail
     PowerSum: String; // (%d) = Summe aller Schadensklassen
     fFilename: String;
+    DisplayName: String; // fFilename ohne ext
     Constructor Create;
     Destructor Destroy; override;
     Procedure LoadOppInfo(Const Filename: String); // TODO: Mergen in 1 und dann dort den case !
@@ -1376,6 +1378,7 @@ Begin
   If Not FileExists(Filename) Then Begin
     exit;
   End;
+  DisplayName := fName;
   opp := TOpponent.create();
   opp.LoadFromFile(Filename);
   fPower := opp.LifePoints;
@@ -1404,6 +1407,7 @@ Begin
   If Not FileExists(Filename) Then Begin
     exit;
   End;
+  DisplayName := fName;
   geb := TBuilding.create();
   geb.LoadFromFile(Filename);
   fPower := geb.Stages[high(geb.Stages)].bulletpower;
@@ -1441,6 +1445,7 @@ Begin
   If Not FileExists(Filename) Then Begin
     exit;
   End;
+  DisplayName := fName;
   hero := THero.create();
   hero.LoadFromFile(Filename);
   fPower := hero.Levels[high(hero.Levels)].bulletpower;
@@ -1493,6 +1498,7 @@ Begin
     fPower := obj.fPower;
     fName := obj.fName;
     fLoaded := obj.fLoaded;
+    DisplayName := obj.DisplayName;
   End
   Else Begin
     text := '';
@@ -1505,6 +1511,7 @@ Begin
     fPower[2] := 0;
     fPower[3] := 0;
     fLoaded := false;
+    DisplayName := '';
   End;
 End;
 
