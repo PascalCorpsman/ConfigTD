@@ -43,7 +43,7 @@ Const
    *                   ADD: Improve error message, if launcher needs update and no updater is present.
    * -Released- 0.12 = FIX: Übernehmen der Localen Version, wenn config_td binary runter geladen wurde.
    * -Released- 0.13 = ADD: Improve download progress view
-   *            0.14 =
+   *            0.14 = FIX: High-DPI view
    *
    * Known Bugs :
    *)

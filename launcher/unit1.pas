@@ -285,6 +285,7 @@ End;
 {$IFDEF Windows}
 
 Initialization
+
 {$I ctd_launcher.lrs}
 
   // 1. ggf. die Crypto libs entpacken und dann einrichten
