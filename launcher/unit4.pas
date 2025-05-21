@@ -32,6 +32,13 @@ Type
     Items: TFiles;
   End;
 
+  TDLJob = Record
+    aFile: TFile;
+    copys: TStringArray;
+  End;
+
+  TDLJobs = Array Of TDLJob;
+
   { TForm4 }
 
   TForm4 = Class(TForm)
@@ -58,6 +65,7 @@ Type
     DLContainer: Array Of TDLContainer;
     Procedure AddFile(Const aFile: TFile; Index: integer);
     Function CalcTotalSize: int64;
+    Function CalcDownloadJobs(): TDLJobs;
     Function GetFilesToDLCount(): integer;
   public
 
@@ -71,7 +79,7 @@ Implementation
 
 {$R *.lfm}
 
-Uses Unit3;
+Uses Unit3, LCLType, FileUtil;
 
 { TForm4 }
 
@@ -179,12 +187,47 @@ Begin
   result := files;
 End;
 
+Function TForm4.CalcDownloadJobs: TDLJobs;
+  Procedure Add(Const aFile: TFile);
+  Var
+    i: Integer;
+  Begin
+    // Die Datei gibt es schon in der DL Liste
+    For i := 0 To high(result) Do Begin
+      If result[i].aFile.Hash = aFile.Hash Then Begin
+        setlength(result[i].copys, high(result[i].copys) + 2);
+        result[i].copys[high(result[i].copys)] := aFile.Filename;
+        exit;
+      End;
+    End;
+    // Die Datei gibt es als dl noch nicht
+    setlength(result, high(result) + 2);
+    result[High(result)].aFile := aFile;
+    result[High(result)].copys := Nil;
+  End;
+
+Var
+  i, j: Integer;
+Begin
+  result := Nil;
+  For i := 0 To high(DLContainer) Do Begin
+    If CheckListBox1.Checked[i] Then Begin
+      For j := 0 To high(DLContainer[i].Items) Do Begin
+        add(DLContainer[i].Items[j]);
+      End;
+    End;
+  End;
+End;
+
 Procedure TForm4.HandleFiles(Const Files: TFiles; dlfun: TDownloadFunction);
+Label
+  Retry;
 Var
   FileCount, i, j: Integer;
-  fc, fp: String;
+  s, fc, fp: String;
   found: Boolean;
-  total: int64;
+  dltotal, total: int64;
+  Jobs: TDLJobs;
 Begin
   fdlfun := dlfun;
   CheckListBox1.Items.Clear;
@@ -217,30 +260,44 @@ Begin
     CheckListBox1.Checked[i] := true;
   End;
   CalcTotalSize;
+  Retry: // Oh mann, was hab ich getan ...
   If ShowModal = mrOK Then Begin
     StopDownloading := false;
     // Starten der DL's
     total := CalcTotalSize();
-    fc := format('%d files to download', [GetFilesToDLCount()]);
+    Jobs := CalcDownloadJobs();
+    dltotal := 0;
+    For i := 0 To high(Jobs) Do Begin
+      dltotal := dltotal + Jobs[i].aFile.Size;
+    End;
+    s := format('Need to download %d files which can be compressed to %d distinct files, which will create %s traffic, and will take %s on your harddisc continue?', [
+      GetFilesToDLCount(),
+        length(Jobs),
+        FileSizeToString(dltotal),
+        FileSizeToString(total)
+        ]);
+    If ID_NO = Application.MessageBox(pchar(s), 'Info', MB_ICONQUESTION Or MB_YESNO) Then Begin
+      Goto Retry;
+    End;
+    fc := format('%d files to download', [length(Jobs)]);
     form3.label3.caption := fc;
     If total <> 0 Then Begin
-      form3.ProgressBar2.Max := total;
+      form3.ProgressBar2.Max := dltotal;
       form3.ProgressBar2.Position := 0;
       total := 0;
       FileCount := 0;
-      For i := 0 To high(DLContainer) Do Begin
-        If CheckListBox1.Checked[i] Then Begin
-          For j := 0 To high(DLContainer[i].Items) Do Begin
-            total := total + dlfun(DLContainer[i].Items[j]);
-            inc(FileCount);
-            form3.ProgressBar2.Position := total;
-            form3.label3.caption := fc + format(' (%d)', [FileCount]);
-            Application.ProcessMessages;
-            If StopDownloading Then Begin
-              setlength(DLContainer, 0);
-              exit;
-            End;
-          End;
+      For i := 0 To high(Jobs) Do Begin
+        total := total + dlfun(Jobs[i].aFile);
+        For j := 0 To high(Jobs[i].copys) Do Begin
+          ForceDirectories(extractfilepath(Jobs[i].copys[j]));
+          Copyfile(Jobs[i].aFile.Filename, Jobs[i].copys[j]);
+        End;
+        inc(FileCount);
+        form3.ProgressBar2.Position := total;
+        form3.label3.caption := fc + format(' (%d)', [FileCount]);
+        Application.ProcessMessages;
+        If StopDownloading Then Begin
+          exit;
         End;
       End;
     End;
