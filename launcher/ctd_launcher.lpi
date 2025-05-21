@@ -74,6 +74,14 @@
         <Filename Value="..\..\Sample\TCP_IP\usynapsedownloader.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="unit4.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form4"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit4"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

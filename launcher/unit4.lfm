@@ -1,0 +1,136 @@
+object Form4: TForm4
+  Left = 323
+  Height = 438
+  Top = 107
+  Width = 786
+  Caption = 'Form4'
+  ClientHeight = 438
+  ClientWidth = 786
+  Position = poScreenCenter
+  LCLVersion = '4.99.0.0'
+  OnCreate = FormCreate
+  object CheckListBox1: TCheckListBox
+    Left = 8
+    Height = 338
+    Top = 32
+    Width = 773
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ItemHeight = 0
+    TabOrder = 0
+    TopIndex = -1
+    OnClick = CheckListBox1Click
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 16
+    Top = 8
+    Width = 102
+    Caption = 'Files / Filegroups'
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 402
+    Width = 75
+    Anchors = [akLeft, akBottom]
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object Button2: TButton
+    Left = 706
+    Height = 25
+    Top = 406
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'OK'
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object Button3: TButton
+    Left = 263
+    Height = 25
+    Top = 376
+    Width = 50
+    Anchors = [akRight, akBottom]
+    Caption = 'All'
+    TabOrder = 3
+    OnClick = Button3Click
+  end
+  object Button4: TButton
+    Left = 319
+    Height = 25
+    Top = 376
+    Width = 50
+    Anchors = [akRight, akBottom]
+    Caption = 'None'
+    TabOrder = 4
+    OnClick = Button4Click
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 16
+    Top = 376
+    Width = 59
+    Anchors = [akLeft, akBottom]
+    Caption = 'Total size:'
+  end
+  object Label3: TLabel
+    Left = 72
+    Height = 16
+    Top = 376
+    Width = 41
+    Anchors = [akLeft, akBottom]
+    Caption = 'Label3'
+  end
+  object Button5: TButton
+    Left = 383
+    Height = 25
+    Top = 376
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Buildings'
+    TabOrder = 5
+    OnClick = Button9Click
+  end
+  object Button6: TButton
+    Left = 543
+    Height = 25
+    Top = 376
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Heroes'
+    TabOrder = 6
+    OnClick = Button9Click
+  end
+  object Button7: TButton
+    Left = 463
+    Height = 25
+    Top = 376
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Graphics'
+    TabOrder = 7
+    OnClick = Button9Click
+  end
+  object Button8: TButton
+    Left = 623
+    Height = 25
+    Top = 376
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Maps'
+    TabOrder = 8
+    OnClick = Button9Click
+  end
+  object Button9: TButton
+    Left = 706
+    Height = 25
+    Top = 376
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Opponents'
+    TabOrder = 9
+    OnClick = Button9Click
+  end
+end

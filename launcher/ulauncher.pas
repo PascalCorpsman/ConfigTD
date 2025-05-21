@@ -44,6 +44,7 @@ Const
    * -Released- 0.12 = FIX: Übernehmen der Localen Version, wenn config_td binary runter geladen wurde.
    * -Released- 0.13 = ADD: Improve download progress view
    *            0.14 = FIX: High-DPI view
+   *                   ADD: Auslesen Filelist.json anstatt .zip des repo's zu ziehen
    *
    * Known Bugs :
    *)
@@ -51,7 +52,7 @@ Const
 
 Type
 
-  TFileKind = (fkFile, fkZip, fkExecutable);
+  TFileKind = (fkFile, fkZip, fkExecutable, fkJSON);
 
   TFile = Record
     Kind: TFileKind;
@@ -94,7 +95,7 @@ Type
 
     Constructor Create();
     Destructor Destroy; override;
-    Function LoadFromFile(Const FIlename: String): Boolean;
+    Function LoadFromFile(Const Filename: String): Boolean;
   End;
 
 Procedure ClearLog();
@@ -216,7 +217,7 @@ Begin
 
 End;
 
-Function TCTD_Version.LoadFromFile(Const FIlename: String): Boolean;
+Function TCTD_Version.LoadFromFile(Const Filename: String): Boolean;
 
   Function LoadFile(Const jn: TJSONNode): TFile;
   Var
@@ -229,6 +230,7 @@ Function TCTD_Version.LoadFromFile(Const FIlename: String): Boolean;
     Case k Of
       'file': result.Kind := fkFile;
       'zip': result.Kind := fkZip;
+      'json': result.Kind := fkJSON;
     End;
     result.Hash2 := '';
     result.Description := '';
@@ -239,7 +241,7 @@ Function TCTD_Version.LoadFromFile(Const FIlename: String): Boolean;
     If assigned(jv) Then result.InFileOffset := (jv).Value;
     jv := jno.FindPath('Size') As TJSONValue;
     If assigned(jv) Then result.Size := StrToInt64((jv).Value);
-    If result.Kind = fkFile Then Begin
+    If (result.Kind = fkFile) Then Begin
       result.Filename := (jno.FindPath('Filename') As TJSONValue).Value;
       If ExtractFileExt(lowercase(result.Filename)) = '.exe' Then Begin
         result.Kind := fkExecutable;
@@ -252,7 +254,13 @@ Function TCTD_Version.LoadFromFile(Const FIlename: String): Boolean;
     Else Begin
       result.Filename := '';
       result.Hash := '';
-      result.Description := (jno.FindPath('Description') As TJSONValue).Value;
+      jv := (jno.FindPath('Description') As TJSONValue);
+      If assigned(jv) Then Begin
+        result.Description := jv.Value;
+      End
+      Else Begin
+        result.Description := '';
+      End;
     End;
     result.URL := (jno.FindPath('URL') As TJSONValue).Value;
   End;
