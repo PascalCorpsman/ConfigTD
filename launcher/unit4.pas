@@ -97,7 +97,7 @@ Var
   i: Integer;
 Begin
   // Select by Category
-  cat := lowercase(TButton(sender).Caption) + '/'; // TODO: Ist das unter Windows ggf gedreht ?
+  cat := lowercase(TButton(sender).Caption) + PathDelim;
   For i := 0 To CheckListBox1.Items.Count - 1 Do Begin
     If pos(cat, lowercase(CheckListBox1.Items[i])) = 1 Then Begin
       CheckListBox1.Checked[i] := true;

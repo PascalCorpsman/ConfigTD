@@ -309,6 +309,9 @@ Begin
       jan := ja.Obj[j] As TJSONNode;
       b := false;
       FN := (jan.FindPath('Name') As TJSONValue).Value;
+{$IFDEF Windows}
+      fn := StringReplace(fn, '/', PathDelim, [rfReplaceAll]);
+{$ENDIF}
       hash := (jan.FindPath('HASH') As TJSONValue).Value;
       If FileExistsUTF8(fn) Then Begin
         filehash := MD5Print(MD5File(fn));
