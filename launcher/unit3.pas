@@ -285,8 +285,10 @@ Var
   ja: TJSONArray;
   b: Boolean;
   hash, FN, filehash: String;
+  aFile: TFile;
 Begin
   result := Nil;
+  Form4.ResetKnownFiles;
   jp := TJSONParser.Create;
   For i := 0 To high(AdditionalJSONDownloads) Do Begin
     sl := TStringList.Create;
@@ -315,7 +317,19 @@ Begin
       hash := (jan.FindPath('HASH') As TJSONValue).Value;
       If FileExistsUTF8(fn) Then Begin
         filehash := MD5Print(MD5File(fn));
-        If lowercase(hash) <> lowercase(filehash) Then Begin
+        If lowercase(hash) = lowercase(filehash) Then Begin
+          aFile.Kind := fkFile;
+          aFile.URL := (jan.FindPath('URL') As TJSONValue).Value;
+          aFile.Hash := hash;
+          aFile.Size := StrToInt64((jan.FindPath('Size') As TJSONValue).Value);
+          aFile.Size2 := 0;
+          aFile.InFileOffset := '';
+          aFile.Hash2 := '';
+          aFile.Filename := FN;
+          aFile.Description := '';
+          form4.AddKnownFile(aFile);
+        End
+        Else Begin
           b := true;
         End;
       End

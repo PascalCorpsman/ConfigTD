@@ -45,6 +45,7 @@ Const
    * -Released- 0.13 = ADD: Improve download progress view
    *            0.14 = FIX: High-DPI view
    *                   ADD: Auslesen Filelist.json anstatt .zip des repo's zu ziehen
+   *                   ADD: Datensparsames Downloaden der Filelist
    *
    * Known Bugs :
    *)

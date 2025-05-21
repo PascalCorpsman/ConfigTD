@@ -61,6 +61,7 @@ Type
     Procedure CheckListBox1Click(Sender: TObject);
     Procedure FormCreate(Sender: TObject);
   private
+    KnownFiles: TFiles;
     fdlfun: TDownloadFunction;
     DLContainer: Array Of TDLContainer;
     Procedure AddFile(Const aFile: TFile; Index: integer);
@@ -68,7 +69,8 @@ Type
     Function CalcDownloadJobs(): TDLJobs;
     Function GetFilesToDLCount(): integer;
   public
-
+    Procedure ResetKnownFiles;
+    Procedure AddKnownFile(Const aFile: TFile);
     Procedure HandleFiles(Const Files: TFiles; dlfun: TDownloadFunction);
   End;
 
@@ -86,6 +88,7 @@ Uses Unit3, LCLType, FileUtil;
 Procedure TForm4.FormCreate(Sender: TObject);
 Begin
   caption := 'Additionals downloader';
+  KnownFiles := Nil;
 End;
 
 Procedure TForm4.Button4Click(Sender: TObject);
@@ -174,7 +177,7 @@ Begin
   result := total;
 End;
 
-Function TForm4.GetFilesToDLCount(): integer;
+Function TForm4.GetFilesToDLCount: integer;
 Var
   files, i: Integer;
 Begin
@@ -187,14 +190,40 @@ Begin
   result := files;
 End;
 
+Procedure TForm4.ResetKnownFiles;
+Begin
+  setlength(KnownFiles, 0);
+End;
+
+Procedure TForm4.AddKnownFile(Const aFile: TFile);
+Var
+  i: Integer;
+Begin
+  // Wir kennen die Datei schon ..
+  For i := 0 To high(KnownFiles) Do Begin
+    If LowerCase(KnownFiles[i].Hash) = LowerCase(aFile.Hash) Then exit;
+  End;
+  // Es ist eine neue Datei -> Hinzufügen
+  setlength(KnownFiles, high(KnownFiles) + 2);
+  KnownFiles[high(KnownFiles)] := aFile;
+End;
+
 Function TForm4.CalcDownloadJobs: TDLJobs;
   Procedure Add(Const aFile: TFile);
   Var
     i: Integer;
   Begin
+    // Die Datei ist in der KnownListe -> Sie kann direkt Kopiert werden
+    For i := 0 To high(KnownFiles) Do Begin
+      If lowercase(KnownFiles[i].Hash) = lowercase(aFile.Hash) Then Begin
+        ForceDirectories(extractfilepath(aFile.Filename));
+        Copyfile(KnownFiles[i].Filename, aFile.Filename);
+        exit;
+      End;
+    End;
     // Die Datei gibt es schon in der DL Liste
     For i := 0 To high(result) Do Begin
-      If result[i].aFile.Hash = aFile.Hash Then Begin
+      If lowercase(result[i].aFile.Hash) = lowercase(aFile.Hash) Then Begin
         setlength(result[i].copys, high(result[i].copys) + 2);
         result[i].copys[high(result[i].copys)] := aFile.Filename;
         exit;
@@ -270,11 +299,14 @@ Begin
     For i := 0 To high(Jobs) Do Begin
       dltotal := dltotal + Jobs[i].aFile.Size;
     End;
-    s := format('Need to download %d files which can be compressed to %d distinct files, which will create %s traffic, and will take %s on your harddisc continue?', [
+    s := format(
+      'Need to download %d files which will take %s on your harddisc.' + LineEnding + LineEnding +
+      'Download heutistic can compress these files to %d distinct downloads, which will create %s traffic.' + LineEnding + LineEnding +
+      'Continue?', [
       GetFilesToDLCount(),
+        FileSizeToString(total),
         length(Jobs),
-        FileSizeToString(dltotal),
-        FileSizeToString(total)
+        FileSizeToString(dltotal)
         ]);
     If ID_NO = Application.MessageBox(pchar(s), 'Info', MB_ICONQUESTION Or MB_YESNO) Then Begin
       Goto Retry;

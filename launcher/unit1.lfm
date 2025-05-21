@@ -881,19 +881,19 @@ object Form1: TForm1
     Top = 40
     Width = 264
     Caption = ' Quicksetup'
-    ClientHeight = 236
-    ClientWidth = 260
+    ClientHeight = 239
+    ClientWidth = 262
     TabOrder = 1
     object Label1: TLabel
       Left = 8
-      Height = 15
+      Height = 16
       Top = 64
-      Width = 86
+      Width = 97
       Caption = 'Client username'
     end
     object Edit1: TEdit
       Left = 176
-      Height = 23
+      Height = 26
       Top = 56
       Width = 80
       TabOrder = 0
@@ -901,14 +901,14 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 8
-      Height = 15
+      Height = 16
       Top = 92
-      Width = 87
+      Width = 100
       Caption = 'Server username'
     end
     object Edit2: TEdit
       Left = 176
-      Height = 23
+      Height = 26
       Top = 84
       Width = 80
       TabOrder = 1
@@ -916,14 +916,14 @@ object Form1: TForm1
     end
     object Label3: TLabel
       Left = 8
-      Height = 15
+      Height = 16
       Top = 120
-      Width = 54
+      Width = 64
       Caption = 'Serverport'
     end
     object Edit3: TEdit
       Left = 176
-      Height = 23
+      Height = 26
       Top = 112
       Width = 80
       TabOrder = 2
@@ -931,18 +931,18 @@ object Form1: TForm1
     end
     object CheckBox1: TCheckBox
       Left = 8
-      Height = 19
+      Height = 22
       Top = 32
-      Width = 73
+      Width = 86
       Caption = 'Darkmode'
       TabOrder = 3
     end
     object ComboBox1: TComboBox
       Left = 156
-      Height = 23
+      Height = 26
       Top = 144
       Width = 100
-      ItemHeight = 15
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'Right'
@@ -954,16 +954,16 @@ object Form1: TForm1
     end
     object Label4: TLabel
       Left = 8
-      Height = 15
+      Height = 16
       Top = 152
-      Width = 50
+      Width = 57
       Caption = 'Menupos'
     end
     object CheckBox2: TCheckBox
       Left = 8
-      Height = 19
+      Height = 22
       Top = 8
-      Width = 69
+      Width = 82
       Caption = 'Show FPS'
       TabOrder = 5
     end
@@ -981,7 +981,7 @@ object Form1: TForm1
     end
     object Edit4: TEdit
       Left = 200
-      Height = 23
+      Height = 26
       Top = 176
       Width = 56
       TabOrder = 7
@@ -989,9 +989,9 @@ object Form1: TForm1
     end
     object CheckBox3: TCheckBox
       Left = 8
-      Height = 19
+      Height = 22
       Top = 180
-      Width = 154
+      Width = 178
       Caption = 'Start next wave each [sec]'
       Checked = True
       State = cbChecked
