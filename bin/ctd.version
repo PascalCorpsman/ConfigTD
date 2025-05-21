@@ -607,11 +607,10 @@
     "Download":
     [
       {
-        "zip":        {
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD_Data\/archive\/refs\/heads\/main.zip",
-          "InFileOffset":"ConfigTD_Data-main",
-          "SIZE":"17949028",
-          "Description":"CTD_Data pack as repository zip import"
+        "json":        {
+          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD_Data\/main\/Filelist.json",
+          "SIZE":"669438",
+          "Description":"CTD_Data pack (all maps \/ graphics ...)"
         }
       }
     ]
