@@ -118,8 +118,9 @@ Const
    *                      FIX: Add buyable with more than 1 player in game creates invald maps
    *            0.12007 = FIX: Realtime calculation under windows was wrong
    *                      ADD: improve Ux for terrain editing (more cursor steps)
-   *            0.13000 = ADD: Porting all MapProperty Messages to "LCLFifo" -> Shall improve stability when multiple users edit waves..
+   * -Released- 0.13000 = ADD: Porting all MapProperty Messages to "LCLFifo" -> Shall improve stability when multiple users edit waves..
    *                      ADD: remove ".opp" in wave comboboxes
+   *            0.13001 = 
    *
    * Known Bugs :
    *)
@@ -128,7 +129,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 13; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.13000'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.13001'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
