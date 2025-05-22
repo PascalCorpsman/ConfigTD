@@ -1,16 +1,16 @@
 {
   "config_td":  {
-    "Version":0.12007,
-    "LauncherVersion":13,
-    "VersionText":"FIX: realtime calculation under Windows",
+    "Version":0.13000,
+    "LauncherVersion":14,
+    "VersionText":"* Rework additional sync process (please update launcher before downloading new additionals)\n* Rework WaveEditor -> less crashes when working with multiple users in waces\n* Improve opponent comboboxes when editing waves (show hitpoints after name)",
     "Download_core":
     [
       {
         "file":        {
-          "HASH":"4c792b99d478e1c2cf8d899e643d81b2",
-          "SIZE":"3598336",
-          "HASH2":"330614dd407fd2898d76955f09a4f879",
-          "SIZE2":"8034728",
+          "HASH":"fcd13fcae7e6e206c666899a6fc42a33",
+          "SIZE":"3599360",
+          "HASH2":"09958ac5bff8538a5a1e3d9425818544",
+          "SIZE2":"8051880",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
@@ -19,18 +19,18 @@
         "file":        {
           "HASH":"29b5899a73ff45ee1ad5c3fb771b62fc",
           "SIZE":"3089920",
-          "HASH2":"55daec2b420fe1beab9521ef86040fc2",
-          "SIZE2":"7762776",
+          "HASH2":"05b83db9c986e4b3ffd2ae966c6a6506",
+          "SIZE2":"7771736",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":        {
-          "HASH":"ec81fdd6d74bd9d9e9694e8cdda2aed4",
-          "SIZE":"7594496",
-          "HASH2":"b0472b17f43a5b5ec43ef33a020c95a0",
-          "SIZE2":"12338856",
+          "HASH":"a5ba81e1a4054a2fefbf0e39e8138df6",
+          "SIZE":"7599616",
+          "HASH2":"490bc96bb9e58372c5ccbcb311d7025a",
+          "SIZE2":"12353544",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
         }
@@ -49,8 +49,8 @@
         "file":        {
           "HASH":"c8ba92fb6d3d792b0921123fc4d8b633",
           "SIZE":"2869760",
-          "HASH2":"f97c0b18665786ffa697421681da18a7",
-          "SIZE2":"7582376",
+          "HASH2":"74595c206f42a9ab1f5535068ad103d6",
+          "SIZE2":"7587256",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
@@ -59,18 +59,18 @@
         "file":        {
           "HASH":"9e04d962a6eb31aa0a25709eda7acce8",
           "SIZE":"3049472",
-          "HASH2":"591c3bd154e68d1a90505229fa3ebbd6",
-          "SIZE2":"7733944",
+          "HASH2":"2cc05ed3ee18236a90d3fe8a5b275e53",
+          "SIZE2":"7742904",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
       },
       {
         "file":        {
-          "HASH":"d939995d3b9004bf1f9f360e788dbb6b",
-          "SIZE":"5806592",
-          "HASH2":"86f73cbc9102f5dae8509e9e7f03f08b",
-          "SIZE2":"7315784",
+          "HASH":"49ee6c13ec358ea5d97ba74e3f21e454",
+          "SIZE":"5834240",
+          "HASH2":"a45fe7d84b64e0d61ef83fd4139c32ce",
+          "SIZE2":"7341640",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
