@@ -20,7 +20,7 @@ Interface
 
 Uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, CheckLst,
-  StdCtrls, ulauncher, Types;
+  StdCtrls, Menus, ulauncher;
 
 Type
 
@@ -55,11 +55,15 @@ Type
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    MenuItem1: TMenuItem;
+    PopupMenu1: TPopupMenu;
     Procedure Button3Click(Sender: TObject);
     Procedure Button4Click(Sender: TObject);
     Procedure Button9Click(Sender: TObject);
     Procedure CheckListBox1Click(Sender: TObject);
+    Procedure CheckListBox1DblClick(Sender: TObject);
     Procedure FormCreate(Sender: TObject);
+    Procedure MenuItem1Click(Sender: TObject);
   private
     KnownFiles: TFiles;
     fdlfun: TDownloadFunction;
@@ -81,7 +85,7 @@ Implementation
 
 {$R *.lfm}
 
-Uses Unit3, LCLType, FileUtil;
+Uses Unit3, LCLType, FileUtil, Unit5;
 
 { TForm4 }
 
@@ -89,6 +93,14 @@ Procedure TForm4.FormCreate(Sender: TObject);
 Begin
   caption := 'Additionals downloader';
   KnownFiles := Nil;
+End;
+
+Procedure TForm4.MenuItem1Click(Sender: TObject);
+Begin
+  // Show details
+  If CheckListBox1.ItemIndex <> -1 Then Begin
+    form5.ShowData(DLContainer[CheckListBox1.ItemIndex].Items);
+  End;
 End;
 
 Procedure TForm4.Button4Click(Sender: TObject);
@@ -120,6 +132,11 @@ End;
 Procedure TForm4.CheckListBox1Click(Sender: TObject);
 Begin
   CalcTotalSize;
+End;
+
+Procedure TForm4.CheckListBox1DblClick(Sender: TObject);
+Begin
+  MenuItem1Click(sender);
 End;
 
 Procedure TForm4.Button3Click(Sender: TObject);
@@ -301,7 +318,7 @@ Begin
     End;
     s := format(
       'Need to download %d files which will take %s on your harddisc.' + LineEnding + LineEnding +
-      'Download heutistic can compress these files to %d distinct downloads, which will create %s traffic.' + LineEnding + LineEnding +
+      'Download heuristic can compress these files to %d distinct downloads, which will create %s traffic.' + LineEnding + LineEnding +
       'Continue?', [
       GetFilesToDLCount(),
         FileSizeToString(total),

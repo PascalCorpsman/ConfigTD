@@ -1,0 +1,33 @@
+object Form5: TForm5
+  Left = 331
+  Height = 335
+  Top = 114
+  Width = 637
+  Caption = 'Form5'
+  ClientHeight = 335
+  ClientWidth = 637
+  Position = poScreenCenter
+  LCLVersion = '4.99.0.0'
+  OnCreate = FormCreate
+  object ListBox1: TListBox
+    Left = 8
+    Height = 280
+    Top = 8
+    Width = 616
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ItemHeight = 0
+    TabOrder = 0
+    TopIndex = -1
+    OnDblClick = ListBox1DblClick
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 296
+    Width = 616
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'OK'
+    ModalResult = 1
+    TabOrder = 1
+  end
+end

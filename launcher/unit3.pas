@@ -164,6 +164,8 @@ Begin
   dl.OnFileDownloadUpdateEvent := @OnFileDownloadUpdateEvent;
   Try
     label5.caption := ExtractFileName(aFile.Filename);
+    // TODO: Eigentlich sollte hier ein Uri Encoding der URL stattfinden, aktuell reicht aber das hier...
+    aFile.URL := StringReplace(aFile.URL, ' ', '%20', [rfReplaceAll]);
     If dl.DownloadFile(aFile.URL, aFile.Filename) Then Begin
       result := FileSize(aFile.Filename);
       If aFile.Kind = fkExecutable Then Begin

@@ -12,32 +12,70 @@
 (*               source file of the project.                                  *)
 (*                                                                            *)
 (******************************************************************************)
-Program ctd_launcher;
+Unit Unit5;
 
-{$MODE objfpc}{$H+}
+{$MODE ObjFPC}{$H+}
+
+Interface
 
 Uses
-{$IFDEF UNIX}
-  cthreads,
-{$ENDIF}
-{$IFDEF HASAMIGA}
-  athreads,
-{$ENDIF}
-  Interfaces, // this includes the LCL widgetset
-  Forms, unit1, unit2, uJSON, uncommenter, usynapsedownloader, ulauncher, unit3,
-  Unit4, unit5;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Menus,
+  ulauncher;
 
-{$R *.res}
+Type
 
+  { TForm5 }
+
+  TForm5 = Class(TForm)
+    Button1: TButton;
+    ListBox1: TListBox;
+    Procedure FormCreate(Sender: TObject);
+    Procedure ListBox1DblClick(Sender: TObject);
+  private
+    fFiles: TFiles;
+
+  public
+    Procedure ShowData(Const files: TFiles);
+  End;
+
+Var
+  Form5: TForm5;
+
+Implementation
+
+{$R *.lfm}
+
+{ TForm5 }
+
+Procedure TForm5.FormCreate(Sender: TObject);
 Begin
-  RequireDerivedFormResource := True;
-  Application.Scaled:=True;
-  Application.Initialize;
-  Application.CreateForm(TForm1, Form1);
-  Application.CreateForm(TForm2, Form2);
-  Application.CreateForm(TForm3, Form3);
-  Application.CreateForm(TForm4, Form4);
-  Application.CreateForm(TForm5, Form5);
-  Application.Run;
+  caption := 'Detail viewer';
+End;
+
+Procedure TForm5.ListBox1DblClick(Sender: TObject);
+Begin
+  If ListBox1.ItemIndex <> -1 Then Begin
+    showmessage(fFiles[ListBox1.ItemIndex].URL);
+  End;
+End;
+
+Procedure TForm5.ShowData(Const files: TFiles);
+Var
+  i: Integer;
+Begin
+  fFiles := Files;
+  ListBox1.Clear;
+  For i := 0 To high(files) Do Begin
+    ListBox1.Items.Add(
+      format('%s (%s)',
+      [
+      ExtractFileName(files[i].Filename),
+        FileSizeToString(files[i].Size)
+        ])
+        );
+  End;
+  ShowModal;
+End;
+
 End.
 
