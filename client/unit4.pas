@@ -1079,7 +1079,16 @@ Begin
    *)
   log('TForm4.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
   Case MapProperty Of
-    mpSaveMap: Begin
+    mpSaveMap,
+      mpResize,
+      mpCoord,
+      mpAddWayPoint,
+      mpDelWayPoint,
+      mpDecPointOrder,
+      mpDelPlacement,
+      mpAddPlacement,
+      mpBackTex,
+      mpWCoord: Begin
         // Nichts, irgend ein Client wollte lediglich dass alle "Speichern"
       End;
     // General

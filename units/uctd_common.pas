@@ -120,7 +120,7 @@ Const
    *                      ADD: improve Ux for terrain editing (more cursor steps)
    * -Released- 0.13000 = ADD: Porting all MapProperty Messages to "LCLFifo" -> Shall improve stability when multiple users edit waves..
    *                      ADD: remove ".opp" in wave comboboxes
-   *            0.13001 = 
+   *            0.13001 = FIX: Invalid warnings during map creation
    *
    * Known Bugs :
    *)
