@@ -120,8 +120,8 @@ Const
    *                      ADD: improve Ux for terrain editing (more cursor steps)
    * -Released- 0.13000 = ADD: Porting all MapProperty Messages to "LCLFifo" -> Shall improve stability when multiple users edit waves..
    *                      ADD: remove ".opp" in wave comboboxes
-   *            0.13001 = FIX: Invalid warnings during map creation
-   *
+   * -Released- 0.13001 = FIX: Invalid warnings during map creation
+   *            0.13002 =
    * Known Bugs :
    *)
   (*
@@ -129,7 +129,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 13; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.13001'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.13002'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
