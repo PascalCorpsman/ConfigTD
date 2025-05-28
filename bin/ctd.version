@@ -1,8 +1,8 @@
 {
   "config_td":  {
-    "Version":0.13000,
+    "Version":0.13001,
     "LauncherVersion":14,
-    "VersionText":"* Rework additional sync process (please update launcher before downloading new additionals)\n* Rework WaveEditor -> less crashes when working with multiple users in waces\n* Improve opponent comboboxes when editing waves (show hitpoints after name)",
+    "VersionText":"FIX: client map editing was broken due to mass warnings",
     "Download_core":
     [
       {
@@ -27,9 +27,9 @@
       },
       {
         "file":        {
-          "HASH":"a5ba81e1a4054a2fefbf0e39e8138df6",
+          "HASH":"7afc0f2d6da159e3e702cc5c4f362ded",
           "SIZE":"7599616",
-          "HASH2":"490bc96bb9e58372c5ccbcb311d7025a",
+          "HASH2":"076dbcf9ad9c0274ed615915cad8189b",
           "SIZE2":"12353544",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/bin\/config_td.exe",
           "Filename":"config_td.exe"
