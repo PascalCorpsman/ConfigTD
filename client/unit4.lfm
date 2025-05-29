@@ -89,9 +89,11 @@ object Form4: TForm4
         Top = 151
         Width = 168
         Anchors = [akLeft, akBottom]
+        NumbersOnly = True
         TabOrder = 2
-        Text = 'Edit1'
         OnChange = Edit1Change
+        OnEnter = OnEditEnter
+        OnExit = OnEditExit
       end
       object GroupBox1: TGroupBox
         Left = 8
@@ -130,10 +132,10 @@ object Form4: TForm4
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
+          NumbersOnly = True
           ParentShowHint = False
           ShowHint = True
           TabOrder = 0
-          Text = 'Edit2'
           OnChange = Edit2Change
         end
         object Edit3: TEdit
@@ -142,10 +144,10 @@ object Form4: TForm4
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
+          NumbersOnly = True
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
-          Text = 'Edit3'
           OnChange = Edit2Change
         end
         object Edit4: TEdit
@@ -154,10 +156,10 @@ object Form4: TForm4
           Hint = 'Set to 0 to deactivate'
           Top = 24
           Width = 80
+          NumbersOnly = True
           ParentShowHint = False
           ShowHint = True
           TabOrder = 2
-          Text = 'Edit4'
           OnChange = Edit2Change
         end
       end
@@ -365,7 +367,7 @@ object Form4: TForm4
         Top = 40
         Width = 304
         Caption = ' Edit Terrain '
-        ClientHeight = 88
+        ClientHeight = 103
         ClientWidth = 302
         TabOrder = 1
         object CheckBox2: TCheckBox
@@ -426,7 +428,7 @@ object Form4: TForm4
         Top = 160
         Width = 304
         Caption = ' Placements '
-        ClientHeight = 80
+        ClientHeight = 95
         ClientWidth = 302
         TabOrder = 2
         object CheckBox6: TCheckBox
@@ -498,11 +500,11 @@ object Form4: TForm4
       ClientWidth = 317
       object GroupBox4: TGroupBox
         Left = 8
-        Height = 97
+        Height = 129
         Top = 8
         Width = 304
         Caption = ' Waypoints '
-        ClientHeight = 80
+        ClientHeight = 127
         ClientWidth = 302
         TabOrder = 0
         object CheckBox5: TCheckBox
@@ -558,6 +560,20 @@ object Form4: TForm4
           Caption = 'Dec point order'
           TabOrder = 4
         end
+        object Label19: TLabel
+          Left = 8
+          Height = 16
+          Top = 88
+          Width = 66
+          Caption = 'Waylength'
+        end
+        object Label20: TLabel
+          Left = 112
+          Height = 16
+          Top = 88
+          Width = 49
+          Caption = 'Label20'
+        end
       end
       object GroupBox7: TGroupBox
         Left = 8
@@ -565,7 +581,7 @@ object Form4: TForm4
         Top = 160
         Width = 304
         Caption = ' Waypoint areas '
-        ClientHeight = 151
+        ClientHeight = 166
         ClientWidth = 302
         TabOrder = 1
         object CheckBox7: TCheckBox

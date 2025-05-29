@@ -121,7 +121,7 @@ Const
    * -Released- 0.13000 = ADD: Porting all MapProperty Messages to "LCLFifo" -> Shall improve stability when multiple users edit waves..
    *                      ADD: remove ".opp" in wave comboboxes
    * -Released- 0.13001 = FIX: Invalid warnings during map creation
-   *            0.13002 =
+   *            0.13002 = ADD: Show waylenght during waypoint editing
    * Known Bugs :
    *)
   (*

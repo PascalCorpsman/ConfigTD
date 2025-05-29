@@ -337,6 +337,7 @@ Type
     Procedure ResetAllUpdateBuildings;
     Procedure CreateDamageClassTextures;
     Function WaveOppList(WaveNum: integer): String;
+    Function GetWayLen(PlayerIndex: Integer): Single;
 {$ENDIF}
     Function CheckForErrors(ShowWarnings: Boolean): TCheckResult;
     Function GetListOfUnusedOpponents(): TStringList;
@@ -2168,6 +2169,22 @@ Begin
       result := result + '  ' + ExtractFileNameOnly(Waves[WaveNum].Opponents[i].opponent) + ': ' + inttostr(Waves[WaveNum].Opponents[i].Count) + LineEnding;
     End;
     // Das Result mit CRT aufhört ist absicht, dann ist ein kleiner Abstand zum Wave Hint, so denn einer Definiert ist.
+  End;
+End;
+
+Function TMap.GetWayLen(PlayerIndex: Integer): Single;
+Var
+  i: Integer;
+Begin
+  result := 0;
+  If (PlayerIndex >= 0) And (PlayerIndex <= high(Waypoints)) Then Begin
+    For i := 0 To high(Waypoints[PlayerIndex]) - 1 Do Begin
+      result := result +
+        sqrt(
+        sqr(Waypoints[PlayerIndex, i].Point.x - Waypoints[PlayerIndex, i + 1].Point.x)
+        + sqr(Waypoints[PlayerIndex, i].Point.Y - Waypoints[PlayerIndex, i + 1].Point.y)
+        );
+    End;
   End;
 End;
 

@@ -107,7 +107,9 @@ Type
     Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
+    Label19: TLabel;
     Label2: TLabel;
+    Label20: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -177,6 +179,8 @@ Type
     Procedure ScrollBar1Change(Sender: TObject);
     Procedure ScrollBar2Change(Sender: TObject);
     Procedure Timer1Timer(Sender: TObject);
+    Procedure OnEditEnter(Sender: TObject);
+    Procedure OnEditExit(Sender: TObject);
   private
     { private declarations }
     fTransferFilename: String;
@@ -207,6 +211,7 @@ Type
 
     Procedure RefreshForm4Buyables;
     Procedure HandleLCLEvent(Const Event: TLCLRecord);
+    Procedure UpdateLCLWayLen;
   End;
 
 Var
@@ -293,6 +298,7 @@ Begin
   Edit5.text := '1';
   Edit6.text := '1';
   Edit7.text := '0';
+  label20.caption := '';
 End;
 
 Procedure TForm4.FormDestroy(Sender: TObject);
@@ -396,6 +402,20 @@ Begin
   AdjustMoveWaveButtons;
 End;
 
+Procedure TForm4.OnEditEnter(Sender: TObject);
+Var
+  e: TEdit absolute Sender;
+Begin
+  e.Tag := strtointdef(e.Text, 0);
+End;
+
+Procedure TForm4.OnEditExit(Sender: TObject);
+Var
+  e: TEdit absolute Sender;
+Begin
+  e.Text := inttostr(e.Tag);
+End;
+
 Procedure TForm4.HandleLCLEvent(Const Event: TLCLRecord);
 Begin
   // Wenn die LCL Aktualisiert wird darf nicht erneut Update generiert werden -> Block an (nur hier und beim Laden)
@@ -413,6 +433,16 @@ Begin
   End;
   If assigned(event.Data) Then event.Data.Free;
   ctd.BlockMapUpdateSending := false;
+End;
+
+Procedure TForm4.UpdateLCLWayLen;
+Begin
+  If CheckBox5.Checked Then Begin
+    label20.caption := format('%0.1f', [ctd.Map.GetWayLen(ctd.Map.ViewWaypoints)]);
+  End
+  Else Begin
+    label20.caption := '';
+  End;
 End;
 
 Procedure TForm4.ComboBox1Change(Sender: TObject);
@@ -589,6 +619,7 @@ Begin
   Else Begin
     ctd.Map.ViewWaypoints := -1;
   End;
+  UpdateLCLWayLen;
 End;
 
 Procedure TForm4.CheckBox6Change(Sender: TObject);
@@ -790,9 +821,10 @@ Var
   i: integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit1.text = '' Then exit;
   m := TMemoryStream.Create;
-  i := max(1, strtointdef(Edit1.text, 1));
-  Edit1.text := inttostr(i);
+  i := strtoint(edit1.text);
+  Edit1.Tag := i;
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpMaxPlayer, m);
 End;
@@ -1082,9 +1114,6 @@ Begin
     mpSaveMap,
       mpResize,
       mpCoord,
-      mpAddWayPoint,
-      mpDelWayPoint,
-      mpDecPointOrder,
       mpDelPlacement,
       mpAddPlacement,
       mpBackTex,
@@ -1155,6 +1184,11 @@ Begin
       End;
     // Terrain
     // Waypoints
+    mpAddWayPoint,
+      mpDelWayPoint,
+      mpDecPointOrder: Begin
+        form4.UpdateLCLWayLen;
+      End;
     // Buyables
     mpAddBuyable: Begin
         s := Data.ReadAnsiString;
