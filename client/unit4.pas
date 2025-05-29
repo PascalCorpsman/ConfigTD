@@ -833,8 +833,12 @@ Procedure TForm4.Edit2Change(Sender: TObject);
 Var
   m: TMemoryStream;
   i: integer;
+  e: TEdit absolute Sender;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If e.Text = '' Then exit;
+  i := StrToInt(e.text);
+  e.Tag := i;
   m := TMemoryStream.Create;
   i := StrToIntDef(edit2.text, 1);
   m.Write(i, sizeof(i));

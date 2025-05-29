@@ -11,7 +11,7 @@ object WaveOpponentFrame: TWaveOpponentFrame
   DesignTop = 190
   object ComboBox1: TComboBox
     Left = 88
-    Height = 22
+    Height = 30
     Top = 10
     Width = 176
     Anchors = [akTop, akLeft, akRight]
@@ -42,15 +42,18 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit1: TEdit
     Left = 88
-    Height = 23
+    Height = 26
     Hint = 'Total number of opponents to send out '#10'(devide by units per spawn to get the number of spawns)'
     Top = 39
     Width = 80
+    NumbersOnly = True
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
     Text = 'Edit1'
     OnChange = Edit1Change
+    OnEnter = OnEditEnter
+    OnExit = OnEditExit
   end
   object Label6: TLabel
     Left = 9
@@ -63,12 +66,15 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit2: TEdit
     Left = 88
-    Height = 23
+    Height = 26
     Top = 71
     Width = 80
+    NumbersOnly = True
     TabOrder = 2
     Text = 'Edit2'
     OnChange = Edit2Change
+    OnEnter = OnEditEnter
+    OnExit = OnEditExit
   end
   object Label7: TLabel
     Left = 9
@@ -81,13 +87,16 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit3: TEdit
     Left = 88
-    Height = 23
+    Height = 26
     Top = 100
     Width = 80
+    NumbersOnly = True
     ParentShowHint = False
     TabOrder = 3
     Text = 'Edit3'
     OnChange = Edit3Change
+    OnEnter = OnEditEnter
+    OnExit = OnEditExit
   end
   object Label8: TLabel
     Left = 9
@@ -100,15 +109,18 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit4: TEdit
     Left = 88
-    Height = 23
+    Height = 26
     Hint = 'Time in ms until the first spawn is send out'
     Top = 130
     Width = 80
+    NumbersOnly = True
     ParentShowHint = False
     ShowHint = True
     TabOrder = 4
     Text = 'Edit4'
     OnChange = Edit4Change
+    OnEnter = OnEditEnter
+    OnExit = OnEditExit
   end
   object Label9: TLabel
     Left = 9
@@ -121,15 +133,18 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit5: TEdit
     Left = 88
-    Height = 23
+    Height = 26
     Hint = 'Time in ms between sending two spawns'
     Top = 160
     Width = 80
+    NumbersOnly = True
     ParentShowHint = False
     ShowHint = True
     TabOrder = 5
     Text = 'Edit5'
     OnChange = Edit5Change
+    OnEnter = OnEditEnter
+    OnExit = OnEditExit
   end
   object Button1: TButton
     Left = 176

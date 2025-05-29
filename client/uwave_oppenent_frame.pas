@@ -52,6 +52,8 @@ Type
     Procedure Edit4Change(Sender: TObject);
     Procedure Edit5Change(Sender: TObject);
     Procedure SpeedButton1Click(Sender: TObject);
+    Procedure OnEditEnter(Sender: TObject);
+    Procedure OnEditExit(Sender: TObject);
   private
     { private declarations }
   public
@@ -132,10 +134,12 @@ Var
   i: integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit1.text = '' Then exit;
+  i := strtointdef(edit1.text, 1);
+  edit1.Tag := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(OpponnetNum, sizeof(OpponnetNum));
-  i := strtointdef(edit1.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentCount, m);
 End;
@@ -146,10 +150,12 @@ Var
   i: integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit2.text = '' Then exit;
+  i := strtointdef(edit2.text, 1);
+  edit2.Tag := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(OpponnetNum, sizeof(OpponnetNum));
-  i := strtointdef(edit2.text, 0);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentCashPerUnit, m);
 End;
@@ -160,10 +166,12 @@ Var
   i: integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit3.text = '' Then exit;
+  i := strtointdef(edit3.text, 1);
+  edit3.Tag := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(OpponnetNum, sizeof(OpponnetNum));
-  i := strtointdef(edit3.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentUnitsPerSpawn, m);
 End;
@@ -174,10 +182,12 @@ Var
   i: integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit4.text = '' Then exit;
+  i := strtointdef(edit4.text, 1);
+  edit4.Tag := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(OpponnetNum, sizeof(OpponnetNum));
-  i := strtointdef(edit4.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentSpawnDelay, m);
 End;
@@ -188,10 +198,12 @@ Var
   i: integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit5.text = '' Then exit;
+  i := strtointdef(edit5.text, 1);
+  edit5.Tag := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(OpponnetNum, sizeof(OpponnetNum));
-  i := strtointdef(edit5.text, 1);
   m.Write(i, sizeof(i));
   ctd.UpdateMapProperty(mpWaveOpponentSpawnDelta, m);
 End;
@@ -203,6 +215,20 @@ Begin
   End;
 End;
 
+Procedure TWaveOpponentFrame.OnEditEnter(Sender: TObject);
+Var
+  e: TEdit absolute Sender;
+Begin
+  e.Tag := strtointdef(e.Text, 0);
+End;
+
+Procedure TWaveOpponentFrame.OnEditExit(Sender: TObject);
+Var
+  e: TEdit absolute Sender;
+Begin
+  e.Text := inttostr(e.Tag);
+End;
+
 Constructor TWaveOpponentFrame.Create(TheOwner: TComponent);
 Begin
   Inherited Create(TheOwner);
@@ -211,7 +237,7 @@ Begin
   SpeedButton1.Caption := 'Open' + LineEnding + 'Opponent' + LineEnding + 'Editor';
 End;
 
-Procedure TWaveOpponentFrame.Reset();
+Procedure TWaveOpponentFrame.Reset;
 Begin
   ComboBox1.Text := '';
   edit1.text := '10'; // Count
@@ -248,7 +274,7 @@ Begin
   Edit5.text := inttostr(Opp.Spawndelta); // Spawndelta
 End;
 
-Function TWaveOpponentFrame.GetOpponent(): TWaveOpponent;
+Function TWaveOpponentFrame.GetOpponent: TWaveOpponent;
 Begin
   result.opponent := ComboBox1.Text;
   result.Count := strtointdef(edit1.text, 0);

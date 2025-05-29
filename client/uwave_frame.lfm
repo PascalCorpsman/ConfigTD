@@ -20,12 +20,15 @@ object WaveFrame: TWaveFrame
   end
   object Edit2: TEdit
     Left = 95
-    Height = 23
+    Height = 26
     Top = 10
     Width = 80
+    NumbersOnly = True
     TabOrder = 0
     Text = 'Edit2'
     OnChange = Edit2Change
+    OnEnter = OnEditEnter
+    OnExit = OnEditExit
   end
   object Label3: TLabel
     Left = 4
@@ -56,7 +59,7 @@ object WaveFrame: TWaveFrame
   end
   object Edit1: TEdit
     Left = 95
-    Height = 23
+    Height = 26
     Top = 40
     Width = 80
     TabOrder = 1
@@ -92,9 +95,9 @@ object WaveFrame: TWaveFrame
   end
   object Label1: TLabel
     Left = 235
-    Height = 15
+    Height = 16
     Top = 6
-    Width = 30
+    Width = 33
     Caption = 'move'
   end
   object Button4: TButton

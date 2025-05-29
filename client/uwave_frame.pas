@@ -50,6 +50,8 @@ Type
     Procedure PageControl1Change(Sender: TObject);
     Procedure Reset();
     Function GetWave(): TWave; // Nur für die Change Wave Routine
+    Procedure OnEditEnter(Sender: TObject);
+    Procedure OnEditExit(Sender: TObject);
   private
     { private declarations }
     FWaveNume: integer;
@@ -192,7 +194,9 @@ Var
   i: Integer;
 Begin
   If Not assigned(ctd) Or ctd.BlockMapUpdateSending Then exit;
+  If edit2.text = '' Then exit;
   i := StrToIntDef(Edit2.Text, 0);
+  Edit2.Tag := i;
   m := TMemoryStream.Create;
   m.Write(WaveNum, sizeof(WaveNum));
   m.Write(i, sizeof(i));
@@ -311,6 +315,20 @@ Begin
   For i := 0 To PageControl1.PageCount - 1 Do Begin
     result.Opponents[i] := (PageControl1.Pages[i].Components[0] As TWaveOpponentFrame).GetOpponent();
   End;
+End;
+
+Procedure TWaveFrame.OnEditEnter(Sender: TObject);
+Var
+  e: TEdit absolute Sender;
+Begin
+  e.Tag := strtointdef(e.Text, 0);
+End;
+
+Procedure TWaveFrame.OnEditExit(Sender: TObject);
+Var
+  e: TEdit absolute Sender;
+Begin
+  e.Text := inttostr(e.Tag);
 End;
 
 End.
