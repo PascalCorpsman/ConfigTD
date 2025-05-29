@@ -122,6 +122,7 @@ Const
    *                      ADD: remove ".opp" in wave comboboxes
    * -Released- 0.13001 = FIX: Invalid warnings during map creation
    *            0.13002 = ADD: Show waylenght during waypoint editing
+   *                      ADD: improve Ux on Editing Values
    * Known Bugs :
    *)
   (*
