@@ -94,6 +94,7 @@ It could be possible that in future these arguments change and sound support wil
 
 #### Found a bug:
 - Check for the newest version (using the ctd_launcher)
+- read the [FAQ](documentation/FAQ.md), is it listed there ?
 - if the bug still exists create a ticket in this repository
   - describe all needed to reprocude, this includes at least:
     - OS-Version
