@@ -62,6 +62,7 @@ Type
     Button18: TButton;
     Button19: TButton;
     Button2: TButton;
+    Button20: TButton;
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
@@ -149,6 +150,7 @@ Type
     Procedure Button18Click(Sender: TObject);
     Procedure Button19Click(Sender: TObject);
     Procedure Button1Click(Sender: TObject);
+    Procedure Button20Click(Sender: TObject);
     Procedure Button2Click(Sender: TObject);
     Procedure Button3Click(Sender: TObject);
     Procedure Button4Click(Sender: TObject);
@@ -798,6 +800,17 @@ Begin
   End;
 End;
 
+Procedure TForm4.Button20Click(Sender: TObject);
+Var
+  m: TMemoryStream;
+Begin
+  // Recreate Map by Image
+  If OpenPictureDialog1.Execute Then Begin
+    m := form1.ImageToMapStream(OpenPictureDialog1.FileName);
+    ctd.UpdateMapProperty(mpCoordData, m);
+  End;
+End;
+
 Procedure TForm4.Button2Click(Sender: TObject);
 Var
   m: TMemoryStream;
@@ -1121,7 +1134,8 @@ Begin
       mpDelPlacement,
       mpAddPlacement,
       mpBackTex,
-      mpWCoord: Begin
+      mpWCoord,
+      mpCoordData: Begin
         // Nichts, irgend ein Client wollte lediglich dass alle "Speichern"
       End;
     // General
@@ -1289,18 +1303,7 @@ Begin
         j := -1;
         data.Read(j, sizeof(j));
         s := Data.ReadAnsiString;
-        // ggf. den WaveOpponent anlegen, sollte dieser noch nicht existieren
-        b := false;
-        For c := 0 To TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items.count - 1 Do Begin
-          If TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.items[c] = s Then Begin
-            b := true;
-            break;
-          End;
-        End;
-        If Not b Then Begin
-          TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).AddOpponentItem(s);
-        End;
-        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).ComboBox1.Text := s;
+        TWaveOpponentFrame(TWaveFrame(PageControl2.Pages[i].Components[0]).PageControl1.pages[j].Components[0]).SetOppentTo(s);
       End;
     mpWaveOpponentCount: Begin
         i := -1;

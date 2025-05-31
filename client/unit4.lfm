@@ -1,7 +1,7 @@
 object Form4: TForm4
-  Left = 1363
+  Left = 1611
   Height = 465
-  Top = 107
+  Top = 109
   Width = 323
   BorderIcons = []
   Caption = 'Form4'
@@ -102,7 +102,7 @@ object Form4: TForm4
         Width = 304
         Anchors = [akLeft, akBottom]
         Caption = ' Lives count for every Player'
-        ClientHeight = 55
+        ClientHeight = 70
         ClientWidth = 302
         TabOrder = 3
         object Label4: TLabel
@@ -253,7 +253,7 @@ object Form4: TForm4
         Width = 305
         Anchors = [akLeft, akBottom]
         Caption = ' Damage classes '
-        ClientHeight = 31
+        ClientHeight = 46
         ClientWidth = 303
         TabOrder = 8
         object Button13: TButton
@@ -370,10 +370,10 @@ object Form4: TForm4
       object GroupBox3: TGroupBox
         Left = 8
         Height = 105
-        Top = 40
+        Top = 80
         Width = 304
         Caption = ' Edit Terrain '
-        ClientHeight = 88
+        ClientHeight = 103
         ClientWidth = 302
         TabOrder = 1
         object CheckBox2: TCheckBox
@@ -431,10 +431,10 @@ object Form4: TForm4
       object GroupBox5: TGroupBox
         Left = 8
         Height = 97
-        Top = 160
+        Top = 200
         Width = 304
         Caption = ' Placements '
-        ClientHeight = 80
+        ClientHeight = 95
         ClientWidth = 302
         TabOrder = 2
         object CheckBox6: TCheckBox
@@ -499,6 +499,15 @@ object Form4: TForm4
           Text = 'Edit5'
         end
       end
+      object Button20: TButton
+        Left = 8
+        Height = 25
+        Top = 40
+        Width = 304
+        Caption = 'Recreate from image'
+        TabOrder = 3
+        OnClick = Button20Click
+      end
     end
     object TabSheet5: TTabSheet
       Caption = 'Waypoints'
@@ -510,7 +519,7 @@ object Form4: TForm4
         Top = 8
         Width = 304
         Caption = ' Waypoints '
-        ClientHeight = 112
+        ClientHeight = 127
         ClientWidth = 302
         TabOrder = 0
         object CheckBox5: TCheckBox
@@ -587,7 +596,7 @@ object Form4: TForm4
         Top = 160
         Width = 304
         Caption = ' Waypoint areas '
-        ClientHeight = 151
+        ClientHeight = 166
         ClientWidth = 302
         TabOrder = 1
         object CheckBox7: TCheckBox

@@ -123,14 +123,16 @@ Const
    * -Released- 0.13001 = FIX: Invalid warnings during map creation
    *            0.13002 = ADD: Show waylenght during waypoint editing
    *                      ADD: improve Ux on Editing Values
+   *            0.14000 = ADD: recreate map by image
+   *                      FIX: invalid opponent during AI-Wave creation
    * Known Bugs :
    *)
   (*
    * Die ProtocollVersion ist immer für Client und Server Gleich, beim Verbinden
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
-  ProtocollVersion: uint32 = 13; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.13002'; // Die Versionsnummer die sich Server und Client Teilen      /
+  ProtocollVersion: uint32 = 14; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
+  Version = '0.14000'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version
@@ -212,6 +214,7 @@ Const
   (*
    * Bitmasken für die Raw Data in den Karten
    *)
+  Nothing = 0;
   Walkable = 1;
   Buildable = 2;
 

@@ -56,6 +56,7 @@ Type
     Procedure OnEditExit(Sender: TObject);
   private
     { private declarations }
+    Procedure AddOpponentItem(opponent: String);
   public
     { public declarations }
     WaveNum: integer;
@@ -67,7 +68,7 @@ Type
     Procedure LoadOppent(Const Opp: TWaveOpponent);
     Function GetOpponent(): TWaveOpponent;
 
-    Procedure AddOpponentItem(opponent: String);
+    Procedure SetOppentTo(opponent: String);
   End;
 
 Implementation
@@ -248,25 +249,8 @@ Begin
 End;
 
 Procedure TWaveOpponentFrame.LoadOppent(Const Opp: TWaveOpponent);
-Var
-  found: Boolean;
-  i: Integer;
 Begin
-  found := false;
-  For i := 0 To ComboBox1.Items.Count - 1 Do Begin
-    If ComboBox1.Items[i] = Opp.opponent Then Begin
-      found := true;
-      break;
-    End;
-  End;
-  If Not found Then Begin
-    (*
-     * Wenn es den Gegner noch nicht in der Liste gibt (weil diese noch nicht initialisiert ist)
-     * Dann legen wir einen Initialeintrag an, dieser wird später zwar wieder überschrieben aber das ist egal.
-     *)
-    AddOpponentItem(Opp.opponent);
-  End;
-  ComboBox1.Text := Opp.opponent;
+  SetOppentTo(Opp.opponent);
   Edit1.text := inttostr(Opp.Count); // Count
   edit2.text := inttostr(Opp.refund); // Cash per unit
   Edit3.text := inttostr(Opp.UnitsPerSpawn); // Units per Spawn
@@ -291,7 +275,20 @@ Begin
   obj := TItemObject.Create;
   obj.LoadOppInfo(MapFolder + MapName + PathDelim + opponent);
   ComboBox1.Items.AddObject(opponent, obj);
-  ComboBox1.Text := opponent;
+  ComboBox1.ItemIndex := ComboBox1.Items.Count - 1;
+End;
+
+Procedure TWaveOpponentFrame.SetOppentTo(opponent: String);
+Var
+  i: Integer;
+Begin
+  For i := 0 To ComboBox1.Items.Count - 1 Do Begin
+    If ComboBox1.Items[i] = opponent Then Begin
+      ComboBox1.ItemIndex := i;
+      exit;
+    End;
+  End;
+  AddOpponentItem(opponent);
 End;
 
 End.

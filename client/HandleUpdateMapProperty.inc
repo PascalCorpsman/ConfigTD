@@ -263,6 +263,26 @@ Case MapProperty Of
 {$ENDIF}
       End;
     End;
+  mpCoordData: Begin
+      fmap.Change(true);
+      i := -1;
+      data.Read(i, sizeof(i));
+      j := -1;
+      data.Read(j, sizeof(j));
+      fmap.Resize(i, j);
+      For i := 0 To high(fMap.fTerrain) Do Begin
+        For j := 0 To high(fMap.fTerrain[i]) Do Begin
+          c := -1;
+          data.Read(c, sizeof(c));
+          If fMap.fTerrain[i, j].data <> c Then Begin
+            fMap.fTerrain[i, j].data := c;
+{$IFDEF Client}
+            fmap.UpdateBackTexCoord(i, j);
+{$ENDIF}
+          End;
+        End;
+      End;
+    End;
   mpWCoord: Begin
       i := -1;
       data.Read(i, sizeof(i));

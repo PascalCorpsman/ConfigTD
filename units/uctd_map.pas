@@ -4353,7 +4353,7 @@ Begin
   n := High(Waves);
   If n = -1 Then Begin
     // Die Karte hat noch gar keine Waves, dann geht es also darum die "initiale" Wave zu definieren
-    // Wir suchen den Schwächsten Gegner erstellen diesen 10 mal und geben Geld für 2 * ein gebäude das ihn schlagen kann
+    // Wir suchen den Schwächsten Gegner erstellen diesen 10 mal und geben Geld für 2 * ein Gebäude das ihn schlagen kann
     psi := 0;
     ps := Powersum(OppListData[0].LifePoints);
     For i := 1 To high(OppListData) Do Begin

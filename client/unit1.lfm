@@ -1,10 +1,10 @@
 object Form1: TForm1
   Left = 330
-  Height = 674
+  Height = 718
   Top = 107
   Width = 1024
   Caption = 'Form1'
-  ClientHeight = 674
+  ClientHeight = 718
   ClientWidth = 1024
   Menu = MainMenu1
   Position = poScreenCenter

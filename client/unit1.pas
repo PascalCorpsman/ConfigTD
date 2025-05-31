@@ -190,6 +190,8 @@ Type
 
     Procedure Load_CT_Settings;
 
+    Function ImageToMapStream(Const Filename: String): TMemoryStream;
+
     (*
      * ggf. sollte das nicht nur auf form4 sondern auf alles bezogen werden, dann mit einem Stack und hide all except ?
      *)
@@ -588,10 +590,7 @@ End;
 
 Procedure TForm1.Form1NewMapEvent(Sender: TObject; Const Data: TStringlist);
 Var
-  b: Graphics.Tbitmap;
-  p: TPortableNetworkGraphic;
-  d, i, j: Integer;
-  c: TColor;
+  i: integer;
 Begin
   log('TForm1.Form1NewMapEvent', llTrace);
   // 2.2 Eigentliche Prüfung auf Doppelten Namen
@@ -604,49 +603,8 @@ Begin
   // 3. Senden Befehl zum Anlegen und der Server fordert uns dann automatisch zum laden auf.
   ctd.NewMap(fnmr.w, fnmr.h, fnmr.n);
   If Form3Filename <> '' Then Begin
-    If lowercase(ExtractFileExt(Form3Filename)) = '.png' Then Begin
-      p := TPortableNetworkGraphic.Create;
-      p.LoadFromFile(Form3Filename);
-      b := Graphics.TBitmap.Create;
-      b.Width := p.Width;
-      b.Height := p.Height;
-      For i := 0 To b.Width - 1 Do Begin
-        For j := 0 To b.Height - 1 Do Begin
-          b.canvas.Pixels[i, j] := p.Canvas.Pixels[i, j];
-        End;
-      End;
-      p.free;
-    End
-    Else Begin
-      b := Graphics.Tbitmap.create;
-      b.LoadFromFile(Form3Filename);
-    End;
-    // Importieren der Kartendaten Local
-    fMapTransferStream.clear;
-    i := b.Width;
-    fMapTransferStream.Write(i, sizeof(i));
-    i := b.Height;
-    fMapTransferStream.Write(i, sizeof(i));
-    For i := 0 To b.Width - 1 Do Begin
-      For j := 0 To b.Height - 1 Do Begin
-        // Rot     = Gar nichts
-        // Schwarz = nur Begehbar
-        // Weiß    = nur Bebaubar
-        // Grau    = Begehbar und Bebaubar
-        c := b.Canvas.Pixels[i, j];
-        d := 0;
-        If c <> clred Then Begin
-          If Not (c = clwhite) Then Begin
-            d := d Or Walkable;
-          End;
-          If Not (c = clBlack) Then Begin
-            d := d Or Buildable;
-          End;
-        End;
-        fMapTransferStream.write(d, sizeof(d));
-      End;
-    End;
-    b.free;
+    fMapTransferStream.free;
+    fMapTransferStream := ImageToMapStream(Form3Filename);
   End;
   LogLeave;
 End;
@@ -744,6 +702,58 @@ Begin
   ctd.Resize; // Notwendig dass die fDashSeparator variable richtig initialisiert wird
 End;
 
+Function TForm1.ImageToMapStream(Const Filename: String): TMemoryStream;
+Var
+  b: Graphics.Tbitmap;
+  p: TPortableNetworkGraphic;
+  d, i, j: Integer;
+  c: TColor;
+Begin
+  result := TMemoryStream.Create;
+  If lowercase(ExtractFileExt(Filename)) = '.png' Then Begin
+    p := TPortableNetworkGraphic.Create;
+    p.LoadFromFile(Filename);
+    b := Graphics.TBitmap.Create;
+    b.Width := p.Width;
+    b.Height := p.Height;
+    For i := 0 To b.Width - 1 Do Begin
+      For j := 0 To b.Height - 1 Do Begin
+        b.canvas.Pixels[i, j] := p.Canvas.Pixels[i, j];
+      End;
+    End;
+    p.free;
+  End
+  Else Begin
+    b := Graphics.Tbitmap.create;
+    b.LoadFromFile(Filename);
+  End;
+  // Importieren der Kartendaten Local
+  result.clear;
+  i := b.Width;
+  result.Write(i, sizeof(i));
+  i := b.Height;
+  result.Write(i, sizeof(i));
+  For i := 0 To b.Width - 1 Do Begin
+    For j := 0 To b.Height - 1 Do Begin
+      // Rot     = Gar nichts
+      // Schwarz = nur Begehbar
+      // Weiß    = nur Bebaubar
+      // Grau    = Begehbar und Bebaubar
+      c := b.Canvas.Pixels[i, j];
+      d := Nothing;
+      If c <> clred Then Begin
+        If Not (c = clwhite) Then Begin
+          d := d Or Walkable;
+        End;
+        If Not (c = clBlack) Then Begin
+          d := d Or Buildable;
+        End;
+      End;
+      result.write(d, sizeof(d));
+    End;
+  End;
+  b.free;
+End;
 
 Procedure TForm1.OnIdle(Sender: TObject; Var Done: Boolean);
 Var

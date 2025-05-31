@@ -50,7 +50,6 @@ object WaveOpponentFrame: TWaveOpponentFrame
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
-    Text = 'Edit1'
     OnChange = Edit1Change
     OnEnter = OnEditEnter
     OnExit = OnEditExit
@@ -71,7 +70,6 @@ object WaveOpponentFrame: TWaveOpponentFrame
     Width = 80
     NumbersOnly = True
     TabOrder = 2
-    Text = 'Edit2'
     OnChange = Edit2Change
     OnEnter = OnEditEnter
     OnExit = OnEditExit
@@ -93,7 +91,6 @@ object WaveOpponentFrame: TWaveOpponentFrame
     NumbersOnly = True
     ParentShowHint = False
     TabOrder = 3
-    Text = 'Edit3'
     OnChange = Edit3Change
     OnEnter = OnEditEnter
     OnExit = OnEditExit
@@ -117,7 +114,6 @@ object WaveOpponentFrame: TWaveOpponentFrame
     ParentShowHint = False
     ShowHint = True
     TabOrder = 4
-    Text = 'Edit4'
     OnChange = Edit4Change
     OnEnter = OnEditEnter
     OnExit = OnEditExit
@@ -141,7 +137,6 @@ object WaveOpponentFrame: TWaveOpponentFrame
     ParentShowHint = False
     ShowHint = True
     TabOrder = 5
-    Text = 'Edit5'
     OnChange = Edit5Change
     OnEnter = OnEditEnter
     OnExit = OnEditExit

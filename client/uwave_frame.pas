@@ -261,11 +261,12 @@ Begin
   // Einfügen in die Componenten :)
   For j := 0 To PageControl1.PageCount - 1 Do Begin
     f := PageControl1.Pages[j].Components[0] As TWaveOpponentFrame;
-    s := f.ComboBox1.Text;
+    // s := f.ComboBox1.Text; -- Die LCL hinkt manchmal hinterher -> in der Karte stimmt es immer !
+    s := ctd.Map.Waves[WaveNum].Opponents[j].opponent;
     f.ComboBox1.Items.BeginUpdate;
     f.ComboBox1.items.Clear;
     For i := 0 To sl2.Count - 1 Do Begin
-      f.AddOpponentItem(sl2[i]);
+      f.SetOppentTo(sl2[i]);
     End;
     f.ComboBox1.Items.EndUpdate;
     f.ComboBox1.ItemIndex := -1;
@@ -276,7 +277,7 @@ Begin
         break;
       End;
     End;
-    // Init mit dem 1. Element, falls dieses vorher undefiniert war !
+    // Der User hat eine neue Wave erstellt -> da sind alle Opps noch undefiniert
     If (s = '') And (f.ComboBox1.Items.Count > 0) Then Begin
       f.ComboBox1.Text := f.ComboBox1.Items[0];
       (*

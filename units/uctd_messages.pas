@@ -163,6 +163,7 @@ Const
   mpDC4Tex = 29;
   mpDelOppInWave = 30; // Löschen eines Bestimmten Opponents in einer Wave
   mpWCoord = 31; // Setzten oder Löschen einer Wegpunkt Fläche
+  mpCoordData = 32; // Alle Coord Daten als Stream auf einen Schlag
 
 Function MessageIdentifierToString(value: integer): String;
 
