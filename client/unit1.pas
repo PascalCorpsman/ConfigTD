@@ -119,6 +119,7 @@ Type
     Procedure FormCloseQuery(Sender: TObject; Var CanClose: boolean);
     Procedure FormCreate(Sender: TObject);
     Procedure FormDestroy(Sender: TObject);
+    Procedure FormHide(Sender: TObject);
     Procedure FormShow(Sender: TObject);
     Procedure MenuItem12Click(Sender: TObject);
     Procedure MenuItem14Click(Sender: TObject);
@@ -1371,6 +1372,11 @@ Begin
   LogLeave;
 End;
 
+Procedure TForm1.FormHide(Sender: TObject);
+Begin
+  HideForm4;
+End;
+
 Procedure TForm1.FormCloseQuery(Sender: TObject; Var CanClose: boolean);
 Begin
   log('TForm1.FormCloseQuery', llTrace);
@@ -1419,6 +1425,7 @@ Begin
     End;
   End;
 {$ENDIF}
+  RestoreForm4;
 End;
 
 Procedure TForm1.MenuItem12Click(Sender: TObject);

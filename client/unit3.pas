@@ -71,9 +71,21 @@ Begin
 End;
 
 Procedure TForm3.Button3Click(Sender: TObject);
+Var
+  g: TGraphic;
 Begin
   If OpenPictureDialog1.Execute Then Begin
     Form3Filename := OpenPictureDialog1.FileName;
+    If LowerCase(ExtractFileExt(OpenPictureDialog1.FileName)) = '.png' Then Begin
+      g := TPortableNetworkGraphic.Create;
+    End
+    Else Begin
+      g := TBitmap.Create;
+    End;
+    g.LoadFromFile(OpenPictureDialog1.FileName);
+    edit1.text := inttostr(g.Width);
+    edit2.text := inttostr(g.Height);
+    g.free;
   End;
 End;
 

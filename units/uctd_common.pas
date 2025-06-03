@@ -125,6 +125,8 @@ Const
    *                      ADD: improve Ux on Editing Values
    *            0.14000 = ADD: recreate map by image
    *                      FIX: invalid opponent during AI-Wave creation
+   *                      ADD: Preview Map Dimension, when loading a image
+   *                      FIX: show / hide on windows
    * Known Bugs :
    *)
   (*
