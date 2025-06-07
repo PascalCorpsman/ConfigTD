@@ -362,8 +362,23 @@ Procedure TForm4.SortForm4Buyables;
       quick(l, re);
     End;
   End;
+Var
+  s: String;
+  i: Integer;
 Begin
-  quick(0, form4.listbox1.items.Count - 1);
+  s := '';
+  If listbox1.ItemIndex <> -1 Then Begin
+    s := listbox1.items[listbox1.ItemIndex];
+  End;
+  quick(0, listbox1.items.Count - 1);
+  If s <> '' Then Begin
+    For i := 0 To ListBox1.Items.Count - 1 Do Begin
+      If s = listbox1.items[I] Then Begin
+        listbox1.ItemIndex := i;
+        break;
+      End;
+    End;
+  End;
 End;
 
 Procedure TForm4.DoLCLWaveClone(Sender: TObject; SourceWaveNum,
@@ -1257,6 +1272,9 @@ Begin
             by.Count := j;
             by.Kind := bk;
             ListBox1.Items[i] := BuyableToString(by);
+            If SenderUid = ctd.OwnServerUid Then Begin
+              ListBox1.ItemIndex := i;
+            End;
             break;
           End;
         End;

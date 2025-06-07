@@ -127,6 +127,7 @@ Const
    *                      FIX: invalid opponent during AI-Wave creation
    *                      ADD: Preview Map Dimension, when loading a image
    *                      FIX: show / hide on windows
+   *                      FIX: correct select buyable after resorting
    * Known Bugs :
    *)
   (*
