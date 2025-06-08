@@ -5,7 +5,7 @@ Config TD is an opensource and free Tower Defense clone with the aim of maximal 
 It supports multiple graphical themes and is client server based. 
 
 The game follows the genre typical mechanics and consists of buildings that can be bought, opponents (often called "creeps") and even hero's (like buildings but moveable). <br>
-Creeps are send in waves. The player has to defeat them all, if not the player looses one life per creep. The match is finished on one of two choises
+Creeps are send in waves. The player has to defeat them all, if not the player looses one life per creep. The match is finished on one of two choices:
 
 * the player lost all lifes -> player loose
 * the player defeated all waves -> player wins
