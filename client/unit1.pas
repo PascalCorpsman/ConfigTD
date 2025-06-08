@@ -294,12 +294,11 @@ Begin
     Bei Nutzung der TOpenGLGraphikengine, bedeutet dies, das hier ein clear durchgeführt werden mus !!
     *)
     DefaultFormatSettings.DecimalSeparator := '.'; // Eigentlich brauchts das nur 1 mal, aber anscheinend bringt der Startup Code da manchmal was durcheinander.
-    Create_ASCII_Font;
     glenable(GL_TEXTURE_2D); // Texturen
     glDepthFunc(gl_less);
     glEnable(GL_DEPTH_TEST); // Tiefentest
+    Create_ASCII_BigFont;
     glBlendFunc(gl_one, GL_ONE_MINUS_SRC_ALPHA);
-
     // Sorgt dafür, dass Voll Transparente Pixel nicht in den Tiefenpuffer Schreiben.
     (*
      * Das ist so gedreht, damit der Benutzer ein "initializing" sieht

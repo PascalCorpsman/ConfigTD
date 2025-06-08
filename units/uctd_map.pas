@@ -2412,6 +2412,7 @@ Procedure TMap.Render(sx, sy, x, y: integer; Grid, ShowLifePoints: Boolean;
   UserIndex: integer);
 Var
   i, j: Integer;
+  os: Single;
 Begin
   glColor4f(1, 1, 1, 1);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -2473,6 +2474,9 @@ Begin
   If ShowWaypoints Then Begin
     glPushMatrix;
     glTranslatef(0, 0, 6 * ctd_Epsilon);
+    os := OpenGL_ASCII_Font.Size;
+    OpenGL_ASCII_Font.Size := MapBlockSize;
+    OpenGL_ASCII_Font.Color := clred;
     If ViewWaypoints = -1 Then Begin // Rendern aller Wegpunkte
       For i := 0 To high(Waypoints) Do Begin
         If high(Waypoints[i]) <> -1 Then Begin
@@ -2482,9 +2486,8 @@ Begin
               RenderObjItem(point(Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[i, j].Point.y * MapBlockSize),
                 MapBlockSize, MapBlockSize,
                 OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
-              OpenGL_ASCII_Font.Color := clred;
-              OpenGL_ASCII_Font.Textout(Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
               glBindTexture(GL_TEXTURE_2D, 0);
+              OpenGL_ASCII_Font.Textout(Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
               glColor4f(1, 0, 0, 1);
               glbegin(GL_LINE_STRIP);
             End;
@@ -2498,12 +2501,12 @@ Begin
       If (ViewWaypoints >= 0) And (ViewWaypoints <= high(Waypoints)) And (high(Waypoints[ViewWaypoints]) <> -1) Then Begin
         // Die einzelnen Wegpunkte beschriften
         glColor4f(1, 1, 1, 1);
-        OpenGL_ASCII_Font.Color := clred;
         For j := 0 To high(Waypoints[ViewWaypoints]) Do Begin
           If j = 0 Then Begin
             RenderObjItem(point(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[ViewWaypoints, j].Point.y * MapBlockSize),
               MapBlockSize, MapBlockSize,
               OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
+            glBindTexture(GL_TEXTURE_2D, 0);
             OpenGL_ASCII_Font.Textout(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(ViewWaypoints + 1));
           End
           Else Begin
@@ -2521,6 +2524,7 @@ Begin
       End;
     End;
     glPopMatrix;
+    OpenGL_ASCII_Font.Size := os;
   End; // -- Ende View Waypoints
   glPopMatrix; // -- Pop aus Map Koordinatensystem
 End;

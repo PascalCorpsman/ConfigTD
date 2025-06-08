@@ -128,6 +128,8 @@ Const
    *                      ADD: Preview Map Dimension, when loading a image
    *                      FIX: show / hide on windows
    *                      FIX: correct select buyable after resorting
+   *                      ADD: switch to better Font rendering (more contrast)
+   *                      FIX: Player Waypoint rendering
    * Known Bugs :
    *)
   (*
