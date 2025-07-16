@@ -34,7 +34,7 @@ Uses
   , uOpenGL_ASCII_Font
   , uopengl_animation
 {$ENDIF}
-  , uctd_mapobject, uctd_building, uctd_opp, uctd_hero, uvectormath, uctd_common
+  , uctd_mapobject, uctd_building, uctd_opp, uctd_hero, uvectormath, uctd_common, ufifo
 {$IFDEF Server}
   , uctd_bullet
 {$ENDIF}
@@ -177,10 +177,23 @@ Type
     Field: Array Of TPoint;
   End;
 
+  // Start Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
+Type
+  TDataSet = Record
+    pos: TPoint;
+    Height: Integer;
+  End;
+
+  TDataSetQueue = specialize TBufferedFifo < TDataSet > ;
+  // Ende Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
+
   { TMap }
 
   TMap = Class
   private
+    // Start Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
+    CalcOpponentPathsFifo: TDataSetQueue;
+    // Ende Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
     fChanged: Boolean;
     FBackTex: String;
     fDC1Tex, fdc2Tex, fdc3Tex, fdc4Tex: String; // Die Texturen für die Damage Classen 1-4
@@ -358,7 +371,8 @@ Type
      * Berechnet die Wegpunktfelder, muss mindestens 1 mal for dem Aufruf von CalcOpponentPaths aufgerufen werden !
      *)
     Procedure CalcWaypointFields();
-    (* Berechnet für alle Wegpunkte die Richtungen in welche die Gegner Laufen wollen
+    (*
+     * Berechnet für alle Wegpunkte die Richtungen in welche die Gegner Laufen wollen
      * Wenn ein Wegpunkt nicht mehr von Start bzw. Ziel Erreichbar ist. Dann wird
      * False Zurückgegeben
      *)
@@ -428,7 +442,7 @@ Function CompareBuyAble(Const a, b: TBuyAble): integer;
 Implementation
 
 Uses Graphics, math, LCLIntf, FileUtil, LazFileUtils
-  , ufifo, DateUtils
+  , DateUtils
   ;
 
 Function JitterCoord(index, ItemCount: integer): TVector2;
@@ -750,6 +764,9 @@ End;
 Constructor TMap.Create;
 Begin
   Inherited create;
+  // Start Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
+  CalcOpponentPathsFifo := Nil;
+  // Ende Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
   fTerrain := Nil;
   FBulletIndexes := Nil;
   fDC1Tex := '';
@@ -774,6 +791,10 @@ End;
 Destructor TMap.Destroy;
 Begin
   Clear;
+  // Start Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
+  If assigned(CalcOpponentPathsFifo) Then CalcOpponentPathsFifo.free;
+  CalcOpponentPathsFifo := Nil;
+  // Ende Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
 {$IFDEF Server}
   fHighscoreEngine.free;
 {$ENDIF}
@@ -3097,16 +3118,6 @@ Begin
 End;
 
 Function TMap.CalcOpponentPaths: Boolean;
-Type
-  TDataSet = Record
-    pos: TPoint;
-    Height: Integer;
-  End;
-
-  TDataSetQueue = specialize TBufferedFifo < TDataSet > ;
-
-Var
-  q: TDataSetQueue;
 
   Procedure Push(x, y, player, Waypoint, h: integer);
   Var
@@ -3115,13 +3126,12 @@ Var
     If // Wir sind Innerhalb der Karte
     (x >= 0) And (x <= high(fTerrain)) And (y >= 0) And (y <= high(fTerrain[x])) And
       // Die Koordinate wurde noch nie besucht, oder der Bisherige weg ist Länger als der Aktuell gefundene
-    (//(fTerrain[x, y].WaypointHeightMap[player, Waypoint] = field_unreached) Or -- Brauchts nicht mehr, da das ja Größer ist
-      (fTerrain[x, y].WaypointHeightMap[player, Waypoint] > h)) Then Begin
+    ((fTerrain[x, y].WaypointHeightMap[player, Waypoint] > h)) Then Begin
       If CoordIsWalkAble(x, y) Then Begin // Wenn die Koordinate Begangen werden darf
         fTerrain[x, y].WaypointHeightMap[player, Waypoint] := h; // Merken, dass es auch mit dieser "Höhe" an die Koordinate geht
         p.pos := point(x, y);
         p.Height := h;
-        q.Push(p);
+        CalcOpponentPathsFifo.Push(p);
       End;
     End;
   End;
@@ -3134,7 +3144,13 @@ Var
   wp: Integer;
 Begin
   result := true;
-  q := TDataSetQueue.create;
+  If Not assigned(CalcOpponentPathsFifo) Or (CalcOpponentPathsFifo.BufferSize <> Length(fTerrain) * length(fTerrain[0])) Then Begin
+    If assigned(CalcOpponentPathsFifo) Then Begin
+      CalcOpponentPathsFifo.free;
+    End;
+    CalcOpponentPathsFifo := TDataSetQueue.create(Length(fTerrain) * length(fTerrain[0])); // RAM ist uns egal hauptsache der Puffer wird selten Allokiert!
+  End;
+  CalcOpponentPathsFifo.clear;
   // Alle Höheninformationen Resetten
   For i := 0 To high(fTerrain) Do Begin
     For j := 0 To high(fTerrain[i]) Do Begin
@@ -3157,8 +3173,8 @@ Begin
       For c := 0 To high(Waypoints[player, wp].Field) Do Begin
         Push(Waypoints[player, wp].Field[c].X, Waypoints[player, wp].Field[c].y, player, wp, 0);
       End;
-      While Not q.isempty Do Begin // Fluten so lange bis alles besucht wurde
-        pp := q.Pop;
+      While Not CalcOpponentPathsFifo.isempty Do Begin // Fluten so lange bis alles besucht wurde
+        pp := CalcOpponentPathsFifo.Pop;
         // Nur Waagrecht und Senkrecht gehen
         Push(pp.pos.x + 1, pp.pos.y, Player, wp, pp.Height + 1);
         Push(pp.pos.x - 1, pp.pos.y, Player, wp, pp.Height + 1);
@@ -3172,13 +3188,11 @@ Begin
         (FieldHeight[Waypoints[player, 0].Point.x, Waypoints[player, 0].Point.y, player, wp] = field_unreached) // Der Startpunkt wurde nicht erreicht
       Or
         (FieldHeight[Waypoints[player, high(Waypoints[player])].Point.x, Waypoints[player, high(Waypoints[player])].Point.y, player, wp] = field_unreached) {// Der Endpunkt wurde nicht erreicht} Then Begin
-        q.free;
         result := false;
         exit;
       End;
     End;
   End;
-  q.free;
 End;
 {$IFDEF Server}
 
@@ -5044,7 +5058,6 @@ Begin
       Fbuildings[high(Fbuildings)].Position.x := x;
       Fbuildings[high(Fbuildings)].Position.y := y;
       // Das Gebäude ist natürlich Sofort Schusbereit
-//      Fbuildings[high(Fbuildings)].LastShootTime := GetTick() - Fbuildings[high(Fbuildings)].Stages[Fbuildings[high(Fbuildings)].Stage].reloadtime;
       Fbuildings[high(Fbuildings)].LastShootTime := GetTick() - Fbuildings[high(Fbuildings)].Stages[0].reloadtime;
       // Suchen des BulletImages für das Spätere Rendering
       For i := 0 To high(building.Stages) Do Begin
