@@ -2431,6 +2431,19 @@ End;
 
 Procedure TMap.Render(sx, sy, x, y: integer; Grid, ShowLifePoints: Boolean;
   UserIndex: integer);
+
+// Rendert aText, so dass er auf jedenfall innerhalb der Karte sichtbar ist
+  Procedure RenderVisibleText(ax, ay: integer; Const aText: String);
+  Var
+    tw: integer;
+  Begin
+    tw := round(OpenGL_ASCII_Font.TextWidth(aText));
+    If ax + tw > MapBlockSize * length(fTerrain) Then Begin
+      ax := ax - 2 * tw;
+    End;
+    OpenGL_ASCII_Font.Textout(ax, ay, aText);
+  End;
+
 Var
   i, j: Integer;
   os: Single;
@@ -2508,7 +2521,7 @@ Begin
                 MapBlockSize, MapBlockSize,
                 OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
               glBindTexture(GL_TEXTURE_2D, 0);
-              OpenGL_ASCII_Font.Textout(Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
+              RenderVisibleText(Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
               glColor4f(1, 0, 0, 1);
               glbegin(GL_LINE_STRIP);
             End;
@@ -2528,10 +2541,10 @@ Begin
               MapBlockSize, MapBlockSize,
               OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
             glBindTexture(GL_TEXTURE_2D, 0);
-            OpenGL_ASCII_Font.Textout(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(ViewWaypoints + 1));
+            RenderVisibleText(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(ViewWaypoints + 1));
           End
           Else Begin
-            OpenGL_ASCII_Font.Textout(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.0)), Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), inttostr(j + 1));
+            RenderVisibleText(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.0)), Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), inttostr(j + 1));
           End;
         End;
         // Die Eigentliche Linie Malen
