@@ -382,7 +382,7 @@ Type
     Function ForceHeroesReady: TMemoryStream; // Die helden sind entweder Fertig gebaut, oder halten an !
 
     Procedure AddOpponentObject(Const obj: TOpponent; Owner: integer);
-    Procedure MoveAllOpponents(Const UpdateEvent: TUpdateEvent);
+    Procedure MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
     Procedure HandleAllBuildings;
     Procedure HandleAllHeroes;
     Procedure HandleAllBullets(Const UpdateEvent: TUpdateEvent);
@@ -1746,8 +1746,7 @@ Begin
   If (x >= 0) And (x <= high(fterrain)) And
     (y >= 0) And (y <= high(fterrain[x])) Then Begin
     // Prüfen auf Begehbarkeit durch Karte
-    If ((fterrain[x, y].data And Walkable) = Walkable) Then
-      result := true;
+    If ((fterrain[x, y].data And Walkable) <> 0) Then result := true;
     If fterrain[x, y].blocked Then result := false; // Hier Steht ein Gebäude
   End;
 End;
@@ -3200,7 +3199,7 @@ Begin
       If
         (FieldHeight[Waypoints[player, 0].Point.x, Waypoints[player, 0].Point.y, player, wp] = field_unreached) // Der Startpunkt wurde nicht erreicht
       Or
-        (FieldHeight[Waypoints[player, high(Waypoints[player])].Point.x, Waypoints[player, high(Waypoints[player])].Point.y, player, wp] = field_unreached) {// Der Endpunkt wurde nicht erreicht} Then Begin
+        (FieldHeight[Waypoints[player, high(Waypoints[player])].Point.x, Waypoints[player, high(Waypoints[player])].Point.y, player, wp] = field_unreached) Then Begin // Der Endpunkt wurde nicht erreicht
         result := false;
         exit;
       End;
@@ -3229,22 +3228,15 @@ Begin
   fOpponents[high(fOpponents)].NextTimeNoDiagWalk := false;
 End;
 
-Procedure TMap.MoveAllOpponents(Const UpdateEvent: TUpdateEvent);
+Procedure TMap.MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
 Var
   j, i: Integer;
   steigung, wx, wy: integer;
   gx, gy, odir, oh, wh, ah, x, y, xx, yy: integer;
   ox, oy, ll, l, dx, dy: Single;
   SQR_Min_Dist: Single;
-  delta: integer; // Der Zeit
-  n: int64;
 Begin
   If FPausing Then exit;
-  // Die Zeit schreitet voran, in Delta steht wieviel seit dem Letzten mal vergangen ist.
-  n := GetTick;
-  delta := n - fLastOppMoveTime;
-  delta := delta * Speedup; // Berücksichtigen eines evtl existierenden Speedups
-  fLastOppMoveTime := n;
   // Hier lassen wir die Viecher laufen
   For i := high(fOpponents) Downto 0 Do Begin
     If fOpponents[i].Obj.Canfly Then Begin
@@ -3253,7 +3245,6 @@ Begin
       wx := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[0].x * MapBlockSize;
       wy := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[0].y * MapBlockSize;
       ll := sqr(wx - fOpponents[i].Obj.Position.x) + sqr(wy - fOpponents[i].Obj.Position.y);
-
       For j := 1 To high(Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field) Do Begin
         xx := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[j].x * MapBlockSize;
         yy := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[j].Y * MapBlockSize;
@@ -3264,7 +3255,8 @@ Begin
           wy := yy;
         End;
       End;
-      gx := wx; // Speichern des Zielwegpunktes zum Erkennen des umschaltens zum nächsten
+      // Speichern des Zielwegpunktes zum Erkennen des umschaltens zum nächsten
+      gx := wx;
       gy := wy;
       // 2. Berechnen Delta
       dx := wx - fOpponents[i].Obj.Position.x;

@@ -33,10 +33,8 @@ Type
   private
     fmap: TMap;
     fWave: integer;
-    fStartTime: int64;
-    flastUpdateTime: int64;
+    fRoundTime: int64; // Zeit in ms, seit die Runde gestartet wurde ..
     FPausing: Boolean;
-    fPauseTime: int64;
     FOpponentRoundInfo: Array Of integer;
     fFinished: Boolean;
     fPlayerCount: integer;
@@ -51,7 +49,7 @@ Type
     Procedure Pause(value: Boolean);
     // Wird in OnRender aufgerufen und kontrolliert damit dann das Erzeugen der Gegner
     // Ergebniss = True, wenn alle für diese Runde zu erzeugenden Gegner erzeugt wurden.
-    Function Update(): Boolean;
+    Function Update(delta: integer): Boolean;
   End;
 
 Implementation
@@ -80,7 +78,7 @@ Begin
   Clear;
   fmap := map;
   fWave := wave;
-  fStartTime := 0;
+  fRoundTime := 0;
   setlength(FOpponentRoundInfo, high(fmap.Waves[wave].Opponents) + 1);
   For i := 0 To high(FOpponentRoundInfo) Do Begin
     FOpponentRoundInfo[i] := 0;
@@ -91,14 +89,10 @@ Begin
 End;
 
 Procedure TSpawnModul.Start;
-Var
-  n: int64;
 Begin
   FPausing := False;
   fFinished := false;
-  n := GetTick();
-  fStartTime := n;
-  flastUpdateTime := n;
+  fRoundTime := 0;
   fSpawnIndex := 0;
 End;
 
@@ -108,25 +102,11 @@ Begin
 End;
 
 Procedure TSpawnModul.Pause(value: Boolean);
-Var
-  i: int64;
 Begin
-  If FPausing Then Begin
-    If Not value Then Begin
-      i := GetTick() - fPauseTime;
-      fStartTime := fStartTime + i; // Wir Verschieben die StartZeit um die Zeit der Pause in die Zukunft
-      flastUpdateTime := flastUpdateTime + i;
-    End;
-  End
-  Else Begin
-    If value Then Begin
-      fPauseTime := GetTick();
-    End;
-  End;
   FPausing := value;
 End;
 
-Function TSpawnModul.Update: Boolean;
+Function TSpawnModul.Update(delta: integer): Boolean;
 Var
   FillCounter: Integer;
   startingPoints: Array Of TPoint;
@@ -156,14 +136,8 @@ Begin
   End;
   result := false;
   If FPausing Then exit;
-  t := GetTick();
-  If Speedup <> 1 Then Begin // Bei einer Geschwindigkeitssteigerung verschieben wir den Startzeitpunkt jeweils um Speedup in die Vergangenheit
-    t0 := t - flastUpdateTime; // Soviel Zeit ist seit dem Letzten Frame vergangen
-    t0 := t0 * (int64(Speedup) - 1); // berechnen der "zusätzlich" vergangen Zeit
-    fStartTime := fStartTime - t0; // und ab in die Vergangenheit
-  End;
-  flastUpdateTime := t;
-  t0 := t - fStartTime; // t0 = Zeit in ms, seit die Runde gestartet wurde..
+  fRoundTime := fRoundTime + delta;
+  t0 := fRoundTime; // t0 = Zeit in ms, seit die Runde gestartet wurde..
   For i := 0 To high(fmap.Waves[fWave].Opponents) Do Begin
     t := t0 - fmap.Waves[fWave].Opponents[i].SpawnDelay;
     If t >= 0 Then Begin // Wenn die SpawnDelay Zeit Abgelaufen ist
