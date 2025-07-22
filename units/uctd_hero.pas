@@ -68,9 +68,7 @@ Type
   THero = Class(tctd_mapopbject)
   private
     FPausing: Boolean;
-    fPauseTime: int64;
-    fLastUpdateTime: int64; // Wird genutzt um fUpdating zu aktualisieren
-    //    fHasUpdated: boolean; // Merkt sich ob das Gebäude seit dem Letzten ForceIncStage geuppt wurde, wenn ja, dann mus der Server dieses Gebäude beim nächsten Level Restart an alle Clients Aktualisieren
+    DeltaSinceLastUpdate: integer; // Wird genutzt um fUpdating zu aktualisieren
 {$IFDEF Client}
     Procedure LoadOpenGLGraphics;
 {$ENDIF}
@@ -89,7 +87,7 @@ Type
     CollectedDamages: integer; // Die Schadenspunkte die in der Aktuellen Stufe gesammelt wurden
     MapHeroIndex: uInt16; // Index in TMap.FHeroes ! ( ACHTUNG, wenn der geändert wird, dann muss er auch in "TServer.HandleSetHeroTargets" geändert werden !! )
     fUpdating: TUpdating; // Todo : Private machen
-    LastShootTime: int64; // zwischenspeichervariable für das Spiel
+    DeltaSinceLastShoot: integer; // Zeit in ms, seit dem Letzten Schuß
 
     strategy: TBuildingStrategy;
     PreverAir: boolean; // Wenn True, dann werden zuerst Lufteinheiten angegriffen
@@ -126,7 +124,7 @@ Type
 
     Procedure Pause(value: Boolean);
     Procedure Start();
-    Procedure Update();
+    Procedure Update(delta: integer);
   End;
 
   THeroArray = Array Of THero;
@@ -157,7 +155,8 @@ Begin
   Level := -1;
   strategy := bsFirst;
   PreverAir := true;
-  fLastUpdateTime := GetTick();
+  DeltaSinceLastUpdate := 0;
+  DeltaSinceLastShoot := 0;
 {$IFDEF Server}
   TargetPos := v2(-1, -1);
 {$ENDIF}
@@ -279,7 +278,6 @@ End;
 Procedure THero.GetMovingState(Const Stream: TSTream);
 Var
   rh: TRenderHero;
-  d, n: int64;
 Begin
   rh.Position := Position;
   rh.AnimationOffset := AnimationOffset;
@@ -294,16 +292,7 @@ Begin
   End
   Else Begin
     rh.Angle := 0;
-    (*
-     * Während des initialen "Aufbauens" wird die Hitpoint Genutzt um den Aufbau an zu zeigen
-     *)
-    n := GetTick();
-    If Speedup <> 1 Then Begin
-      d := n - fLastUpdateTime;
-      d := d * (int64(Speedup) - 1);
-    End;
-    d := n - fUpdating.StartTime;
-    rh.CollectedDamages := round(d * Levels[0].HitpointsForNextLevel / BuildTime);
+    rh.CollectedDamages := round(DeltaSinceLastUpdate * Levels[0].HitpointsForNextLevel / BuildTime);
   End;
   rh.Level := Level;
   rh.Moving := Not Equal(TargetPos, v2(-1, -1));
@@ -324,24 +313,20 @@ Begin
 End;
 
 Function THero.IncLevel: Boolean;
-Var
-  n: QWord;
 Begin
   result := false;
   If High(Levels) <= Level Then exit;
   If level = -1 Then Begin // Der erste Bau
-    n := GetTick();
-    fUpdating.StartTime := n;
     fUpdating.State := usInProgress;
     fUpdating.FinState := Level + 1;
-    fLastUpdateTime := n;
+    DeltaSinceLastUpdate := 0;
     result := true;
   End
   Else Begin
     // Direktes Updating
     fUpdating.State := usIdleInactive;
     Level := Level + 1;
-    LastShootTime := GetTick() - Levels[Level].reloadtime;
+    DeltaSinceLastShoot := Levels[Level].reloadtime;
     CollectedDamages := 0;
   End;
 End;
@@ -361,15 +346,7 @@ Begin
   Else Begin
     result := false;
   End;
-  //  result := fHasUpdated;
-  //  If fUpdating.State <> usIdleInactive Then Begin
-  //    Level := fUpdating.FinState;
-  //    fUpdating.State := usIdleInactive;
-  LastShootTime := GetTick() - Levels[Level].reloadtime;
-  //  End;
-  //  If ResetHasUpdated Then Begin
-  //    fHasUpdated := false;
-  //  End;
+  DeltaSinceLastShoot := Levels[Level].reloadtime;
 End;
 
 {$IFDEF client}
@@ -605,7 +582,7 @@ Begin
   If level = -1 Then Begin
     RenderBar(lps);
   End;
-  fLastUpdateTime := GetTick();
+  DeltaSinceLastUpdate := 0;
   OpenGL_SpriteEngine.Enabled := Sprite_Engine_Enabled;
   glPopMatrix;
   (*  // Debug -- Zum Austesten der Boundingbox gegen Bauskoordinaten
@@ -666,62 +643,36 @@ Begin
 End;
 
 Procedure THero.Pause(value: Boolean);
-Var
-  i: int64;
 Begin
-  If FPausing Then Begin
-    If Not value Then Begin
-      i := GetTick() - fPauseTime;
-      LastShootTime := LastShootTime + i; // Wir Verschieben die StartZeit um die Zeit der Pause in die Zukunft
-      fUpdating.StartTime := fUpdating.StartTime + i; // falls wir gerade Updaten..
-      fLastUpdateTime := fLastUpdateTime + i;
-    End;
-  End
-  Else Begin
-    If value Then Begin
-      fPauseTime := GetTick();
-    End;
-  End;
   FPausing := value;
 End;
 
 Procedure THero.Start;
-Var
-  n: int64;
 Begin
   FPausing := false;
-  n := GetTick();
-  fLastUpdateTime := n;
+  DeltaSinceLastUpdate := 0;
+  DeltaSinceLastShoot := 0;
   If (Level >= 0) And (Level <= high(Levels)) Then Begin
-    LastShootTime := n - Levels[Level].reloadtime;
+    DeltaSinceLastShoot := Levels[Level].reloadtime;
   End;
 End;
 
 //So wie es aussieht wird der Hero trotz Pause Fertig gestellt !
 
-Procedure THero.Update;
-Var
-  d, n: int64;
+Procedure THero.Update(delta: integer);
 Begin
   If Level >= 0 Then Begin
     // Das Gebäude ist "Fertig" ;)
-    fLastUpdateTime := GetTick();
+    DeltaSinceLastUpdate := 0;
+{$IFDEF Server}
+    DeltaSinceLastShoot := min(DeltaSinceLastShoot + delta, Levels[Level].reloadtime);
+{$ENDIF}
   End
   Else Begin
     // Der Progressbar
     If Not FPausing Then Begin
-      (*
-       * !! ACHTUNG !! , das hier ist Doppelt hier und in Procedure THero.Render;
-       *)
-      n := GetTick();
-      If Speedup <> 1 Then Begin
-        d := n - fLastUpdateTime;
-        d := d * (int64(Speedup) - 1);
-        fUpdating.StartTime := fUpdating.StartTime - d;
-      End;
-      fLastUpdateTime := n;
-      d := n - fUpdating.StartTime;
-      If d >= BuildTime Then Begin
+      DeltaSinceLastUpdate := DeltaSinceLastUpdate + delta;
+      If DeltaSinceLastUpdate >= BuildTime Then Begin
         ForceBuilded();
       End;
     End;

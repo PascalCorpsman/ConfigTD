@@ -210,6 +210,7 @@ Type
     fRenderOpponents: Array Of TRenderOpponent;
     fRenderBullets: Array Of TRenderBullet;
     FIndexMapper: Array Of TIndexMapper;
+    fLastRenderTime: int64; // Hack, um Building.Update zu bedienen, in einer Nahen / Fernen Zukunft überträgt der Server die delta Ticks -> dann ist das sauber, bis dahin muss dass hier reichen ...
 {$ENDIF}
     Fbuildings: Array Of TBuilding; // Die Liste der durch Benutzer gebauten Gebäude
     fHeroes: Array Of THero;
@@ -218,12 +219,7 @@ Type
     fHighscoreEngine: TIniHighscoreEngine;
     fOpponents: TOpponentInfoArray;
     FBullets: Array Of TBulletObject;
-    fLastOppMoveTime: int64;
-    fLastHeroMoveTime: int64;
-    fLastBulletTime: int64;
     FPausing: Boolean;
-    fPauseTime: int64;
-    fHandleBuildingTime: int64;
     fRatingCount: integer; // Anzahl der Durchgeführten Ratings
     fRatingSum: integer; // integral über die Ratings
 {$ENDIF}
@@ -250,7 +246,7 @@ Type
     Procedure SortPlacementByYCoordinate;
 
 {$IFDEF Client}
-    Procedure RenderAbstract(blockw, blockh: Single; Grid, HideLifePoints: Boolean; UserIndex: integer); // Rendert alles, was auf der Großen und der Previewkarte Sichtbar ist.
+    Procedure RenderAbstract(blockw, blockh: Single; Grid, HideLifePoints: Boolean; UserIndex, delta: integer); // Rendert alles, was auf der Großen und der Previewkarte Sichtbar ist.
 {$ENDIF}
     Function getOpponentCount: integer;
     Function getFieldHeight(x, y, Player, WayPoint: integer): integer;
@@ -259,7 +255,7 @@ Type
     Procedure KillOpponent(Const Opponent: TOpponent);
     Procedure ResetRating;
     Function GetRating(): Single;
-    Procedure MoveAllHeroes;
+    Procedure MoveAllHeroes(delta: integer);
 {$ENDIF}
     Procedure SortBuildingsByYCoordinate;
     Procedure UpdatePlacemantBlocked(); // Aktualisiert die .Blocked eigenschaft in Fterrain
@@ -383,9 +379,9 @@ Type
 
     Procedure AddOpponentObject(Const obj: TOpponent; Owner: integer);
     Procedure MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
-    Procedure HandleAllBuildings;
-    Procedure HandleAllHeroes;
-    Procedure HandleAllBullets(Const UpdateEvent: TUpdateEvent);
+    Procedure HandleAllBuildings(delta: integer);
+    Procedure HandleAllHeroes(delta: integer);
+    Procedure HandleAllBullets(Const UpdateEvent: TUpdateEvent; delta: integer);
     Procedure Start(); // Wird durch HandleStartRound aufgerufen
     Procedure GetMovingObjectsState(Const Stream: TSTream);
     Function SaveGameingData(Const Stream: TStream): Boolean;
@@ -1625,7 +1621,7 @@ Begin
   sl2.free;
 End;
 
-Procedure TMap.DeleteUnusedOpponents();
+Procedure TMap.DeleteUnusedOpponents;
 Var
   sl: TStringList;
   i: Integer;
@@ -2144,6 +2140,7 @@ Begin
   For i := 0 To high(Fbuildings) Do Begin
     Fbuildings[i].ForceIncStage(false);
   End;
+  fLastRenderTime := GetTick; // Nicht Ideal, aber irgendwo muss es ja gemacht werden
 End;
 
 Procedure TMap.CreateDamageClassTextures;
@@ -2251,7 +2248,7 @@ Begin
 End;
 
 Procedure TMap.RenderAbstract(blockw, blockh: Single; Grid,
-  HideLifePoints: Boolean; UserIndex: integer);
+  HideLifePoints: Boolean; UserIndex, delta: integer);
 Var
   i, j: integer;
   k, l: Single;
@@ -2380,6 +2377,7 @@ Begin
   For i := 0 To high(Fbuildings) Do Begin
     glPushMatrix;
     glTranslatef(Fbuildings[i].Position.x * MapBlockSize, Fbuildings[i].Position.y * MapBlockSize, 0);
+    Fbuildings[i].Update(delta); // TODO: Das ist ein Hack, eigentlich sollten die Spieler vom Server ein Delta bekommen, damit der Progressbar auch tatsächlich stimmt (sieht man nur bei extrem hoher Server CPU Last)
     Fbuildings[i].Render((UserIndex <> -1) And (UserIndex <> Fbuildings[i].Owner));
     glPopMatrix;
   End;
@@ -2444,15 +2442,19 @@ Procedure TMap.Render(sx, sy, x, y: integer; Grid, ShowLifePoints: Boolean;
   End;
 
 Var
-  i, j: Integer;
+  delta, i, j: Integer;
   os: Single;
+  n: Int64;
 Begin
   glColor4f(1, 1, 1, 1);
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
   glTranslatef(x - sx, y - sy, ctd_Map_Layer);
   // Das Algemeine Rendern der Karte
-  RenderAbstract(1, 1, grid, Not ShowLifePoints, UserIndex);
+  n := GetTick;
+  delta := n - fLastRenderTime;
+  fLastRenderTime := n;
+  RenderAbstract(1, 1, grid, Not ShowLifePoints, UserIndex, delta);
   // Anfahren Bullet Layer
   glPushMatrix;
   glTranslatef(0, 0, 5 * ctd_Epsilon);
@@ -2571,7 +2573,7 @@ Begin
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
   glTranslatef(x, y, ctd_Menu_Layer + ctd_Epsilon);
-  RenderAbstract(w / ((high(fTerrain) + 1) * MapBlockSize), h / ((high(fTerrain[0]) + 1) * MapBlockSize), false, true, UserIndex);
+  RenderAbstract(w / ((high(fTerrain) + 1) * MapBlockSize), h / ((high(fTerrain[0]) + 1) * MapBlockSize), false, true, UserIndex, 0);
   // Rendern des Rahmens, welcher Anzeigt welchen Bildauschnitt man gerade sieht
   glPushMatrix;
   // So Skallieren, dass alles nachfolgende in MAP_BLOCK_WIDTH Koordinaten gerendert werden kann.
@@ -3535,28 +3537,18 @@ Begin
   End;
 End;
 
-Procedure TMap.HandleAllBuildings;
+Procedure TMap.HandleAllBuildings(delta: integer);
 Var
   r, x, y: Single;
   k, i: Integer;
   p: Tvector2;
-  t, t0: int64;
   tg: TOpponent;
 Begin
   If FPausing Then exit;
-  t := GetTick;
-  If Speedup <> 1 Then Begin // Wenn eine Speedup aktiv ist, wird das Delta t0 zum letzten Frame entsprechend Zeitlich skalliert
-    t0 := t - fHandleBuildingTime;
-    t0 := t0 * (int64(Speedup) - 1);
-  End;
-  fHandleBuildingTime := t;
   For i := 0 To high(Fbuildings) Do Begin
-    Fbuildings[i].Update(); // Falls das Gebäude erst noch gebaut werden muss..
+    Fbuildings[i].Update(delta); // Falls das Gebäude erst noch gebaut werden muss..
     If (Fbuildings[i].fUpdating.State = usIdleInactive) And (Fbuildings[i].Stages[Fbuildings[i].Stage].range > 0) Then Begin
-      If Speedup <> 1 Then Begin // Verschieben der Zuletzt geballert Zeit, beim Speedup in Richtung Vergangenheit
-        Fbuildings[i].LastShootTime := Fbuildings[i].LastShootTime - t0;
-      End;
-      If ((t - Fbuildings[i].LastShootTime) >= Fbuildings[i].Stages[Fbuildings[i].Stage].reloadtime) Then Begin
+      If (Fbuildings[i].DeltaSinceLastShoot >= Fbuildings[i].Stages[Fbuildings[i].Stage].reloadtime) Then Begin
         // Der Austrittspunkt der Waffe
         p.x := (Fbuildings[i].Position.x + Fbuildings[i].Stages[Fbuildings[i].Stage].bulletLeafPointx);
         p.y := (Fbuildings[i].Position.y - Fbuildings[i].Stages[Fbuildings[i].Stage].bulletLeafPointy + 1);
@@ -3569,7 +3561,7 @@ Begin
             If sqr(x) + sqr(y) <= sqr(r) Then Begin
               // Todo : das Trunc ist nicht gut, da muss was besseres her
               If CoordIsWalkAble(trunc(p.x + x), trunc(p.y + y)) Then Begin // wir haben eine Position gefunden an derer wir den Bullet hinlegen können und theoretisch kann dort ein Gegner vorbeilaufen
-                Fbuildings[i].LastShootTime := t;
+                Fbuildings[i].DeltaSinceLastShoot := 0;
                 CreateBullet(Nil, v2(p.x + x, p.y + y), Fbuildings[i]);
                 FBullets[high(FBullets)].Direction := random(360); // Der Bullet bewegt sich nicht, damit nicht alle gleich aussehen werden sie hier "Zugällig" rotiert.
                 If Fbuildings[i].Stages[Fbuildings[i].Stage].bulletspeed < 0 Then Begin
@@ -3585,7 +3577,7 @@ Begin
           // Wir könnten wieder Schießen, aber ist auch was zum Abballern da ?
           tg := GetTarget(p, r, Fbuildings[i].Stages[Fbuildings[i].Stage].bulletpower, Fbuildings[i].Stages[Fbuildings[i].Stage].SlowDown, Fbuildings[i].Stages[Fbuildings[i].Stage].earn, Fbuildings[i].strategy, Fbuildings[i].PreverAir, Fbuildings[i], Nil);
           If assigned(tg) Then Begin
-            Fbuildings[i].LastShootTime := t;
+            Fbuildings[i].DeltaSinceLastShoot := 0;
             CreateBullet(tg, p, Fbuildings[i]);
           End;
         End;
@@ -3594,31 +3586,21 @@ Begin
   End;
 End;
 
-Procedure TMap.HandleAllHeroes;
+Procedure TMap.HandleAllHeroes(delta: integer);
 Const
   defSlowDown: TSlowDown = (slowdownstatic: 1.0; slowdowndynamic: 1.0; slowdowntime: 0);
 Var
   r: Single;
   i: Integer;
   p: Tvector2;
-  t, t0: int64;
   tg: TOpponent;
 Begin
   If FPausing Then exit;
-  t := GetTick;
-  If Speedup <> 1 Then Begin // Wenn eine Speedup aktiv ist, wird das Delta t0 zum letzten Frame entsprechend Zeitlich skalliert
-    t0 := t - fHandleBuildingTime;
-    t0 := t0 * (int64(Speedup) - 1);
-  End;
-  fHandleBuildingTime := t;
-  MoveAllHeroes;
+  MoveAllHeroes(delta);
   For i := 0 To high(Fheroes) Do Begin
-    Fheroes[i].Update(); // Falls das Gebäude erst noch gebaut werden muss..
+    Fheroes[i].Update(delta); // Falls das Gebäude erst noch gebaut werden muss..
     If (Fheroes[i].Level >= 0) And (Fheroes[i].Levels[Fheroes[i].Level].range > 0) Then Begin
-      If Speedup <> 1 Then Begin // Verschieben der Zuletzt geballert Zeit, beim Speedup in Richtung Vergangenheit
-        Fheroes[i].LastShootTime := Fheroes[i].LastShootTime - t0;
-      End;
-      If ((t - Fheroes[i].LastShootTime) >= Fheroes[i].Levels[Fheroes[i].Level].reloadtime) Then Begin
+      If (Fheroes[i].DeltaSinceLastShoot >= Fheroes[i].Levels[Fheroes[i].Level].reloadtime) Then Begin
         // Der Austrittspunkt der Waffe
         p.x := (Fheroes[i].Position.x + Fheroes[i].levels[Fheroes[i].Level].w / 2);
         p.y := (Fheroes[i].Position.y + 1 - Fheroes[i].levels[Fheroes[i].Level].h / 2);
@@ -3626,7 +3608,7 @@ Begin
         // Wir könnten wieder Schießen, aber ist auch was zum Abballern da ?
         tg := GetTarget(p, r, Fheroes[i].Levels[Fheroes[i].Level].bulletpower, defSlowDown, 0, Fheroes[i].strategy, Fheroes[i].PreverAir, Fheroes[i], Nil);
         If assigned(tg) Then Begin
-          Fheroes[i].LastShootTime := t;
+          Fheroes[i].DeltaSinceLastShoot := 0;
           CreateBullet(tg, p, Fheroes[i]);
         End;
       End;
@@ -3634,23 +3616,18 @@ Begin
   End;
 End;
 
-Procedure TMap.HandleAllBullets(Const UpdateEvent: TUpdateEvent);
+Procedure TMap.HandleAllBullets(Const UpdateEvent: TUpdateEvent; delta: integer);
 Var
   k, i: integer;
   bool: Boolean;
   ownrd, // OwnerDamage
   rfnd, ownr, j: Integer;
-  n, delta: Int64;
   tg2, tg: TOpponent;
 Begin
   (*
    * Bewegen aller Bullets, und evtl. Auch Einschlagen, und damit Oppontents platt machen.
    *)
   If FPausing Then exit;
-  n := GetTick;
-  delta := n - fLastBulletTime;
-  delta := delta * Speedup;
-  fLastBulletTime := n;
   //Suche nach Gegnern, usw ...
   For i := 0 To high(FBullets) Do
     FBullets[i].Handled := false;
@@ -3727,17 +3704,12 @@ End;
 
 Procedure TMap.Start;
 Var
-  n: int64;
   i: Integer;
 Begin
   // Wir starten was neues, also alles alte vorher Platt machen
   setlength(fOpponents, 0);
   setlength(FBullets, 0);
   FPausing := False;
-  n := Gettick;
-  fLastOppMoveTime := n;
-  fLastHeroMoveTime := n;
-  fLastBulletTime := n;
   For i := 0 To high(Fbuildings) Do Begin
     Fbuildings[i].start;
   End;
@@ -4491,20 +4463,13 @@ Begin
   End;
 End;
 
-Procedure TMap.MoveAllHeroes;
+Procedure TMap.MoveAllHeroes(delta: integer);
 Var
-  delta, i, j: integer; // Der Zeit
-  n: int64;
+  i, j: integer; // Der Zeit
   SQR_Min_Dist, ll, wx, wy: Single;
   l, dx, dy: Single;
 Begin
   If FPausing Then exit;
-  // Die Zeit schreitet voran, in Delta steht wieviel seit dem Letzten mal vergangen ist.
-  n := GetTick;
-  delta := n - fLastHeroMoveTime;
-  delta := delta * Speedup; // Berücksichtigen eines evtl existierenden Speedups
-  fLastHeroMoveTime := n;
-
   For i := high(fheroes) Downto 0 Do Begin
     If (fheroes[i].Level >= 0) And (fheroes[i].targetpos.x <> -1) And (fheroes[i].targetpos.y <> -1) Then Begin
       // Fliegende Gegner sind deutlich einfacher ;)
@@ -4648,26 +4613,9 @@ End;
 
 Procedure TMap.Pause(value: Boolean);
 Var
-{$IFDEF Server}
-  i: int64;
-{$ENDIF}
   j: integer;
 Begin
 {$IFDEF Server}
-  If FPausing Then Begin
-    If Not value Then Begin
-      i := GetTick() - fPauseTime;
-      fLastOppMoveTime := fLastOppMoveTime + i; // Wir Verschieben die StartZeit um die Zeit der Pause in die Zukunft
-      fLastHeroMoveTime := fLastHeroMoveTime + i; // Wir Verschieben die StartZeit um die Zeit der Pause in die Zukunft
-      fLastBulletTime := fLastBulletTime + i; // Wir Verschieben die StartZeit um die Zeit der Pause in die Zukunft
-      fHandleBuildingTime := fHandleBuildingTime + i;
-    End;
-  End
-  Else Begin
-    If value Then Begin
-      fPauseTime := GetTick();
-    End;
-  End;
   FPausing := value;
 {$ENDIF}
   // Propagieren in alle Gebäude
@@ -5063,7 +5011,7 @@ Begin
       Fbuildings[high(Fbuildings)].Position.x := x;
       Fbuildings[high(Fbuildings)].Position.y := y;
       // Das Gebäude ist natürlich Sofort Schusbereit
-      Fbuildings[high(Fbuildings)].LastShootTime := GetTick() - Fbuildings[high(Fbuildings)].Stages[0].reloadtime;
+      Fbuildings[high(Fbuildings)].DeltaSinceLastShoot := Fbuildings[high(Fbuildings)].Stages[0].reloadtime;
       // Suchen des BulletImages für das Spätere Rendering
       For i := 0 To high(building.Stages) Do Begin
         s := nam + '_' + inttostr(i);
@@ -5141,7 +5089,7 @@ Begin
   fHeroes[high(fHeroes)].Position.x := x;
   fHeroes[high(fHeroes)].Position.y := y;
   // Der Held ist natürlich Sofort Schusbereit
-  fHeroes[high(fHeroes)].LastShootTime := GetTick() - fHeroes[high(fHeroes)].Levels[0].reloadtime;
+  fHeroes[high(fHeroes)].DeltaSinceLastShoot := fHeroes[high(fHeroes)].Levels[0].reloadtime;
   // Suchen des BulletImages für das Spätere Rendering
   For i := 0 To high(Hero.Levels) Do Begin
     s := nam + '_' + inttostr(i);

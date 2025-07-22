@@ -130,6 +130,7 @@ Const
    *                      FIX: correct select buyable after resorting
    *                      ADD: switch to better Font rendering (more contrast)
    *                      FIX: Player Waypoint rendering
+   *                      FIX: Switch to delta frame calculation instead of getTick frame calculation
    * Known Bugs :
    *)
   (*
@@ -328,7 +329,6 @@ Type
   TUpdatingState = (usIdleInactive, usInProgress);
 
   TUpdating = Record
-    StartTime: int64;
     FinState: integer;
     State: TUpdatingState;
   End;

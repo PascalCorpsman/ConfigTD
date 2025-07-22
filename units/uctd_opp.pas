@@ -36,7 +36,7 @@ Type
 
   TSlowObject = Record
     obj: tctd_mapopbject;
-    AddTime: int64;
+    AddTime: int64; // TODO: Umstellen auf Delta Times, und warum ist das für den Client Sichtbar ??
     DynTime: integer; // Die Zeit wie Lange der Dynamische Teil wirkt
     DynValue: Single;
     StatValue: Single;

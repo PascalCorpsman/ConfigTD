@@ -63,8 +63,7 @@ Type
   TBuilding = Class(tctd_mapopbject)
   private
     FPausing: Boolean;
-    fPauseTime: int64;
-    fLastUpdateTime: int64; // Wird genutzt um fUpdating zu aktualisieren
+    DeltaSinceLastUpdate: integer; // Zeit in ms, seit dem letzten Update, Wird genutzt um fUpdating zu aktualisieren
     fHasUpdated: boolean; // Merkt sich ob das Gebäude seit dem Letzten ForceIncStage geuppt wurde, wenn ja, dann mus der Server dieses Gebäude beim nächsten Level Restart an alle Clients Aktualisieren
 
 {$IFDEF Client}
@@ -73,7 +72,7 @@ Type
     Procedure Clear;
   public
     fUpdating: TUpdating; // Todo : Private machen ( das ist Public, wegem Anwählen aller gleichen Gebs in der Karte)
-    LastShootTime: int64; // zwischenspeichervariable für das Spiel
+    DeltaSinceLastShoot: integer; // Zeit in ms, seit dem Letzten Schuß
     Category: String;
     Stages: Array Of TStage;
     Stage: integer;
@@ -105,7 +104,7 @@ Type
 
     Procedure Pause(value: Boolean);
     Procedure Start();
-    Procedure Update();
+    Procedure Update(delta: integer);
   End;
 
   TBuildingArray = Array Of TBuilding;
@@ -114,8 +113,8 @@ Implementation
 
 Uses
   IniFiles, LazFileUtils, LCLIntf
-{$IFDEF Client}
   , math
+{$IFDEF Client}
   , dglOpenGL
   , Graphics
   , ugraphics
@@ -133,7 +132,8 @@ Begin
   Stage := -1;
   strategy := bsFirst;
   PreverAir := true;
-  fLastUpdateTime := GetTick();
+  DeltaSinceLastUpdate := 0;
+  DeltaSinceLastShoot := 0;
 End;
 
 Destructor TBuilding.destroy;
@@ -260,55 +260,34 @@ Begin
 End;
 
 Function TBuilding.IncStage: Boolean;
-Var
-  n: QWord;
 Begin
   result := false;
   If High(Stages) <= Stage Then exit;
-  n := GetTick();
-  fUpdating.StartTime := n;
   fUpdating.State := usInProgress;
   fUpdating.FinState := Stage + 1;
   fHasUpdated := true;
-  fLastUpdateTime := n;
+  DeltaSinceLastUpdate := 0;
   result := true;
   // Direktes Updating
   If Stages[fUpdating.FinState].BuildTime <= 0 Then Begin
     fUpdating.State := usIdleInactive;
     Stage := Stage + 1;
-    LastShootTime := GetTick() - Stages[Stage].reloadtime;
+    DeltaSinceLastShoot := Stages[Stage].reloadtime;
   End;
 End;
 
 Procedure TBuilding.Pause(value: Boolean);
-Var
-  i: int64;
 Begin
-  If FPausing Then Begin
-    If Not value Then Begin
-      i := GetTick() - fPauseTime;
-      LastShootTime := LastShootTime + i; // Wir Verschieben die StartZeit um die Zeit der Pause in die Zukunft
-      fUpdating.StartTime := fUpdating.StartTime + i; // falls wir gerade Updaten..
-      fLastUpdateTime := fLastUpdateTime + i;
-    End;
-  End
-  Else Begin
-    If value Then Begin
-      fPauseTime := GetTick();
-    End;
-  End;
   FPausing := value;
 End;
 
 Procedure TBuilding.Start;
-Var
-  n: int64;
 Begin
   FPausing := false;
-  n := GetTick();
-  fLastUpdateTime := n;
+  DeltaSinceLastUpdate := 0;
+  DeltaSinceLastShoot := 0;
   If (Stage >= 0) And (stage <= high(Stages)) Then Begin
-    LastShootTime := n - Stages[Stage].reloadtime;
+    DeltaSinceLastShoot := Stages[Stage].reloadtime;
   End;
 End;
 
@@ -318,36 +297,26 @@ Begin
   If fUpdating.State <> usIdleInactive Then Begin
     Stage := fUpdating.FinState;
     fUpdating.State := usIdleInactive;
-    LastShootTime := GetTick() - Stages[Stage].reloadtime;
+    DeltaSinceLastUpdate := 0;
+    DeltaSinceLastShoot := Stages[Stage].reloadtime;
   End;
   If ResetHasUpdated Then Begin
     fHasUpdated := false;
   End;
 End;
 
-Procedure TBuilding.Update;
-Var
-  d, n: int64;
+Procedure TBuilding.Update(delta: integer);
 Begin
   If fUpdating.State = usIdleInactive Then Begin
     // Das Gebäude ist "Fertig" ;)
-    fLastUpdateTime := GetTick();
+    DeltaSinceLastUpdate := 0;
+    DeltaSinceLastShoot := min(DeltaSinceLastShoot + delta, Stages[Stage].reloadtime);
   End
   Else Begin
     // Der Progressbar
     If Not FPausing Then Begin
-      (*
-       * !! ACHTUNG !! , das hier ist Doppelt hier und in Procedure TBuilding.Render;
-       *)
-      n := GetTick();
-      If Speedup <> 1 Then Begin
-        d := n - fLastUpdateTime;
-        d := d * (int64(Speedup) - 1);
-        fUpdating.StartTime := fUpdating.StartTime - d;
-      End;
-      fLastUpdateTime := n;
-      d := n - fUpdating.StartTime;
-      If d >= stages[fUpdating.FinState].BuildTime Then Begin
+      DeltaSinceLastUpdate := DeltaSinceLastUpdate + delta;
+      If DeltaSinceLastUpdate >= stages[fUpdating.FinState].BuildTime Then Begin
         ForceIncStage(false);
       End;
     End;
@@ -511,8 +480,6 @@ Procedure TBuilding.Render(Grayed: Boolean);
     glPopMatrix;
   End;
 
-Var
-  d, n: int64;
 Begin
   // Wenn das Gebäude leicht Ausgegraut gerendert werden soll ;)
   If Grayed Then Begin
@@ -531,7 +498,7 @@ Begin
     Else Begin
       RenderObjItem(point(0, 0), stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Fimage);
     End;
-    fLastUpdateTime := GetTick();
+    DeltaSinceLastUpdate := 0;
   End
   Else Begin
     // Anfahren der Richtigen Position (Mittelpunkt, vom Kollisionauf der Karte)
@@ -541,22 +508,7 @@ Begin
       RenderBar(0);
     End
     Else Begin
-      (*
-       * !! ACHTUNG !! , das hier ist Doppelt hier und in Procedure TBuilding.Update;
-       *)
-      n := GetTick();
-      If Speedup <> 1 Then Begin
-        d := n - fLastUpdateTime;
-        d := d * (int64(Speedup) - 1);
-        fUpdating.StartTime := fUpdating.StartTime - d;
-      End;
-      fLastUpdateTime := n;
-      d := n - fUpdating.StartTime;
-      If (d >= stages[fUpdating.FinState].BuildTime) Then Begin
-        ForceIncStage(false);
-        d := stages[fUpdating.FinState].BuildTime;
-      End;
-      RenderBar(d / stages[fUpdating.FinState].BuildTime);
+      RenderBar(DeltaSinceLastUpdate / stages[fUpdating.FinState].BuildTime);
     End;
     // Die Baustelle zeichnen (ist hinterher, dass wir kein Offset in der Höhe brauchen)
     glcolor3f(1, 1, 1);

@@ -81,7 +81,6 @@ Type
 
   TServer = Class
   private
-    fLastCreateFrameTime: int64; // Zeitpunkt, an dem das letzte mal CreateFrame aufgerufen wurde (wür die Zeitnormierung..)
     fCounterfor10s: integer; // Zähler für die 10s Zeitscheibe für die Spielerstatistiken
     fOverAllGameingTime: int64; // Simulierte Zeit in ms, ohne die Zeit die in Pause gewartet wurde
     fOverAllRealGameingTime: int64; // Zeit in ms die Echt gespielt wurde, ohne die Zeit die in Pause gewartet wurde
@@ -1912,7 +1911,6 @@ Begin
   For i := 0 To high(fplayer) Do Begin
     fplayer[i].LastSynchronTimeStamp := n;
   End;
-  fLastCreateFrameTime := n;
   FLastFrameTimestamp := n;
   fLastClientUpdateTimestamp := n;
   fLastHeartbeatTimestamp := n;
@@ -2844,56 +2842,24 @@ Begin
 End;
 
 Procedure TServer.CreateNewFrame;
-(*
- * Dieses Define zu setzen, bevor alles Portiert ist birgt gewisse gefahren
- * auch ist noch nicht Klar wie mit der "Überlast" umgegangen werden soll.
- * Wenn's aber mal drin ist gibts kein glitchen mehr und auch sonst sollte sich
- * das Spiel deutlich deterministischer verhalten (wenn auch auf kosten der
- * Rechenlast..)
- *
- *
- * => Wenn alles fertig ist, wird bei allem was Framerelevant ist, kein GetTick mehr aufgerufen !
- *
- *)
-{.$DEFINE exact_sim}
 Var
-{$IFDEF exact_sim}
   i: integer;
-{$ELSE}
-  n: int64;
-  delta: integer;
-{$ENDIF}
 Begin
   (*
-   * TODO: Das gesamte Spiel muss so umgeschrieben, dass alles über delta und in
-   *       exact_sim läuft
+   * Egal wie, das gesamte Spiel wird immer in "FrameRate" Steps simuliert.
    *)
-{$IFNDEF exact_sim}
-  // fLastCreateFrameTime kann auch wieder gelöscht werden, wenn auf exact_sim umgestellt wurde !
-  n := GetTick;
-  delta := n - fLastCreateFrameTime;
-  fLastCreateFrameTime := n;
-{$ENDIF}
-{$IFDEF exact_sim}
   fOverAllGameingTime := fOverAllGameingTime + FrameRate * Speedup;
   For i := 0 To Speedup - 1 Do Begin
     // Neue Einheiten Emirieren
     fSpawnModul.Update(FrameRate); // Erzeugt ggf. die Gegner, true, wenn keine Gegner mehr erzeigt werden sollen
     // Alle Einheiten Bewegen
     fmap.MoveAllOpponents(@UpdateEvent, FrameRate);
+    // Alle Gebäude "Bauen"
+    fmap.HandleAllBuildings(FrameRate);
+    fmap.HandleAllHeroes(FrameRate);
+    // Alle Geschosse Bewegen
+    fmap.HandleAllBullets(@UpdateEvent, FrameRate);
   End;
-{$ELSE}
-  fOverAllGameingTime := fOverAllGameingTime + delta * Speedup;
-  // Neue Einheiten Emirieren
-  fSpawnModul.Update(delta * Speedup);
-  // Alle Einheiten Bewegen
-  fmap.MoveAllOpponents(@UpdateEvent, delta * Speedup);
-{$ENDIF}
-  // Alle Gebäude "Bauen"
-  fmap.HandleAllBuildings();
-  fmap.HandleAllHeroes();
-  // Alle Geschosse Bewegen
-  fmap.HandleAllBullets(@UpdateEvent);
   // Ist das Spiel Vorbei ?
   EndGameCheck();
 End;
@@ -3141,7 +3107,7 @@ End;
 
 Procedure TServer.Execute;
 Var
-  pt, n: int64;
+  d, pt, n: int64;
 Begin
   log('TServer.Execute', lltrace);
   pt := GetTick; // Warnung nieder machen
@@ -3170,7 +3136,6 @@ Begin
           fOverAllPausingTime := fOverAllPausingTime + n - pt;
           pt := n;
         End;
-        fLastCreateFrameTime := n;
       End
       Else Begin
         pt := GetTick;
@@ -3178,9 +3143,13 @@ Begin
       If (Not (fpausing Or fSyncPause)) Then Begin
         n := gettick();
         If FLastFrameTimestamp + (FrameRate) <= n Then Begin
+          // -- ALT
           // Durch das Aufaddieren der Zeit und nicht direkt setzen auf n könnte hier eine
           // Überpropertionale rechenlast erzeugt werden, besonders, wenn CreateNewFrame, länger dauert als (FrameRate)
-          FLastFrameTimestamp := FLastFrameTimestamp + (FrameRate);
+          // FLastFrameTimestamp := FLastFrameTimestamp + (FrameRate);
+          // -- Neu, Ganze Frames können unter zu hoher Last überschprungen werden, -> wenn die Last nachlässt "spult" das spiel dadurch nicht "vor"
+          d := n - (FLastFrameTimestamp + FrameRate);
+          FLastFrameTimestamp := n - (d Mod FrameRate); // Sicherstellen, das ein ggf. Jitter erhalten bleibt und nur "Ganze" Frames übersprungen werden
           CreateNewFrame;
         End;
         // Egal, welcher Speedup, das Spiel wird mit konstanter Rate Aktualisiert
