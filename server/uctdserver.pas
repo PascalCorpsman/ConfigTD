@@ -3152,8 +3152,8 @@ Begin
           d := n - (FLastFrameTimestamp + FrameRate);
           FLastFrameTimestamp := n - (d Mod FrameRate); // Sicherstellen, das ein ggf. Jitter erhalten bleibt und nur "Ganze" Frames übersprungen werden
           CreateNewFrame;
-          ft := n - gettick(); // Die zeit berechnen wie lange die Frame erstellung Tatsächlich benötigt hat
-          If ft > FrameRate Then Begin // Wenn die Frames Länger benötigen, als wir Rechenzeit haben wird automatisch das Speedup raus genommen !
+          ft := gettick() - n; // Die zeit berechnen wie lange die Frame erstellung Tatsächlich benötigt hat
+          If (ft > FrameRate) and (Speedup <> 1) Then Begin // Wenn die Frames Länger benötigen, als wir Rechenzeit haben wird automatisch das Speedup raus genommen !
             c.UserDefinedID := midecSpeed;
             c.UID := 0;
             c.Data := Nil;
