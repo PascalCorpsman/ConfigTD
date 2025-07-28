@@ -131,6 +131,7 @@ Const
    *                      ADD: switch to better Font rendering (more contrast)
    *                      FIX: Player Waypoint rendering
    *                      FIX: Switch to delta frame calculation instead of getTick frame calculation
+   *                           Reduce Speedup in CPU-Overload situations
    * Known Bugs :
    *)
   (*

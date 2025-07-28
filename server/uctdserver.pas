@@ -3107,7 +3107,8 @@ End;
 
 Procedure TServer.Execute;
 Var
-  d, pt, n: int64;
+  ft, d, pt, n: int64;
+  c: TChunk;
 Begin
   log('TServer.Execute', lltrace);
   pt := GetTick; // Warnung nieder machen
@@ -3151,6 +3152,13 @@ Begin
           d := n - (FLastFrameTimestamp + FrameRate);
           FLastFrameTimestamp := n - (d Mod FrameRate); // Sicherstellen, das ein ggf. Jitter erhalten bleibt und nur "Ganze" Frames übersprungen werden
           CreateNewFrame;
+          ft := n - gettick(); // Die zeit berechnen wie lange die Frame erstellung Tatsächlich benötigt hat
+          If ft > FrameRate Then Begin // Wenn die Frames Länger benötigen, als wir Rechenzeit haben wird automatisch das Speedup raus genommen !
+            c.UserDefinedID := midecSpeed;
+            c.UID := 0;
+            c.Data := Nil;
+            OnReceivedChunk(self, c);
+          End;
         End;
         // Egal, welcher Speedup, das Spiel wird mit konstanter Rate Aktualisiert
         If fLastClientUpdateTimestamp + UpdateRate <= n Then Begin
