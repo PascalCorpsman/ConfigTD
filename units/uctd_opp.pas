@@ -107,6 +107,9 @@ Type
   // Todo : Eigentlich ist das eine Datenstructur der Karte und nicht der Bullets, gibts da nen Trick wie man wieder in die map bekommt?
   TOpponentInfo = Record
     Obj: TOpponent;
+{$IFDEF Server}
+    Alive: Boolean; // Wenn False, wird der Opp nicht mehr berücksichtigt und beim nächsten TMap.FrameEnd gelöscht
+{$ENDIF}
     // Beim Diagonalen Gehen, kann es vorkommen, das die Figur auf einen nicht
     // begehbaren Block läuft (beim Umlaufen von Ecken), das geschieht aber nur im Diagonalen Modus.
     // Wenn dies Erkannt wird, verhindern wir das Diagonale gehen bei der nächsten

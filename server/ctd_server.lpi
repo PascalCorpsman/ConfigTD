@@ -85,7 +85,7 @@
         <PackageName Value="lnetbase"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="22">
+    <Units Count="24">
       <Unit0>
         <Filename Value="ctd_server.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -175,6 +175,14 @@
         <Filename Value="../units/uctd_hero.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit21>
+      <Unit22>
+        <Filename Value="../../Sample/DatenSteuerung/uquadtree.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="uquadtree.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

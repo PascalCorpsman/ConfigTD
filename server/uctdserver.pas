@@ -691,7 +691,6 @@ Begin
       m := TMemoryStream.Create;
       m.WriteAnsiString('Lost player : ' + fPLayer[i].UserName);
       b := SendChunk(miChatMessage, m, -PlayerUid);
-
       // Todo : Wenn das Spiel gerade läuft, muss alles gelöscht werden, was dem Spieler gehört
       If assigned(fMap) Then Begin
         fmap.Save(MapName); // Vorsichtshalber mal die Karte Speichern
@@ -2850,6 +2849,7 @@ Begin
    *)
   fOverAllGameingTime := fOverAllGameingTime + FrameRate * Speedup;
   For i := 0 To Speedup - 1 Do Begin
+    fmap.FrameStart;
     // Neue Einheiten Emirieren
     fSpawnModul.Update(FrameRate); // Erzeugt ggf. die Gegner, true, wenn keine Gegner mehr erzeigt werden sollen
     // Alle Einheiten Bewegen
@@ -2859,6 +2859,7 @@ Begin
     fmap.HandleAllHeroes(FrameRate);
     // Alle Geschosse Bewegen
     fmap.HandleAllBullets(@UpdateEvent, FrameRate);
+    fmap.FrameEnd;
   End;
   // Ist das Spiel Vorbei ?
   EndGameCheck();
@@ -3153,7 +3154,7 @@ Begin
           FLastFrameTimestamp := n - (d Mod FrameRate); // Sicherstellen, das ein ggf. Jitter erhalten bleibt und nur "Ganze" Frames übersprungen werden
           CreateNewFrame;
           ft := gettick() - n; // Die zeit berechnen wie lange die Frame erstellung Tatsächlich benötigt hat
-          If (ft > FrameRate) and (Speedup <> 1) Then Begin // Wenn die Frames Länger benötigen, als wir Rechenzeit haben wird automatisch das Speedup raus genommen !
+          If (ft > FrameRate) And (Speedup <> 1) Then Begin // Wenn die Frames Länger benötigen, als wir Rechenzeit haben wird automatisch das Speedup raus genommen !
             c.UserDefinedID := midecSpeed;
             c.UID := 0;
             c.Data := Nil;

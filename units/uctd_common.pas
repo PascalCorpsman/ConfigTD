@@ -430,7 +430,7 @@ Type
 
 {$IFDEF Server}
 Const
-  MapBlockSize = 1; // Der Server Rechnet alles 1:1, damit kann der Client direkt mit Blockwidth hochscallieren
+  MapBlockSize = 1; // TODO: Entfernen dieser Variable, der Server braucht die nicht die Kostet Rechenzeit ! (entfernen durch erst umbenennen, dann schaun ob der client noch baut, dann raus)
   SpawnGrid = 0.6; // Grid nach welchem TOpponents beim Spawning angeordnet werden
   MinDistanceBetweenOpponents = 0.6; // Mindestabstand zwischen 2 Oppoents
   MinDistanceBetweenHeroes = 2; // Mindestabstand zwischen 2 Helden

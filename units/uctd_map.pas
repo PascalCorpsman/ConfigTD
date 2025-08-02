@@ -37,6 +37,7 @@ Uses
   , uctd_mapobject, uctd_building, uctd_opp, uctd_hero, uvectormath, uctd_common, ufifo
 {$IFDEF Server}
   , uctd_bullet
+  , uquadtree
 {$ENDIF}
   ;
 
@@ -177,8 +178,11 @@ Type
     Field: Array Of TPoint;
   End;
 
+{$IFDEF Server}
+  TMoveOpponentQuadtree = specialize TQuadTree < Integer > ;
+{$ENDIF}
+
   // Start Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
-Type
   TDataSet = Record
     pos: TPoint;
     Height: Integer;
@@ -217,11 +221,17 @@ Type
     FBulletIndexes: Array Of TBulletIndex; // Der Index des jeweiligen Geschosses damit Client und Server die Richtigen Texturen haben ...
 {$IFDEF Server}
     fHighscoreEngine: TIniHighscoreEngine;
-    fOpponents: TOpponentInfoArray;
+    fOpponents: TOpponentInfoArray; // TODO: Umbauen in ein Array, dass Statische Länge hat ..
     FBullets: Array Of TBulletObject;
     FPausing: Boolean;
     fRatingCount: integer; // Anzahl der Durchgeführten Ratings
     fRatingSum: integer; // integral über die Ratings
+
+    MaxDimOpponents: TVector2;
+    fOpponentsQuadtree: TMoveOpponentQuadtree; // Für Handle All Buildings
+    fFlyingsQuadtree, fGroundsQuadtree: TMoveOpponentQuadtree; // Für MoveAllOpponents
+    fOpponentIndexBuffer: TMoveOpponentQuadtree.TQuadTreeElementArray; // Buffer zum Übergeben an die Quadtrees
+    fGetTargetKandidats: Array Of Integer;
 {$ENDIF}
     Procedure FixBuyableSorting;
     Function GetHeight: integer;
@@ -378,10 +388,12 @@ Type
     Function ForceHeroesReady: TMemoryStream; // Die helden sind entweder Fertig gebaut, oder halten an !
 
     Procedure AddOpponentObject(Const obj: TOpponent; Owner: integer);
+    Procedure FrameStart; // Code zum Begin eines jeden Frames aufgerufen wird
     Procedure MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
     Procedure HandleAllBuildings(delta: integer);
     Procedure HandleAllHeroes(delta: integer);
     Procedure HandleAllBullets(Const UpdateEvent: TUpdateEvent; delta: integer);
+    Procedure FrameEnd; // Code zum Ende eines jeden Frames aufgerufen wird
     Procedure Start(); // Wird durch HandleStartRound aufgerufen
     Procedure GetMovingObjectsState(Const Stream: TSTream);
     Function SaveGameingData(Const Stream: TStream): Boolean;
@@ -780,6 +792,10 @@ Begin
 {$ELSE}
   fHighscoreEngine := TIniHighscoreEngine.create;
   fHeroes := Nil;
+  fFlyingsQuadtree := Nil;
+  fGroundsQuadtree := Nil;
+  fOpponentIndexBuffer := Nil;
+  fOpponentsQuadtree := Nil;
 {$ENDIF}
   Clear;
 End;
@@ -793,6 +809,14 @@ Begin
   // Ende Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
 {$IFDEF Server}
   fHighscoreEngine.free;
+  If assigned(fFlyingsQuadtree) Then fFlyingsQuadtree.free;
+  If assigned(fGroundsQuadtree) Then fGroundsQuadtree.free;
+  If assigned(fOpponentsQuadtree) Then fOpponentsQuadtree.free;
+  fFlyingsQuadtree := Nil;
+  fGroundsQuadtree := Nil;
+  fOpponentsQuadtree := Nil;
+  setlength(fOpponentIndexBuffer, 0);
+  fOpponentIndexBuffer := Nil;
 {$ENDIF}
   Inherited Destroy;
 End;
@@ -1698,10 +1722,10 @@ Begin
     End;
 {$ENDIF}
 {$IFDEF Server}
-  For i := 0 To high(fOpponents) Do Begin
+  For i := high(fOpponents) Downto 0 Do Begin
     xx := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
     yy := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
-    If (Not fOpponents[i].Obj.Canfly) And // Nur Bodeneinheiten dürfen blockieren
+    If (Not fOpponents[i].Obj.Canfly) And (fOpponents[i].Alive) And // Nur Bodeneinheiten dürfen blockieren
     (
       (xx >= x) And (xx < x + building.Width) And
       (yy > y - building.Height) And (yy <= y)
@@ -1810,7 +1834,7 @@ Var
   tg: TOpponent;
 Begin
   // Suchen aller Bullets, die nun ihr Target verlieren
-  For i := high(FBullets) Downto 0 Do
+  For i := high(FBullets) Downto 0 Do Begin
     If FBullets[i].Target = Opponent Then Begin
       tg := GetTarget(
         fBullets[i].position, fBullets[i].Splash,
@@ -1821,20 +1845,18 @@ Begin
         FBullets[i].Target := tg;
       End
       Else Begin
-        // Der Bullet geht auch, nichts mehr zum anwisieren
+        // Der Bullet geht auch, nichts mehr zum anvisieren
         FBullets[i].free;
         For j := i To high(FBullets) - 1 Do
           FBullets[j] := FBullets[j + 1];
         SetLength(FBullets, high(FBullets));
       End;
     End;
-  // Nun den Opponent platt machen
+  End;
+  // TODO: Gibt es da keinen Cleveren Weg sich diese Schleife zu sparen ?
   For i := 0 To high(fOpponents) Do Begin
     If fOpponents[i].Obj = Opponent Then Begin
-      fOpponents[i].Obj.free;
-      For j := i To high(fOpponents) - 1 Do
-        fOpponents[j] := fOpponents[j + 1];
-      setlength(fOpponents, high(fOpponents));
+      fOpponents[i].Alive := false;
       break;
     End;
   End;
@@ -1871,9 +1893,10 @@ Begin
     FBullets[i].Free;
   End;
   setlength(FBullets, 0);
-  For i := 0 To high(fOpponents) Do Begin
+  For i := high(fOpponents) Downto 0 Do Begin
     fOpponents[i].Obj.free;
     fOpponents[i].Obj := Nil;
+    fOpponents[i].Alive := false;
   End;
   SetLength(fOpponents, 0);
 {$ENDIF}
@@ -1906,6 +1929,8 @@ End;
 
 Function TMap.getOpponentCount: integer;
 Begin
+  // TODO: ersetzen durch eine interne Variable, die bei AddOppent hoch geht und bei Kill Runter
+  // der Wert ist aber nur zwischen FrameStart und FrameEnd ungültig, daher low prio ..
   result := High(fOpponents) + 1;
 End;
 {$ENDIF}
@@ -3223,24 +3248,55 @@ Begin
       obj.LifePoints[i] := max(1, round(obj.LifePoints[i] * obj.LifeFactors[Difficulty]));
     End;
   End;
-  //  obj.ShowLifePoints := fShowLifepoints;
   setlength(fOpponents, high(fOpponents) + 2);
   fOpponents[high(fOpponents)].Obj := obj;
-  fOpponents[high(fOpponents)].NextWayPoint := 1;
+  fOpponents[high(fOpponents)].Alive := true;
   fOpponents[high(fOpponents)].NextTimeNoDiagWalk := false;
+  //fOpponents[high(fOpponents)].NextTimeNoDiagWalkPos := ?;
+  fOpponents[high(fOpponents)].NextWayPoint := 1;
+  //fOpponents[high(fOpponents)].DistanzeToGoal := ?;
+  // Für Gettarget
+  MaxDimOpponents := MaxV2(MaxDimOpponents, v2(obj.SizeX, obj.SizeY));
+End;
+
+Procedure TMap.FrameStart;
+Begin
+  fOpponentsQuadtree.Clear;
+  fFlyingsQuadtree.Clear;
+  fGroundsQuadtree.Clear;
+End;
+
+Procedure TMap.FrameEnd;
+Var
+  i, j: Integer;
+Begin
+  // "Tote" Opponents entfernen ;)
+  For i := high(fOpponents) Downto 0 Do Begin
+    If Not fOpponents[i].Alive Then Begin
+      fOpponents[i].Obj.Free;
+      For j := i To high(fOpponents) - 1 Do Begin
+        fOpponents[j] := fOpponents[j + 1];
+      End;
+      setlength(fOpponents, high(fOpponents));
+    End;
+  End;
 End;
 
 Procedure TMap.MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
+Const
+  SQR_Min_Dist = MinDistanceBetweenOpponents * MinDistanceBetweenOpponents;
 Var
-  j, i: Integer;
+  cnt, j, i: Integer;
   steigung, wx, wy: integer;
   gx, gy, odir, oh, wh, ah, x, y, xx, yy: integer;
   ox, oy, ll, l, dx, dy: Single;
-  SQR_Min_Dist: Single;
+  e: TMoveOpponentQuadtree.TQuadTreeElement;
+  r: TQuadTreeRect;
 Begin
   If FPausing Then exit;
   // Hier lassen wir die Viecher laufen
-  For i := high(fOpponents) Downto 0 Do Begin
+  For i := 0 To high(fOpponents) Do Begin
+    If Not fOpponents[i].Alive Then Continue;
     If fOpponents[i].Obj.Canfly Then Begin
       // Fliegende Gegner sind deutlich einfacher ;)
       // 1. Suchen des "kürzesten" Wegpunktes im WegpunktFeld
@@ -3281,6 +3337,10 @@ Begin
       fOpponents[i].Obj.Position.x := fOpponents[i].Obj.Position.x + dx;
       fOpponents[i].Obj.Position.y := fOpponents[i].Obj.Position.y + dy;
       fOpponents[i].Obj.Direction := round(radtodeg(arctan2(-dy, dx)));
+      // Für nachher den Opp schon mal in den Quadtree packen ;)
+      e.Position := fOpponents[i].Obj.Position;
+      e.Data := i;
+      fFlyingsQuadtree.Add(e);
       // Haben wir den Wegpunkt ereicht ?
       x := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
       y := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
@@ -3407,6 +3467,10 @@ Begin
       fOpponents[i].Obj.Position.x := fOpponents[i].Obj.Position.x + dx;
       fOpponents[i].Obj.Position.y := fOpponents[i].Obj.Position.y + dy;
       fOpponents[i].Obj.Direction := round(radtodeg(arctan2(-dy, dx)));
+      // Für nachher den Opp schon mal in den Quadtree packen ;)
+      e.Position := fOpponents[i].Obj.Position;
+      e.Data := i;
+      fGroundsQuadtree.Add(e);
       // 9. Berechnen der "Reststrecke" zum Ziel
       fOpponents[i].DistanzeToGoal := l + ah; // Die Wegstrecke zum Nächsten Wegpunkt
       // 9.1 Aufaddieren aller Wegstrecken die nach dem Wegpunkt noch kommen
@@ -3434,22 +3498,33 @@ Begin
       End;
     End;
   End;
+
   // Die Opponents Mögen sich nicht, Einbauen einer gewissen Divergenz
-  SQR_Min_Dist := sqr(MinDistanceBetweenOpponents);
-  For i := 0 To high(fOpponents) - 1 Do
-    For j := i + 1 To high(fOpponents) Do Begin
-      l := sqr(fOpponents[i].Obj.Position.x - fOpponents[j].Obj.Position.x) + sqr(fOpponents[i].Obj.Position.y - fOpponents[j].Obj.Position.y);
+  For i := high(fOpponents) - 1 Downto 0 Do Begin
+    If Not fOpponents[i].Alive Then Continue;
+    // Wir hohlen die Opps aus dem EpsilonRect
+    r.TopLeft := fOpponents[i].Obj.Position - v2(MinDistanceBetweenOpponents, MinDistanceBetweenOpponents);
+    r.BottomRight := fOpponents[i].Obj.Position + v2(MinDistanceBetweenOpponents, MinDistanceBetweenOpponents);
+    If fOpponents[i].Obj.Canfly Then Begin
+      fFlyingsQuadtree.Query2(r, @fOpponentIndexBuffer[0], cnt, length(fOpponentIndexBuffer));
+    End
+    Else Begin
+      fGroundsQuadtree.Query2(r, @fOpponentIndexBuffer[0], cnt, length(fOpponentIndexBuffer));
+    End;
+    For j := 0 To cnt - 1 Do Begin
+      If Not fOpponents[fOpponentIndexBuffer[j].Data].Alive Then Continue;
+      l := sqr(fOpponents[i].Obj.Position.x - fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x) + sqr(fOpponents[i].Obj.Position.y - fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y);
       // Zwei Gegner sind sich zu nahe gekommen und befinden sich in der Selben Ebene (Flug oder Boden)
-      If (l <= SQR_Min_Dist) And (fOpponents[i].Obj.Canfly = fOpponents[j].Obj.Canfly) Then Begin
+      If (l <= SQR_Min_Dist) And (i < fOpponentIndexBuffer[j].Data) Then Begin
         l := sqrt(l); // Die eigentliche Strecke Ausrechnen
         If l = 0 Then l := 1;
-        // Von i nach j
-        dx := fOpponents[i].Obj.Position.x - fOpponents[j].Obj.Position.x;
-        dy := fOpponents[i].Obj.Position.y - fOpponents[j].Obj.Position.y;
+        // Von i nach fOpponentIndexBuffer[j].data
+        dx := fOpponents[i].Obj.Position.x - fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x;
+        dy := fOpponents[i].Obj.Position.y - fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y;
         If (dx = 0) And (dy = 0) Then dx := 0.1; // stehen die beiden Gegner exakt aufeinander, dann nehmen wir hier "Künstlich" eine Distanz an.
         dx := dx / l;
         dy := dy / l;
-        ll := max(fOpponents[i].Obj.GetInGameSpeed, fOpponents[j].Obj.GetInGameSpeed) * MapBlockSize;
+        ll := max(fOpponents[i].Obj.GetInGameSpeed, fOpponents[fOpponentIndexBuffer[j].Data].Obj.GetInGameSpeed) * MapBlockSize;
         ll := ll * delta / 1000;
         // Beide Auseinanderdrücken
         // Wenn 2 Gegner direkt hintereinander sind und der Vordere Stoppt, und sie in die Gleiche Richtung Wollen, dann
@@ -3467,19 +3542,20 @@ Begin
           fOpponents[i].Obj.Position.x := ox;
           fOpponents[i].Obj.Position.y := oy;
         End;
-        ox := fOpponents[j].Obj.Position.x;
-        oy := fOpponents[j].Obj.Position.y;
-        fOpponents[j].Obj.Position.x := fOpponents[j].Obj.Position.x - dx * ll - dy * ll;
-        fOpponents[j].Obj.Position.y := fOpponents[j].Obj.Position.y - dy * ll + dx * ll;
-        x := round(fOpponents[j].Obj.Position.x) Div MapBlockSize;
-        y := round(fOpponents[j].Obj.Position.y) Div MapBlockSize;
-        oh := FieldHeight[x, y, fOpponents[j].Obj.Owner, fOpponents[j].NextWayPoint];
+        ox := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x;
+        oy := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y;
+        fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x - dx * ll - dy * ll;
+        fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y - dy * ll + dx * ll;
+        x := round(fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x) Div MapBlockSize;
+        y := round(fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y) Div MapBlockSize;
+        oh := FieldHeight[x, y, fOpponents[fOpponentIndexBuffer[j].Data].Obj.Owner, fOpponents[fOpponentIndexBuffer[j].Data].NextWayPoint];
         If oh = Field_unreached Then Begin
-          fOpponents[j].Obj.Position.x := ox;
-          fOpponents[j].Obj.Position.y := oy;
+          fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x := ox;
+          fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y := oy;
         End;
       End;
     End;
+  End;
 End;
 
 Procedure TMap.CreateBullet(Const Target: TOpponent; Const Pos: TVector2;
@@ -3543,8 +3619,19 @@ Var
   k, i: Integer;
   p: Tvector2;
   tg: TOpponent;
+  e: TMoveOpponentQuadtree.TQuadTreeElement;
 Begin
   If FPausing Then exit;
+  // TODO: ggf auslagern ans ende von MoveOpponents, oder separat, falls der server in CreateFrame je mal die Reihenfolge ändert würde es sonst falsch werden.
+  // Aufbau des Quadtree's für Gettarget
+  fOpponentsQuadtree.Clear;
+  For i := 0 To high(fOpponents) Do Begin
+    If fOpponents[i].Alive Then Begin
+      e.Position := fOpponents[i].Obj.Position;
+      e.Data := i;
+      fOpponentsQuadtree.Add(e);
+    End;
+  End;
   For i := 0 To high(Fbuildings) Do Begin
     Fbuildings[i].Update(delta); // Falls das Gebäude erst noch gebaut werden muss..
     If (Fbuildings[i].fUpdating.State = usIdleInactive) And (Fbuildings[i].Stages[Fbuildings[i].Stage].range > 0) Then Begin
@@ -3704,7 +3791,7 @@ End;
 
 Procedure TMap.Start;
 Var
-  i: Integer;
+  i, j, cnt: Integer;
 Begin
   // Wir starten was neues, also alles alte vorher Platt machen
   setlength(fOpponents, 0);
@@ -3717,6 +3804,23 @@ Begin
     Fheroes[i].start;
   End;
   CalcWaypointFields();
+  // Reservieren des Speichers für die MoveOpponents
+  If assigned(fFlyingsQuadtree) Then fFlyingsQuadtree.free;
+  If assigned(fGroundsQuadtree) Then fGroundsQuadtree.free;
+  If assigned(fOpponentsQuadtree) Then fOpponentsQuadtree.free;
+  fFlyingsQuadtree := TMoveOpponentQuadtree.Create(QuadTreeRect(v2(-1, -1), v2(Width + 1, Height + 1)), 16);
+  fGroundsQuadtree := TMoveOpponentQuadtree.Create(QuadTreeRect(v2(-1, -1), v2(Width + 1, Height + 1)), 16);
+  fOpponentsQuadtree := TMoveOpponentQuadtree.Create(QuadTreeRect(v2(-1, -1), v2(Width + 1, Height + 1)), 16);
+  // Das ist definitiv zu viel aber doch eine untere obere Schranke ;)
+  cnt := 0;
+  MaxDimOpponents := ZeroV2();
+  For i := 0 To high(Waves) Do Begin
+    For j := 0 To high(Waves[i].Opponents) Do Begin
+      cnt := cnt + Waves[i].Opponents[j].Count * fMaxPlayer;
+    End;
+  End;
+  setlength(fOpponentIndexBuffer, cnt);
+  setlength(fGetTargetKandidats, cnt);
 End;
 
 Procedure TMap.GetMovingObjectsState(Const Stream: TSTream);
@@ -3726,7 +3830,7 @@ Var
   u32: uint32;
 Begin
   (*
-   * wird von TMap.UpdateMoveables ausgewertet
+   * wird von TMap.UpdateMoveables ausgewertet, was außerhalb FrameStart / FrameEnd ist und deswegen keine fOpponents[i].Alive Prüfung benötigt.
    *)
   // 1. Opponents
   u16 := length(fOpponents);
@@ -3816,7 +3920,6 @@ Function TMap.GetTarget(Const position: TVector2; Const Range: Single;
   Const Owner: tctd_mapopbject; Const SkipOP: TOpponent): TOpponent;
 
 Var
-  Kandidats: Array Of integer;
   KandidatsCount: integer;
 
   (*
@@ -3835,19 +3938,19 @@ Var
           // Den "kürzesten" präferierten
           s := high(integer); // Egal, wird unten richtig initialisiert aber der Compiler blickt das net
           For j := 0 To KandidatsCount - 1 Do Begin
-            If fOpponents[Kandidats[j]].Obj.Canfly = PreverAir Then Begin
+            If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
               If assigned(result) Then Begin
-                If s > fOpponents[Kandidats[j]].DistanzeToGoal Then Begin
-                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                    result := fOpponents[Kandidats[j]].Obj; // Der erste Fliegende Gegner
-                    s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If s > fOpponents[fGetTargetKandidats[j]].DistanzeToGoal Then Begin
+                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                    result := fOpponents[fGetTargetKandidats[j]].Obj; // Der erste Fliegende Gegner
+                    s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                   End;
                 End;
               End
               Else Begin
-                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                  result := fOpponents[Kandidats[j]].Obj; // Der erste Fliegende Gegner
-                  s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                  result := fOpponents[fGetTargetKandidats[j]].Obj; // Der erste Fliegende Gegner
+                  s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                 End;
               End;
             End;
@@ -3855,17 +3958,17 @@ Var
           If Not assigned(result) Then Begin // Haben keinen Präferierten gefunden =>  alle dürfen ran ;)
             For j := 0 To KandidatsCount - 1 Do Begin
               If assigned(result) Then Begin
-                If s > fOpponents[Kandidats[j]].DistanzeToGoal Then Begin
-                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                    result := fOpponents[Kandidats[j]].Obj;
-                    s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If s > fOpponents[fGetTargetKandidats[j]].DistanzeToGoal Then Begin
+                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                    result := fOpponents[fGetTargetKandidats[j]].Obj;
+                    s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                   End;
                 End;
               End
               Else Begin
-                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                  result := fOpponents[Kandidats[j]].Obj;
-                  s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                  result := fOpponents[fGetTargetKandidats[j]].Obj;
+                  s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                 End;
               End;
             End;
@@ -3875,19 +3978,19 @@ Var
           s := high(integer); // Egal, wird unten richtig initialisiert aber der Compiler blickt das net
           // Den "längsten" präferierten
           For j := 0 To KandidatsCount - 1 Do Begin
-            If fOpponents[Kandidats[j]].Obj.Canfly = PreverAir Then Begin
+            If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
               If assigned(result) Then Begin
-                If s < fOpponents[Kandidats[j]].DistanzeToGoal Then Begin
-                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                    result := fOpponents[Kandidats[j]].Obj; // Der erste Fliegende Gegner
-                    s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If s < fOpponents[fGetTargetKandidats[j]].DistanzeToGoal Then Begin
+                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                    result := fOpponents[fGetTargetKandidats[j]].Obj; // Der erste Fliegende Gegner
+                    s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                   End;
                 End;
               End
               Else Begin
-                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                  result := fOpponents[Kandidats[j]].Obj; // Der erste Fliegende Gegner
-                  s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                  result := fOpponents[fGetTargetKandidats[j]].Obj; // Der erste Fliegende Gegner
+                  s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                 End;
               End;
             End;
@@ -3895,17 +3998,17 @@ Var
           If Not assigned(result) Then Begin // Haben keinen Präferierten gefunden =>  alle dürfen ran ;)
             For j := 0 To KandidatsCount - 1 Do Begin
               If assigned(result) Then Begin
-                If s < fOpponents[Kandidats[j]].DistanzeToGoal Then Begin
-                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                    result := fOpponents[Kandidats[j]].Obj;
-                    s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If s < fOpponents[fGetTargetKandidats[j]].DistanzeToGoal Then Begin
+                  If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                    result := fOpponents[fGetTargetKandidats[j]].Obj;
+                    s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                   End;
                 End;
               End
               Else Begin
-                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                  result := fOpponents[Kandidats[j]].Obj;
-                  s := fOpponents[Kandidats[j]].DistanzeToGoal;
+                If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                  result := fOpponents[fGetTargetKandidats[j]].Obj;
+                  s := fOpponents[fGetTargetKandidats[j]].DistanzeToGoal;
                 End;
               End;
             End;
@@ -3914,30 +4017,30 @@ Var
       bsFarest: Begin
           // Suchen des 1. entsprechend der Präferierung
           For j := 1 To KandidatsCount - 1 Do Begin
-            If fOpponents[Kandidats[j]].Obj.Canfly = PreverAir Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                s := sqr(fOpponents[Kandidats[j]].Obj.Position.x + fOpponents[Kandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                  + sqr(fOpponents[Kandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
-                result := fOpponents[Kandidats[j]].Obj;
+            If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                s := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
+                  + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+                result := fOpponents[fGetTargetKandidats[j]].Obj;
                 break;
               End;
             End;
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
-              s := sqr(fOpponents[Kandidats[0]].Obj.Position.x + fOpponents[Kandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                + sqr(fOpponents[Kandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
-              result := fOpponents[Kandidats[0]].Obj;
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[0]].Obj.Owner = owner.Owner))) Then Begin
+              s := sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.x + fOpponents[fGetTargetKandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
+                + sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
+              result := fOpponents[fGetTargetKandidats[0]].Obj;
             End;
           End;
           For j := 1 To KandidatsCount - 1 Do Begin
-            t := sqr(fOpponents[Kandidats[j]].Obj.Position.x + fOpponents[Kandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-              + sqr(fOpponents[Kandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
-            If (s < t) And ((fOpponents[Kandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            t := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
+              + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+            If (s < t) And ((fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
                 s := t;
-                Result := fOpponents[Kandidats[j]].Obj;
+                Result := fOpponents[fGetTargetKandidats[j]].Obj;
               End;
             End;
           End;
@@ -3945,30 +4048,30 @@ Var
       bsNearest: Begin
           // Suchen des 1. entsprechend der Präferierung
           For j := 1 To KandidatsCount - 1 Do Begin
-            If fOpponents[Kandidats[j]].Obj.Canfly = PreverAir Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                s := sqr(fOpponents[Kandidats[j]].Obj.Position.x + fOpponents[Kandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                  + sqr(fOpponents[Kandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
-                result := fOpponents[Kandidats[j]].Obj;
+            If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                s := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
+                  + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+                result := fOpponents[fGetTargetKandidats[j]].Obj;
                 break;
               End;
             End;
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
-              s := sqr(fOpponents[Kandidats[0]].Obj.Position.x + fOpponents[Kandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                + sqr(fOpponents[Kandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
-              result := fOpponents[Kandidats[0]].Obj;
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[0]].Obj.Owner = owner.Owner))) Then Begin
+              s := sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.x + fOpponents[fGetTargetKandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
+                + sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
+              result := fOpponents[fGetTargetKandidats[0]].Obj;
             End;
           End;
           For j := 1 To KandidatsCount - 1 Do Begin
-            t := sqr(fOpponents[Kandidats[j]].Obj.Position.x + fOpponents[Kandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-              + sqr(fOpponents[Kandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[Kandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
-            If (s > t) And ((fOpponents[Kandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            t := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
+              + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+            If (s > t) And ((fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
                 s := t;
-                Result := fOpponents[Kandidats[j]].Obj;
+                Result := fOpponents[fGetTargetKandidats[j]].Obj;
               End;
             End;
           End;
@@ -3976,27 +4079,27 @@ Var
       bsStrongest: Begin
           // Suchen des 1. entsprechend der Präferierung
           For j := 1 To KandidatsCount - 1 Do Begin
-            If fOpponents[Kandidats[j]].Obj.Canfly = PreverAir Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                s := fOpponents[Kandidats[j]].Obj.LifePoints[0] + fOpponents[Kandidats[j]].Obj.LifePoints[1] + fOpponents[Kandidats[j]].Obj.LifePoints[2] + fOpponents[Kandidats[j]].Obj.LifePoints[3];
-                result := fOpponents[Kandidats[j]].Obj;
+            If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                s := fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[0] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[1] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[2] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[3];
+                result := fOpponents[fGetTargetKandidats[j]].Obj;
                 break;
               End;
             End;
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
-              s := fOpponents[Kandidats[0]].Obj.LifePoints[0] + fOpponents[Kandidats[0]].Obj.LifePoints[1] + fOpponents[Kandidats[0]].Obj.LifePoints[2] + fOpponents[Kandidats[0]].Obj.LifePoints[3];
-              result := fOpponents[Kandidats[0]].Obj;
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[0]].Obj.Owner = owner.Owner))) Then Begin
+              s := fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[0] + fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[1] + fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[2] + fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[3];
+              result := fOpponents[fGetTargetKandidats[0]].Obj;
             End;
           End;
           For j := 1 To KandidatsCount - 1 Do Begin
-            t := fOpponents[Kandidats[j]].Obj.LifePoints[0] + fOpponents[Kandidats[j]].Obj.LifePoints[1] + fOpponents[Kandidats[j]].Obj.LifePoints[2] + fOpponents[Kandidats[j]].Obj.LifePoints[3];
-            If (s < t) And ((fOpponents[Kandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            t := fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[0] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[1] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[2] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[3];
+            If (s < t) And ((fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
                 s := t;
-                Result := fOpponents[Kandidats[j]].Obj;
+                Result := fOpponents[fGetTargetKandidats[j]].Obj;
               End;
             End;
           End;
@@ -4004,40 +4107,40 @@ Var
       bsWeakest: Begin
           // Suchen des 1. entsprechend der Präferierung
           For j := 1 To KandidatsCount - 1 Do Begin
-            If fOpponents[Kandidats[j]].Obj.Canfly = PreverAir Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                s := fOpponents[Kandidats[j]].Obj.LifePoints[0] + fOpponents[Kandidats[j]].Obj.LifePoints[1] + fOpponents[Kandidats[j]].Obj.LifePoints[2] + fOpponents[Kandidats[j]].Obj.LifePoints[3];
-                result := fOpponents[Kandidats[j]].Obj;
+            If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+                s := fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[0] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[1] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[2] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[3];
+                result := fOpponents[fGetTargetKandidats[j]].Obj;
                 break;
               End;
             End;
           End;
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
-            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[0]].Obj.Owner = owner.Owner))) Then Begin
-              s := fOpponents[Kandidats[0]].Obj.LifePoints[0] + fOpponents[Kandidats[0]].Obj.LifePoints[1] + fOpponents[Kandidats[0]].Obj.LifePoints[2] + fOpponents[Kandidats[0]].Obj.LifePoints[3];
-              result := fOpponents[Kandidats[0]].Obj;
+            If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[0]].Obj.Owner = owner.Owner))) Then Begin
+              s := fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[0] + fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[1] + fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[2] + fOpponents[fGetTargetKandidats[0]].Obj.LifePoints[3];
+              result := fOpponents[fGetTargetKandidats[0]].Obj;
             End;
           End;
           For j := 1 To KandidatsCount - 1 Do Begin
-            t := fOpponents[Kandidats[j]].Obj.LifePoints[0] + fOpponents[Kandidats[j]].Obj.LifePoints[1] + fOpponents[Kandidats[j]].Obj.LifePoints[2] + fOpponents[Kandidats[j]].Obj.LifePoints[3];
-            If (s > t) And ((fOpponents[Kandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
-              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[Kandidats[j]].Obj.Owner = owner.Owner))) Then Begin
+            t := fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[0] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[1] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[2] + fOpponents[fGetTargetKandidats[j]].Obj.LifePoints[3];
+            If (s > t) And ((fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
+              If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
                 s := t;
-                Result := fOpponents[Kandidats[j]].Obj;
+                Result := fOpponents[fGetTargetKandidats[j]].Obj;
               End;
             End;
           End;
         End;
       bsRandom: Begin
-          Result := fOpponents[Kandidats[random(KandidatsCount)]].Obj;
+          Result := fOpponents[fGetTargetKandidats[random(KandidatsCount)]].Obj;
           If (OnlyOwnOpponents And (result.Owner <> owner.Owner)) Then Begin
             RKandidats := Nil;
-            setlength(RKandidats, length(Kandidats));
+            setlength(RKandidats, length(fGetTargetKandidats));
             RKandidatsCount := 0;
-            For j := 0 To high(Kandidats) Do Begin
-              If fOpponents[Kandidats[j]].Obj.Owner = owner.Owner Then Begin
-                RKandidats[RKandidatsCount] := Kandidats[j];
+            For j := 0 To high(fGetTargetKandidats) Do Begin
+              If fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner Then Begin
+                RKandidats[RKandidatsCount] := fGetTargetKandidats[j];
                 inc(RKandidatsCount);
               End;
             End;
@@ -4054,30 +4157,34 @@ Var
   End;
 Var
   RangeSquared: Single;
-  j, k: integer;
+  cnt, j, k: integer;
   bb, bool: Boolean;
+  r: TQuadTreeRect;
 Begin
   result := Nil;
   If range = 0 Then exit;
   // 1. Liste aller Gegner im Range suchen
   RangeSquared := sqr(Range);
   KandidatsCount := 0;
-  Kandidats := Nil;
-  setlength(Kandidats, length(fOpponents));
-  For j := 0 To high(fOpponents) Do Begin
-    If (SkipOP <> fOpponents[j].obj) And
-      (sqr(fOpponents[j].Obj.Position.x + fOpponents[j].Obj.SizeX * MapBlockSize / 2 - position.x - 0.5 * MapBlockSize)
-      + sqr(fOpponents[j].Obj.Position.y + fOpponents[j].Obj.Sizey * MapBlockSize / 2 - position.y) <= RangeSquared) Then Begin
+  // TODO: WTF: Warum Faktor 3, bei Faktor 2 gehts nicht, auch scheint die Erkennung unten noch buggy zu sein (siehe b_test karte)
+  r.TopLeft := position - 3 * MaxDimOpponents;
+  r.BottomRight := position + 3 * MaxDimOpponents;
+  fOpponentsQuadtree.Query2(r, @fOpponentIndexBuffer[0], cnt, length(fOpponentIndexBuffer));
+  For j := 0 To cnt - 1 Do Begin
+    If (SkipOP <> fOpponents[fOpponentIndexBuffer[j].data].obj) And
+      (fOpponents[fOpponentIndexBuffer[j].data].Alive) And
+      (sqr(fOpponents[fOpponentIndexBuffer[j].data].Obj.Position.x + fOpponents[fOpponentIndexBuffer[j].data].Obj.SizeX * MapBlockSize / 2 - position.x - 0.5 * MapBlockSize)
+      + sqr(fOpponents[fOpponentIndexBuffer[j].data].Obj.Position.y + fOpponents[fOpponentIndexBuffer[j].data].Obj.Sizey * MapBlockSize / 2 - position.y) <= RangeSquared) Then Begin
       bool := (SlowDown.slowdownstatic <> 1) Or (SlowDown.slowdowndynamic <> 1);
       If bool Then Begin // Wenn Slowdownschaden gemacht werden kann, dann schaun ob es sich noch lohnt.
-        bool := (fOpponents[j].Obj.isSlowing(Owner, bb) = -1); // True, wenn wir den Gegner noch nicht beschiesen
+        bool := (fOpponents[fOpponentIndexBuffer[j].data].Obj.isSlowing(Owner, bb) = -1); // True, wenn wir den Gegner noch nicht beschiesen
         bool := bool Or (Not bb); // Wenn wir ihn Beschießen, aber die Dynamic Zeit abgelaufen ist, kann er auch wieder beschossen werden.
       End;
       bool := bool Or (Earn > 0); // Wenn es Kohle gibt, lohnt es sich immer
       If Not bool Then Begin
         For k := 0 To 3 Do Begin
           // Das Gebäude ist in der Lage dem Gegner schaden zu zu fügen
-          If (fOpponents[j].Obj.LifePoints[k] > 0) And (power[k] > 0) Then Begin
+          If (fOpponents[fOpponentIndexBuffer[j].data].Obj.LifePoints[k] > 0) And (power[k] > 0) Then Begin
             bool := true;
             break;
           End;
@@ -4085,8 +4192,8 @@ Begin
       End;
       // Zur Sicherheit, ein bereits gestorbener Opponnent darf definitiv nicht zum Kandidaten werden.
       // Der Gegner kann potentiell Beschossen werden, also in die Liste der Kandidaten
-      If bool And ((fOpponents[j].Obj.LifePoints[0] > 0) Or (fOpponents[j].Obj.LifePoints[1] > 0) Or (fOpponents[j].Obj.LifePoints[2] > 0) Or (fOpponents[j].Obj.LifePoints[3] > 0)) Then Begin
-        Kandidats[KandidatsCount] := j;
+      If bool And ((fOpponents[fOpponentIndexBuffer[j].data].Obj.LifePoints[0] > 0) Or (fOpponents[fOpponentIndexBuffer[j].data].Obj.LifePoints[1] > 0) Or (fOpponents[fOpponentIndexBuffer[j].data].Obj.LifePoints[2] > 0) Or (fOpponents[fOpponentIndexBuffer[j].data].Obj.LifePoints[3] > 0)) Then Begin
+        fGetTargetKandidats[KandidatsCount] := fOpponentIndexBuffer[j].data;
         inc(KandidatsCount);
       End;
     End;

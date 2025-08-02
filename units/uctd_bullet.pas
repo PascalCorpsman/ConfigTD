@@ -62,7 +62,7 @@ Type
      *  3 = Beide haben es nicht überlebt
      *  4 = wir haben zwar noch Power, können aber an diesem Gegner nichts mehr ausrichten
      *)
-    Function Update(delta: int64; Const Opponents: TOpponentInfoArray): integer;
+    Function Update(delta: int64; Const Opponents: TOpponentInfoArray): integer; // TODO: Warum sieht das der Client ??
     Procedure GetMovingState(Const Stream: TSTream);
   End;
 
@@ -141,7 +141,7 @@ Begin
     For j := 0 To high(Opponents) Do Begin
       dx := (Opponents[j].Obj.Position.x + Opponents[j].Obj.SizeX * MapBlockSize / 2) - Position.x;
       dy := (Opponents[j].Obj.Position.y + Opponents[j].Obj.Sizey * MapBlockSize / 2) - Position.y;
-      If sqr(dx) + sqr(dy) <= l Then Begin
+      If (sqr(dx) + sqr(dy) <= l) {$IFDEF SERVER}And (Opponents[j].Alive){$ENDIF}    Then Begin
         bool := (Opponents[j].Obj.isSlowing(Owner, bb) = -1); // True, wenn wir den Gegner noch nicht beschiesen
         bool := bool Or (Not bb); // Wenn wir ihn Beschießen, aber die Dynamic Zeit abgelaufen ist, kann er auch wieder beschossen werden.
         // Wenn der Bullet dem Gegner einen Schaden zuführen kann, nur dann wählen wir ihn als Target
