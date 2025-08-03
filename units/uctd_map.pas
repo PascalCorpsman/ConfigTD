@@ -2594,6 +2594,7 @@ Procedure TMap.RenderPreview(x, y, w, h, sx, sy, mw, mh: integer;
 Var
   t, l, b, r: Single;
 Begin
+  if not assigned(fTerrain) then exit;
   glColor4f(1, 1, 1, 1);
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
