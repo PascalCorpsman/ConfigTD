@@ -1722,7 +1722,7 @@ Begin
     stream.Read(x, sizeof(x));
     stream.Read(y, sizeof(y));
 
-    b := fmap.GetObjUnderCursor(x * MapBlockSize, y * MapBlockSize);
+    b := fmap.GetObjUnderCursor(x, y);
     If (Not assigned(b)) Or (Not (b Is TBuilding)) Then Begin
       log(format('Could not locate a building on %d/%d', [x, y]), llWarning);
       LogLeave;
@@ -1772,7 +1772,7 @@ Begin
     y := -1;
     stream.Read(x, sizeof(x));
     stream.Read(y, sizeof(y));
-    b := fmap.GetObjUnderCursor(x * MapBlockSize, y * MapBlockSize);
+    b := fmap.GetObjUnderCursor(x, y);
     If (Not assigned(b)) Or (Not (b Is TBuilding)) Then Begin
       log(format('Could not locate a building on %d/%d', [x, y]), llWarning);
       LogLeave;

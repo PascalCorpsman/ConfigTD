@@ -1723,8 +1723,8 @@ Begin
 {$ENDIF}
 {$IFDEF Server}
   For i := high(fOpponents) Downto 0 Do Begin
-    xx := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
-    yy := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
+    xx := round(fOpponents[i].Obj.Position.x);
+    yy := round(fOpponents[i].Obj.Position.y);
     If (Not fOpponents[i].Obj.Canfly) And (fOpponents[i].Alive) And // Nur Bodeneinheiten dürfen blockieren
     (
       (xx >= x) And (xx < x + building.Width) And
@@ -3300,12 +3300,12 @@ Begin
     If fOpponents[i].Obj.Canfly Then Begin
       // Fliegende Gegner sind deutlich einfacher ;)
       // 1. Suchen des "kürzesten" Wegpunktes im WegpunktFeld
-      wx := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[0].x * MapBlockSize;
-      wy := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[0].y * MapBlockSize;
+      wx := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[0].x;
+      wy := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[0].y;
       ll := sqr(wx - fOpponents[i].Obj.Position.x) + sqr(wy - fOpponents[i].Obj.Position.y);
       For j := 1 To high(Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field) Do Begin
-        xx := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[j].x * MapBlockSize;
-        yy := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[j].Y * MapBlockSize;
+        xx := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[j].x;
+        yy := Waypoints[fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint].Field[j].Y;
         l := sqr(xx - fOpponents[i].Obj.Position.x) + sqr(yy - fOpponents[i].Obj.Position.y);
         If l < ll Then Begin
           ll := l;
@@ -3326,7 +3326,7 @@ Begin
       dx := dx / l;
       dy := dy / l;
       // 5. Berechnen der Schaffbaren Wegstrecke, bei der Geschwindigkeit die unser Opponent hat
-      ll := fOpponents[i].Obj.GetInGameSpeed * MapBlockSize; // MapBlockSize Pro Sekunde
+      ll := fOpponents[i].Obj.GetInGameSpeed; // MapBlockSize Pro Sekunde
       ll := ll * delta / 1000; // Pixel in der Vergangenen Zeit.
       // 6. Wenn wir übers Ziel hinausschießen würden (weil der Benutzer den Opponent zu schnell gemacht hat
       If ll > l Then ll := l;
@@ -3342,17 +3342,17 @@ Begin
       e.Data := i;
       fFlyingsQuadtree.Add(e);
       // Haben wir den Wegpunkt ereicht ?
-      x := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
-      y := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
+      x := round(fOpponents[i].Obj.Position.x);
+      y := round(fOpponents[i].Obj.Position.y);
       // 9. Berechnen der "Reststrecke" zum Ziel
       fOpponents[i].DistanzeToGoal := l; // Die Wegstrecke zum Nächsten Wegpunkt
       // 9.1 Aufaddieren aller Wegstrecken die nach dem Wegpunkt noch kommen
       For j := fOpponents[i].NextWayPoint To high(Waypoints[fOpponents[i].Obj.Owner]) - 1 Do Begin
         // Distanz zwischen Wegpunkt j und j +1
-        wx := Waypoints[fOpponents[i].Obj.Owner, j].Point.x * MapBlockSize;
-        wy := Waypoints[fOpponents[i].Obj.Owner, j].Point.y * MapBlockSize;
-        dx := Waypoints[fOpponents[i].Obj.Owner, j + 1].Point.x * MapBlockSize;
-        dy := Waypoints[fOpponents[i].Obj.Owner, j + 1].Point.y * MapBlockSize;
+        wx := Waypoints[fOpponents[i].Obj.Owner, j].Point.x;
+        wy := Waypoints[fOpponents[i].Obj.Owner, j].Point.y;
+        dx := Waypoints[fOpponents[i].Obj.Owner, j + 1].Point.x;
+        dy := Waypoints[fOpponents[i].Obj.Owner, j + 1].Point.y;
         dx := dx - wx;
         dy := dy - wy;
         // Aufaddieren aller Wegpunkt distanzen
@@ -3376,8 +3376,8 @@ Begin
     End
     Else Begin // Auf dem Boden Laufende Gegner
       // Wir befinden uns auf dieser Kachel
-      x := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
-      y := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
+      x := round(fOpponents[i].Obj.Position.x);
+      y := round(fOpponents[i].Obj.Position.y);
       oh := FieldHeight[x, y, fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint];
       ah := oh;
       If oh = 0 Then Begin // Wir haben den Wegpunkt Erreicht, nächsten anvisieren
@@ -3441,8 +3441,6 @@ Begin
       End;
       // Nun, da wir Wissen wohin wir wollen lassen wir die Figur bewegen
       // 1. Bestimmen der Zielkoordinaten
-      wx := wx * MapBlockSize;
-      wy := wy * MapBlockSize;
       // 2. berechnen Der Wegdifferenz die eszu gehen geht
       dx := wx - fOpponents[i].Obj.Position.x;
       dy := wy - fOpponents[i].Obj.Position.y;
@@ -3453,7 +3451,7 @@ Begin
       dx := dx / l;
       dy := dy / l;
       // 5. Berechnen der Schaffbaren Wegstrecke, bei der Geschwindigkeit die unser Opponent hat
-      ll := fOpponents[i].Obj.GetInGameSpeed * MapBlockSize; // MapBlockSize Pro Sekunde
+      ll := fOpponents[i].Obj.GetInGameSpeed; // MapBlockSize Pro Sekunde
       ll := ll * delta / 1000; // Pixel in der Vergangenen Zeit.
       // 6. Wenn wir übers Ziel hinausschießen würden (weil der Benutzer den Opponent zu schnell gemacht hat
       If ll > l Then ll := l;
@@ -3479,8 +3477,8 @@ Begin
         fOpponents[i].DistanzeToGoal := fOpponents[i].DistanzeToGoal + oh;
       End;
       // Prüfen ob wir den Gegner nicht ausversehen in eine nicht begehbare Kachel geschoben haben
-      x := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
-      y := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
+      x := round(fOpponents[i].Obj.Position.x);
+      y := round(fOpponents[i].Obj.Position.y);
       oh := FieldHeight[x, y, fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint];
       If oh = Field_unreached Then Begin // Wir sind Diagonal auf ein Nicht begehbares Feld gelaufen
         fOpponents[i].NextTimeNoDiagWalk := true;
@@ -3492,7 +3490,7 @@ Begin
       // Wieder Abschalten des Diagonal-SperrModus
       If fOpponents[i].NextTimeNoDiagWalk Then Begin
         // Wir sind mindestens eine Kachelbreite von dem Problematischen Punkt entfernt
-        If sqr(MapBlockSize) <= sqr(fOpponents[i].Obj.Position.x - fOpponents[i].NextTimeNoDiagWalkPos.x) + sqr(fOpponents[i].Obj.Position.y - fOpponents[i].NextTimeNoDiagWalkPos.y) Then Begin
+        If 1 <= sqr(fOpponents[i].Obj.Position.x - fOpponents[i].NextTimeNoDiagWalkPos.x) + sqr(fOpponents[i].Obj.Position.y - fOpponents[i].NextTimeNoDiagWalkPos.y) Then Begin
           fOpponents[i].NextTimeNoDiagWalk := false;
         End;
       End;
@@ -3524,7 +3522,7 @@ Begin
         If (dx = 0) And (dy = 0) Then dx := 0.1; // stehen die beiden Gegner exakt aufeinander, dann nehmen wir hier "Künstlich" eine Distanz an.
         dx := dx / l;
         dy := dy / l;
-        ll := max(fOpponents[i].Obj.GetInGameSpeed, fOpponents[fOpponentIndexBuffer[j].Data].Obj.GetInGameSpeed) * MapBlockSize;
+        ll := max(fOpponents[i].Obj.GetInGameSpeed, fOpponents[fOpponentIndexBuffer[j].Data].Obj.GetInGameSpeed);
         ll := ll * delta / 1000;
         // Beide Auseinanderdrücken
         // Wenn 2 Gegner direkt hintereinander sind und der Vordere Stoppt, und sie in die Gleiche Richtung Wollen, dann
@@ -3535,8 +3533,8 @@ Begin
         fOpponents[i].Obj.Position.x := fOpponents[i].Obj.Position.x + dx * ll + dy * ll * 0.5;
         fOpponents[i].Obj.Position.y := fOpponents[i].Obj.Position.y + dy * ll - dx * ll * 0.5;
         // Prüfen ob wir den Gegner nicht ausversehen in eine nicht begehbare Kachel geschoben haben
-        x := round(fOpponents[i].Obj.Position.x) Div MapBlockSize;
-        y := round(fOpponents[i].Obj.Position.y) Div MapBlockSize;
+        x := round(fOpponents[i].Obj.Position.x);
+        y := round(fOpponents[i].Obj.Position.y);
         oh := FieldHeight[x, y, fOpponents[i].Obj.Owner, fOpponents[i].NextWayPoint];
         If oh = Field_unreached Then Begin
           fOpponents[i].Obj.Position.x := ox;
@@ -3546,8 +3544,8 @@ Begin
         oy := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y;
         fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x - dx * ll - dy * ll;
         fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y := fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y - dy * ll + dx * ll;
-        x := round(fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x) Div MapBlockSize;
-        y := round(fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y) Div MapBlockSize;
+        x := round(fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x);
+        y := round(fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.y);
         oh := FieldHeight[x, y, fOpponents[fOpponentIndexBuffer[j].Data].Obj.Owner, fOpponents[fOpponentIndexBuffer[j].Data].NextWayPoint];
         If oh = Field_unreached Then Begin
           fOpponents[fOpponentIndexBuffer[j].Data].Obj.Position.x := ox;
@@ -3573,8 +3571,8 @@ Begin
   If aOwner Is TBuilding Then Begin
     b := tBuilding(aOwner);
     FBullets[high(FBullets)].RenderIndex := b.Stages[b.Stage].fbulletimage;
-    FBullets[high(FBullets)].Width := b.Stages[b.Stage].bulletw * MapBlockSize;
-    FBullets[high(FBullets)].Height := b.Stages[b.Stage].bulleth * MapBlockSize;
+    FBullets[high(FBullets)].Width := b.Stages[b.Stage].bulletw;
+    FBullets[high(FBullets)].Height := b.Stages[b.Stage].bulleth;
     FBullets[high(FBullets)].Speed := b.Stages[b.Stage].bulletspeed;
     FBullets[high(FBullets)].Power[0] := b.Stages[b.Stage].bulletpower[0];
     FBullets[high(FBullets)].Power[1] := b.Stages[b.Stage].bulletpower[1];
@@ -3592,8 +3590,8 @@ Begin
     If aOwner Is tHero Then Begin
       h := THero(aOwner);
       FBullets[high(FBullets)].RenderIndex := h.Levels[h.Level].fbulletimage;
-      FBullets[high(FBullets)].Width := h.Levels[h.Level].bulletw * MapBlockSize;
-      FBullets[high(FBullets)].Height := h.Levels[h.Level].bulleth * MapBlockSize;
+      FBullets[high(FBullets)].Width := h.Levels[h.Level].bulletw;
+      FBullets[high(FBullets)].Height := h.Levels[h.Level].bulleth;
       FBullets[high(FBullets)].Speed := h.Levels[h.Level].bulletspeed;
       FBullets[high(FBullets)].Power[0] := h.Levels[h.Level].bulletpower[0];
       FBullets[high(FBullets)].Power[1] := h.Levels[h.Level].bulletpower[1];
@@ -4019,8 +4017,8 @@ Var
           For j := 1 To KandidatsCount - 1 Do Begin
             If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
               If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                s := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                  + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+                s := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX / 2 - position.x)
+                  + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey / 2 - position.y);
                 result := fOpponents[fGetTargetKandidats[j]].Obj;
                 break;
               End;
@@ -4029,14 +4027,14 @@ Var
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
             If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[0]].Obj.Owner = owner.Owner))) Then Begin
-              s := sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.x + fOpponents[fGetTargetKandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                + sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
+              s := sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.x + fOpponents[fGetTargetKandidats[0]].Obj.SizeX / 2 - position.x)
+                + sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[0]].Obj.Sizey / 2 - position.y);
               result := fOpponents[fGetTargetKandidats[0]].Obj;
             End;
           End;
           For j := 1 To KandidatsCount - 1 Do Begin
-            t := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-              + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+            t := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX / 2 - position.x)
+              + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey / 2 - position.y);
             If (s < t) And ((fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
               If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
                 s := t;
@@ -4050,8 +4048,8 @@ Var
           For j := 1 To KandidatsCount - 1 Do Begin
             If fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir Then Begin
               If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
-                s := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                  + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+                s := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX / 2 - position.x)
+                  + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey / 2 - position.y);
                 result := fOpponents[fGetTargetKandidats[j]].Obj;
                 break;
               End;
@@ -4060,14 +4058,14 @@ Var
           NoPrev := Not assigned(result); // True, wenn es keine Präverierten Einheiten gibt.
           If Not assigned(result) Then Begin // Wenns keinen Fliegenden Gab dann den 1. anwählen
             If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[0]].Obj.Owner = owner.Owner))) Then Begin
-              s := sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.x + fOpponents[fGetTargetKandidats[0]].Obj.SizeX * MapBlockSize / 2 - position.x)
-                + sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[0]].Obj.Sizey * MapBlockSize / 2 - position.y);
+              s := sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.x + fOpponents[fGetTargetKandidats[0]].Obj.SizeX / 2 - position.x)
+                + sqr(fOpponents[fGetTargetKandidats[0]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[0]].Obj.Sizey / 2 - position.y);
               result := fOpponents[fGetTargetKandidats[0]].Obj;
             End;
           End;
           For j := 1 To KandidatsCount - 1 Do Begin
-            t := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX * MapBlockSize / 2 - position.x)
-              + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey * MapBlockSize / 2 - position.y);
+            t := sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.x + fOpponents[fGetTargetKandidats[j]].Obj.SizeX / 2 - position.x)
+              + sqr(fOpponents[fGetTargetKandidats[j]].Obj.Position.y + MapBlockSize + fOpponents[fGetTargetKandidats[j]].Obj.Sizey / 2 - position.y);
             If (s > t) And ((fOpponents[fGetTargetKandidats[j]].Obj.Canfly = PreverAir) Or NoPrev) Then Begin
               If ((Not OnlyOwnOpponents) Or (OnlyOwnOpponents And (fOpponents[fGetTargetKandidats[j]].Obj.Owner = owner.Owner))) Then Begin
                 s := t;
@@ -4173,8 +4171,8 @@ Begin
   For j := 0 To cnt - 1 Do Begin
     If (SkipOP <> fOpponents[fOpponentIndexBuffer[j].data].obj) And
       (fOpponents[fOpponentIndexBuffer[j].data].Alive) And
-      (sqr(fOpponents[fOpponentIndexBuffer[j].data].Obj.Position.x + fOpponents[fOpponentIndexBuffer[j].data].Obj.SizeX * MapBlockSize / 2 - position.x - 0.5 * MapBlockSize)
-      + sqr(fOpponents[fOpponentIndexBuffer[j].data].Obj.Position.y + fOpponents[fOpponentIndexBuffer[j].data].Obj.Sizey * MapBlockSize / 2 - position.y) <= RangeSquared) Then Begin
+      (sqr(fOpponents[fOpponentIndexBuffer[j].data].Obj.Position.x + fOpponents[fOpponentIndexBuffer[j].data].Obj.SizeX / 2 - position.x - 0.5)
+      + sqr(fOpponents[fOpponentIndexBuffer[j].data].Obj.Position.y + fOpponents[fOpponentIndexBuffer[j].data].Obj.Sizey / 2 - position.y) <= RangeSquared) Then Begin
       bool := (SlowDown.slowdownstatic <> 1) Or (SlowDown.slowdowndynamic <> 1);
       If bool Then Begin // Wenn Slowdownschaden gemacht werden kann, dann schaun ob es sich noch lohnt.
         bool := (fOpponents[fOpponentIndexBuffer[j].data].Obj.isSlowing(Owner, bb) = -1); // True, wenn wir den Gegner noch nicht beschiesen
@@ -4581,8 +4579,8 @@ Begin
     If (fheroes[i].Level >= 0) And (fheroes[i].targetpos.x <> -1) And (fheroes[i].targetpos.y <> -1) Then Begin
       // Fliegende Gegner sind deutlich einfacher ;)
       // 1. Suchen des "kürzesten" Wegpunktes im WegpunktFeld
-      wx := fheroes[i].targetpos.x * MapBlockSize;
-      wy := fheroes[i].targetpos.y * MapBlockSize;
+      wx := fheroes[i].targetpos.x;
+      wy := fheroes[i].targetpos.y;
       // Offset für die Level Textur mit Rein Rechnen
       wx := wx - fheroes[i].Levels[fheroes[i].Level].w / 2;
       wy := wy - 1 + fheroes[i].Levels[fheroes[i].Level].h / 2;
@@ -4598,7 +4596,7 @@ Begin
       dx := dx / l;
       dy := dy / l;
       // 5. Berechnen der Schaffbaren Wegstrecke, bei der Geschwindigkeit die unser Opponent hat
-      ll := fheroes[i].levels[fheroes[i].level].Speed * MapBlockSize; // MapBlockSize Pro Sekunde
+      ll := fheroes[i].levels[fheroes[i].level].Speed; // MapBlockSize Pro Sekunde
       ll := ll * delta / 1000; // Pixel in der Vergangenen Zeit.
       // 6. Wenn wir übers Ziel hinausschießen würden (weil der Benutzer den Opponent zu schnell gemacht hat
       If ll > l Then ll := l;
@@ -4630,7 +4628,7 @@ Begin
         If (dx = 0) And (dy = 0) Then dx := 0.1; // stehen die beiden Gegner exakt aufeinander, dann nehmen wir hier "Künstlich" eine Distanz an.
         dx := dx / l;
         dy := dy / l;
-        ll := max(fHeroes[i].Levels[fHeroes[i].Level].Speed, fHeroes[j].levels[fHeroes[j].level].Speed) * MapBlockSize;
+        ll := max(fHeroes[i].Levels[fHeroes[i].Level].Speed, fHeroes[j].levels[fHeroes[j].level].Speed);
         ll := ll * delta / 1000;
         // Beide Auseinanderdrücken
         // Wenn 2 Gegner direkt hintereinander sind und der Vordere Stoppt, und sie in die Gleiche Richtung Wollen, dann

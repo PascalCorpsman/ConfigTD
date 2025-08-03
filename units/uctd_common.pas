@@ -430,7 +430,7 @@ Type
 
 {$IFDEF Server}
 Const
-  MapBlockSize = 1; // TODO: Entfernen dieser Variable, der Server braucht die nicht die Kostet Rechenzeit ! (entfernen durch erst umbenennen, dann schaun ob der client noch baut, dann raus)
+  MapBlockSize = 1; // TODO: Entfernen dieser Variable, der Server braucht die nicht die Kostet Rechenzeit ! Alle noch verbleibende "Reste" scheinen nicht sauber zwischen Client und Server zu unterscheiden ..
   SpawnGrid = 0.6; // Grid nach welchem TOpponents beim Spawning angeordnet werden
   MinDistanceBetweenOpponents = 0.6; // Mindestabstand zwischen 2 Oppoents
   MinDistanceBetweenHeroes = 2; // Mindestabstand zwischen 2 Helden
