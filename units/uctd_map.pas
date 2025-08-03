@@ -2594,7 +2594,7 @@ Procedure TMap.RenderPreview(x, y, w, h, sx, sy, mw, mh: integer;
 Var
   t, l, b, r: Single;
 Begin
-  if not assigned(fTerrain) then exit;
+  If Not assigned(fTerrain) Then exit;
   glColor4f(1, 1, 1, 1);
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
@@ -3812,7 +3812,7 @@ Begin
   fOpponentsQuadtree := TMoveOpponentQuadtree.Create(QuadTreeRect(v2(-1, -1), v2(Width + 1, Height + 1)), 16);
   // Das ist definitiv zu viel aber doch eine untere obere Schranke ;)
   cnt := 0;
-  MaxDimOpponents := ZeroV2();
+  MaxDimOpponents := V2(1, 1);
   For i := 0 To high(Waves) Do Begin
     For j := 0 To high(Waves[i].Opponents) Do Begin
       cnt := cnt + Waves[i].Opponents[j].Count * fMaxPlayer;
@@ -4165,9 +4165,9 @@ Begin
   // 1. Liste aller Gegner im Range suchen
   RangeSquared := sqr(Range);
   KandidatsCount := 0;
-  // TODO: WTF: Warum Faktor 3, bei Faktor 2 gehts nicht, auch scheint die Erkennung unten noch buggy zu sein (siehe b_test karte)
-  r.TopLeft := position - 3 * MaxDimOpponents;
-  r.BottomRight := position + 3 * MaxDimOpponents;
+  // Den Kartenbereich als Rechteck, für den Gegner in Betracht gezogen werden müssen ..
+  r.TopLeft := position - v2(Range, Range) - MaxDimOpponents;
+  r.BottomRight := position + v2(Range, Range) + MaxDimOpponents;
   fOpponentsQuadtree.Query2(r, @fOpponentIndexBuffer[0], cnt, length(fOpponentIndexBuffer));
   For j := 0 To cnt - 1 Do Begin
     If (SkipOP <> fOpponents[fOpponentIndexBuffer[j].data].obj) And
