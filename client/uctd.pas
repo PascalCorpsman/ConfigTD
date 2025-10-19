@@ -761,15 +761,14 @@ Procedure TCTDDualinfoField.OnRender;
 Const
   Border = 2;
 Begin
+  glBindTexture(GL_TEXTURE_2D, 0);
   If DarkMode Then Begin
     glColor4f(0, 0, 0, 0);
-    OpenGL_ASCII_Font.Color := clGray;
   End
   Else Begin
     glColor4f(1, 1, 1, 0);
-    OpenGL_ASCII_Font.Color := clBlack;
   End;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  OpenGL_ASCII_Font.Color := clGray;
   glPushMatrix;
   glTranslatef(left, top, ctd_Tipp_Layer + 2 * Epsilon);
   glBegin(GL_QUADS);
@@ -799,15 +798,14 @@ Procedure TCTDinfofield.OnRender();
 Const
   Border = 2;
 Begin
+  glBindTexture(GL_TEXTURE_2D, 0);
   If DarkMode Then Begin
     glColor4f(0, 0, 0, 0);
-    OpenGL_ASCII_Font.Color := clGray;
   End
   Else Begin
     glColor4f(1, 1, 1, 0);
-    OpenGL_ASCII_Font.Color := clBlack;
   End;
-  glBindTexture(GL_TEXTURE_2D, 0);
+  OpenGL_ASCII_Font.Color := clGray;
   glPushMatrix;
   glTranslatef(left, top, ctd_Tipp_Layer + 2 * Epsilon);
   glBegin(GL_QUADS);

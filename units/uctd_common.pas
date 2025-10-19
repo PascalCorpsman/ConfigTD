@@ -132,7 +132,7 @@ Const
    *                      FIX: Player Waypoint rendering
    *                      FIX: Switch to delta frame calculation instead of getTick frame calculation
    *                           Reduce Speedup in CPU-Overload situations
-   *            0.14001 = 
+   *            0.14001 = FIX: info font color in white mode (not readable)
    * Known Bugs :
    *)
   (*
