@@ -1452,6 +1452,7 @@ Begin
   form5.CheckBox11.Checked := GetValue('Global', 'ShowWaveOppHint', '1') = '1';
   form5.CheckBox12.Checked := GetValue('Global', 'ShowHeroRanges', '1') = '1';
   form5.CheckBox13.Checked := GetValue('Global', 'DarkMode', '1') = '1';
+  form5.CheckBox14.Checked := GetValue('Global', 'ShowOppoentsPathOnWaveStart', '1') = '1';
 
   form5.Edit1.text := GetValue('Global', 'MapBlockSize', inttostr(MapBlockSize));
   form5.Edit2.text := GetValue('Global', 'AutoNextWaveDelay', '10');

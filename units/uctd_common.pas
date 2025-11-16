@@ -133,6 +133,7 @@ Const
    *                      FIX: Switch to delta frame calculation instead of getTick frame calculation
    *                           Reduce Speedup in CPU-Overload situations
    *            0.14001 = FIX: info font color in white mode (not readable)
+   *            0.14002 = ADD: Feature Show Opponent Waypoints on Wave Start
    * Known Bugs :
    *)
   (*
@@ -140,7 +141,7 @@ Const
    * prüfen die beiden das, der Server Verweigert das Connecten, bei Ungleicher Nummer !
    *)
   ProtocollVersion: uint32 = 14; // Die Protocollversion zwischen Server und Client \ Protocollversion ist immer = trunc(Version * 100) !!!
-  Version = '0.14001'; // Die Versionsnummer die sich Server und Client Teilen      /
+  Version = '0.14002'; // Die Versionsnummer die sich Server und Client Teilen      /
   FileVersion: uint32 = 1; // Die Dateiversion zum Speichern / Laden von Savegames, hat nichts mit der ProtocollVersion zu tun..
 
   defCaption = 'Config TD ver. ' + version

@@ -1,13 +1,13 @@
 object Form5: TForm5
   Left = 347
-  Height = 494
+  Height = 518
   Top = 111
   Width = 524
   Caption = 'Form5'
-  ClientHeight = 494
+  ClientHeight = 518
   ClientWidth = 524
   Position = poScreenCenter
-  LCLVersion = '3.99.0.0'
+  LCLVersion = '4.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
@@ -15,14 +15,14 @@ object Form5: TForm5
     Left = 8
     Height = 22
     Top = 8
-    Width = 157
+    Width = 155
     Caption = 'Invert mouse scrolling'
     TabOrder = 0
   end
   object Button1: TButton
     Left = 8
     Height = 25
-    Top = 457
+    Top = 481
     Width = 227
     Caption = 'OK'
     TabOrder = 1
@@ -31,7 +31,7 @@ object Form5: TForm5
   object Button2: TButton
     Left = 286
     Height = 25
-    Top = 457
+    Top = 481
     Width = 227
     Caption = 'Cancel'
     TabOrder = 2
@@ -41,7 +41,7 @@ object Form5: TForm5
     Left = 8
     Height = 22
     Top = 56
-    Width = 178
+    Width = 177
     Caption = 'Start next wave each [sec]'
     Checked = True
     State = cbChecked
@@ -52,7 +52,7 @@ object Form5: TForm5
     Left = 8
     Height = 22
     Top = 80
-    Width = 204
+    Width = 201
     Caption = 'Always show creeps lifepoints'
     TabOrder = 4
   end
@@ -100,28 +100,28 @@ object Form5: TForm5
       Left = 8
       Height = 16
       Top = 80
-      Width = 56
+      Width = 54
       Caption = 'Walkable'
     end
     object Label3: TLabel
       Left = 8
       Height = 16
       Top = 113
-      Width = 58
+      Width = 55
       Caption = 'Buildable'
     end
     object Label4: TLabel
       Left = 8
       Height = 16
       Top = 148
-      Width = 30
+      Width = 29
       Caption = 'Both'
     end
     object CheckBox7: TCheckBox
       Left = 8
       Height = 22
       Top = 8
-      Width = 182
+      Width = 181
       Caption = 'disable background image'
       TabOrder = 3
     end
@@ -178,14 +178,14 @@ object Form5: TForm5
       Left = 8
       Height = 16
       Top = 52
-      Width = 55
+      Width = 56
       Caption = 'Damages'
     end
     object Label7: TLabel
       Left = 8
       Height = 16
       Top = 84
-      Width = 44
+      Width = 43
       Caption = 'Broken'
     end
   end
@@ -193,21 +193,21 @@ object Form5: TForm5
     Left = 8
     Height = 22
     Top = 104
-    Width = 213
+    Width = 212
     Caption = 'Show building range on hinting'
     TabOrder = 7
   end
   object Label9: TLabel
     Left = 8
     Height = 16
-    Top = 368
-    Width = 59
+    Top = 392
+    Width = 58
     Caption = 'Grid color'
   end
   object ColorBox8: TColorBox
     Left = 143
     Height = 26
-    Top = 358
+    Top = 382
     Width = 100
     ItemHeight = 16
     TabOrder = 8
@@ -215,14 +215,14 @@ object Form5: TForm5
   object Label10: TLabel
     Left = 8
     Height = 16
-    Top = 394
-    Width = 123
+    Top = 418
+    Width = 120
     Caption = 'Building range color'
   end
   object ColorBox9: TColorBox
     Left = 143
     Height = 26
-    Top = 384
+    Top = 408
     Width = 100
     ItemHeight = 16
     TabOrder = 9
@@ -239,7 +239,7 @@ object Form5: TForm5
   object CheckBox6: TCheckBox
     Left = 8
     Height = 22
-    Top = 232
+    Top = 256
     Width = 79
     Caption = 'Show fps'
     TabOrder = 11
@@ -247,7 +247,7 @@ object Form5: TForm5
   object GroupBox3: TGroupBox
     Left = 8
     Height = 72
-    Top = 284
+    Top = 308
     Width = 241
     Caption = ' Map block size '
     ClientHeight = 55
@@ -257,7 +257,7 @@ object Form5: TForm5
       Left = 8
       Height = 16
       Top = 28
-      Width = 33
+      Width = 31
       Caption = 'value'
     end
     object Edit1: TEdit
@@ -272,7 +272,7 @@ object Form5: TForm5
       Left = 8
       Height = 22
       Top = 0
-      Width = 188
+      Width = 186
       Caption = 'Change on ctrl mousescroll'
       TabOrder = 1
     end
@@ -281,7 +281,7 @@ object Form5: TForm5
     Left = 8
     Height = 22
     Top = 160
-    Width = 241
+    Width = 239
     Caption = 'Show other players buildings darker'
     Checked = True
     State = cbChecked
@@ -313,7 +313,7 @@ object Form5: TForm5
     Left = 8
     Height = 22
     Top = 184
-    Width = 254
+    Width = 252
     Caption = 'Show buildable tiles during placement'
     TabOrder = 15
   end
@@ -329,7 +329,7 @@ object Form5: TForm5
   object ScrollBar1: TScrollBar
     Left = 80
     Height = 14
-    Top = 424
+    Top = 448
     Width = 121
     Max = 30
     PageSize = 0
@@ -339,22 +339,22 @@ object Form5: TForm5
   object Label12: TLabel
     Left = 8
     Height = 16
-    Top = 422
-    Width = 58
+    Top = 446
+    Width = 57
     Caption = 'Fontscale'
   end
   object Label13: TLabel
     Left = 216
     Height = 16
-    Top = 422
-    Width = 49
+    Top = 446
+    Width = 48
     Caption = 'Label13'
   end
   object CheckBox11: TCheckBox
     Left = 8
     Height = 22
     Top = 207
-    Width = 262
+    Width = 260
     Caption = 'Show wave opponent hint on new wave'
     TabOrder = 18
   end
@@ -369,9 +369,17 @@ object Form5: TForm5
   object CheckBox13: TCheckBox
     Left = 8
     Height = 22
-    Top = 256
-    Width = 89
+    Top = 280
+    Width = 90
     Caption = 'Dark mode'
     TabOrder = 20
+  end
+  object CheckBox14: TCheckBox
+    Left = 8
+    Height = 22
+    Top = 232
+    Width = 237
+    Caption = 'Show opponents path on wavestart'
+    TabOrder = 21
   end
 end

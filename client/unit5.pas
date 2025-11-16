@@ -34,6 +34,7 @@ Type
     CheckBox11: TCheckBox;
     CheckBox12: TCheckBox;
     CheckBox13: TCheckBox;
+    CheckBox14: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
@@ -191,6 +192,8 @@ Begin
   setValue('Global', 'ShowBuildableTilesDuringBuild', inttostr(ord(form5.CheckBox10.Checked)));
   SetValue('Global', 'ShowWaveOppHint', inttostr(ord(form5.CheckBox11.Checked)));
   SetValue('Global', 'ShowHeroRanges', inttostr(ord(form5.CheckBox12.Checked)));
+  // Checkbox13 wird unten ausgewertet, die ist Speziell ;)
+  SetValue('Global', 'ShowOppoentsPathOnWaveStart', inttostr(ord(form5.CheckBox14.Checked)));
 
   SetValue('Global', 'MapBlockSize', form5.Edit1.text);
   SetValue('Global', 'AutoNextWaveDelay', form5.Edit2.text);

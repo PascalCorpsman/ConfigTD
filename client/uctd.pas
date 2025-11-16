@@ -208,6 +208,7 @@ Type
     fLoadMapButton: TOpenGl_Button;
     fLoadGameButton: TOpenGl_Button;
     fLoadMapGameBackTex: TGraphikItem;
+    fWaypointDirectionTexs: TGraphikItem;
 
     fSideMenuVisible: Boolean; // True, dann ist das Seitenmenü (unten oder Rechts) sichtbar
     fMenuPosition: TMenuPosition;
@@ -3356,6 +3357,12 @@ Begin
   fmap.ResetAllUpdateBuildings;
   fmap.CreateDamageClassTextures;
   fmap.EditTerrain := false;
+  If GetValue('Global', 'ShowOppoentsPathOnWaveStart', '1') = '1' Then Begin
+    fmap.CreateWavePreviewPath(PlayerIndex);
+  End
+  Else Begin
+    setlength(fmap.WaypointPreviewDirections, 0);
+  End;
   For i := 0 To high(fPlayerInfos) Do Begin
     fPlayerInfos[i].KillsOnWaveStart := fPlayerInfos[i].Kills + fPlayerInfos[i].BonusFinisher;
     fPlayerInfos[i].LivesOnWaveStart := fPlayerInfos[i].Lives;
@@ -3826,6 +3833,8 @@ Begin
   BuildingStrategyButtons[7].Strategy := bsWeakest; // Das macht doch gar keinen Sinn ?
   BuildingStrategyButtons[7].Name := 'Prefer air/land creeps [F8]';
 
+  fWaypointDirectionTexs := OpenGL_GraphikEngine.LoadAlphaGraphikItem(p + 'waydirections.png', smClamp);
+
   LogLeave;
 End;
 
@@ -3879,6 +3888,22 @@ Begin
 End;
 
 Procedure Tctd.Render(w, h: integer);
+
+  Function WaypointDirectionsToIndex(Const directions: TWaypointPreviewDirections): integer;
+  Begin
+    result := 0;
+    // Die Hauptrichtungen
+    If wpdLeftToRight In directions Then result := 0;
+    If wpdRightToLeft In directions Then result := 2;
+    If wpdTopToBottom In directions Then result := 3;
+    If wpdBottomToTop In directions Then result := 1;
+    // Nun Kommen die Diagonalen
+    If (wpdLeftToRight In directions) And (wpdTopToBottom In directions) Then result := 7;
+    If (wpdLeftToRight In directions) And (wpdBottomToTop In directions) Then result := 4;
+    If (wpdRightToLeft In directions) And (wpdTopToBottom In directions) Then result := 6;
+    If (wpdRightToLeft In directions) And (wpdBottomToTop In directions) Then result := 5;
+  End;
+
 Var
   x, y, i, j: integer;
   f: single;
@@ -3928,26 +3953,14 @@ Begin
     gs_Gaming: Begin
         If form4.Visible Then form4.Close;
         fmap.ShowWaypoints := false;
-        If DarkOtherBuildings Then Begin
-          fmap.Render(fsx, fsy, fMapL, fMapT, ShowGrid, ShowLifepoints, fPlayerIndex); // -- Muss als erstes gemacht werden, da es "ungenaue" Ränder hat.
-        End
-        Else Begin
-          fmap.Render(fsx, fsy, fMapL, fMapT, ShowGrid, ShowLifepoints, -1); // -- Muss als erstes gemacht werden, da es "ungenaue" Ränder hat.
-        End;
+        fmap.Render(fsx, fsy, fMapL, fMapT, ShowGrid, ShowLifepoints, IfThen(DarkOtherBuildings, fPlayerIndex, -1)); // -- Muss als erstes gemacht werden, da es "ungenaue" Ränder hat.
         fSplashMarks.Render(fsx, fsy, fMapL, fMapT);
         RenderSelected(fsx, fsy, fMapL, fMapT);
         RenderBlackOutMapBorder;
         RenderBuyMenu();
         RenderMenuTabButton();
-
-        If DarkOtherBuildings Then Begin
-          fMap.RenderPreview(fPreviewL + 1, fPreviewT + 1, fPreviewW - 2, fPreviewH - 2, fsx, fsy, fMapW, fMapH - fMapT, fPlayerIndex);
-        End
-        Else Begin
-          fMap.RenderPreview(fPreviewL + 1, fPreviewT + 1, fPreviewW - 2, fPreviewH - 2, fsx, fsy, fMapW, fMapH - fMapT, -1);
-        End;
+        fMap.RenderPreview(fPreviewL + 1, fPreviewT + 1, fPreviewW - 2, fPreviewH - 2, fsx, fsy, fMapW, fMapH - fMapT, IfThen(DarkOtherBuildings, fPlayerIndex, -1));
         fSplashMarks.RenderPreview(fPreviewL + 1, fPreviewT + 1, fPreviewW - 2, fPreviewH - 2, fmap.Width, fmap.Height);
-
         // Rendern des SideMenü
         If assigned(FSideMenuObject) Then Begin
           RenderSideMenu;
@@ -3955,6 +3968,20 @@ Begin
         If FPausing Then Begin
           OpenGL_ASCII_Font.Color := clWhite;
           CenterTextOut(w, h, 'The game has been paused.');
+        End;
+        // Anzeigen des Weg Previews
+        For i := 0 To high(fMap.WaypointPreviewDirections) Do Begin
+          If i Mod 2 = 1 Then Begin // Nur jeden 2. Rendern, sieht gleich viel besser aus ;)
+            glPushMatrix;
+            x := fMap.WaypointPreviewDirections[i].Location.x;
+            y := fMap.WaypointPreviewDirections[i].Location.y;
+            glTranslatef(x * MapBlockSize - fsx + fMapL, y * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer);
+            glTranslatef(0, 0, ctd_EPSILON);
+            glScalef(MapBlockSize / 10, MapBlockSize / 10, 1);
+            glColor4f(1, 1, 1, 1);
+            RenderAlphaTiledQuad(0, 0, WaypointDirectionsToIndex(fMap.WaypointPreviewDirections[i].Directions), 8, 1, fWaypointDirectionTexs);
+            glPopMatrix;
+          End;
         End;
         // Anzeigen des zu kaufenden Objekts
         If assigned(FBuyingObject) Then Begin

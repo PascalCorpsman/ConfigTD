@@ -81,6 +81,20 @@ Type
     Count: integer;
   End;
 
+  TWaypointPreviewDirection = (
+    wpdLeftToRight,
+    wpdRightToLeft,
+    wpdTopToBottom,
+    wpdBottomToTop
+    );
+
+  TWaypointPreviewDirections = Set Of TWaypointPreviewDirection;
+
+  TWaypointPreview = Record
+    Directions: TWaypointPreviewDirections;
+    Location: TPoint;
+  End;
+
   // Informationen welche Pro Gridpunk in der Karte Verfügbar sind.
   TFieldItem = Record
     WArea: Boolean; // Wenn True, dann ist die Kachel eine Waypoint Flächen Area, wenn False, dann nicht
@@ -275,7 +289,9 @@ Type
     fTerrain: Array Of Array Of TFieldItem;
     fBuyAbles: Array Of TBuyAble; // Die Liste der Kaufbaren Objekte
     fPlacements: Array Of tctd_mapopbject;
-
+{$IFDEF Client}
+    WaypointPreviewDirections: Array Of TWaypointPreview;
+{$ENDIF}
     ShowBackTex: Boolean;
     EditTerrain: Boolean;
 
@@ -357,6 +373,8 @@ Type
     Procedure CreateDamageClassTextures;
     Function WaveOppList(WaveNum: integer): String;
     Function GetWayLen(PlayerIndex: Integer): Single;
+    Procedure CreateWavePreviewPath(PlayerIndex: integer);
+
 {$ENDIF}
     Function CheckForErrors(ShowWarnings: Boolean): TCheckResult;
     Function GetListOfUnusedOpponents(): TStringList;
@@ -789,6 +807,7 @@ Begin
   FIndexMapper := Nil;
   fRenderBullets := Nil;
   fRenderOpponents := Nil;
+  WaypointPreviewDirections := Nil;
 {$ELSE}
   fHighscoreEngine := TIniHighscoreEngine.create;
   fHeroes := Nil;
@@ -1952,6 +1971,10 @@ Begin
   // 1. Lesen der Beweglichen Objekte
   u16 := 0;
   data.Read(u16, sizeof(u16));
+  // Sobald auch nur 1 Gegner auf der Karte ist, werden die Preview Wege "gelöscht"
+  If (u16 <> 0) And Assigned(WaypointPreviewDirections) Then Begin
+    setlength(WaypointPreviewDirections, 0);
+  End;
   SetLength(fRenderOpponents, u16);
   For i := 0 To high(fRenderOpponents) Do Begin
     o.Index := 65535;
@@ -2228,6 +2251,62 @@ Begin
         );
     End;
   End;
+End;
+
+Procedure TMap.CreateWavePreviewPath(PlayerIndex: integer);
+
+Const
+  dirs: Array[0..7] Of Tpoint = (
+    (x: - 1; y: 0),
+    (x: + 1; y: 0),
+    (x: 0; y: - 1),
+    (x: 0; y: + 1),
+    (x: - 1; y: - 1),
+    (x: + 1; y: - 1),
+    (x: - 1; y: + 1),
+    (x: + 1; y: + 1)
+    );
+Var
+  wpi, i, j, ah, mi: Integer;
+  p: TPoint;
+  h: Array[0..high(dirs)] Of integer;
+Begin
+  If (PlayerIndex < 0) Or (PlayerIndex > high(Waypoints)) Then Begin
+    exit;
+  End;
+  If Not CalcOpponentPaths Then exit;
+  setlength(WaypointPreviewDirections, length(fTerrain) * length(fTerrain[0]) * length(Waypoints[PlayerIndex]));
+  wpi := 0;
+  For i := 1 To high(Waypoints[PlayerIndex]) Do Begin // 0 wäre der Starpunkt der ist nie Ziel, kann deswegen "ausgespart" werden ;)
+    p := Waypoints[PlayerIndex, i - 1].Point; // Wir starten vom Vorherigen Startpunkt aus und laufen nach unten ;)
+    ah := getFieldHeight(p.x, p.y, PlayerIndex, i);
+    While ah <> 0 Do Begin
+      mi := 0;
+      For j := 0 To high(dirs) Do Begin
+        h[j] := getFieldHeight(p.x + dirs[j].x, p.y + dirs[j].Y, PlayerIndex, i);
+        If h[j] < h[mi] Then mi := j;
+      End;
+      ah := h[mi];
+      Case mi Of
+        // Waagrecht
+        0: WaypointPreviewDirections[wpi].Directions := [wpdRightToLeft];
+        1: WaypointPreviewDirections[wpi].Directions := [wpdLeftToRight];
+        // Senkrecht
+        2: WaypointPreviewDirections[wpi].Directions := [wpdBottomToTop];
+        3: WaypointPreviewDirections[wpi].Directions := [wpdTopToBottom];
+        // Diagonal 1
+        4: WaypointPreviewDirections[wpi].Directions := [wpdRightToLeft, wpdBottomToTop];
+        5: WaypointPreviewDirections[wpi].Directions := [wpdLeftToRight, wpdBottomToTop];
+        // Diagonal 2
+        6: WaypointPreviewDirections[wpi].Directions := [wpdRightToLeft, wpdTopToBottom];
+        7: WaypointPreviewDirections[wpi].Directions := [wpdLeftToRight, wpdTopToBottom];
+      End;
+      WaypointPreviewDirections[wpi].Location := p;
+      inc(wpi);
+      p := p + dirs[mi]; // Wir Laufen in Richtung Ziel ;)
+    End;
+  End;
+  setlength(WaypointPreviewDirections, wpi);
 End;
 
 Procedure TMap.UpdateBackTexCoord(x, y: integer);
