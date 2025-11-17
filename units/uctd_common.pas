@@ -315,6 +315,18 @@ Const
    *)
   ctd_Tipp_Layer = 0.9; // Die ToolTipps und teile des Sidemenüs
 
+Const
+  Directions: Array[0..7] Of Tpoint = (
+    (x: - 1; y: 0),
+    (x: + 1; y: 0),
+    (x: 0; y: - 1),
+    (x: 0; y: + 1),
+    (x: - 1; y: - 1),
+    (x: + 1; y: - 1),
+    (x: - 1; y: + 1),
+    (x: + 1; y: + 1)
+    );
+
 Type
 
   TLogLevel = (llTrace, lldebug, llInfo, llWarning, llError, llCritical, llFatal);

@@ -3268,7 +3268,8 @@ Begin
         Else Begin
           // Der Server hat die Datei schon, dann ist eh alles I.O. :-)
         End;
-        cbBE(self, true);
+        If assigned(cbBE) Then
+          cbBE(self, true);
       End;
     miFilesToTransmitCount: Begin
         m := TMemorystream.create;
@@ -3358,10 +3359,13 @@ Begin
   fmap.CreateDamageClassTextures;
   fmap.EditTerrain := false;
   If GetValue('Global', 'ShowOppoentsPathOnWaveStart', '1') = '1' Then Begin
-    fmap.CreateWavePreviewPath(PlayerIndex);
+    fmap.CreateWavePreviewPath(fAktualWave, PlayerIndex);
+    fmap.CreateAirWavePreviewPath(fAktualWave, PlayerIndex);
+    fmap.CalculateWavePreviewOffsets;
   End
   Else Begin
-    setlength(fmap.WaypointPreviewDirections, 0);
+    setlength(fmap.WaypointPreview.Points, 0);
+    setlength(fmap.AirWaypointPreview.Points, 0);
   End;
   For i := 0 To high(fPlayerInfos) Do Begin
     fPlayerInfos[i].KillsOnWaveStart := fPlayerInfos[i].Kills + fPlayerInfos[i].BonusFinisher;
@@ -3893,15 +3897,71 @@ Procedure Tctd.Render(w, h: integer);
   Begin
     result := 0;
     // Die Hauptrichtungen
-    If wpdLeftToRight In directions Then result := 0;
-    If wpdRightToLeft In directions Then result := 2;
-    If wpdTopToBottom In directions Then result := 3;
-    If wpdBottomToTop In directions Then result := 1;
+    If wpdRightToLeft In directions Then result := 0;
+    If wpdLeftToRight In directions Then result := 1;
+    If wpdTopToBottom In directions Then result := 2;
+    If wpdBottomToTop In directions Then result := 3;
     // Nun Kommen die Diagonalen
-    If (wpdLeftToRight In directions) And (wpdTopToBottom In directions) Then result := 7;
-    If (wpdLeftToRight In directions) And (wpdBottomToTop In directions) Then result := 4;
+    If (wpdRightToLeft In directions) And (wpdBottomToTop In directions) Then result := 4;
+    If (wpdLeftToRight In directions) And (wpdBottomToTop In directions) Then result := 5;
     If (wpdRightToLeft In directions) And (wpdTopToBottom In directions) Then result := 6;
-    If (wpdRightToLeft In directions) And (wpdBottomToTop In directions) Then result := 5;
+    If (wpdLeftToRight In directions) And (wpdTopToBottom In directions) Then result := 7;
+  End;
+
+  Procedure RenderWayPointPreview(Const WayPointPreview: TWaypointPreview; Offset: integer);
+  Const
+    DirectionsRotated: Array[0..7] Of Tpoint = (// Alle Einträge von Directions gedreht um 90° gegen den Uhrzeigersinn
+      (x: 0; y: - 1),
+      (x: 0; y: + 1),
+      (x: + 1; y: 0),
+      (x: - 1; y: 0),
+      (x: + 1; y: - 1),
+      (x: + 1; y: + 1),
+      (x: - 1; y: - 1),
+      (x: - 1; y: + 1)
+      );
+  Var
+    c, x, y, i, DirectionIndex: integer;
+    gi: TGraphikItem;
+    OffsetP: TPoint;
+  Begin
+    c := 0;
+    For i := 0 To high(WaypointPreview.Points) Do Begin
+      DirectionIndex := WaypointDirectionsToIndex(WaypointPreview.Points[i].Directions);
+      glPushMatrix;
+      x := WaypointPreview.Points[i].Location.x;
+      y := WaypointPreview.Points[i].Location.y;
+      OffsetP := point(0, 0);
+      If WaypointPreview.Points[i].Offsetted Then Begin
+        OffsetP := DirectionsRotated[DirectionIndex] * Offset;
+      End;
+      glTranslatef(x * MapBlockSize - fsx + fMapL, y * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer);
+      glTranslatef(0, 0, ctd_EPSILON);
+      glScalef(MapBlockSize / 10, MapBlockSize / 10, 1);
+      glTranslatef(OffsetP.x, OffsetP.Y, 0);
+      glColor4f(1, 1, 1, 1);
+      If i Mod 2 = 0 Then Begin // Nur jeden 2. Rendern, sieht gleich viel besser aus ;)
+        // Die Pfeile sind kleiner
+        glTranslatef(2.5, 2.5, 0);
+        glScalef(0.5, 0.5, 1);
+        RenderAlphaTiledQuad(0, 0, DirectionIndex, 8, 1, fWaypointDirectionTexs);
+      End
+      Else Begin
+        // Die Klassen genau eine Kachel Groß
+        glTranslatef(0, 0, ctd_EPSILON);
+        c := c Mod length(WayPointPreview.DamageClasses);
+        gi := fMap.OpenGLArrowDamageClassTex[WayPointPreview.DamageClasses[c]];
+        glScalef(10 / gi.OrigWidth, 10 / gi.OrigHeight, 1);
+        If gi.IsAlphaImage Then Begin
+          RenderAlphaQuad(0, 0, gi);
+        End
+        Else Begin
+          RenderQuad(0, 0, gi);
+        End;
+        inc(c);
+      End;
+      glPopMatrix;
+    End;
   End;
 
 Var
@@ -3933,7 +3993,6 @@ Begin
     fkeyRepeatTimeStamp := t;
     FOnKeyPress();
   End;
-
   Case fgameState Of
     gs_WaitForJoin: Begin
         glColor4f(1, 1, 1, 1);
@@ -3970,19 +4029,8 @@ Begin
           CenterTextOut(w, h, 'The game has been paused.');
         End;
         // Anzeigen des Weg Previews
-        For i := 0 To high(fMap.WaypointPreviewDirections) Do Begin
-          If i Mod 2 = 1 Then Begin // Nur jeden 2. Rendern, sieht gleich viel besser aus ;)
-            glPushMatrix;
-            x := fMap.WaypointPreviewDirections[i].Location.x;
-            y := fMap.WaypointPreviewDirections[i].Location.y;
-            glTranslatef(x * MapBlockSize - fsx + fMapL, y * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer);
-            glTranslatef(0, 0, ctd_EPSILON);
-            glScalef(MapBlockSize / 10, MapBlockSize / 10, 1);
-            glColor4f(1, 1, 1, 1);
-            RenderAlphaTiledQuad(0, 0, WaypointDirectionsToIndex(fMap.WaypointPreviewDirections[i].Directions), 8, 1, fWaypointDirectionTexs);
-            glPopMatrix;
-          End;
-        End;
+        RenderWayPointPreview(fMap.WaypointPreview, -5);
+        RenderWayPointPreview(fMap.AirWaypointPreview, 5);
         // Anzeigen des zu kaufenden Objekts
         If assigned(FBuyingObject) Then Begin
           x := (fsx + fCursorPos.x - fMapL) Div MapBlockSize;
@@ -4614,7 +4662,14 @@ Begin
   b := TBuilding.create();
   b.LoadFromFile(MapFolder + MapName + PathDelim + Name);
   b.Owner := Owner;
-  If Not fMap.AddBuilding(x, y, b) Then Begin
+  If fMap.AddBuilding(x, y, b) Then Begin
+    // Neu Berechnen der Wegpunkt Previes, diese könnten sich ja geändert haben ;)
+    If Assigned(fMap.WaypointPreview.Points) Then Begin
+      fmap.CreateWavePreviewPath(fAktualWave, PlayerIndex);
+      fmap.CalculateWavePreviewOffsets;
+    End;
+  End
+  Else Begin
     (*
      * Eigentlich hat der Server alles Geprüft, das Gebäude muss hier immer Akzeptiert werden
      * Wenn aber doch nicht, dann geben wir es wenigstens frei ...
@@ -4918,7 +4973,8 @@ Begin
   End
   Else Begin
     // Wir sollen eine Datei senden die es gar nicht gibt -> Fehler
-    Callback(self, false);
+    If assigned(Callback) Then
+      Callback(self, false);
   End;
   LogLeave;
 End;

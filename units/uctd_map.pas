@@ -90,9 +90,15 @@ Type
 
   TWaypointPreviewDirections = Set Of TWaypointPreviewDirection;
 
-  TWaypointPreview = Record
+  TWaypointPreviewPoint = Record
     Directions: TWaypointPreviewDirections;
     Location: TPoint;
+    Offsetted: Boolean;
+  End;
+
+  TWaypointPreview = Record
+    Points: Array Of TWaypointPreviewPoint;
+    DamageClasses: Array Of Byte; // 0..3 = Klasse
   End;
 
   // Informationen welche Pro Gridpunk in der Karte Verfügbar sind.
@@ -224,6 +230,7 @@ Type
     fOpenGLBackTex: TGraphikItem;
     fFTerrainBackTex: integer;
     fOpenGLDC1Tex, fOpenGLdc2Tex, fOpenGLdc3Tex, fOpenGLdc4Tex: TGraphikItem;
+    fOpenGLDC1aTex, fOpenGLdc2aTex, fOpenGLdc3aTex, fOpenGLdc4aTex: TGraphikItem;
     fOpenGLWidth, fOpenGLHeight: integer;
     fRenderOpponents: Array Of TRenderOpponent;
     fRenderBullets: Array Of TRenderBullet;
@@ -252,6 +259,7 @@ Type
     Function GetLives(Index: integer): integer;
 {$IFDEF Client}
     Function getHeroCount: integer;
+    Function getOpenArrowGLDamageClassTex(index: integer): TGraphikItem;
     Function getOpenGLDamageClassTex(index: integer): TGraphikItem;
 {$ENDIF}
     Function GetWidth: integer;
@@ -290,7 +298,8 @@ Type
     fBuyAbles: Array Of TBuyAble; // Die Liste der Kaufbaren Objekte
     fPlacements: Array Of tctd_mapopbject;
 {$IFDEF Client}
-    WaypointPreviewDirections: Array Of TWaypointPreview;
+    WaypointPreview: TWaypointPreview;
+    AirWaypointPreview: TWaypointPreview;
 {$ENDIF}
     ShowBackTex: Boolean;
     EditTerrain: Boolean;
@@ -317,6 +326,7 @@ Type
 {$IFDEF Client}
     Property HeroCount: integer read getHeroCount;
     Property OpenGLDamageClassTex[index: integer]: TGraphikItem read getOpenGLDamageClassTex;
+    Property OpenGLArrowDamageClassTex[index: integer]: TGraphikItem read getOpenArrowGLDamageClassTex;
 {$ENDIF}
     Property FieldHeight[x, y, Player, WayPoint: integer]: integer read getFieldHeight; // Gibt die Höheninformation der Koordinate in Abhängigkeit vom An zu laufenen Wegpunkt Pro Player Je Kleiner der Wert, desto näher ist man am Wegpunkt
     Property Height: integer read GetHeight;
@@ -371,10 +381,12 @@ Type
     Procedure SetHeroToLevel(HeroIndex, Level: Integer);
     Procedure ResetAllUpdateBuildings;
     Procedure CreateDamageClassTextures;
+    Procedure FreeDamageClassTextures;
     Function WaveOppList(WaveNum: integer): String;
     Function GetWayLen(PlayerIndex: Integer): Single;
-    Procedure CreateWavePreviewPath(PlayerIndex: integer);
-
+    Procedure CreateWavePreviewPath(WaveNum, PlayerIndex: integer);
+    Procedure CreateAirWavePreviewPath(WaveNum, PlayerIndex: integer);
+    Procedure CalculateWavePreviewOffsets;
 {$ENDIF}
     Function CheckForErrors(ShowWarnings: Boolean): TCheckResult;
     Function GetListOfUnusedOpponents(): TStringList;
@@ -804,10 +816,15 @@ Begin
   fOpenGLDC2Tex.Image := 0;
   fOpenGLDC3Tex.Image := 0;
   fOpenGLDC4Tex.Image := 0;
+  fOpenGLDC1ATex.Image := 0;
+  fOpenGLDC2ATex.Image := 0;
+  fOpenGLDC3ATex.Image := 0;
+  fOpenGLDC4ATex.Image := 0;
   FIndexMapper := Nil;
   fRenderBullets := Nil;
   fRenderOpponents := Nil;
-  WaypointPreviewDirections := Nil;
+  WaypointPreview.Points := Nil;
+  AirWaypointPreview.Points := Nil;
 {$ELSE}
   fHighscoreEngine := TIniHighscoreEngine.create;
   fHeroes := Nil;
@@ -928,6 +945,17 @@ End;
 Function TMap.getHeroCount: integer;
 Begin
   result := length(fHeroes);
+End;
+
+Function TMap.getOpenArrowGLDamageClassTex(index: integer): TGraphikItem;
+Begin
+  result.Image := 0; // -- Invalid
+  Case Index Of
+    0: result := fOpenGLDC1ATex;
+    1: result := fOpenGLDC2ATex;
+    2: result := fOpenGLDC3ATex;
+    3: result := fOpenGLDC4ATex;
+  End;
 End;
 
 Function TMap.getOpenGLDamageClassTex(index: integer): TGraphikItem;
@@ -1085,26 +1113,7 @@ Begin
     End;
   End;
   fFTerrainBackTex := 0;
-
-  If fOpenGLDC1Tex.Image <> 0 Then Begin
-    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC1Tex);
-  End;
-  fOpenGLDC1Tex.Image := 0;
-
-  If fOpenGLDC2Tex.Image <> 0 Then Begin
-    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC2Tex);
-  End;
-  fOpenGLDC2Tex.Image := 0;
-
-  If fOpenGLDC3Tex.Image <> 0 Then Begin
-    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC3Tex);
-  End;
-  fOpenGLDC3Tex.Image := 0;
-
-  If fOpenGLDC4Tex.Image <> 0 Then Begin
-    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC4Tex);
-  End;
-  fOpenGLDC4Tex.Image := 0;
+  FreeDamageClassTextures;
 {$ENDIF}
   For i := 0 To high(Waves) Do Begin
     setlength(waves[i].Opponents, 0)
@@ -1972,8 +1981,9 @@ Begin
   u16 := 0;
   data.Read(u16, sizeof(u16));
   // Sobald auch nur 1 Gegner auf der Karte ist, werden die Preview Wege "gelöscht"
-  If (u16 <> 0) And Assigned(WaypointPreviewDirections) Then Begin
-    setlength(WaypointPreviewDirections, 0);
+  If (u16 <> 0) And (Assigned(WaypointPreview.Points) Or (assigned(AirWaypointPreview.Points))) Then Begin
+    setlength(WaypointPreview.Points, 0);
+    setlength(AirWaypointPreview.Points, 0);
   End;
   SetLength(fRenderOpponents, u16);
   For i := 0 To high(fRenderOpponents) Do Begin
@@ -2192,6 +2202,61 @@ Begin
 End;
 
 Procedure TMap.CreateDamageClassTextures;
+Var
+  s: String;
+Begin
+  FreeDamageClassTextures;
+  If fDC1Tex <> '' Then Begin
+    fOpenGLDC1Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC1Tex, smClamp);
+  End;
+  If fDC2Tex <> '' Then Begin
+    fOpenGLDC2Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC2Tex, smClamp);
+  End;
+  If fDC3Tex <> '' Then Begin
+    fOpenGLDC3Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC3Tex, smClamp);
+  End;
+  If fDC4Tex <> '' Then Begin
+    fOpenGLDC4Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC4Tex, smClamp);
+  End;
+  If fDC1Tex <> '' Then Begin
+    s := MapFolder + MapName + PathDelim + ExtractFileNameOnly(fDC1Tex) + '_arrow' + ExtractFileExt(fDC1Tex);
+    If FileExistsUTF8(s) Then Begin
+      fOpenGLDC1aTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(s, smClamp);
+    End
+    Else Begin
+      fOpenGLDC1aTex := fOpenGLDC1Tex;
+    End;
+  End;
+  If fDC2Tex <> '' Then Begin
+    s := MapFolder + MapName + PathDelim + ExtractFileNameOnly(fDC2Tex) + '_arrow' + ExtractFileExt(fDC2Tex);
+    If FileExistsUTF8(s) Then Begin
+      fOpenGLDC2aTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(s, smClamp);
+    End
+    Else Begin
+      fOpenGLDC2aTex := fOpenGLDC2Tex;
+    End;
+  End;
+  If fDC3Tex <> '' Then Begin
+    s := MapFolder + MapName + PathDelim + ExtractFileNameOnly(fDC3Tex) + '_arrow' + ExtractFileExt(fDC3Tex);
+    If FileExistsUTF8(s) Then Begin
+      fOpenGLDC3aTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(s, smClamp);
+    End
+    Else Begin
+      fOpenGLDC3aTex := fOpenGLDC3Tex;
+    End;
+  End;
+  If fDC4Tex <> '' Then Begin
+    s := MapFolder + MapName + PathDelim + ExtractFileNameOnly(fDC4Tex) + '_arrow' + ExtractFileExt(fDC4Tex);
+    If FileExistsUTF8(s) Then Begin
+      fOpenGLDC4aTex := OpenGL_GraphikEngine.LoadAlphaGraphikItem(s, smClamp);
+    End
+    Else Begin
+      fOpenGLDC4aTex := fOpenGLDC4Tex;
+    End;
+  End;
+End;
+
+Procedure TMap.FreeDamageClassTextures;
 Begin
   If fOpenGLDC1Tex.Image <> 0 Then Begin
     OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC1Tex);
@@ -2209,18 +2274,22 @@ Begin
     OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC4Tex);
   End;
   fOpenGLDC4Tex.Image := 0;
-  If fDC1Tex <> '' Then Begin
-    fOpenGLDC1Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC1Tex, smClamp);
+  If fOpenGLDC1aTex.Image <> 0 Then Begin
+    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC1aTex);
   End;
-  If fDC2Tex <> '' Then Begin
-    fOpenGLDC2Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC2Tex, smClamp);
+  fOpenGLDC1aTex.Image := 0;
+  If fOpenGLDC2aTex.Image <> 0 Then Begin
+    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC2aTex);
   End;
-  If fDC3Tex <> '' Then Begin
-    fOpenGLDC3Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC3Tex, smClamp);
+  fOpenGLDC2aTex.Image := 0;
+  If fOpenGLDC3aTex.Image <> 0 Then Begin
+    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC3aTex);
   End;
-  If fDC4Tex <> '' Then Begin
-    fOpenGLDC4Tex := OpenGL_GraphikEngine.LoadGraphikItem(MapFolder + MapName + PathDelim + fDC4Tex, smClamp);
+  fOpenGLDC3aTex.Image := 0;
+  If fOpenGLDC4aTex.Image <> 0 Then Begin
+    OpenGL_GraphikEngine.RemoveGraphik(fOpenGLDC4aTex);
   End;
+  fOpenGLDC4aTex.Image := 0;
 End;
 
 Function TMap.WaveOppList(WaveNum: integer): String;
@@ -2253,60 +2322,216 @@ Begin
   End;
 End;
 
-Procedure TMap.CreateWavePreviewPath(PlayerIndex: integer);
-
-Const
-  dirs: Array[0..7] Of Tpoint = (
-    (x: - 1; y: 0),
-    (x: + 1; y: 0),
-    (x: 0; y: - 1),
-    (x: 0; y: + 1),
-    (x: - 1; y: - 1),
-    (x: + 1; y: - 1),
-    (x: - 1; y: + 1),
-    (x: + 1; y: + 1)
-    );
+Procedure TMap.CreateWavePreviewPath(WaveNum, PlayerIndex: integer);
 Var
   wpi, i, j, ah, mi: Integer;
   p: TPoint;
-  h: Array[0..high(dirs)] Of integer;
+  h: Array[0..high(Directions)] Of integer;
+  bool: Boolean;
+  DamageClasses: Byte;
 Begin
+  setlength(WaypointPreview.Points, 0);
   If (PlayerIndex < 0) Or (PlayerIndex > high(Waypoints)) Then Begin
     exit;
   End;
   If Not CalcOpponentPaths Then exit;
-  setlength(WaypointPreviewDirections, length(fTerrain) * length(fTerrain[0]) * length(Waypoints[PlayerIndex]));
+  // Gibt es in dieser Wave eine Bodeneinheit ?
+  bool := false;
+  DamageClasses := 0;
+  For i := 0 To high(FIndexMapper) Do Begin
+    If Not FIndexMapper[i].CanFly Then Begin
+      bool := true;
+      If FIndexMapper[i].obj.LifePoints[0] <> 0 Then
+        DamageClasses := DamageClasses Or 1;
+      If FIndexMapper[i].obj.LifePoints[1] <> 0 Then
+        DamageClasses := DamageClasses Or 2;
+      If FIndexMapper[i].obj.LifePoints[2] <> 0 Then
+        DamageClasses := DamageClasses Or 4;
+      If FIndexMapper[i].obj.LifePoints[3] <> 0 Then
+        DamageClasses := DamageClasses Or 8;
+    End;
+  End;
+  If Not bool Then exit;
+  setlength(WaypointPreview.DamageClasses, 0);
+  For i := 0 To 3 Do Begin
+    If (DamageClasses And (1 Shl i)) <> 0 Then Begin
+      setlength(WaypointPreview.DamageClasses, high(WaypointPreview.DamageClasses) + 2);
+      WaypointPreview.DamageClasses[high(WaypointPreview.DamageClasses)] := i;
+    End;
+  End;
+  // Das Eigentliche erstellen der Wegpunkt Previews
+  setlength(WaypointPreview.Points, length(fTerrain) * length(fTerrain[0]) * length(Waypoints[PlayerIndex]));
   wpi := 0;
   For i := 1 To high(Waypoints[PlayerIndex]) Do Begin // 0 wäre der Starpunkt der ist nie Ziel, kann deswegen "ausgespart" werden ;)
     p := Waypoints[PlayerIndex, i - 1].Point; // Wir starten vom Vorherigen Startpunkt aus und laufen nach unten ;)
     ah := getFieldHeight(p.x, p.y, PlayerIndex, i);
     While ah <> 0 Do Begin
       mi := 0;
-      For j := 0 To high(dirs) Do Begin
-        h[j] := getFieldHeight(p.x + dirs[j].x, p.y + dirs[j].Y, PlayerIndex, i);
+      For j := 0 To high(Directions) Do Begin
+        h[j] := getFieldHeight(p.x + Directions[j].x, p.y + Directions[j].Y, PlayerIndex, i);
         If h[j] < h[mi] Then mi := j;
       End;
       ah := h[mi];
       Case mi Of
         // Waagrecht
-        0: WaypointPreviewDirections[wpi].Directions := [wpdRightToLeft];
-        1: WaypointPreviewDirections[wpi].Directions := [wpdLeftToRight];
+        0: WaypointPreview.Points[wpi].Directions := [wpdRightToLeft];
+        1: WaypointPreview.Points[wpi].Directions := [wpdLeftToRight];
         // Senkrecht
-        2: WaypointPreviewDirections[wpi].Directions := [wpdBottomToTop];
-        3: WaypointPreviewDirections[wpi].Directions := [wpdTopToBottom];
+        2: WaypointPreview.Points[wpi].Directions := [wpdBottomToTop];
+        3: WaypointPreview.Points[wpi].Directions := [wpdTopToBottom];
         // Diagonal 1
-        4: WaypointPreviewDirections[wpi].Directions := [wpdRightToLeft, wpdBottomToTop];
-        5: WaypointPreviewDirections[wpi].Directions := [wpdLeftToRight, wpdBottomToTop];
+        4: WaypointPreview.Points[wpi].Directions := [wpdRightToLeft, wpdBottomToTop];
+        5: WaypointPreview.Points[wpi].Directions := [wpdLeftToRight, wpdBottomToTop];
         // Diagonal 2
-        6: WaypointPreviewDirections[wpi].Directions := [wpdRightToLeft, wpdTopToBottom];
-        7: WaypointPreviewDirections[wpi].Directions := [wpdLeftToRight, wpdTopToBottom];
+        6: WaypointPreview.Points[wpi].Directions := [wpdRightToLeft, wpdTopToBottom];
+        7: WaypointPreview.Points[wpi].Directions := [wpdLeftToRight, wpdTopToBottom];
       End;
-      WaypointPreviewDirections[wpi].Location := p;
+      WaypointPreview.Points[wpi].Location := p;
+      WaypointPreview.Points[wpi].Offsetted := false;
       inc(wpi);
-      p := p + dirs[mi]; // Wir Laufen in Richtung Ziel ;)
+      p := p + Directions[mi]; // Wir Laufen in Richtung Ziel ;)
     End;
   End;
-  setlength(WaypointPreviewDirections, wpi);
+  setlength(WaypointPreview.Points, wpi);
+End;
+
+Procedure TMap.CreateAirWavePreviewPath(WaveNum, PlayerIndex: integer);
+  Function PointsToDirection(a, b: TPoint): Integer;
+  Var
+    d: TPoint;
+    i: Integer;
+  Begin
+    d := b - a;
+    result := -1;
+    For i := 0 To high(Directions) Do Begin
+      If Directions[i] = d Then Begin
+        result := i;
+        break;
+      End;
+    End;
+  End;
+
+Var
+  wpi: integer;
+
+  Procedure Bresenham_Line(aFrom, aTo: TPoint);
+  Var
+    x, y, t, dx, dy, incx, incy, pdx, pdy, ddx, ddy, es, el, err, mi: integer;
+  Begin
+    dx := aTo.x - aFrom.x;
+    dy := aTo.y - aFrom.y;
+    incx := sign(dx);
+    incy := sign(dy);
+    If (dx < 0) Then dx := -dx;
+    If (dy < 0) Then dy := -dy;
+    If (dx > dy) Then Begin
+      pdx := incx;
+      pdy := 0;
+      ddx := incx;
+      ddy := incy;
+      es := dy;
+      el := dx;
+    End
+    Else Begin
+      pdx := 0;
+      pdy := incy;
+      ddx := incx;
+      ddy := incy;
+      es := dx;
+      el := dy;
+    End;
+    x := aFrom.x;
+    y := aFrom.y;
+    err := el Div 2;
+    For t := 0 To el - 1 Do Begin
+      err := err - es;
+      If (err < 0) Then Begin
+        err := err + el;
+        x := x + ddx;
+        y := y + ddy;
+      End
+      Else Begin
+        x := x + pdx;
+        y := y + pdy;
+      End;
+      airWaypointPreview.Points[wpi].Location := aFrom;
+      mi := PointsToDirection(afrom, point(x, y));
+      Case mi Of
+        // Waagrecht
+        0: airWaypointPreview.Points[wpi].Directions := [wpdRightToLeft];
+        1: airWaypointPreview.Points[wpi].Directions := [wpdLeftToRight];
+        // Senkrecht
+        2: airWaypointPreview.Points[wpi].Directions := [wpdBottomToTop];
+        3: airWaypointPreview.Points[wpi].Directions := [wpdTopToBottom];
+        // Diagonal 1
+        4: airWaypointPreview.Points[wpi].Directions := [wpdRightToLeft, wpdBottomToTop];
+        5: airWaypointPreview.Points[wpi].Directions := [wpdLeftToRight, wpdBottomToTop];
+        // Diagonal 2
+        6: airWaypointPreview.Points[wpi].Directions := [wpdRightToLeft, wpdTopToBottom];
+        7: airWaypointPreview.Points[wpi].Directions := [wpdLeftToRight, wpdTopToBottom];
+      End;
+      airWaypointPreview.Points[wpi].Offsetted := false;
+      inc(wpi);
+      aFrom := point(x, y);
+    End;
+  End;
+
+Var
+  i, DamageClasses: Integer;
+  bool: Boolean;
+Begin
+  setlength(airWaypointPreview.Points, 0);
+  If (PlayerIndex < 0) Or (PlayerIndex > high(Waypoints)) Then Begin
+    exit;
+  End;
+  // Gibt es in dieser Wave eine Lufteinheit ?
+  bool := false;
+  DamageClasses := 0;
+  For i := 0 To high(FIndexMapper) Do Begin
+    If FIndexMapper[i].CanFly Then Begin
+      bool := true;
+      If FIndexMapper[i].obj.LifePoints[0] <> 0 Then
+        DamageClasses := DamageClasses Or 1;
+      If FIndexMapper[i].obj.LifePoints[1] <> 0 Then
+        DamageClasses := DamageClasses Or 2;
+      If FIndexMapper[i].obj.LifePoints[2] <> 0 Then
+        DamageClasses := DamageClasses Or 4;
+      If FIndexMapper[i].obj.LifePoints[3] <> 0 Then
+        DamageClasses := DamageClasses Or 8;
+    End;
+  End;
+  If Not bool Then exit;
+  setlength(airWaypointPreview.DamageClasses, 0);
+  For i := 0 To 3 Do Begin
+    If (DamageClasses And (1 Shl i)) <> 0 Then Begin
+      setlength(airWaypointPreview.DamageClasses, high(airWaypointPreview.DamageClasses) + 2);
+      airWaypointPreview.DamageClasses[high(airWaypointPreview.DamageClasses)] := i;
+    End;
+  End;
+  setlength(airWaypointPreview.Points, length(fTerrain) * length(fTerrain[0]) * length(Waypoints[PlayerIndex]));
+  wpi := 0;
+  For i := 1 To high(Waypoints[PlayerIndex]) Do Begin // 0 wäre der Starpunkt der ist nie Ziel, kann deswegen "ausgespart" werden ;)
+    Bresenham_Line(Waypoints[PlayerIndex, i - 1].Point, Waypoints[PlayerIndex, i].Point);
+  End;
+  setlength(airWaypointPreview.Points, wpi);
+End;
+
+Procedure TMap.CalculateWavePreviewOffsets;
+Var
+  i, j: Integer;
+Begin
+  // Nur wenn es überhaupt beide Arten gibt.
+  If assigned(airWaypointPreview.Points) And assigned(WaypointPreview.Points) Then Begin
+    // Geht das nicht effizienter ?
+    For i := 0 To high(WaypointPreview.Points) Do Begin
+      For j := 0 To high(airWaypointPreview.Points) Do Begin
+        If (WaypointPreview.Points[i].Location = airWaypointPreview.Points[j].Location) Then Begin
+          WaypointPreview.Points[i].Offsetted := true;
+          airWaypointPreview.Points[j].Offsetted := true;
+        End;
+      End;
+    End;
+  End;
 End;
 
 Procedure TMap.UpdateBackTexCoord(x, y: integer);

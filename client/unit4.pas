@@ -724,6 +724,8 @@ Begin
 End;
 
 Procedure TForm4.Button13Click(Sender: TObject);
+Var
+  s: String;
 Begin
   // Set Damageclass 1
   If OpenPictureDialog1.Execute Then Begin
@@ -734,10 +736,17 @@ Begin
     fTransferFilename := OpenPictureDialog1.FileName;
     fOnTransferFileDoneReason := frDC1Tex;
     ctd.TransferFile(fTransferFilename, 'dc1.png', @OnTransferFileDone);
+    // Gibt es eine "Arrow" Textur, wird diese automatisch nachgeladen
+    s := ExtractFileNameWithoutExt(fTransferFilename) + '_arrow' + ExtractFileExt(fTransferFilename);
+    If FileExistsUTF8(s) Then Begin
+      ctd.TransferFile(s, 'dc1_arrow.png', Nil);
+    End;
   End;
 End;
 
 Procedure TForm4.Button14Click(Sender: TObject);
+Var
+  s: String;
 Begin
   // Set Damageclass 2
   If OpenPictureDialog1.Execute Then Begin
@@ -748,10 +757,17 @@ Begin
     fTransferFilename := OpenPictureDialog1.FileName;
     fOnTransferFileDoneReason := frDC2Tex;
     ctd.TransferFile(fTransferFilename, 'dc2.png', @OnTransferFileDone);
+    // Gibt es eine "Arrow" Textur, wird diese automatisch nachgeladen
+    s := ExtractFileNameWithoutExt(fTransferFilename) + '_arrow' + ExtractFileExt(fTransferFilename);
+    If FileExistsUTF8(s) Then Begin
+      ctd.TransferFile(s, 'dc2_arrow.png', Nil);
+    End;
   End;
 End;
 
 Procedure TForm4.Button15Click(Sender: TObject);
+Var
+  s: String;
 Begin
   // Set Damageclass 3
   If OpenPictureDialog1.Execute Then Begin
@@ -762,10 +778,17 @@ Begin
     fTransferFilename := OpenPictureDialog1.FileName;
     fOnTransferFileDoneReason := frDC3Tex;
     ctd.TransferFile(fTransferFilename, 'dc3.png', @OnTransferFileDone);
+    // Gibt es eine "Arrow" Textur, wird diese automatisch nachgeladen
+    s := ExtractFileNameWithoutExt(fTransferFilename) + '_arrow' + ExtractFileExt(fTransferFilename);
+    If FileExistsUTF8(s) Then Begin
+      ctd.TransferFile(s, 'dc3_arrow.png', Nil);
+    End;
   End;
 End;
 
 Procedure TForm4.Button16Click(Sender: TObject);
+Var
+  s: String;
 Begin
   // Set Damageclass 4
   If OpenPictureDialog1.Execute Then Begin
@@ -776,6 +799,11 @@ Begin
     fTransferFilename := OpenPictureDialog1.FileName;
     fOnTransferFileDoneReason := frDC4Tex;
     ctd.TransferFile(fTransferFilename, 'dc4.png', @OnTransferFileDone);
+    // Gibt es eine "Arrow" Textur, wird diese automatisch nachgeladen
+    s := ExtractFileNameWithoutExt(fTransferFilename) + '_arrow' + ExtractFileExt(fTransferFilename);
+    If FileExistsUTF8(s) Then Begin
+      ctd.TransferFile(s, 'dc4_arrow.png', Nil);
+    End;
   End;
 End;
 

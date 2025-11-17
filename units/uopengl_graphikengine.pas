@@ -515,9 +515,10 @@ End;
 (*
  * Die Idee, ist dass wir die Textur betrachten als "Collection" von vielen Tiles
  * Diese collection wird zu einer Rechteckfläche von TilesPerRow und TilesPerCol
- * in die wir via Index zugreifen, und dann immer nur das passende "teilstück" 
+ * in die wir via Index zugreifen, und dann immer nur das passende "teilstück"
  * Rendern ;).
  *)
+
 Procedure RenderTiledQuad(Left, Top: Single; Index, TilesPerRow,
   TilesPerCol: integer; Const Image: TGraphikItem);
 Var
