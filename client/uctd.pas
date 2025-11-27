@@ -1188,19 +1188,20 @@ Begin
       Else Begin
         // Der Spieler hat ins "Leere" geklickt und wählt damit das Gebäude wieder ab
         // Das ist genau gleich wie bei Tctd.FOnMouseUp
-        FSideMenuObject := Nil;
-        If assigned(fBuyingObject) Then fBuyingObject.free;
-        FBuyingObject := Nil;
-        fSelectedBuildings := Nil;
-        fStrategyToolTipp := '';
-        // Der Spieler will Heroes an neue Koords schicken !
-        If assigned(fSelectedHeroes) Then Begin
-          If uctd_common.PointInRect(point(x, y), rect(fMapL, fMapT, fMapL + fMapW, fMapT + fMapH)) Then Begin
-            xs := (fsx + x - fMapL) / MapBlockSize;
-            ys := (fsy + y - fMapT) / MapBlockSize;
-            SetheroTargets(xs, ys);
-            exit; // Sonst würden die Heroes abgewählt werden, dass soll der User via Rechte Maus machen !
-          End;
+        If assigned(fSelectedHeroes)
+          And uctd_common.PointInRect(point(x, y), rect(fMapL, fMapT, fMapL + fMapW, fMapT + fMapH)) Then Begin
+          // Der Spieler will Heroes an neue Koords schicken !
+          xs := (fsx + x - fMapL) / MapBlockSize;
+          ys := (fsy + y - fMapT) / MapBlockSize;
+          SetheroTargets(xs, ys);
+          exit; // Sonst würden die Heroes abgewählt werden, dass soll der User via Rechte Maus machen !
+        End
+        Else Begin
+          FSideMenuObject := Nil;
+          If assigned(fBuyingObject) Then fBuyingObject.free;
+          FBuyingObject := Nil;
+          fSelectedBuildings := Nil;
+          fStrategyToolTipp := '';
         End;
       End;
     End;

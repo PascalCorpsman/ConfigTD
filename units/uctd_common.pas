@@ -134,6 +134,7 @@ Const
    *                           Reduce Speedup in CPU-Overload situations
    *            0.14001 = FIX: info font color in white mode (not readable)
    *            0.14002 = ADD: Feature Show Opponent Waypoints on Wave Start
+   *                      FIX: Hero control glitch
    * Known Bugs :
    *)
   (*
