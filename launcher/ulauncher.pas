@@ -50,7 +50,12 @@ Const
    *
    * Known Bugs :
    *)
-  LauncherVersion: integer = 15;
+   {
+    !! Achtung !!
+    Die versionsnummer des Launchers, darf nicht wie üblich eins weiter stehen, da beim automatischen FPC_Atomic Release
+    immer die config_td Version führend ist -> Die Versionsnummer immer erst hoch ziehen, wenn tatsächlich etwas geändert wurde !
+   }
+  LauncherVersion: integer = 14;
 
 Type
 
