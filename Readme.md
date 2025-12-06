@@ -64,7 +64,8 @@ If not in playing mode the game is always in editor mode, so the game is editor 
 
 ## What needs to be done to play the game
 
-1. Download the [ctd_launcher.exe](https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd_launcher.exe) for windows users or the [ctd_launcher](https://raw.githubusercontent.com/PascalCorpsman/ConfigTD/main/bin/ctd_launcher) binary for linux 64 users.  
+1. Download the ctd_launcher from the latest release [tag](https://github.com/PascalCorpsman/ConfigTD/tags)<br>
+![](documentation/images/asset_download_preview.png)
    - Linux users may need to make the binary executable (chmod +x)
    - [Optional] some Linux need to add the following packages:
        - SSL-Driver
