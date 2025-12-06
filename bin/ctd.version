@@ -13,7 +13,7 @@
           "SIZE":"2869760",
           "HASH2":"129c72a096345da9e7ec630d0f2a6217",
           "SIZE2":"7591320",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/Opponent_overview.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
       },
@@ -24,7 +24,7 @@
           "SIZE":"3089920",
           "HASH2":"e652c6e8db9fd6b359ad2820ff8c1e3f",
           "SIZE2":"7771704",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/Animation_Editor.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
@@ -35,7 +35,7 @@
           "SIZE":"3049472",
           "HASH2":"0570ea31cab83269618cd9561dc9dad0",
           "SIZE2":"7742872",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/image_overview.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
       },
@@ -46,7 +46,7 @@
           "SIZE":"5835776",
           "HASH2":"8dde0b4e9afb394d42ca914ce6f9d896",
           "SIZE2":"7346072",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_launcher.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
       },
@@ -57,7 +57,7 @@
           "SIZE":"7843328",
           "HASH2":"d91deaa31f8da504548c9cd7a250875a",
           "SIZE2":"12594472",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/config_td.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/config_td.exe",
           "Filename":"config_td.exe"
         }
       },
@@ -68,7 +68,7 @@
           "SIZE":"2673664",
           "HASH2":"30be9dd58a8836c409688d7cb41bbc55",
           "SIZE2":"6934904",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_updater.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_updater.exe",
           "Filename":"ctd_updater.exe"
         }
       },
@@ -79,7 +79,7 @@
           "SIZE":"3609088",
           "HASH2":"f51d3c29a49705d518f9f50931c16766",
           "SIZE2":"8066312",
-          "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_server.exe",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
       },
