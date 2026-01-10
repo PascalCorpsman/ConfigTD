@@ -163,10 +163,10 @@ End;
 Procedure TForm14.Button1Click(Sender: TObject);
 Var
   s: String;
-  i: integer;
+  i, EnterID: integer;
   f: Textfile;
 Begin
-  log('TForm14.Button1Click', llTrace);
+  EnterID := LogEnter('TForm14.Button1Click');
   // Create global
   s := trim(lowercase(edit1.text));
   If s = '' Then exit;
@@ -177,20 +177,20 @@ Begin
         dmOpponents: LogShow('Opponent name already exists.', llWarning);
         dmHeroes: LogShow('Hero name already exists.', llWarning);
       End;
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   End;
   If Not DirectoryExistsUTF8(fTruncedMapfolder) Then Begin
     If Not CreateDirUTF8(fTruncedMapfolder) Then Begin
       LogShow('Could not create directory : ' + fTruncedMapfolder, llWarning);
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   End;
   If Not CreateDirUTF8(fTruncedMapfolder + edit1.text) Then Begin
     LogShow('Could not create directory : ' + fTruncedMapfolder + edit1.text, llWarning);
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   Case fmode Of
@@ -229,7 +229,7 @@ Begin
   // Anfügen des Elementes in die Liste und Laden
   AddSortAndSelect(ListBox1, Edit1.Text, Nil);
   Button4.Click; // Laden
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm14.Button2Click(Sender: TObject);
@@ -510,13 +510,13 @@ End;
 
 Procedure TForm14.OnTransferLocalServer(Sender: TObject; Suceed: Boolean);
 Var
-  i: Integer;
+  i, EnterID: Integer;
 Begin
   // Bei Mehreren Kopieen wird diese Callback einmal zu oft aufgerufen, ka warum, aber da es dann nix mehr zu kopieren gibt -> Raus und gut.
   If Not assigned(fTransferLocalServerFiles) Then Begin
     exit;
   End;
-  Log('TForm14.OnFileSend', llTrace);
+  EnterID := LogEnter('TForm14.OnFileSend');
   If Not Suceed Then Begin
     // Wir brechen die Nummer ab mit der Fehlermeldung auf die Letzte Datei
     LogShow('Could not transfer : ' + ExtractFileName(OnTransferLocalServer_LastFile), llError);
@@ -548,12 +548,14 @@ Begin
       setlength(fTransferLocalServerFiles[0].Files, high(fTransferLocalServerFiles[0].Files));
     End;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm14.OnTransferShareServer(Sender: TObject; Suceed: Boolean);
+Var
+  EnterID: Integer;
 Begin
-  Log('TForm14.OnFileSend', llTrace);
+  EnterID := LogEnter('TForm14.OnFileSend');
   If Not Suceed Then Begin
     // Wir brechen die Nummer ab mit der Fehlermeldung auf die Letzte Datei
     LogShow('Could not transfer : ' + fTransferShareServerFiles.FileList[fTransferShareServerFiles.Index].Dest, llError);
@@ -573,7 +575,7 @@ Begin
         @OnTransferShareServer);
     End;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm14.OnGetListbox2Content(Sender: TObject; Const Data: TStringlist
@@ -736,11 +738,11 @@ End;
 
 Procedure TForm14.TransferLocalServer(LocalName, ServerName: String);
 Var
-  c, index, i: integer;
+  c, index, i, EnterID: integer;
   sl: TStringList;
   t: String;
 Begin
-  log(format('TForm14.Transfer %s => %s', [LocalName, ServerName]), llTrace);
+  EnterID := LogEnter(format('TForm14.Transfer %s => %s', [LocalName, ServerName]));
   setlength(fTransferLocalServerFiles, high(fTransferLocalServerFiles) + 2);
   index := high(fTransferLocalServerFiles);
   sl := FindAllFiles(ExtractFilePath(LocalName), '*', false);
@@ -762,7 +764,7 @@ Begin
   fTransferLocalServerFiles[index].Files[c].Dest := ServerName;
   sl.free;
   OnTransferLocalServer(self, true); // Wir starten das Senden der Dateien in dem wir behaupten, das die letzte erfolgreich gesendet wurde.
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Function TForm14.TransferShareServer(Obj: tctd_mapopbject): Boolean;
@@ -804,10 +806,10 @@ Var
   sl: TStringList;
   pp, p, ext: String;
   obj: tctd_mapopbject;
-  i: Integer;
+  i, EnterID: Integer;
   iobj: TItemObject;
 Begin
-  log('TForm14.TransferShareLocal', llTrace);
+  EnterID := LogEnter('TForm14.TransferShareLocal');
   ext := lowercase(ExtractFileExt(ShareName));
   If ext = '.hero' Then Begin
     Raise exception.create('TForm14.TransferShareLocal, vergessener Code für heroes?');
@@ -824,7 +826,7 @@ Begin
     If Not CreateDirUTF8(fTruncedMapfolder) Then Begin
       LogShow('Could not create : ' + fTruncedMapfolder, llError);
       obj.free;
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   End;
@@ -832,7 +834,7 @@ Begin
     If Not CreateDirUTF8(p) Then Begin
       LogShow('Could not create : ' + p, llError);
       obj.free;
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   End;
@@ -840,7 +842,7 @@ Begin
   If Not CopyFile(utf8tosys(ShareName), utf8tosys(p + Localname + ExtractFileext(ShareName))) Then Begin
     LogShow('Could not copy : ' + ShareName, llError);
     obj.free;
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   // Laden der Bilderliste
@@ -854,14 +856,14 @@ Begin
         If Not CopyFile(utf8tosys(pp + sl[i]), p + sl[i]) Then Begin
           LogShow('Could not copy : ' + pp + sl[i], llError);
           sl.free;
-          LogLeave;
+          LogLeave(EnterID);
           exit;
         End;
       End
       Else Begin
         LogShow('Could not find : ' + pp + sl[i], llError);
         sl.free;
-        LogLeave;
+        LogLeave(EnterID);
         exit;
       End;
     End;
@@ -870,7 +872,7 @@ Begin
   p := ExtractFileNameOnly(ShareName);
   For i := 0 To ListBox1.Items.Count - 1 Do Begin
     If ListBox1.Items[i] = p Then Begin
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   End;
@@ -894,7 +896,7 @@ Begin
       AddSortAndSelect(Listbox1, p, Nil);
     End;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm14.ReloadIndex;
@@ -942,12 +944,14 @@ Procedure TForm14.OnFileReceivedEvent(Sender: TObject; MapName: String;
   Filename: String);
 Var
   ext, t: String;
+  //  EnterID,
   i: Integer;
   m: TMemoryStream;
   b: TBuyAble;
   obj: TItemObject;
   found: Boolean;
 Begin
+  //  EnterID := LogEnter('TForm14.OnFileReceivedEvent'); -- Wenn diese Methode Getrackt wird kommt der Stacktracer durcheinander, aber warum ?
   // Wir haben Alle Dateien versendet
   t := Filename;
   ext := LowerCase(ExtractFileExt(Filename));
@@ -955,7 +959,10 @@ Begin
     ((ext = '.geb') And (fmode = dmBuildings)) Or
     ((ext = '.opp') And (fmode = dmOpponents)) Or
     ((ext = '.hero') And (fmode = dmHeroes))
-    ) Then exit;
+    ) Then Begin
+    //    LogLeave(EnterID);
+    exit;
+  End;
   If Not Assigned(ctd.Map) Then exit;
   t := ExtractFileNameOnly(t);
   For i := 0 To ListBox2.Items.Count - 1 Do Begin
@@ -964,7 +971,7 @@ Begin
       obj := TItemObject(ListBox2.items.Objects[i]);
       If assigned(obj) Then obj.ReloadPrivate;
       ListBox2.Invalidate;
-      LogLeave;
+      //      LogLeave(EnterID);
       exit;
     End;
   End;
@@ -1000,7 +1007,7 @@ Begin
           m.Write(b.WaveNum, sizeof(b.WaveNum));
           m.Write(b.Count, sizeof(b.Count));
           m.Write(b.Kind, sizeof(b.Kind));
-        //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
+          //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
           ctd.UpdateMapProperty(mpAddBuyable, m);
         End;
         form4.AddForm4Buyable(b);
@@ -1034,6 +1041,7 @@ Begin
         form4.Button10.Enabled := true;
       End;
   End; // *)
+  //  LogLeave(EnterID);
 End;
 
 End.

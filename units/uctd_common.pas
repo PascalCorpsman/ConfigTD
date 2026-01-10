@@ -511,11 +511,15 @@ Procedure InitOpenDialog(Const Dialog: TOpenDialog; Path: String);
 
 Function Ceilp2(Value: uInt32): uInt32;
 
+Procedure InitLogger();
+
 Procedure LogShow(LogText: String; LogLevel: TLogLevel = llInfo);
 Procedure Log(LogText: String; LogLevel: TLogLevel = llInfo);
-Procedure LogLeave;
+
+Function LogEnter(LogText: String): Integer; // ID is never 0!
+Procedure LogLeave(EnterID: Integer = -1); // Wenn LogTraceStack Aktiviert, "Ende" einer Routine, die
+
 Function GetLoggerLoglevel(): integer;
-Procedure InitLogger();
 {$IFDEF Windows}
 Procedure EnableLogToConsole();
 {$ENDIF}
@@ -727,9 +731,14 @@ Begin
   ulogger.Log(LogText, ConvertLogLevel(LogLevel));
 End;
 
-Procedure LogLeave;
+Function LogEnter(LogText: String): Integer;
 Begin
-  ulogger.LogLeave;
+  result := ulogger.LogEnter(LogText);
+End;
+
+Procedure LogLeave(EnterID: Integer);
+Begin
+  ulogger.LogLeave(EnterID);
 End;
 
 Function GetLoggerLoglevel: integer;
@@ -739,13 +748,14 @@ End;
 
 {$IFDEF Server}
 
-Procedure InitLogger();
+Procedure InitLogger;
 Begin
   logger.LogToConsole := true;
   logger.LogToFile := false;
   logger.AutoLogStackOnFatal := true;
-  logger.LogStackTrace := true;
+  logger.StackTraceValidation := true;
   logger.SetLogLevel(2);
+  logger.HaltOnFatal := true;
 End;
 {$ELSE}
 
@@ -754,10 +764,11 @@ Begin
   logger.LogToFile := false;
   logger.SetLogLevel(2);
   logger.AutoLogStackOnFatal := true;
-  logger.LogStackTrace := true;
+  logger.StackTraceValidation := true;
 {$IFDEF Linux}
   logger.LogToConsole := true;
 {$ENDIF}
+  logger.HaltOnFatal := true;
 End;
 {$ENDIF}
 

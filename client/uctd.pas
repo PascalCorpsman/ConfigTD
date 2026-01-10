@@ -1076,8 +1076,9 @@ End;
 Procedure TBuildingStrategyButton.SetImage(Filename: String);
 Var
   f, p, e: String;
+  EnterID: Integer;
 Begin
-  log('TBuildingStrategyButton.SetImage', llTrace);
+  EnterID := LogEnter('TBuildingStrategyButton.SetImage');
   Fimage := OpenGL_GraphikEngine.LoadGraphik(Filename, smStretchHard);
   f := ExtractFileNameOnly(Filename);
   p := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
@@ -1089,7 +1090,7 @@ Begin
   If FSelectedImage = 0 Then Begin
     log('Could not load : ' + p + f + 's' + e, llError);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 { Tctd }
@@ -1874,7 +1875,7 @@ End;
 Procedure Tctd.OnLevelUpButtonClick(Sender: TObject);
 Var
   m: TMemoryStream;
-  i, j, k: Integer;
+  i, j, k, EnterID: Integer;
 Begin
   If fSideMenuObject Is THero Then exit; // Eigentlich egal weil TBuilding unten geprüft wird ..
   If (fgameState = gs_Gaming) And
@@ -1885,7 +1886,7 @@ Begin
     (TBuilding(fSideMenuObject).Owner = fPlayerIndex) And
     (TBuilding(fSideMenuObject).fUpdating.State = usIdleInactive) And
     (TBuilding(FSideMenuObject).Stage < high(TBuilding(FSideMenuObject).Stages)) Then Begin
-    log('Tctd.OnLevelUpButtonClick', llTrace);
+    EnterID := LogEnter('Tctd.OnLevelUpButtonClick');
     // 2 Möglichkeiten der Player kann sich Alle Updates Leisten, oder eben nur Einige
     If fPlayerInfos[fPlayerIndex].Cash >= length(fSelectedBuildings) * fSelectedBuildings[0].Stages[fSelectedBuildings[0].Stage + 1].Cost Then Begin
       // Der Spieler Kann sich alles Leisten
@@ -1918,17 +1919,17 @@ Begin
         fSideMenuObject := fSelectedBuildings[0];
       End;
     End;
-    LogLeave;
+    LogLeave(EnterID);
   End;
 End;
 
 Procedure Tctd.OnSellButtonClick(Sender: TObject);
 Var
   m: TMemoryStream;
-  i, j: integer;
+  i, j, EnterID: integer;
 Begin
   If fSideMenuObject Is THero Then exit; // Eigentlich egal weil TBuilding unten geprüft wird ..
-  log('Tctd.OnSellButtonClick', llTrace);
+  EnterID := LogEnter('Tctd.OnSellButtonClick');
   If (fgameState = gs_Gaming) And
     (Not fpausing) And
     (Assigned(fSideMenuObject)) And
@@ -1953,7 +1954,7 @@ Begin
     fSelectedBuildings := Nil;
     fSideMenuObject := Nil;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.OnTabButtonClick(Sender: TObject);
@@ -1965,14 +1966,14 @@ End;
 Procedure Tctd.OnStrategyButtonClick(Sender: TObject);
 Var
   m: TMemoryStream;
-  i, j: Integer;
+  i, j, EnterID: Integer;
   b: Boolean;
 Begin
   If (fgameState = gs_Gaming) And
     (Assigned(fSideMenuObject)) And
     (fSideMenuObject Is TBuilding) And
     (TBuilding(fSideMenuObject).Owner = fPlayerIndex) { And (TBuilding(fSideMenuObject).fUpdating.State = 0)} Then Begin
-    log('Tctd.OnBuildingStrategyButtonClick', llTrace);
+    EnterID := LogEnter('Tctd.OnBuildingStrategyButtonClick');
     m := TMemoryStream.Create;
     i := fPlayerIndex;
     m.Write(i, SizeOf(i));
@@ -1994,13 +1995,13 @@ Begin
     Else Begin
       m.free;
     End;
-    LogLeave;
+    LogLeave(EnterID);
   End;
   If (fgameState = gs_Gaming) And
     (Assigned(fSideMenuObject)) And
     (fSideMenuObject Is THero) And
     (THero(fSideMenuObject).Owner = fPlayerIndex) { And (THero(fSideMenuObject).fUpdating.State = 0)} Then Begin
-    log('Tctd.OnBuildingStrategyButtonClick', llTrace);
+    EnterID := LogEnter('Tctd.OnBuildingStrategyButtonClick');
     m := TMemoryStream.Create;
     i := fPlayerIndex;
     m.Write(i, SizeOf(i));
@@ -2020,21 +2021,21 @@ Begin
     Else Begin
       m.free;
     End;
-    LogLeave;
+    LogLeave(EnterID);
   End;
 End;
 
 Procedure Tctd.OnAirStrategyButtonClick(Sender: TObject);
 Var
   m: TMemoryStream;
-  i, j: Integer;
+  i, j, EnterID: Integer;
   b: Boolean;
 Begin
   If (fgameState = gs_Gaming) And
     (Assigned(fSideMenuObject)) And
     (fSideMenuObject Is TBuilding) And
     (TBuilding(fSideMenuObject).Owner = fPlayerIndex) { And (TBuilding(fSideMenuObject).fUpdating.State = 0)} Then Begin
-    log('Tctd.OnBuildingStrategyButtonClick', llTrace);
+    EnterID := LogEnter('Tctd.OnBuildingStrategyButtonClick');
     m := TMemoryStream.Create;
     i := fPlayerIndex;
     m.Write(i, SizeOf(i));
@@ -2056,13 +2057,13 @@ Begin
     Else Begin
       m.free;
     End;
-    LogLeave;
+    LogLeave(EnterID);
   End;
   If (fgameState = gs_Gaming) And
     (Assigned(fSideMenuObject)) And
     (fSideMenuObject Is THero) And
     (THero(fSideMenuObject).Owner = fPlayerIndex) { And (THero(fSideMenuObject).fUpdating.State = 0)} Then Begin
-    log('Tctd.OnBuildingStrategyButtonClick', llTrace);
+    EnterID := LogEnter('Tctd.OnBuildingStrategyButtonClick');
     m := TMemoryStream.Create;
     i := fPlayerIndex;
     m.Write(i, SizeOf(i));
@@ -2082,7 +2083,7 @@ Begin
     Else Begin
       m.free;
     End;
-    LogLeave;
+    LogLeave(EnterID);
   End;
 End;
 
@@ -2115,38 +2116,43 @@ End;
 Procedure Tctd.Connection_Connect(aSocket: TLSocket);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
   // Der Client ist beim Server Registriert, nun gilt es um die Mitspielerlaubniss zu fragen.
-  log('Tctd.Connection_Connect', llTrace);
+  EnterID := LogEnter('Tctd.Connection_Connect');
   fChunkManager.SetNoDelay(true);
   m := TMemoryStream.Create;
   m.WriteAnsiString(FuserName);
   m.WriteAnsiString(fPassword);
   m.Write(ProtocollVersion, sizeof(ProtocollVersion));
   SendChunk(miRequestLogin, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.Connection_Disconnect(aSocket: TLSocket);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.Connection_Disconnect', llTrace);
+  EnterID := LogEnter('Tctd.Connection_Disconnect');
   // Verbindung zum Server verloren / getrennt
   If assigned(OnDisconnectFromServer) Then Begin
     OnDisconnectFromServer(self);
   End;
   fgameState := gs_WaitForJoin;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.Connection_Error(Const msg: String; aSocket: TLSocket);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.Connection_Error', llTrace);
+  EnterID := LogEnter('Tctd.Connection_Error');
   LogShow(msg, llError);
   If assigned(OnDisconnectFromServer) Then Begin
     OnDisconnectFromServer(self);
   End;
   fgameState := gs_WaitForJoin;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.OnUDPConnection_Receive(aSocket: TLSocket);
@@ -2154,11 +2160,11 @@ Var
   Buffer: Array[0..1023] Of byte;
   cnt: integer;
   B: Byte;
-  i: Integer;
+  i, EnterID: Integer;
   serverIP, ServerUser: String;
   bool: Boolean;
 Begin
-  log('Tctd.OnUDPConnection_Receive', llTrace);
+  EnterID := LogEnter('Tctd.OnUDPConnection_Receive');
   Repeat
     cnt := aSocket.Get(buffer, 1024);
     If cnt <> 0 Then Begin
@@ -2196,7 +2202,7 @@ Begin
       End;
     End;
   Until cnt = 0;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.ModifyTerrain(kx, ky: integer);
@@ -2309,13 +2315,15 @@ Begin
 End;
 
 Procedure Tctd.HandleOnDisconnectFromServer;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.HandleOnDisconnectFromServer', llTrace);
+  EnterID := LogEnter('Tctd.HandleOnDisconnectFromServer');
   fgameState := gs_WaitForJoin;
   If assigned(OnDisconnectFromServer) Then Begin
     OnDisconnectFromServer(self);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleUpdateMapProperty(MapProperty, SenderUID: Integer;
@@ -2323,11 +2331,11 @@ Procedure Tctd.HandleUpdateMapProperty(MapProperty, SenderUID: Integer;
 Var
   s: String;
   p: int64;
-  i, j, c: Integer;
+  i, j, c, EnterID: Integer;
   tmp: Tpoint;
   bk: TBuyAbleKind;
 Begin
-  log('Tctd.HandleUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
+  EnterID := LogEnter('Tctd.HandleUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty));
   p := data.Position;
   (*
    * Der Code in HandleUpdateMapProperty.inc übernimmt die Informationen aus Data und schreibt sie in FMap
@@ -2354,7 +2362,7 @@ Begin
   // Weiterleiten an LCL
   If assigned(OnUpdateMapProperty) Then
     OnUpdateMapProperty(self, MapProperty, SenderUID, data);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleLoadGamingData(Const Stream: TStream);
@@ -2369,11 +2377,11 @@ End;
 Procedure Tctd.HandleOnEndRound(Succeed: Boolean; Round: integer;
   Const Data: TStream);
 Var
-  i: integer;
+  i, EnterID: integer;
   msg, w, v: String;
 Begin
   msg := '';
-  log('Tctd.HandleOnEndRound : ' + inttostr(ord(Succeed)), llTrace);
+  EnterID := LogEnter('Tctd.HandleOnEndRound : ' + inttostr(ord(Succeed)));
   If fSideMenuObject Is TOpponent Then Begin
     fSideMenuObject := Nil; // Wenn ein Gegner angewählt war, dann diesen Abwählen, der ist eh hinüber ..
   End;
@@ -2424,12 +2432,14 @@ Begin
       OnShowGameStatistics(msg, data);
     End;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.LoadMapFromShare(MapName_: String);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.LoadMapFromShare : ' + MapName_, llTrace);
+  EnterID := LogEnter('Tctd.LoadMapFromShare : ' + MapName_);
   SwitchToEditMode();
   If Assigned(fMap) Then fmap.free;
   FHintObject.Obj := Nil;
@@ -2440,7 +2450,7 @@ Begin
   fmap.Load(MapName_);
   If assigned(OnLoadMap) Then
     OnLoadMap(self);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.Check_Scrollborders;
@@ -2486,10 +2496,10 @@ End;
 Procedure Tctd.PingForOpenGames;
 Var
   N: TNetworkAdapterList;
-  i: Integer;
+  i, EnterID: Integer;
   s: String;
 Begin
-  log('Tctd.PingForOpenGames', llTrace);
+  EnterID := LogEnter('Tctd.PingForOpenGames');
   If assigned(fUDPConnection) Then Begin
     Try
       n := GetLocalIPs();
@@ -2501,7 +2511,7 @@ Begin
       log('Could not ping, maybe there is no valid network card present.', llCritical);
     End;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Function Tctd.AktualGameList: TStringlist;
@@ -2531,28 +2541,33 @@ End;
 Procedure Tctd.SendMapRating(Rating: integer);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log('Tctd.SendMapRating', llTrace);
+  EnterID := LogEnter('Tctd.SendMapRating');
   If assigned(fMap) Then Begin
     m := TMemoryStream.Create;
     m.Write(Rating, SizeOf(Rating));
     SendChunk(miSendMapRating, m);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.RequestHighscores;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.RequestHighscores', llTrace);
+  EnterID := LogEnter('Tctd.RequestHighscores');
   SendChunk(miRequestMapHighscoresAndRating, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.RequestClearHighscore;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.RequestClearHighscore', llTrace);
+  EnterID := LogEnter('Tctd.RequestClearHighscore');
   SendChunk(miRequestClearMapHighscores, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.AddNewRandomWave(Difficulty: integer);
@@ -2952,12 +2967,12 @@ End;
 
 Procedure Tctd.OnReceivedChunk(Sender: TObject; Const Chunk: TChunk);
 Var
-  i, j, k: integer;
+  i, j, k, EnterID: integer;
   s, t: String;
   crc: UInt32;
   m: TMemoryStream;
   r, g, b: Single;
-  bool: Boolean;
+  bool, dolog: Boolean;
   ts: int64;
   cbSE: TOnGetStreamEvent;
   cbSLE: TOnGetStringListEvent;
@@ -2969,10 +2984,13 @@ Var
   f: TFileStream;
 Begin
 {$IFDEF DoNotLog_CyclicMessages}
-  If ((Chunk.UserDefinedID And $FFFF) <> miUpdateMoveables) And
-    ((Chunk.UserDefinedID And $FFFF) <> miHeartBeat) Then
+  dolog := ((Chunk.UserDefinedID And $FFFF) <> miUpdateMoveables) And
+    ((Chunk.UserDefinedID And $FFFF) <> miHeartBeat);
+{$ELSE}
+  dolog := true;
 {$ENDIF}
-    log('Tctd.HandleReceivedData : ' + MessageIdentifierToString(Chunk.UserDefinedID), llTrace);
+  If dolog Then
+    EnterID := LogEnter('Tctd.HandleReceivedData : ' + MessageIdentifierToString(Chunk.UserDefinedID));
   Case (Chunk.UserDefinedID And $FFFF) Of
     miExchangeWaves: Begin
         i := -1;
@@ -3310,18 +3328,15 @@ Begin
       log('Unknown user defined id : ' + inttostr((Chunk.UserDefinedID And $FFFF)), llError);
     End;
   End;
-{$IFDEF DoNotLog_CyclicMessages}
-  If ((Chunk.UserDefinedID And $FFFF) <> miUpdateMoveables) And
-    ((Chunk.UserDefinedID And $FFFF) <> miHeartBeat) Then
-{$ENDIF}
-    LogLeave;
+  If dolog Then
+    LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleStartRound(Round: integer; Difficulty: integer);
 Var
-  i: integer;
+  i, EnterID: integer;
 Begin
-  log('Tctd.HandleStartRound', llTrace);
+  EnterID := LogEnter('Tctd.HandleStartRound');
   log(format('Start round : %d on map %s', [round + 1, MapName]), llInfo);
   ResetPressKeys();
   fgameState := gs_WaitToStart;
@@ -3332,7 +3347,7 @@ Begin
     FOnReceivingFilesFinish.NeedStartRound := true;
     FOnReceivingFilesFinish.NeedStartRound_Round := Round;
     FOnReceivingFilesFinish.NeedStartRound_Difficulty := Difficulty;
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   // Bei einem Komplett neuen Spiel resetten wir auch alles !
@@ -3385,16 +3400,16 @@ Begin
     OnStartRound(self);
   End;
   SendChunk(miStartRoundresult, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleRefresPlayerStats(Const Data: TStream);
 Var
   i, j: integer;
-  uid, Cash, Lives, Kills, BonusFinisher: integer;
+  uid, Cash, Lives, Kills, BonusFinisher, EnterID: integer;
   s: String;
 Begin
-  log('Tctd.HandleRefresPlayerStats', llTrace);
+  EnterID := LogEnter('Tctd.HandleRefresPlayerStats');
   fPlayerIndex := -1; // Diese Initialisierung müsste eigentlich nur beim 1. Mal gemacht werden, läuft halt immer mit..
   // Suchen unseres Datensatzes und Übernehmen der Statistic Werte
   j := 0;
@@ -3424,16 +3439,16 @@ Begin
   End;
   If assigned(OnRefreshPlayerStats) Then
     OnRefreshPlayerStats(self);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleOnBuildingsToStage(Const List: TStream);
 Var
-  x, y, s, i, cnt: integer;
+  x, y, s, i, cnt, EnterID: integer;
 Begin
-  log('Tctd.HandleOnBuildingsToStage', llTrace);
+  EnterID := LogEnter('Tctd.HandleOnBuildingsToStage');
   If Not assigned(fMap) Then Begin
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   // Berechnen der Anzahl (Müsste = Anzahl der Gebäude sein)
@@ -3447,17 +3462,17 @@ Begin
     List.Read(s, sizeof(s));
     fmap.SetBuildingStage(x, y, s);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleOnHeroesToLevel(Const List: TStream);
 Var
   cnt: integer;
-  x, i, j: integer;
+  x, i, j, EnterID: integer;
 Begin
-  log('Tctd.HandleOnHeroesToLevel', llTrace);
+  EnterID := LogEnter('Tctd.HandleOnHeroesToLevel');
   If Not assigned(fMap) Then Begin
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   cnt := (list.Size - list.Position) Div (2 * SizeOf(x));
@@ -3468,22 +3483,26 @@ Begin
     List.Read(x, sizeof(x));
     fmap.SetHeroToLevel(j, x);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.SendChunk(UserDefinedID: Integer; Const Data: TStream);
+Var
+  Dolog: Boolean;
+  EnterID: Integer;
 Begin
 {$IFDEF DoNotLog_CyclicMessages}
-  If ((UserDefinedID And $FFFF) <> miHeartBeat) Then
+  Dolog := ((UserDefinedID And $FFFF) <> miHeartBeat);
+{$ELSE}
+  dolog := true;
 {$ENDIF}
-    log('Tctd.SendChunk : ' + MessageIdentifierToString(UserDefinedID), llTrace);
+  If dolog Then
+    EnterID := LogEnter('Tctd.SendChunk : ' + MessageIdentifierToString(UserDefinedID));
   If Not fChunkManager.SendChunk(UserDefinedID, data) Then Begin
     log('Could not send.', llCritical);
   End;
-{$IFDEF DoNotLog_CyclicMessages}
-  If ((UserDefinedID And $FFFF) <> miHeartBeat) Then
-{$ENDIF}
-    LogLeave;
+  If Dolog Then
+    LogLeave(EnterID);
 End;
 
 Procedure Tctd.HandleRequestFileTransfer(MapName, Filename: String; CRC: UInt32
@@ -3493,8 +3512,9 @@ Var
   b: Boolean;
   CRC2: Uint32;
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log(format('Tctd.HandleRequestFileTransfer : %s, %s', [MapName, Filename]), lltrace);
+  EnterID := LogEnter(format('Tctd.HandleRequestFileTransfer : %s, %s', [MapName, Filename]));
   If fgameState <> gs_Loading Then Begin
     fstatebeforeloading := fgameState;
     fgameState := gs_Loading;
@@ -3523,7 +3543,7 @@ Begin
     // Die Datei ist schon da, braucht nicht gesendet werden -> also wird sie direkt als Fertig gemeldet !
     OnEndFiletransfer(MapName, Filename);
   End;
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure Tctd.HandleFileReceived(MapName, Filename: String; Const Data: TStream
@@ -3531,14 +3551,14 @@ Procedure Tctd.HandleFileReceived(MapName, Filename: String; Const Data: TStream
 Var
   s: String;
   f: TFileStream;
-  i, j: Integer;
+  i, j, EnterID: Integer;
 Begin
-  log(format('Tctd.HandleFileReceived : %s, %s', [MapName, Filename]), lltrace);
+  EnterID := LogEnter(format('Tctd.HandleFileReceived : %s, %s', [MapName, Filename]));
   s := MapFolder + MapName;
   If Not DirectoryExistsUTF8(s) Then Begin
     If Not CreateDirUTF8(s) Then Begin
       log('Could not create directory : ' + s, llFatal);
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   End;
@@ -3556,12 +3576,14 @@ Begin
   End;
   // Warteschlange ist leer, soll die Karte geladen werden ?
   OnEndFiletransfer(MapName, Filename);
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure Tctd.HandleOnConnectToServer(ServerUid: integer);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.HandleOnConnectToServer', lltrace);
+  EnterID := LogEnter('Tctd.HandleOnConnectToServer');
   (*
    * Hier können alle möglichen Variablen Initialisiert werden, welche auf jeden Fall bei
    * Einer Serververbindung initialisiert sein sollten
@@ -3586,12 +3608,14 @@ Begin
   If assigned(OnConnectToServer) Then Begin
     OnConnectToServer(self);
   End;
-  logleave;
+  logleave(EnterID);
 End;
 
 Constructor Tctd.Create;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.create', llTrace);
+  EnterID := LogEnter('Tctd.create');
   Inherited create();
   DarkMode := false;
   fLeftMousePressed := false;
@@ -3625,14 +3649,14 @@ Begin
   ResetPressKeys;
   fkeyRepeatTimeStamp := GetTick;
   OnFileReceivedEvent := Nil;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Destructor Tctd.Destroy;
 Var
-  i: Integer;
+  i, EnterID: Integer;
 Begin
-  log('Tctd.Destroy', llTrace);
+  EnterID := LogEnter('Tctd.Destroy');
   fSH.free;
   setlength(fOpenGames, 0);
   If assigned(fCaptured_OpenGLControl) Then Begin
@@ -3674,17 +3698,17 @@ Begin
   fLoadGameButton.free;
   fLoadMapButton.free;
   fNewMapButton.free;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.Initialize(Const Owner: TOpenGLControl);
 Var
   p: String;
-  i: integer;
+  i, EnterID: integer;
   png: TPortableNetworkGraphic;
   b1, b2: TBitmap;
 Begin
-  log('Tctd.Initialize', llTrace);
+  EnterID := LogEnter('Tctd.Initialize');
   fSplashhints := TSplashHintManager.create;
   fCaptured_OpenGLControl := Owner;
   FOnMouseMoveCapture := Owner.OnMousemove;
@@ -3840,36 +3864,42 @@ Begin
 
   fWaypointDirectionTexs := OpenGL_GraphikEngine.LoadAlphaGraphikItem(p + 'waydirections.png', smClamp);
 
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.RegisterTCPConnection(Const Connection: TLTCPComponent);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.RegisterTCPConnection', llTrace);
+  EnterID := LogEnter('Tctd.RegisterTCPConnection');
   Connection.OnConnect := @Connection_Connect;
   Connection.OnDisconnect := @Connection_Disconnect;
   Connection.OnError := @Connection_Error;
   fChunkManager.OnReceivedChunk := @OnReceivedChunk;
   fChunkManager.RegisterConnection(Connection);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.RegisterUDPConnection(Const Connection: TLUDPComponent);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.RegisterUDPConnection', llTrace);
+  EnterID := LogEnter('Tctd.RegisterUDPConnection');
   fUDPConnection := Connection;
   If fUDPConnection.Connected Then fUDPConnection.Disconnect();
   fUDPConnection.OnReceive := @OnUDPConnection_Receive;
   If Not fUDPConnection.Connect('', UDPPingPort) Then Begin
     LogShow('Error, could not start UDP Server.', llError);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Function Tctd.Join(ip: String; Port: integer; Password, Username: String
   ): Boolean;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.Join', lltrace);
+  EnterID := LogEnter('Tctd.Join');
   log(format('Joining to %s on port %d as %s, password="%s"', [ip, port, username, Password]));
   result := false;
   // Trennen falls notwendig
@@ -3877,19 +3907,21 @@ Begin
   fPassword := Password;
   FuserName := username;
   result := fChunkManager.Connect(ip, port);
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure Tctd.DisConnect;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.DisConnect', lltrace);
+  EnterID := LogEnter('Tctd.DisConnect');
   If fChunkManager.Connected Then Begin
     fChunkManager.Disconnect();
     While fChunkManager.Connected Do Begin
       fChunkManager.CallAction();
     End;
   End;
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure Tctd.Render(w, h: integer);
@@ -4506,11 +4538,11 @@ End;
 
 Procedure Tctd.CreateBuildMenu(Wave: integer);
 Var
-  i: integer;
+  i, EnterID: integer;
   ap: String;
   ClearBuying: Boolean; // True, wenn das fBuyingObject nicht Kaufbar ist => Platt machen
 Begin
-  log('Tctd.CreateBuildMenu : ' + inttostr(wave), llTrace);
+  EnterID := LogEnter('Tctd.CreateBuildMenu : ' + inttostr(wave));
   // Alles alte Aufräumen
   For i := 0 To high(FBuyMenu.Items) Do Begin
     FBuyMenu.Items[i].obj.Free;
@@ -4552,7 +4584,7 @@ Begin
   If ClearBuying Then Begin
     DeselectCursor()
   End;
-  logleave;
+  logleave(EnterID);
 End;
 
 Function Tctd.GetMapObjUnderCursor(x, y: integer): tctd_mapopbject;
@@ -4632,34 +4664,37 @@ End;
 Procedure Tctd.BuyBuilding(x, y: integer; Obj: TBuilding);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log(format('Tctd.BuyBuilding %dx%d %s', [x, y, extractfilename(Obj.Filename)]), llTrace);
+  EnterID := LogEnter(format('Tctd.BuyBuilding %dx%d %s', [x, y, extractfilename(Obj.Filename)]));
   m := TMemoryStream.Create;
   m.WriteAnsiString(extractfilename(Obj.Filename));
   m.Write(x, SizeOf(x));
   m.Write(y, SizeOf(y));
   SendChunk(miBuyBuilding, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.BuyHero(x, y: integer; Obj: THero);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log(format('Tctd.BuyHero %dx%d %s', [x, y, extractfilename(Obj.Filename)]), llTrace);
+  EnterID := LogEnter(format('Tctd.BuyHero %dx%d %s', [x, y, extractfilename(Obj.Filename)]));
   m := TMemoryStream.Create;
   m.WriteAnsiString(extractfilename(Obj.Filename));
   m.Write(x, SizeOf(x));
   m.Write(y, SizeOf(y));
   SendChunk(miBuyHero, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.AddBuilding(x, y: integer; Name: String; Owner: integer);
 Var
   b: TBuilding;
+  EnterID: Integer;
 Begin
-  log(format('Tctd.AddBuilding %d, %d/%d %s', [Owner, x, y, Name]), llTrace);
+  EnterID := LogEnter(format('Tctd.AddBuilding %d, %d/%d %s', [Owner, x, y, Name]));
   b := TBuilding.create();
   b.LoadFromFile(MapFolder + MapName + PathDelim + Name);
   b.Owner := Owner;
@@ -4678,14 +4713,15 @@ Begin
     logshow(format('Could not add Building, that was accepted by the server [%d, %d/%d %s]', [Owner, x, y, Name]), llCritical);
     b.free;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.AddHero(x, y: integer; Name: String; Owner: integer);
 Var
   h: THero;
+  EnterID: Integer;
 Begin
-  log(format('Tctd.AddHero %d, %d/%d %s', [Owner, x, y, Name]), llTrace);
+  EnterID := LogEnter(format('Tctd.AddHero %d, %d/%d %s', [Owner, x, y, Name]));
   h := THero.create();
   h.LoadFromFile(MapFolder + MapName + PathDelim + Name);
   h.Owner := Owner;
@@ -4697,7 +4733,7 @@ Begin
     logshow(format('Could not add Hero, that was accepted by the server [%d, %d/%d %s]', [Owner, x, y, Name]), llCritical);
     h.free;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.SwitchToEditMode;
@@ -4721,12 +4757,12 @@ End;
 
 Procedure Tctd.NewMap(w, h: Integer; n: String);
 Var
-  i: Integer;
+  i, EnterID: Integer;
   m: tmemorystream;
   p: String;
   png: TPortableNetworkGraphic;
 Begin
-  log(format('Tctd.NewMap %dx%d %s', [w, h, n]), llTrace);
+  EnterID := LogEnter(format('Tctd.NewMap %dx%d %s', [w, h, n]));
   m := TMemoryStream.Create;
   i := w;
   m.Write(i, sizeof(i));
@@ -4745,7 +4781,7 @@ Begin
   png.SaveToStream(m);
   png.free;
   SendChunk(miNewMap, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.LoadMap(MapName: String);
@@ -4762,25 +4798,25 @@ End;
 Procedure Tctd.getMapList(Callback: TOnGetStringListEvent);
 Var
   m: TMemoryStream;
-  Identifier: integer;
+  Identifier, EnterID: integer;
 Begin
-  log('Tctd.getMapList', llTrace);
+  EnterID := LogEnter('Tctd.getMapList');
   m := TMemoryStream.Create;
   Identifier := GetNextGlobalStreamQueueID Shl 16;
   If Not fsh.AddWaitIdentifier(Identifier, Callback) Then Begin
     LogShow('Tctd.getMapList Identifier already exists.', llCritical);
   End;
   SendChunk(miRequestMapList Or Identifier, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.getMapPrieviewInfo(MapName: String; aShowBackTex: Boolean;
   Callback: TOnGetMapPrieviewInfoEvent);
 Var
   m: TMemoryStream;
-  Identifier: integer;
+  Identifier, EnterID: integer;
 Begin
-  log('Tctd.getMapPrieviewInfo : ' + MapName, llTrace);
+  EnterID := LogEnter('Tctd.getMapPrieviewInfo : ' + MapName);
   m := TMemoryStream.Create;
   m.WriteAnsiString(MapName);
   m.write(aShowBackTex, sizeof(aShowBackTex));
@@ -4789,28 +4825,30 @@ Begin
     LogShow('Tctd.getMapPrieviewInfo(' + MapName + ') Identifier already exists.', llCritical);
   End;
   SendChunk(miRequestMapPreviewInfo Or Identifier, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.CloneMapWave(SourceWaveNum: integer);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log('Tctd.CloneMapWave : ' + inttostr(SourceWaveNum), llTrace);
+  EnterID := LogEnter('Tctd.CloneMapWave : ' + inttostr(SourceWaveNum));
   m := TMemoryStream.Create;
   m.Write(SourceWaveNum, sizeof(SourceWaveNum));
   SendChunk(miCloneMapWave, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.UpdateMapProperty(MapProperty: integer; Const Stream: TStream);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log('Tctd.UpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
+  EnterID := LogEnter('Tctd.UpdateMapProperty : ' + MessageMapPropertyToString(MapProperty));
   If BlockMapUpdateSending Then Begin
     stream.Free; // Wir senden zwar nicht, aber der Übergebene Stream muss dennoch freigegeben werden.
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   m := TMemoryStream.Create;
@@ -4822,53 +4860,63 @@ Begin
     stream.Free;
   End;
   SendChunk(miUpdateMapProperty, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.InitiateNewGame(Difficulty: integer);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log('Tctd.InitiateNewGame : ' + inttostr(Difficulty), llTrace);
+  EnterID := LogEnter('Tctd.InitiateNewGame : ' + inttostr(Difficulty));
   m := TMemoryStream.Create;
   m.Write(Difficulty, SizeOf(Difficulty));
   SendChunk(miInitiateNewGame, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.RestartRound;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.RestartRound', llTrace);
+  EnterID := LogEnter('Tctd.RestartRound');
   SendChunk(miRestartLastWave, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.Continue;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.Continue', llTrace);
+  EnterID := LogEnter('Tctd.Continue');
   SendChunk(miContinue, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.AbortWave;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.Continue', llTrace);
+  EnterID := LogEnter('Tctd.Continue');
   SendChunk(miAbortWave, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.Splashhint(Const Text: String; Color: TVector3);
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.Splashhint : ' + Text, llTrace);
+  EnterID := LogEnter('Tctd.Splashhint : ' + Text);
   fSplashhints.AddText(text, Color);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.splashAirLevels;
 Var
   s: String;
+  EnterID: Integer;
 Begin
-  log('Tctd.splashAirLevels', llTrace);
+  EnterID := LogEnter('Tctd.splashAirLevels');
   If assigned(fmap) Then Begin
     s := 'Airlevels : ' + fmap.getAirLevels;
   End
@@ -4877,14 +4925,15 @@ Begin
   End;
   form13.AddMessage(s);
   Splashhint(s, DefaultSplashHintColor);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.splashBossLevels;
 Var
   s: String;
+  EnterID: Integer;
 Begin
-  log('Tctd.splashBossLevels', llTrace);
+  EnterID := LogEnter('Tctd.splashBossLevels');
   If assigned(fmap) Then Begin
     s := 'Bosslevels : ' + fmap.getBossLevels;
   End
@@ -4893,14 +4942,15 @@ Begin
   End;
   form13.AddMessage(s);
   Splashhint(s, DefaultSplashHintColor);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.splashBonusLevels;
 Var
   s: String;
+  EnterID: Integer;
 Begin
-  log('Tctd.splashBonusLevels', llTrace);
+  EnterID := LogEnter('Tctd.splashBonusLevels');
   If assigned(fmap) Then Begin
     s := 'Bonuslevels : ' + fmap.getBonusLevels;
   End
@@ -4909,14 +4959,16 @@ Begin
   End;
   form13.AddMessage(s);
   Splashhint(s, DefaultSplashHintColor);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.RequestPingTimes;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.RequestPingTimes', llTrace);
+  EnterID := LogEnter('Tctd.RequestPingTimes');
   SendChunk(miReQuestPingTimes, Nil);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.SendKillCommand(PlayerName: String);
@@ -4929,23 +4981,26 @@ Begin
 End;
 
 Procedure Tctd.TogglePause;
+Var
+  EnterID: Integer;
 Begin
-  log('Tctd.TogglePause', llTrace);
+  EnterID := LogEnter('Tctd.TogglePause');
   If fgameState = gs_Gaming Then Begin
     SendChunk(miTogglePause, Nil);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.SendChat(Message: String);
 Var
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
-  log('Tctd.SendChat : ' + Message, llTrace);
+  EnterID := LogEnter('Tctd.SendChat : ' + Message);
   m := TMemoryStream.Create;
   m.WriteAnsiString(Serialize(Message));
   SendChunk(miChatMessage, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.TransferFile(SourceFile: String; Dest: String;
@@ -4953,10 +5008,10 @@ Procedure Tctd.TransferFile(SourceFile: String; Dest: String;
 Var
   crc: UInt32;
   m: TMemoryStream;
-  Identifier: integer;
+  Identifier, EnterID: integer;
   r: TOnGetBooleanEventRecord;
 Begin
-  log('Tctd.TransferFile: ' + SourceFile + ' -> ' + Dest, llTrace);
+  EnterID := LogEnter('Tctd.TransferFile: ' + SourceFile + ' -> ' + Dest);
   If FileExistsutf8(SourceFile) And (SourceFile <> '') Then Begin
     crc := CRC_of_File(SourceFile);
     m := TMemorystream.create;
@@ -4977,15 +5032,15 @@ Begin
     If assigned(Callback) Then
       Callback(self, false);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.GetFileList(Mask: String; Callback: TOnGetStringListEvent);
 Var
   m: TMemoryStream;
-  Identifier: integer;
+  Identifier, EnterID: integer;
 Begin
-  log('Tctd.GetFileList : ' + mask, llTrace);
+  EnterID := LogEnter('Tctd.GetFileList : ' + mask);
   m := TMemoryStream.Create;
   m.WriteAnsiString(Mask);
   Identifier := GetNextGlobalStreamQueueID Shl 16;
@@ -4993,22 +5048,22 @@ Begin
     LogShow('Tctd.GetFileList(' + Mask + ') Identifier already exists.', llCritical);
   End;
   SendChunk(miRequestFileList Or Identifier, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.GetSavegames(Callback: TOnGetStreamEvent);
 Var
   m: TMemoryStream;
-  Identifier: integer;
+  Identifier, EnterID: integer;
 Begin
-  log('Tctd.GetSavegames', llTrace);
+  EnterID := LogEnter('Tctd.GetSavegames');
   m := TMemoryStream.Create;
   Identifier := GetNextGlobalStreamQueueID Shl 16;
   If Not fsh.AddWaitIdentifier(Identifier, Callback) Then Begin
     LogShow('Tctd.GetSavegames Identifier already exists.', llCritical);
   End;
   SendChunk(miRequestSavegames Or Identifier, m);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure Tctd.SaveGame(Filename: String);

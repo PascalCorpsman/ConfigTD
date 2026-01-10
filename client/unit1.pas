@@ -414,11 +414,11 @@ End;
 
 Procedure TForm1.MenuItem7Click(Sender: TObject);
 Var
-  w, h: integer;
+  w, h, EnterID: integer;
   n: String;
 Begin
   // New Map
-  log('TForm1.MenuItem7Click', llTrace);
+  EnterID := LogEnter('TForm1.MenuItem7Click');
   //  timer2.enabled := false;
   form3.caption := 'New map...';
   form3.Edit3.Visible := true;
@@ -438,7 +438,7 @@ Begin
     If (w <= 0) Or (h <= 0) Or (n = '') Then Begin
       LogShow('Map invalid settings.', llError);
       RestoreForm4;
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
     // 2. Prüfen ob Kartenname bereits existiert => Anlegen der Karte
@@ -448,16 +448,18 @@ Begin
     ctd.getMapList(@Form1NewMapEvent);
   End;
   RestoreForm4;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.MenuItem8Click(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
   // Load Map
-  log('TForm1.MenuItem8Click', llTrace);
+  EnterID := LogEnter('TForm1.MenuItem8Click');
   ctd.getMapList(@Form10GetMapListEvent);
   HideForm4;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.MenuItem9Click(Sender: TObject);
@@ -590,14 +592,14 @@ End;
 
 Procedure TForm1.Form1NewMapEvent(Sender: TObject; Const Data: TStringlist);
 Var
-  i: integer;
+  i, EnterID: integer;
 Begin
-  log('TForm1.Form1NewMapEvent', llTrace);
+  EnterID := LogEnter('TForm1.Form1NewMapEvent');
   // 2.2 Eigentliche Prüfung auf Doppelten Namen
   For i := 0 To Data.Count - 1 Do
     If lowercase(fnmr.n) = lowercase(copy(Data[i], 1, pos(':', Data[i]) - 1)) Then Begin
       LogShow('Map already exists.', llError);
-      LogLeave;
+      LogLeave(EnterID);
       exit;
     End;
   // 3. Senden Befehl zum Anlegen und der Server fordert uns dann automatisch zum laden auf.
@@ -606,7 +608,7 @@ Begin
     fMapTransferStream.free;
     fMapTransferStream := ImageToMapStream(Form3Filename);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.Form1GetSavegamesforLoadEvent(Sender: TObject;
@@ -646,12 +648,14 @@ Begin
 End;
 
 Procedure TForm1.StartClientGame;
+Var
+  EnterID: Integer;
 Begin
-  log('TForm1.StartClientGame', llTrace);
+  EnterID := LogEnter('TForm1.StartClientGame');
   If Not ctd.Join(form2.ComboBox1.text, strtoint(form2.Edit1.Text), form2.Edit2.Text, form2.edit3.text) Then Begin
     logshow('Error while joining session, could not connect to :' + form2.ComboBox1.text, llError);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.Load_CT_Settings;
@@ -806,8 +810,9 @@ Procedure TForm1.StartHostGame;
 Var
   serv: String;
   p: TProcessUTF8;
+  EnterID: Integer;
 Begin
-  log('TForm1.StartHostGame', llTrace);
+  EnterID := LogEnter('TForm1.StartHostGame');
   // Starten des CTD_servers, dann als Client verbinden
   serv := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0))) + 'ctd_server';
 {$IFDEF Windows}
@@ -836,28 +841,32 @@ Begin
   End
   Else Begin
     LogShow('Error: could not find server application, abort now', llError);
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   sleep(1000); // Bis der Server Steht dauerts ein bischen, also warten wir
   StartClientGame;
   Application.BringToFront;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.OnConnectToServer(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
-  log('TForm1.OnConnectToServer', lltrace);
+  EnterID := LogEnter('TForm1.OnConnectToServer');
   MenuItem7.Enabled := True; // New Map
   MenuItem8.Enabled := True; // Load Map
   MenuItem9.Enabled := True; // Load game
   MenuItem19.Enabled := True; // Open Chat
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.OnDisconnectFromServer(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
-  log('TForm1.OnDisconnectFromServer', lltrace);
+  EnterID := LogEnter('TForm1.OnDisconnectFromServer');
   caption := defCaption;
   MenuItem7.Enabled := false; // New Map
   MenuItem8.Enabled := false; // Load Map
@@ -887,18 +896,18 @@ Begin
   If form16.Visible Then form16.close; // Savegame Dialog
   If form17.Visible Then form17.close; // Map Textrure Generator Dialog
 
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.OnLoadMap(Sender: TObject);
 Var
-  i: Integer;
+  i, EnterID: Integer;
   f: TWaveFrame;
   m: TMemoryStream;
   s: String;
 Begin
   // Wenn eine Neue Karte geladen wurde
-  log('TForm1.OnLoadMap', lltrace);
+  EnterID := LogEnter('TForm1.OnLoadMap');
   caption := defCaption + ' : ' + MapName;
   form4.caption := 'Map Editor : ' + MapName;
   ctd.BlockMapUpdateSending := true;
@@ -972,15 +981,16 @@ Begin
   MenuItem27.enabled := true; // Save game
   MenuItem29.enabled := true; // Map Tex Editor
   ctd.Map.ShowBackTex := Not (GetValue('Global', 'DisableBackGroundTexturing', '0') = '1');
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.OnUpdateMapProperty(Sender: TObject; MapProperty: Integer;
   SenderUid: Integer; Const Data: TStream);
 Var
   Event: TLCLRecord;
+  EnterID: Integer;
 Begin
-  log('TForm1.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
+  EnterID := LogEnter('TForm1.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty));
   (*
    * OnUpdateMapProperty wird von allen möglichen L-Net Events aus aufgerufen
    * Die LclFifo entkoppelt das und kümmert sich drum ;)
@@ -992,7 +1002,7 @@ Begin
   Event.data.CopyFrom(data, data.Size - data.Position);
   Event.data.Position := 0;
   LclFifo.Push(Event);
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.OnWaveExchangeEvent(Sender: TObject; SourceWaveNum,
@@ -1017,8 +1027,9 @@ Procedure TForm1.OnStartRound(Sender: TObject);
 Var
   dummy: Boolean;
   s: String;
+  EnterID: Integer;
 Begin
-  log('TForm1.OnStartRound', lltrace);
+  EnterID := LogEnter('TForm1.OnStartRound');
   caption := defCaption + ' : ' + MapName + ' Round : ' + inttostr(ctd.AktualWave + 1);
   If GetValue('Global', 'ShowWaveOppHint', '1') = '1' Then Begin
     s := 'Opponents for round ' + inttostr(ctd.AktualWave + 1) + ':' + LineEnding + ctd.Map.WaveOppList(ctd.AktualWave);
@@ -1049,7 +1060,7 @@ Begin
   If Form8.visible Then Begin // Der Game Statistik Dialog
     Form8.Hide;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.OnEndRound(Sender: TObject; Succeed: Boolean; Round_: Integer);
@@ -1108,10 +1119,11 @@ Function TForm1.SaveAndCheckMap(ShowWarnings: Boolean; ShowErrors: Boolean
   ): Boolean;
 Var
   r: TCheckResult;
+  EnterID: Integer;
 Begin
   If Not assigned(ctd) Then exit;
   If Not assigned(ctd.Map) Then exit;
-  log('TForm1.SaveAndCheckMap', llTrace);
+  EnterID := LogEnter('TForm1.SaveAndCheckMap');
   DefaultFormatSettings.DecimalSeparator := '.';
   ctd.UpdateMapProperty(mpSaveMap, Nil);
   ctd.Map.Save(MapName); // Speichern Lokal
@@ -1122,7 +1134,7 @@ Begin
   Else Begin
     result := true;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.AddUserMessage(Msg: String; WarnLevel: TLogLevel);
@@ -1185,9 +1197,11 @@ Begin
 End;
 
 Procedure TForm1.MenuItem3Click(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
   // Host a game
-  log('TForm1.MenuItem3Click', lltrace);
+  EnterID := LogEnter('TForm1.MenuItem3Click');
   form2.caption := HostGame;
   form2.width := 280;
   form2.ModalResult := mrNone;
@@ -1206,13 +1220,15 @@ Begin
     SetValue('Global', 'Hostusername', form2.Edit3.Text);
     StartHostGame;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.MenuItem4Click(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
   // Join Game
-  log('TForm1.MenuItem4Click', lltrace);
+  EnterID := LogEnter('TForm1.MenuItem4Click');
   form2.caption := Joingame;
   form2.width := 533;
   form2.ListBox1.ItemIndex := -1;
@@ -1235,13 +1251,13 @@ Begin
     StartClientGame;
   End;
   form2.Timer1.Enabled := false;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.FormCreate(Sender: TObject);
 Var
   FileloggingDir: String;
-  i: integer;
+  i, EnterID: integer;
   dummy: Boolean;
 Begin
   LclFifo := TLCLFifo.create;
@@ -1317,8 +1333,8 @@ Begin
       End;
     End;
   End;
+  EnterID := LogEnter('TForm1.FormCreate');
   log('TForm1.FormCreate', llInfo);
-  log('TForm1.FormCreate', lltrace);
   If FileloggingDir = '' Then Begin
     log('Disabled, file logging.', llWarning);
   End;
@@ -1335,7 +1351,7 @@ Begin
   // Init dglOpenGL.pas , Teil 1
   If Not InitOpenGl Then Begin
     LogShow('Error, could not init dglOpenGL.pas', llfatal);
-    LogLeave;
+    LogLeave(EnterID);
     Halt(1);
   End;
   (*
@@ -1352,7 +1368,7 @@ Begin
   AutomodeData.State := AM_Idle;
 {$ENDIF}
   Application.AddOnIdleHandler(@OnIdle);
-  LogLeave;
+  LogLeave(EnterID);
 
 {$IFDEF WinXPMode}
   LogShow('Compiled in WinXP mode, make shure the server is also compiled in this mode.');
@@ -1360,15 +1376,17 @@ Begin
 End;
 
 Procedure TForm1.FormDestroy(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
-  log('TForm1.FormDestroy', llTrace);
+  EnterID := LogEnter('TForm1.FormDestroy');
   If assigned(ctd) Then
     ctd.free;
   ctd := Nil;
   fMapTransferStream.free;
   LclFifo.free;
   LclFifo := Nil;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.FormHide(Sender: TObject);
@@ -1377,8 +1395,10 @@ Begin
 End;
 
 Procedure TForm1.FormCloseQuery(Sender: TObject; Var CanClose: boolean);
+Var
+  EnterID: Integer;
 Begin
-  log('TForm1.FormCloseQuery', llTrace);
+  EnterID := LogEnter('TForm1.FormCloseQuery');
   // Todo: Speichern der Map, oder wenigstens Nachfragen ob gespeichert werden soll
   log('Shuting down.', llInfo);
   If Form4.Visible Then form4.Close; // Map Editor Dialog Schließen falls geöffnet
@@ -1396,7 +1416,7 @@ Begin
   Initialized := false;
   // Eine Evtl bestehende Verbindung Kappen, so lange die LCL und alles andere noch Lebt.
   ctd.DisConnect;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.FormShow(Sender: TObject);
@@ -1552,11 +1572,13 @@ Begin
 End;
 
 Procedure TForm1.MenuItem23Click(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
   // Restart Last Wave
-  log('TForm1.MenuItem23Click', llTrace);
+  EnterID := LogEnter('TForm1.MenuItem23Click');
   If Not SaveAndCheckMap(false, true) Then Begin
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   If ctd.AktualWave = 0 Then Begin
@@ -1565,19 +1587,21 @@ Begin
   Else Begin
     ctd.RestartRound;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.MenuItem24Click(Sender: TObject);
+Var
+  EnterID: Integer;
 Begin
   // Continue Game
-  log('TForm1.MenuItem24Click', llTrace);
+  EnterID := LogEnter('TForm1.MenuItem24Click');
   If Not SaveAndCheckMap(false, true) Then Begin
-    LogLeave;
+    LogLeave(EnterID);
     exit;
   End;
   ctd.continue;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm1.MenuItem25Click(Sender: TObject);

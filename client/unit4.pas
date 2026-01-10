@@ -496,11 +496,11 @@ End;
 Procedure TForm4.Button5Click(Sender: TObject);
 Var
   sl: TStringList;
-  i: Integer;
+  i, EnterID: Integer;
   s: String;
 Begin
   // Check and Save Map
-  log('TForm4.Button5Click', llTrace);
+  EnterID := LogEnter('TForm4.Button5Click');
   If Form1.SaveAndCheckMap(true, true) Then Begin
     LogShow('Congratulations. Your maps has been approved to be playable and without warnings!', llInfo);
   End
@@ -518,7 +518,7 @@ Begin
     End;
     sl.free;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm4.Button6Click(Sender: TObject);
@@ -691,10 +691,11 @@ Procedure TForm4.Button10Click(Sender: TObject);
 Var
   b: TBuyAble;
   m: TMemoryStream;
+  EnterID: Integer;
 Begin
   // Set = Übernehmen der Einstellungen für das Gebäude
   If ListBox1.ItemIndex = -1 Then exit;
-  log('TForm4.Button10Click', lltrace);
+  EnterID := LogEnter('TForm4.Button10Click');
   b := StringToBuyAble(ListBox1.Items[ListBox1.ItemIndex]);
   b.WaveNum := strtointdef(edit6.text, 1) - 1;
   b.Count := strtointdef(edit7.text, 0);
@@ -705,7 +706,7 @@ Begin
   m.Write(b.Kind, sizeof(b.Kind));
   //  ctd.Map.addBuyable(b.Item, b.WaveNum, b.Count); -- Das macht ctd schon
   ctd.UpdateMapProperty(mpUpdateBuyable, m);
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure TForm4.Button11Click(Sender: TObject);
@@ -1159,7 +1160,7 @@ End;
 Procedure TForm4.DoUpdateMapProperty(Sender: TObject; MapProperty: Integer;
   SenderUid: Integer; Const Data: TStream);
 Var
-  i, j, c: Integer;
+  i, j, c, EnterID: Integer;
   s: String;
   b: Boolean;
   by: TBuyAble;
@@ -1169,7 +1170,7 @@ Begin
    * ! WICHTIG !
    * Hier dürfen nur LCL-Sachen gesetzt werden, fMap wird automatisch beim Empfangen gesetzt !
    *)
-  log('TForm4.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty), llTrace);
+  EnterID := LogEnter('TForm4.OnUpdateMapProperty : ' + MessageMapPropertyToString(MapProperty));
   Case MapProperty Of
     mpSaveMap,
       mpResize,
@@ -1400,7 +1401,7 @@ Begin
       LogShow('Form4.OnUpdateMapProperty: missing handler for ' + inttostr(MapProperty), llWarning);
     End;
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TForm4.RefreshOpponentsClick(Sender: TObject);

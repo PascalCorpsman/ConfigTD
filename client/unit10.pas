@@ -268,12 +268,12 @@ End;
 Procedure TForm10.ReloadLevels;
 Var
   i: Integer;
-  w, maxp, pp, minp, j: Integer;
+  w, maxp, pp, minp, j, EnterID: Integer;
   f: Single;
 Begin
-  log('TForm10.ReloadLevels', lltrace);
+  EnterID := LogEnter('TForm10.ReloadLevels');
   If Updateing <> 0 Then Begin
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   listbox1.Items.BeginUpdate;
@@ -307,7 +307,7 @@ Begin
     memo1.text := '';
     Image1.Picture.Assign(Nil);
   End;
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure TForm10.BeginUpdate;
@@ -343,7 +343,7 @@ Begin
       label8.caption := format('%0.2f', [f]);
     End;
     PreviewIndex := ListBox1.ItemIndex;
-    ctd.getMapPrieviewInfo(ListBox1.Items[ListBox1.ItemIndex], not (GetValue('Global', 'DisableBackGroundTexturing', '0') = '1'), @OnGetMapPrieviewInfoEvent);
+    ctd.getMapPrieviewInfo(ListBox1.Items[ListBox1.ItemIndex], Not (GetValue('Global', 'DisableBackGroundTexturing', '0') = '1'), @OnGetMapPrieviewInfoEvent);
   End;
 End;
 

@@ -988,17 +988,19 @@ Begin
 End;
 
 Function TMap.getBuyAble(index: integer): TBuyAble;
+Var
+  EnterID: Integer;
 Begin
-  Log('TMap.getBuyAble', llTrace);
+  EnterID := LogEnter('TMap.getBuyAble');
   If (index >= 0) And (Index <= high(fBuyAbles)) Then Begin
     result := fBuyAbles[index];
   End
   Else Begin
     log('Index out of range.', llFatal);
-    LogLeave;
+    LogLeave(EnterID);
     halt(0);
   End;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Function TMap.GetBuyAblesCount: integer;
@@ -1007,10 +1009,12 @@ Begin
 End;
 
 Procedure TMap.SetBackTex(AValue: String);
+Var
+  EnterID: Integer;
 Begin
-  log('TMap.SetBackTex = ' + AValue, llTrace);
+  EnterID := LogEnter('TMap.SetBackTex = ' + AValue);
   If fBackTex = AValue Then Begin
-    LogLeave;
+    LogLeave(EnterID);
     Exit;
   End;
   Change(false);
@@ -1038,7 +1042,7 @@ Begin
   End;
 {$ENDIF}
   fBackTex := AValue;
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TMap.SetDC1Tex(AValue: String);
@@ -1149,10 +1153,10 @@ Procedure TMap.Load(Const MapName_: String);
 Var
   ini: tIniFile;
   s: String;
-  w, h, j, i: Integer;
+  w, h, j, i, EnterID: Integer;
   c: Char;
 Begin
-  log('TMap.Load : ' + MapName_, lltrace);
+  EnterID := LogEnter('TMap.Load: ' + MapName_);
   Clear;
   MapName := MapName_;
   s := MapFolder + MapName + PathDelim + MapRootName;
@@ -1219,7 +1223,8 @@ Begin
       'building': fBuyAbles[i].Kind := bkBuilding;
       'hero': fBuyAbles[i].Kind := bkHero;
     Else Begin
-        Raise exception.create('Error, invalid buyablekind: ' + ini.ReadString('buyables', 'kind' + inttostr(i), 'building'));
+        logleave(EnterID);
+        log('Error, invalid buyablekind: ' + ini.ReadString('buyables', 'kind' + inttostr(i), 'building'), llFatal);
       End;
     End;
   End;
@@ -1241,7 +1246,7 @@ Begin
         End
     Else Begin
         log('Error unknown placement object : ' + s, llfatal);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
     End;
@@ -1291,7 +1296,7 @@ Begin
   UpdatePlacemantBlocked;
   SortPlacementByYCoordinate;
   CalcWaypointFields;
-  logleave;
+  logleave(EnterID);
 End;
 
 Procedure TMap.Save(Const MapName_: String);
@@ -3172,9 +3177,9 @@ Var
   bh: THero;
   sl1, sl2: TStringList;
   msg: String;
-  oppsPerWave: integer;
+  oppsPerWave, EnterID: integer;
 Begin
-  log('TMap.CheckForErrors', lltrace);
+  EnterID := LogEnter('TMap.CheckForErrors');
   result.Errors := true;
   result.Warnings := false;
   ap := MapFolder + MapName + PathDelim;
@@ -3184,22 +3189,22 @@ Begin
 
   If (fDC1Tex = '') Or Not (FileExistsUTF8(ap + fDC1Tex)) Then Begin
     LogShow('Error, missing/invalid image for damageclass 1.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   If (fDC2Tex = '') Or Not (FileExistsUTF8(ap + fDC2Tex)) Then Begin
     LogShow('Error, missing/invalid image for damageclass 2.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   If (fDC3Tex = '') Or Not (FileExistsUTF8(ap + fDC3Tex)) Then Begin
     LogShow('Error, missing/invalid image for damageclass 3.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   If (fDC4Tex = '') Or Not (FileExistsUTF8(ap + fDC4Tex)) Then Begin
     LogShow('Error, missing/invalid image for damageclass 4.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
 
@@ -3219,20 +3224,20 @@ Begin
 
   If fMaxPlayer < 1 Then Begin
     LogShow('Error, invalid value for max player count.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
 
   // Nur Gespeicherte Karten taugen was !
   If fChanged Then Begin
     LogShow('Error, map is not saved yet.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   // Gibt es mindestens eine Wave ?
   If high(Waves) = -1 Then Begin
     LogShow('No waves defined.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   // Todo : Sind alle Waves Vollständig und sinnvoll definiert
@@ -3240,7 +3245,7 @@ Begin
   // Todo : Prüfen ob alle Erzeugungen der Wavas (Playercount > 1) auch auf begehbaren Koordinaten landen.
   If (Lives[0] <= 0) Or (Lives[1] <= 0) Then Begin
     LogShow('At Least Normal and Easy must have minimul 1 live.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
 
@@ -3251,7 +3256,7 @@ Begin
     Case fBuyAbles[i].Kind Of
       bkBuilding: Begin
           If Not CheckBuilding(BuyAbles[i].Item) Then Begin
-            LogLeave;
+            LogLeave(EnterID);
             exit;
           End;
           If BuyAbles[i].WaveNum <= 0 Then Begin
@@ -3264,7 +3269,7 @@ Begin
         End;
       bkHero: Begin
           If Not CheckHero(BuyAbles[i].Item) Then Begin
-            LogLeave;
+            LogLeave(EnterID);
             exit;
           End;
           If BuyAbles[i].WaveNum <= 0 Then Begin
@@ -3283,26 +3288,26 @@ Begin
     For j := i + 1 To BuyAblesCount - 1 Do Begin
       If BuyAbles[i].Item = BuyAbles[j].Item Then Begin
         LogShow('No doubles allowed in buy list.', llError);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
     End;
   End;
   If Not bool Then Begin
     logShow('In wave 0 nothing is buyable.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   If m > Waves[0].ChashOnStart Then Begin
     logShow('Buyable buildings in wave 0 are to expensive to buy.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
 
   If FBackTex <> '' Then Begin
     If Not FileExistsUTF8(ap + FBackTex) Then Begin
       LogShow('Unable to load : ' + FBackTex, llError);
-      logleave;
+      logleave(EnterID);
       exit;
     End;
   End;
@@ -3320,17 +3325,17 @@ Begin
       End;
       If Waves[i].Opponents[j].Count <= 0 Then Begin
         LogShow(format('In wave %d, opponent %d count is invalid.', [i + 1, j + 1]), llError);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
       If Waves[i].Opponents[j].refund < 0 Then Begin
         LogShow(format('In wave %d, opponent %d "Cash per unit" has to be >= 0', [i + 1, j + 1]), llError);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
       If Waves[i].Opponents[j].UnitsPerSpawn = 0 Then Begin
         LogShow(format('In wave %d, opponent %d "Units per spawn" is zero.  ', [i + 1, j + 1]), llError);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
       If Waves[i].Opponents[j].Spawndelta < 100 Then Begin
@@ -3340,14 +3345,14 @@ Begin
 
       If Not CheckOpponent(Waves[i].Opponents[j].opponent) Then Begin
         logshow('Error occured in wave : ' + IntToStr(i + 1) + ' opp ' + inttostr(j + 1), llInfo);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
     End;
     // Prüfung auf Überlauf von op.identifier
     If oppsPerWave * MaxPlayer >= PLacementIdentiferOffset Then Begin
       LogShow(format('In wave %d, if all player play, there where %d opponents spawend, max allowed number is %d', [i + 1, oppsPerWave * MaxPlayer, PLacementIdentiferOffset - 1]), llError);
-      logleave;
+      logleave(EnterID);
       exit;
     End;
   End;
@@ -3357,7 +3362,7 @@ Begin
     If (OverAllLivePoints And (1 Shl i) <> 0) And
       (OverAllGebDamagePoints And (1 Shl i) = 0) Then Begin
       logshow(format('Error there are creeps with damage classes, that could not be attacked by any buyable building. enegry %s vs damage %s', [inttocat(OverAllLivePoints), inttocat(OverAllGebDamagePoints)]), llerror);
-      logleave;
+      logleave(EnterID);
       exit;
     End;
   End;
@@ -3367,20 +3372,20 @@ Begin
     Case FilenameToType(ap + extractfilename(fPlacements[i].Filename)) Of
       moBuilding: Begin
           If Not CheckBuilding(extractfilename(fPlacements[i].Filename)) Then Begin
-            logleave;
+            logleave(EnterID);
             exit;
           End;
         End;
       moOpponent: Begin
           If Not CheckOpponent(extractfilename(fPlacements[i].Filename)) Then Begin
-            logleave;
+            logleave(EnterID);
             exit;
           End;
         End
         // TODO: hier fehlt der Hero ?
     Else Begin
         LogShow('Unknown placement : ' + extractfilename(fPlacements[i].Filename), llError);
-        logleave;
+        logleave(EnterID);
         exit;
       End;
     End;
@@ -3390,20 +3395,20 @@ Begin
   For i := 0 To high(Waypoints) Do Begin
     If high(Waypoints[i]) < 1 Then Begin
       LogShow('Map holds to less waypoints for player ' + inttostr(i + 1), llError);
-      logleave;
+      logleave(EnterID);
       exit;
     End;
   End;
   If MaxPlayer <> length(Waypoints) Then Begin
     LogShow(format('Map supports %d player, but holds only waypoints for %d player', [MaxPlayer, length(Waypoints)]), llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   // Können die Gegner überhaupt alle Wege richtig beschreiten ?
   CalcWaypointFields();
   If Not CalcOpponentPaths Then Begin
     LogShow('Invalid Pathstructure opponents can''t walk their way.', llError);
-    logleave;
+    logleave(EnterID);
     exit;
   End;
   // Todo : Prüfen ob alle Gegner in Allen Waves auch richtig gespawned werde können (damit die Exception in Handle Opponents nicht kommt)
@@ -3445,7 +3450,7 @@ Begin
   For i := 0 To sl1.Count - 1 Do Begin
     If Not FileExistsUTF8(sl1[i]) Then Begin
       LogShow('File does not exist: ' + sl1[i], llError);
-      logleave;
+      logleave(EnterID);
       sl1.free;
       exit;
     End;
@@ -3458,7 +3463,7 @@ Begin
     LogShow(warning, llWarning);
   End;
   result.Errors := false;
-  logleave;
+  logleave(EnterID);
 End;
 
 Function TMap.CalcOpponentPaths: Boolean;
@@ -5111,9 +5116,9 @@ Procedure TMap.addPlacement(x, y: integer; ObjName: String; Stage: integer);
 Var
   pp, p: tctd_mapopbject;
   i: Integer;
-  j: Integer;
+  j, EnterID: Integer;
 Begin
-  log(format('TMap.addPlacement %d/%d, %s', [x, y, ObjName]), llTrace);
+  EnterID := LogEnter(format('TMap.addPlacement %d/%d, %s', [x, y, ObjName]));
   If (x > Width) Or (y > height) Then exit;
   ObjName := MapFolder + MapName + PathDelim + ObjName;
   Case (FilenameToType(ObjName)) Of
@@ -5125,7 +5130,7 @@ Begin
       End;
     moUnknown: Begin
         log('unable to identifier : ' + ObjName, llError);
-        LogLeave;
+        LogLeave(EnterID);
         exit;
       End;
   End;
@@ -5151,6 +5156,7 @@ Begin
   setlength(fPlacements, high(fPlacements) + 2);
   fPlacements[high(fPlacements)] := p;
   SortPlacementByYCoordinate;
+  LogLeave(EnterID);
 End;
 
 Procedure TMap.addBuyable(Item: String; Kind: TBuyAbleKind; Wave, Count: integer
@@ -5533,7 +5539,7 @@ End;
 
 Procedure TMap.CreateMovableObjectList(Wave: integer);
 Var
-  i, j: Integer;
+  EnterID, i, j: Integer;
   b: TBuilding;
   h: THero;
 {$IFDEF Client}
@@ -5545,10 +5551,10 @@ Var
 {$ENDIF}
   p: String;
 Begin
-  log('TMap.CreateMovableObjectList : ' + inttostr(wave), lltrace);
+  EnterID := LogEnter('TMap.CreateMovableObjectList : ' + inttostr(wave));
 {$IFDEF Client}
   If assigned(FIndexMapper) Then Begin
-    LogLeave;
+    LogLeave(EnterID);
     exit; // Wenn die Liste aus irgend einem Grund schon erstellt wurde.
   End;
   // löschen evtl noch vorhandener Moveable Renderings und anderer Alter Daten
@@ -5621,7 +5627,8 @@ Begin
           h.free;
         End;
     Else Begin
-        Raise exception.create('TMap.CreateMovableObjectList: missing implementation');
+        log('missing implementation.', llFatal);
+        LogLeave(EnterID);
       End;
     End;
   End;
@@ -5641,7 +5648,7 @@ Begin
     End;
   End;
 {$ENDIF}
-  LogLeave;
+  LogLeave(EnterID);
 End;
 
 Procedure TMap.ExChangeWaves(w1, w2: integer);
