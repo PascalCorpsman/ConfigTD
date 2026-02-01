@@ -256,7 +256,7 @@ Begin
   End
   Else
     result := inttostr(value) + s + 'B'
-End;
+End;  
 
 {$ENDIF}
 
