@@ -118,6 +118,7 @@ Uses
   , dglOpenGL
   , Graphics
   , ugraphics
+  , uvectormath
 {$ENDIF}
   ;
 
@@ -493,10 +494,10 @@ Begin
     // nicht Updaten
     glTranslatef((Stages[Stage].w * MapBlockSize) / 2, -(Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize, 0);
     If assigned(stages[Stage].Animation) Then Begin
-      RenderAnim(point(0, 0), stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Animation);
+      RenderAnim(v2(0, 0), stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Animation);
     End
     Else Begin
-      RenderObjItem(point(0, 0), stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Fimage);
+      RenderObjItem(v2(0, 0), stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Fimage);
     End;
     DeltaSinceLastUpdate := 0;
   End
@@ -512,7 +513,7 @@ Begin
     End;
     // Die Baustelle zeichnen (ist hinterher, dass wir kein Offset in der Höhe brauchen)
     glcolor3f(1, 1, 1);
-    RenderObjItem(point(0, 0), round(width * MapBlockSize), round(height * MapBlockSize), BuildBuildingTex);
+    RenderObjItem(v2(0, 0), round(width * MapBlockSize), round(height * MapBlockSize), BuildBuildingTex);
   End;
   glPopMatrix;
 End;

@@ -2805,7 +2805,7 @@ Begin
       If assigned(FBulletIndexes[fRenderBullets[i].Index].Animation) Then Begin
         FBulletIndexes[fRenderBullets[i].Index].Animation.AnimationOffset := fRenderBullets[i].AnimationOffset;
         RenderAnim(
-          point(round(fRenderBullets[i].position.x * MapBlockSize), round(fRenderBullets[i].position.y * MapBlockSize)),
+          v2(fRenderBullets[i].position.x * MapBlockSize, fRenderBullets[i].position.y * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Animation, fRenderBullets[i].Angle
@@ -2813,7 +2813,7 @@ Begin
       End
       Else Begin
         RenderObj(
-          point(round(fRenderBullets[i].position.x * MapBlockSize), round(fRenderBullets[i].position.y * MapBlockSize)),
+          v2(fRenderBullets[i].position.x * MapBlockSize, fRenderBullets[i].position.y * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
@@ -2824,7 +2824,7 @@ Begin
       If assigned(FBulletIndexes[fRenderBullets[i].Index].Animation) Then Begin
         FBulletIndexes[fRenderBullets[i].Index].Animation.AnimationOffset := fRenderBullets[i].AnimationOffset;
         RenderAnim(
-          point(round(fRenderBullets[i].position.x * MapBlockSize), round(fRenderBullets[i].position.y * MapBlockSize)),
+          v2(fRenderBullets[i].position.x * MapBlockSize, fRenderBullets[i].position.y * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Animation, fRenderBullets[i].Angle
@@ -2832,7 +2832,7 @@ Begin
       End
       Else Begin
         RenderObj(
-          point(round(fRenderBullets[i].position.x * MapBlockSize), round(fRenderBullets[i].position.y * MapBlockSize)),
+          v2(fRenderBullets[i].position.x * MapBlockSize, fRenderBullets[i].position.y * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
@@ -2852,7 +2852,7 @@ Begin
           For j := 0 To high(Waypoints[i]) Do Begin
             If j = 0 Then Begin
               glColor4f(1, 1, 1, 1);
-              RenderObjItem(point(Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[i, j].Point.y * MapBlockSize),
+              RenderObjItem(v2(Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize / 2, Waypoints[i, j].Point.y * MapBlockSize),
                 MapBlockSize, MapBlockSize,
                 OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
               glBindTexture(GL_TEXTURE_2D, 0);
@@ -2872,7 +2872,7 @@ Begin
         glColor4f(1, 1, 1, 1);
         For j := 0 To high(Waypoints[ViewWaypoints]) Do Begin
           If j = 0 Then Begin
-            RenderObjItem(point(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize Div 2, Waypoints[ViewWaypoints, j].Point.y * MapBlockSize),
+            RenderObjItem(v2(Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize / 2, Waypoints[ViewWaypoints, j].Point.y * MapBlockSize),
               MapBlockSize, MapBlockSize,
               OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -5147,7 +5147,7 @@ Begin
         deletePlacement(round(pp.position.x), round(pp.position.y));
       End;
     End;
-  p.Position := point(x, y);
+  p.Position := v2(x, y);
   If p Is TOpponent Then Begin
     p.Width := TOpponent(p).SizeX;
     p.Height := TOpponent(p).Sizey;

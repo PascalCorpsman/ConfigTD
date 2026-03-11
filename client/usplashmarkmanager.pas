@@ -47,7 +47,7 @@ Type
 
 Implementation
 
-Uses LCLIntf, uctd_common, dglOpenGL, uopengl_graphikengine;
+Uses LCLIntf, uctd_common, dglOpenGL, uopengl_graphikengine, uvectormath;
 
 { TSplashMarkManager }
 
@@ -84,7 +84,7 @@ Begin
     // Vom Erzeugungszeitpunkt bis zum "Sterben" wächst das Ausrufezeichen auf Mapsize * 7 an
     s := round(((n - fMarks[i].CreationTime) / MarkLifeTime) * 7 * MapBlockSize);
     glTranslatef(fMarks[i].x * MapBlockSize + MapBlockSize / 2, fMarks[i].y * MapBlockSize + MapBlockSize / 2, 0);
-    RenderAlphaQuad(point(0, 0), s, s, 180, Texture);
+    RenderAlphaQuad(v2(0, 0), s, s, 180, Texture);
     glpopmatrix;
   End;
   glpopmatrix;

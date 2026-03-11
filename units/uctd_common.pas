@@ -495,9 +495,9 @@ Procedure RenderMoveableAnim(
   Sizex, sizey, lifepointspercent: Single;
   ShowLifePoints: Boolean
   );
-Procedure RenderObj(Middle: Tpoint; Width, Height: Integer; Texture: integer; Rotation: integer = 0); Deprecated 'Sollten alle durch RenderObjItem ersetzt werden.';
-Procedure RenderObjItem(Middle: Tpoint; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
-Procedure RenderAnim(Middle: Tpoint; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
+Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer; Rotation: integer = 0); Deprecated 'Sollten alle durch RenderObjItem ersetzt werden.';
+Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
+Procedure RenderAnim(Middle: TVector2; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
 
 Function LoadFileToMyPath(FileName: String; Foldername: String = ''): Boolean;
 Procedure FixFormPosition(Const Form: TForm); // Rückt ein Formular wieder in den Screen, sollte es außerhalb des Sichtbaren sein
@@ -1041,7 +1041,7 @@ Begin
   glPopMatrix;
 End;
 
-Procedure RenderObj(Middle: Tpoint; Width, Height: Integer; Texture: integer;
+Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer;
   Rotation: integer);
 Begin
   // Alles was einen Alpha Kanal von > 0.5 hat, wird weggeschnitten
@@ -1052,7 +1052,7 @@ Begin
   gldisable(GL_ALPHA_TEST);
 End;
 
-Procedure RenderObjItem(Middle: Tpoint; Width, Height: Integer;
+Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer;
   Texture: TGraphikItem; Rotation: integer);
 Begin
   glAlphaFunc(GL_LESS, 0.5);
@@ -1065,7 +1065,7 @@ Begin
   gldisable(GL_ALPHA_TEST);
 End;
 
-Procedure RenderAnim(Middle: Tpoint; Width, Height: Integer;
+Procedure RenderAnim(Middle: TVector2; Width, Height: Integer;
   Const Animation: TOpenGL_Animation; Rotation: integer);
 Begin
   // Alles was einen Alpha Kanal von > 0.5 hat, wird weggeschnitten

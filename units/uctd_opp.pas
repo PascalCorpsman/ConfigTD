@@ -278,10 +278,10 @@ Begin
   glTranslatef((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
   glColor4f(1, 1, 1, 1);
   If assigned(Animation) Then Begin
-    RenderAnim(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
+    RenderAnim(v2(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
   End
   Else Begin
-    RenderObjItem(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Fimage, Direction);
+    RenderObjItem(v2(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Fimage, Direction);
   End;
   glPopMatrix;
 End;

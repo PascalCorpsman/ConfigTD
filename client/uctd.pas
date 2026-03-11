@@ -1061,10 +1061,10 @@ End;
 Procedure TBuildingStrategyButton.OnRender;
 Begin
   If Selected Then Begin
-    RenderQuad(v2(left, top), v2(left + width, top + height), 0, false, FSelectedImage);
+    RenderQuad(v2(left, top), v2(left + width, top + height), 180, false, FSelectedImage);
   End
   Else Begin
-    RenderQuad(v2(left, top), v2(left + width, top + height), 0, false, Fimage);
+    RenderQuad(v2(left, top), v2(left + width, top + height), 180, false, Fimage);
   End;
 End;
 

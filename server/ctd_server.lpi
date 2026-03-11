@@ -85,7 +85,7 @@
         <PackageName Value="lnetbase"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="24">
+    <Units Count="23">
       <Unit0>
         <Filename Value="ctd_server.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -160,29 +160,25 @@
         <IsPartOfProject Value="True"/>
       </Unit17>
       <Unit18>
-        <Filename Value="uvectormath.inc"/>
+        <Filename Value="../../Sample/DatenSteuerung/ufifo.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit18>
       <Unit19>
-        <Filename Value="../../Sample/DatenSteuerung/ufifo.pas"/>
+        <Filename Value="uchunkmanager.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit19>
       <Unit20>
-        <Filename Value="uchunkmanager.inc"/>
+        <Filename Value="../units/uctd_hero.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit20>
       <Unit21>
-        <Filename Value="../units/uctd_hero.pas"/>
+        <Filename Value="../../Sample/DatenSteuerung/uquadtree.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit21>
       <Unit22>
-        <Filename Value="../../Sample/DatenSteuerung/uquadtree.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit22>
-      <Unit23>
         <Filename Value="uquadtree.inc"/>
         <IsPartOfProject Value="True"/>
-      </Unit23>
+      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
