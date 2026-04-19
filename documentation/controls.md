@@ -8,13 +8,16 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | Key | Description |
 | --- | :--- |
 | ^ | Toggle show/hide side menu
+| b | Overlay which tiles are buildable or not
+| c | Zoom map out
+| e | Zoom map in
+| h | Select all own heros
 | p | Toggle pause
 | q | Select all buildings of same stage and owner and type (as the selected)
+| r | Show opponents paths in actual wave
 | s | Sell selected buildings / stop movement of selected heros / move map down
-| h | Select all own heros
 | u | Upgrade selected buildings
 | w | Show player names on map, where opponents get spawned
-| b | Overlay which tiles are buildable or not
 | "+" | Increase simulation speed
 | "-" | Decrease simulation speed
 | ALT | Show lifepoints of all opponents
@@ -23,16 +26,15 @@ Gives a overview over the keyboard and mouse commands in Editor- and Gamemode.
 | 0..9 | Keyboard shortcuts for buildings/hero in the buy menu
 | F1..F8 | if a building/hero is selected, the corresponding building/hero strategy will be set (only on own ones)
 | cursors | Scroll map
-| e | Zoom map in
-| c | Zoom map out
 
 ### Editor
 | Key | Description |
 | --- | :--- |
 | ^  | Toggle show/hide side menu
-| cursors | Scroll map 
-| e | Zoom map in
 | c | Zoom map out
+| e | Zoom map in
+| cursors | Scroll map 
+
 ## Mouse commands
 
 ### Ingame
