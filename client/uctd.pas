@@ -114,8 +114,8 @@ Type
 
   TBuildingStrategyButton = Class(TOpenGL_BaseClass)
   private
-    Fimage: integer;
-    FSelectedImage: integer;
+    Fimage: TGraphikItem;
+    FSelectedImage: TGraphikItem;
   protected
     Procedure OnRender(); override;
   public
@@ -131,7 +131,7 @@ Type
 
   TCTDinfofield = Class(TOpenGl_BaseClass)
   private
-    ftexture: integer;
+    ftexture: TGraphikItem;
   protected
     Procedure OnRender(); override;
   public
@@ -522,9 +522,9 @@ Procedure CenterTextOut(w, h: integer; text: String); // Gibt über dem Fenster 
 
 Implementation
 
-Uses IniFiles, LazUTF8, LCLIntf, forms, LazFileUtils, math, dglOpenGL, LCLType,
-
-  uOpenGL_ASCII_Font, uopengl_spriteengine,
+Uses IniFiles, LazUTF8, LCLIntf, forms, LazFileUtils, math, dglOpenGL, LCLType
+  , uopengl_shaderprimitives
+  , uOpenGL_ASCII_Font, uopengl_spriteengine,
   unit1, unit13, unit4,
   uctd_messages, uip;
 
@@ -572,10 +572,12 @@ Begin
     End;
   End;
   // Einen Schwarzen hintergrund unter den Text
+  result := v2(x, y); // Merken ab Welcher Koordinate der Text gerendert wurde ;)
+  OpenGL_ASCII_Font.Color := clGray;
+{$IFDEF LEGACYMODE}
   glPushMatrix;
   glBindTexture(GL_TEXTURE_2D, 0);
   glTranslatef(x, y, ctd_Tipp_Layer);
-  result := v2(x, y); // Merken ab Welcher Koordinate der Text gerendert wurde ;)
   glColor4f(0, 0, 0, 1);
   glBegin(GL_QUADS);
   glVertex2f(0, 0);
@@ -585,9 +587,20 @@ Begin
   glend;
   // der Eigentliche Text oben drüber
   glTranslatef(0, 0, ctd_EPSILON / 2);
-  OpenGL_ASCII_Font.Color := clGray;
   OpenGL_ASCII_Font.Textout(0, 0, tipp);
   glPopMatrix;
+{$ELSE}
+  UseColorShader;
+  SetShaderColor(0, 0, 0, 1);
+  glShaderBegin(GL_TRIANGLE_FAN);
+  glShaderVertex(x, y, ctd_Tipp_Layer);
+  glShaderVertex(x + w, y, ctd_Tipp_Layer);
+  glShaderVertex(x + w, y + h, ctd_Tipp_Layer);
+  glShaderVertex(x, y + h, ctd_Tipp_Layer);
+  glShaderEnd();
+  // der Eigentliche Text oben drüber
+  OpenGL_ASCII_Font.Textout(x, y, ctd_Tipp_Layer + ctd_EPSILON / 2, tipp);
+{$ENDIF}
   OpenGL_ASCII_Font.Size := fs;
 End;
 
@@ -599,8 +612,9 @@ Var
   i, j: Integer;
   yo, lw, lh: Single;
   gi: TGraphikItem;
+  v, tl: TVector3;
 Begin
-  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_DEPTH_TEST); // TODO: -- Brauchen wir das noch ?
   lw := OpenGL_ASCII_Font.TextWidth('8') * fontscale;
   lh := OpenGL_ASCII_Font.TextHeight('8') * fontscale;
   Case Hint.Kind Of
@@ -687,7 +701,8 @@ Begin
       Raise exception.create('Tctd.RenderHint: missing implementation.');
     End;
   End;
-  // Das "passende" Einzeichnen der Damageclassen in den Text
+{$IFDEF LEGACYMODE}
+  // Das "passende" Einzeichnen der Damageklassen in den Text
   glPushMatrix;
   glTranslatef(p.x, p.y, ctd_Tipp_Layer + 1.5 * ctd_EPSILON);
   t := format(',  %d,  %d,  %d,', [
@@ -707,6 +722,22 @@ Begin
     glPopMatrix;
   End;
   glPopMatrix;
+{$ELSE}
+  // Das "passende" Einzeichnen der Damageklassen in den Text
+  tl := v3(p.x, p.y, ctd_Tipp_Layer + 1.5 * ctd_EPSILON);
+  t := format(',  %d,  %d,  %d,', [
+    hint.Power[0],
+      hint.Power[1],
+      hint.Power[2]]);
+  j := 0;
+  For i := 0 To 3 Do Begin
+    j := j + pos(',', t);
+    delete(t, 1, pos(',', t));
+    gi := fMap.OpenGLDamageClassTex[i];
+    v := tl + v3(lw * j, yo, 0);
+    RenderQuad(v.x, v.y, v.z, lh, lh, gi);
+  End;
+{$ENDIF}
   glenable(GL_DEPTH_TEST);
 End;
 
@@ -762,6 +793,7 @@ Procedure TCTDDualinfoField.OnRender;
 Const
   Border = 2;
 Begin
+{$IFDEF LEGACYMODE}
   glBindTexture(GL_TEXTURE_2D, 0);
   If DarkMode Then Begin
     glColor4f(0, 0, 0, 0);
@@ -780,11 +812,31 @@ Begin
   glend();
   glTranslatef(0, 0, Epsilon);
   glColor4f(1, 1, 1, 0);
-  RenderAlphaQuad(point(Width Div 2, Height Div 2), Height, -Height, 0, ftexture);
+  RenderAlphaQuad(point(Width Div 2, Height Div 2), Height, -Height, 0, ftexture.Image);
   glBindTexture(GL_TEXTURE_2D, 0);
   OpenGL_ASCII_Font.RenderTextToRect(rect((Width + Height) Div 2 + Border, Border, width - Border, height - Border), Text);
   OpenGL_ASCII_Font.RenderTextToRect(rect(Border, Border, (width - Height) Div 2 - Border, height - Border), Text2);
   glPopMatrix;
+{$ELSE}
+  UseColorShader;
+  If DarkMode Then Begin
+    SetShaderColor(0, 0, 0, 0);
+  End
+  Else Begin
+    SetShaderColor(1, 1, 1, 0);
+  End;
+  OpenGL_ASCII_Font.Color := clGray;
+  glShaderBegin(GL_TRIANGLE_FAN);
+  glShaderVertex(left + 0, top + 0, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderVertex(left + Width, top + 0, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderVertex(left + Width, top + Height, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderVertex(left + 0, top + Height, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderEnd();
+  UseTextureShader();
+  RenderAlphaQuad(left + (width - ftexture.OrigWidth) / 2, top + (height - ftexture.OrigHeight) / 2, ctd_Tipp_Layer + 3 * Epsilon, ftexture);
+  OpenGL_ASCII_Font.RenderTextToRect(rect(left + (Width + Height) Div 2 + Border, top + Border, left + width - Border, top + height - Border), ctd_Tipp_Layer + 3 * Epsilon, Text);
+  OpenGL_ASCII_Font.RenderTextToRect(rect(left + Border, top + Border, left + (width - Height) Div 2 - Border, top + height - Border), ctd_Tipp_Layer + 3 * Epsilon, Text2);
+{$ENDIF}
 End;
 
 Constructor TCTDDualinfoField.Create(aOwner: TOpenGLControl; Texture: String);
@@ -799,6 +851,7 @@ Procedure TCTDinfofield.OnRender();
 Const
   Border = 2;
 Begin
+{$IFDEF LEGACYMODE}
   glBindTexture(GL_TEXTURE_2D, 0);
   If DarkMode Then Begin
     glColor4f(0, 0, 0, 0);
@@ -817,16 +870,43 @@ Begin
   glend();
   glTranslatef(0, 0, Epsilon);
   glColor4f(1, 1, 1, 0);
-  RenderAlphaQuad(point(Height Div 2, Height Div 2), Height, -Height, 0, ftexture);
+  RenderAlphaQuad(point(Height Div 2, Height Div 2), Height, -Height, 0, ftexture.Image);
   glBindTexture(GL_TEXTURE_2D, 0);
   OpenGL_ASCII_Font.RenderTextToRect(rect(Height + Border, Border, width - Border, height - Border), Text);
   glPopMatrix;
+{$ELSE}
+  UseColorShader;
+  If DarkMode Then Begin
+    SetShaderColor(0, 0, 0, 0);
+  End
+  Else Begin
+    SetShaderColor(1, 1, 1, 0);
+  End;
+  glShaderBegin(GL_TRIANGLE_FAN);
+  glShaderVertex(left + 0, top + 0, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderVertex(left + Width, top + 0, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderVertex(left + Width, top + Height, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderVertex(left + 0, top + Height, ctd_Tipp_Layer + 2 * Epsilon);
+  glShaderEnd();
+  UseTextureShader();
+  RenderAlphaQuad(left + (height - ftexture.OrigWidth) / 2, top + (height - ftexture.OrigHeight) / 2, ctd_Tipp_Layer + 3 * Epsilon, ftexture);
+  OpenGL_ASCII_Font.Color := clGray;
+  OpenGL_ASCII_Font.RenderTextToRect(rect(
+    left + Height + Border,
+    Top + Border,
+    left + width - Border,
+    top + height - Border), ctd_Tipp_Layer + 3 * Epsilon, Text);
+{$ENDIF}
 End;
 
 Constructor TCTDinfofield.Create(aOwner: TOpenGLControl; Texture: String);
 Begin
   Inherited Create(aOwner);
-  ftexture := OpenGL_GraphikEngine.LoadAlphaGraphik(Texture, smStretchHard);
+{$IFDEF LEGACYMODE}
+  ftexture := OpenGL_GraphikEngine.LoadAlphaGraphikItem(Texture, smStretchHard);
+{$ELSE}
+  ftexture := OpenGL_GraphikEngine.LoadAlphaGraphikItem(Texture, smClamp);
+{$ENDIF}
   DarkMode := false;
 End;
 
@@ -1054,18 +1134,27 @@ Begin
   Inherited Create(aOwner);
   Selected := false;
   Strategy := bsFirst;
-  Fimage := 0;
-  FSelectedImage := 0;
+  Fimage.image := 0;
+  FSelectedImage.image := 0;
 End;
 
 Procedure TBuildingStrategyButton.OnRender;
 Begin
+{$IFDEF LEGACYMODE}
   If Selected Then Begin
-    RenderQuad(v2(left, top), v2(left + width, top + height), 180, false, FSelectedImage);
+    RenderQuad(v2(left, top), v2(left + width, top + height), 180, false, FSelectedImage.image);
   End
   Else Begin
-    RenderQuad(v2(left, top), v2(left + width, top + height), 180, false, Fimage);
+    RenderQuad(v2(left, top), v2(left + width, top + height), 180, false, Fimage.image);
   End;
+{$ELSE}
+  If Selected Then Begin
+    RenderQuad(left, top, Depth, Width, Height, FSelectedImage);
+  End
+  Else Begin
+    RenderQuad(left, top, Depth, Width, Height, Fimage);
+  End;
+{$ENDIF}
 End;
 
 Procedure TBuildingStrategyButton.Click;
@@ -1079,15 +1168,23 @@ Var
   EnterID: Integer;
 Begin
   EnterID := LogEnter('TBuildingStrategyButton.SetImage');
-  Fimage := OpenGL_GraphikEngine.LoadGraphik(Filename, smStretchHard);
+{$IFDEF LEGACYMODE}
+  Fimage := OpenGL_GraphikEngine.LoadGraphikItem(Filename, smStretchHard);
+{$ELSE}
+  Fimage := OpenGL_GraphikEngine.LoadGraphikItem(Filename, smClamp);
+{$ENDIF}
   f := ExtractFileNameOnly(Filename);
   p := IncludeTrailingPathDelimiter(ExtractFilePath(Filename));
   e := ExtractFileExt(Filename);
-  FSelectedImage := OpenGL_GraphikEngine.LoadGraphik(p + f + 's' + e, smStretchHard);
-  If Fimage = 0 Then Begin
+{$IFDEF LEGACYMODE}
+  FSelectedImage := OpenGL_GraphikEngine.LoadGraphikItem(p + f + 's' + e, smStretchHard);
+{$ELSE}
+  FSelectedImage := OpenGL_GraphikEngine.LoadGraphikItem(p + f + 's' + e, smClamp);
+{$ENDIF}
+  If Fimage.image = 0 Then Begin
     log('Could not load : ' + Filename, llError);
   End;
-  If FSelectedImage = 0 Then Begin
+  If FSelectedImage.Image = 0 Then Begin
     log('Could not load : ' + p + f + 's' + e, llError);
   End;
   LogLeave(EnterID);
@@ -1603,6 +1700,15 @@ Begin
     If key In [VK_F1..VK_F8] Then Begin
       BuildingStrategyButtons[Key - VK_F1].click;
     End;
+    If key = ord('R') Then Begin
+      // Wenns schon Wegpunkte gibt die angezeigt werden, halten wir den Code "deaktiviert"
+      If (fmap.WaypointPreview.Points = Nil) Then Begin
+        fMap.ShowWaypointRoutes := true;
+        fMap.CreateWavePreviewPath(fAktualWave, PlayerIndex);
+        fMap.CreateAirWavePreviewPath(fAktualWave, PlayerIndex);
+        fmap.CalculateWavePreviewOffsets;
+      End;
+    End;
   End;
 End;
 
@@ -1658,6 +1764,11 @@ Begin
   If key In [ord('E'), ord('C')] Then Begin
     fPressKeys[KeyIndexZoomIn] := false;
     fPressKeys[KeyIndexZoomOut] := false;
+  End;
+  If (key = ord('R')) And assigned(fMap) And fmap.ShowWaypointRoutes Then Begin
+    fmap.ShowWaypointRoutes := false;
+    setlength(fmap.WaypointPreview.Points, 0);
+    setlength(fmap.AirWaypointPreview.Points, 0);
   End;
 End;
 
@@ -2598,6 +2709,7 @@ End;
 
 Procedure Tctd.RenderBlackOutMapBorder;
 Begin
+{$IFDEF LEGACYMODE}
   glPushMatrix;
   glTranslatef(0, 0, ctd_MapBlackOutLayer);
   glcolor4f(0, 0, 0, 0);
@@ -2626,12 +2738,43 @@ Begin
   End;
   glend;
   glPopMatrix;
+{$ELSE}
+  UseColorShader;
+  SetShaderColor(0, 0, 0, 0);
+  glShaderBegin(GL_TRIANGLE_FAN);
+  Case fMenuPosition Of
+    mpBottom: Begin
+        glShaderVertex(0, fMapH + fMapT, ctd_MapBlackOutLayer);
+        glShaderVertex(fwold, fMapH + fMapT, ctd_MapBlackOutLayer);
+        glShaderVertex(fwold, fhold, ctd_MapBlackOutLayer);
+        glShaderVertex(0, fhold, ctd_MapBlackOutLayer);
+      End;
+    mpRight: Begin
+        glShaderVertex(fMapW, 0, ctd_MapBlackOutLayer);
+        glShaderVertex(fMapW, fhold, ctd_MapBlackOutLayer);
+        glShaderVertex(fwold, fhold, ctd_MapBlackOutLayer);
+        glShaderVertex(fwold, 0, ctd_MapBlackOutLayer);
+      End;
+  End;
+  glShaderEnd();
+  // Blackout upper buttons
+  If fMapT <> 0 Then Begin
+    glShaderBegin(GL_TRIANGLE_FAN);
+    glShaderVertex(0, 0, ctd_MapBlackOutLayer);
+    glShaderVertex(0, fMapT, ctd_MapBlackOutLayer);
+    glShaderVertex(fwold, fMapT, ctd_MapBlackOutLayer);
+    glShaderVertex(fwold, 0, ctd_MapBlackOutLayer);
+    glShaderEnd();
+  End;
+  UseTextureShader;
+{$ENDIF}
 End;
 
 Procedure Tctd.RenderBuyMenu;
 Var
   i, j, x, y, k: integer;
 Begin
+{$IFDEF LEGACYMODE}
   // TODO: Fix Bug, dass die Gebs unten raus fallen
   glPushMatrix;
   glTranslatef(fBuildL, fBuildT, 0);
@@ -2665,21 +2808,56 @@ Begin
   End;
   glPopMatrix;
   glPopMatrix;
+{$ELSE}
+  // TODO: Fix Bug, dass die Gebs unten raus fallen
+  k := fBuildW Div (MapBlockSize * FBuyMenu.MaxItemSize.x); // Anzahl der Zeichenbaren Kacheln in der Breite
+  If k = 0 Then Begin
+    log('could not render build menu k = 0', llCritical);
+    exit;
+  End;
+  //l := fBuildh Div (MapBlockSize * FBuildingMenu.MaxItemSize.y); // Anzahl der Zeichenbaren Kacheln in der Höhe
+  // Rendern des Gekachelten Hintergrundes
+  For i := 0 To (fBuildW Div MapBlockSize) - 1 Do Begin
+    For j := 0 To (fBuildH Div MapBlockSize) - 1 Do Begin
+      RenderObjItem(
+        v3(fBuildL, fBuildT, ctd_BuyEditorLayer) +
+        v3(i * MapBlockSize + MapBlockSize Div 2, j * MapBlockSize + MapBlockSize Div 2, 0), MapBlockSize, MapBlockSize, fBuyKachel);
+    End;
+  End;
+  // Rendern der Kauf Items
+  For i := 0 To high(FBuyMenu.Items) Do Begin
+    x := (i Mod k) * MapBlockSize * FBuyMenu.MaxItemSize.x;
+    y := (i Div k) * MapBlockSize * FBuyMenu.MaxItemSize.y;
+    If y + MapBlockSize * FBuyMenu.MaxItemSize.y >= fBuildH Then break; // Wenn die Gebäude unten raus fallen würden...
+    // Im Buy Menü gibt es keine Animationen -> Hier Reicht also RenderObj
+    RenderObjItem(
+      v3(fBuildL, fBuildT, ctd_BuyEditorLayer + ctd_EPSILON) +
+      v3(x + round(FBuyMenu.Items[i].obj.Width * MapBlockSize) Div 2, y + round(FBuyMenu.Items[i].obj.Height * MapBlockSize) Div 2, 0),
+      round(FBuyMenu.Items[i].obj.Width * MapBlockSize), round(FBuyMenu.Items[i].obj.Height * MapBlockSize),
+      FBuyMenu.Items[i].obj.Fimage);
+  End;
+{$ENDIF}
 End;
 
 Procedure Tctd.RenderMenuTabButton;
 Begin
+{$IFDEF LEGACYMODE}
   glPushMatrix;
   glTranslatef(0, 0, ctd_Menu_Layer);
   Tab_Image.Render();
   glPopMatrix;
+{$ELSE}
+  Tab_Image.Render();
+{$ENDIF}
 End;
 
 Procedure Tctd.RenderSelected(sx, sy, x, y: integer);
-  Procedure RenderBuildingSelector(Const b: TBuilding);
+  Procedure RenderBuildingSelector(Const tl: TVector3; Const b: TBuilding);
   Var
     mx, my, w, h: Single;
+    v: TVector3;
   Begin
+{$IFDEF LEGACYMODE}
     glPushMatrix;
     glTranslatef((b.Stages[max(0, b.Stage)].w * MapBlockSize) / 2, -(b.Stages[max(0, b.Stage)].h * MapBlockSize) / 2 + MapBlockSize, 0);
     mx := round(b.Position.x * MapBlockSize);
@@ -2690,12 +2868,23 @@ Procedure Tctd.RenderSelected(sx, sy, x, y: integer);
     glScalef(w / fSelectTex.OrigWidth, h / fSelectTex.OrigHeight, 1);
     RenderAlphaQuad(0, 0, fSelectTex);
     glPopMatrix;
+{$ELSE}
+    v := tl + v3((b.Stages[max(0, b.Stage)].w * MapBlockSize) / 2, -(b.Stages[max(0, b.Stage)].h * MapBlockSize) / 2 + MapBlockSize, 0);
+    mx := round(b.Position.x * MapBlockSize);
+    my := round(b.Position.y * MapBlockSize);
+    w := b.Stages[max(0, b.Stage)].w * MapBlockSize;
+    h := b.Stages[max(0, b.Stage)].h * MapBlockSize;
+    v := v + v3(mx - w / 2, my - h / 2, 0);
+    RenderAlphaQuad(v.x, v.y, v.z, w, h, fSelectTex);
+{$ENDIF}
   End;
 
-  Procedure RenderHeroSelector(Const he: THero);
+  Procedure RenderHeroSelector(Const tl: TVector3; Const he: THero);
   Var
     mx, my, w, h: Single;
+    v: TVector3;
   Begin
+{$IFDEF LEGACYMODE}
     glPushMatrix;
     glTranslatef((he.Levels[max(0, he.Level)].w * MapBlockSize) / 2, -(he.Levels[max(0, he.Level)].h * MapBlockSize) / 2 + MapBlockSize, 0);
     mx := round(he.Position.x * MapBlockSize);
@@ -2706,13 +2895,24 @@ Procedure Tctd.RenderSelected(sx, sy, x, y: integer);
     glScalef(w / fSelectTex.OrigWidth, h / fSelectTex.OrigHeight, 1);
     RenderAlphaQuad(0, 0, fSelectTex);
     glPopMatrix;
+{$ELSE}
+    v := tl + v3((he.Levels[max(0, he.Level)].w * MapBlockSize) / 2, -(he.Levels[max(0, he.Level)].h * MapBlockSize) / 2 + MapBlockSize, 0);
+    mx := round(he.Position.x * MapBlockSize);
+    my := round(he.Position.y * MapBlockSize);
+    w := he.Levels[max(0, he.Level)].w * MapBlockSize;
+    h := he.Levels[max(0, he.Level)].h * MapBlockSize;
+    v := v + v3(mx - w / 2, my - h / 2, 0);
+    RenderAlphaQuad(v.x, v.y, v.z, w, h, fSelectTex);
+{$ENDIF}
   End;
 
-  Procedure RenderOpponentSelector(Const O: TOpponent);
+  Procedure RenderOpponentSelector(Const tl: TVector3; Const O: TOpponent);
   Var
     lifepointspercent, k, l: Single;
     d: integer;
+    t, v: TVector3;
   Begin
+{$IFDEF LEGACYMODE}
     glPushMatrix;
     k := (MapBlockSize - MapBlockSize * o.SizeX) / 2;
     l := (MapBlockSize - MapBlockSize * o.Sizey) / 2;
@@ -2738,31 +2938,73 @@ Procedure Tctd.RenderSelected(sx, sy, x, y: integer);
       RenderLifeBar(o.SizeX, O.SizeY, lifepointspercent);
     End;
     glPopMatrix;
+{$ELSE}
+    k := (MapBlockSize - MapBlockSize * o.SizeX) / 2;
+    l := (MapBlockSize - MapBlockSize * o.Sizey) / 2;
+    v := tl + v3(o.Position.x * MapBlockSize + k, (o.Position.y) * MapBlockSize - l, 0);
+    // Die Opponent Placements sind noch ein kleines Bischen Verschoben gerendert (da sie ja als Gebäude behandelt werden)
+    If o.Identifier >= PLacementIdentiferOffset Then Begin
+      v := v + v3((o.SizeX * MapBlockSize) / 2, -(o.Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
+      v := v + v3(-MapBlockSize / 2, -MapBlockSize / 2, 0);
+    End;
+    // Anfahren des Mittelpunkts Pos des Opps
+    v := v + v3((o.SizeX * MapBlockSize) / 2, -(o.Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
+    t := v;
+    d := max(round(o.SizeX * MapBlockSize), round(o.SizeY * MapBlockSize));
+    v := v + v3(-d / 2, -d / 2, 0);
+    RenderAlphaQuad(v.x, v.y, v.z, d, d, fSelectTex);
+    (* Anzeigen der Lebensenergie ..*)
+    If o.Identifier < PLacementIdentiferOffset Then Begin // Placements haben keine Lebensanzeige !
+      lifepointspercent := min(1, (o.LifePoints[0] + o.LifePoints[1] + o.LifePoints[2] + o.LifePoints[3]) / o.TotalLivepoints);
+      RenderLifeBar(t, o.SizeX, O.SizeY, lifepointspercent);
+    End;
+{$ENDIF}
   End;
 
 Var
   i: Integer;
+  tl: TVector3;
 Begin
   If assigned(fSideMenuObject) Then Begin
+{$IFDEF LEGACYMODE}
+    tl := v3(0, 0, 0);
     glColor4f(1, 1, 1, 1);
     glPushMatrix;
     glTranslatef(x - sx, y - sy, ctd_Map_Layer + 6 * ctd_EPSILON);
     If fSideMenuObject Is TOpponent Then Begin
       If fMap.UpdateOpponentData(fSidemenuOpponent) Then Begin
-        RenderOpponentSelector(TOpponent(fSidemenuOpponent));
+        RenderOpponentSelector(tl, TOpponent(fSidemenuOpponent));
       End;
     End;
     If fSideMenuObject Is TBuilding Then Begin
       For i := 0 To high(fSelectedBuildings) Do Begin // Da bei Anwahl eines zu bauenden Gebäudes das Array auf Nil geht passt das so
-        RenderBuildingSelector(fSelectedBuildings[i]);
+        RenderBuildingSelector(tl, fSelectedBuildings[i]);
       End;
     End;
     If fSideMenuObject Is THero Then Begin
       For i := 0 To high(fSelectedHeroes) Do Begin
-        RenderHeroSelector(fSelectedHeroes[i]);
+        RenderHeroSelector(tl, fSelectedHeroes[i]);
       End;
     End;
     glPopMatrix;
+{$ELSE}
+    tl := v3(x - sx, y - sy, ctd_Map_Layer + 6 * ctd_EPSILON);
+    If fSideMenuObject Is TOpponent Then Begin
+      If fMap.UpdateOpponentData(fSidemenuOpponent) Then Begin
+        RenderOpponentSelector(tl, TOpponent(fSidemenuOpponent));
+      End;
+    End;
+    If fSideMenuObject Is TBuilding Then Begin
+      For i := 0 To high(fSelectedBuildings) Do Begin // Da bei Anwahl eines zu bauenden Gebäudes das Array auf Nil geht passt das so
+        RenderBuildingSelector(tl, fSelectedBuildings[i]);
+      End;
+    End;
+    If fSideMenuObject Is THero Then Begin
+      For i := 0 To high(fSelectedHeroes) Do Begin
+        RenderHeroSelector(tl, fSelectedHeroes[i]);
+      End;
+    End;
+{$ENDIF}
   End;
 End;
 
@@ -2791,6 +3033,7 @@ Var
   nshi, hi: THint;
   Sellrefund: integer;
 Begin
+{$IFDEF LEGACYMODE}
   If assigned(FBuyingObject) Then Begin
     If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
     // Wenn wir gerade dabei sind ein Gebäude zu kaufen
@@ -2818,7 +3061,7 @@ Begin
         For i := 0 To high(fSelectedBuildings) Do Begin
           glPushMatrix;
           glTranslatef(fSelectedBuildings[i].Position.x * MapBlockSize - fsx + fMapL, fSelectedBuildings[i].Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
-          fSelectedBuildings[i].RenderRange();
+          fSelectedBuildings[i].RenderRange(ZeroV3);
           glPopMatrix;
         End;
       End;
@@ -2951,6 +3194,155 @@ Begin
       End;
     End;
   End;
+{$ELSE}
+  If assigned(FBuyingObject) Then Begin
+    If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
+    // Wenn wir gerade dabei sind ein Gebäude zu kaufen
+    hi := FBuyingObject.GetHint();
+    hi.Name := 'Cost: ' + inttostr(FBuyingObject.GetBuyCost);
+    hi.Stage := -1;
+    RenderHint(fDestL - 10, fDestT + 30, hi, false);
+  End
+  Else Begin
+    If (FSideMenuObject Is TOpponent) Then Begin
+      If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
+      If fMap.UpdateOpponentData(fSidemenuOpponent) Then Begin
+        TOpponent(FSideMenuObject).LifePoints := fSidemenuOpponent.LifePoints;
+        RenderHint(fDestL - 10, fDestT + 30, FSideMenuObject.GetHint(), false);
+        // Todo : Rendern des Lebenspunkte Balkens über dem Gegner ?? --> Wird das nicht schon unter RenderSelected gemacht ??
+      End
+      Else Begin
+        // Das Objekt gibt es wohl nicht mehr, wurde gekillt ;)
+        FSideMenuObject := Nil;
+      End;
+    End;
+    If (FSideMenuObject Is TBuilding) Then Begin // Wenn wir ein Gebäude Updaten oder Verkaufen können
+      // Anzeigen der Ranges der Gebäude
+      If HintShowBuildingRange Then Begin
+        For i := 0 To high(fSelectedBuildings) Do Begin
+          fSelectedBuildings[i].RenderRange(v3(fSelectedBuildings[i].Position.x * MapBlockSize - fsx + fMapL, fSelectedBuildings[i].Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON));
+        End;
+      End;
+      If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
+      // Alle nachfolgenden Element sind Menü Elemente und müssen in das MenüLayer gerendert werden
+      Sell_Image.Hint := '';
+      Level_Up_Image.Hint := '';
+      hi := FSideMenuObject.GetHint();
+      // Das Gebäude gehört uns, also Zeigen wir an was es als nächstes Gibt
+      If (TBuilding(FSideMenuObject).Owner = fPlayerIndex) Then Begin
+        // Das Gebäude gehört uns
+        If (TBuilding(FSideMenuObject).fUpdating.State = usIdleInactive) Then Begin // Nicht in Update Mode
+          // Das Gebäude darf verkauft werden
+          Sellrefund := TBuilding(FSideMenuObject).CalcSellRefund(fMap.Difficulty);
+          Sell_Image.Render();
+          Sell_Image.Hint := 'Refund: ' + inttostr(Sellrefund);
+          // Die Strategie Buttons Anzeigen aber nur, wenn wir auch eine Strategie fahren können ;)
+          If (TBuilding(FSideMenuObject).Stages[TBuilding(FSideMenuObject).Stage].range <> 0) Then Begin
+            // Die 7 Strategien
+            For i := 0 To 6 Do Begin
+              BuildingStrategyButtons[i].Selected := BuildingStrategyButtons[i].Strategy = TBuilding(FSideMenuObject).strategy;
+              BuildingStrategyButtons[i].Render();
+            End;
+            // Differenzierung Präveriert Luft Präferiert Boden
+            BuildingStrategyButtons[7].Selected := TBuilding(FSideMenuObject).PreverAir;
+            BuildingStrategyButtons[7].Render();
+          End;
+          If (TBuilding(FSideMenuObject).Stage < high(TBuilding(FSideMenuObject).Stages)) Then Begin
+            // Das Gebäude kann noch geupt werden
+            Level_Up_Image.Render();
+            Level_Up_Image.Hint := 'Cost: ' + inttostr(TBuilding(FSideMenuObject).Stages[TBuilding(FSideMenuObject).Stage + 1].Cost);
+            nshi := TBuilding(FSideMenuObject).GetNextStageHint();
+            nshi.Stage := -2;
+            nshi.Name := Level_Up_Image.Hint;
+            hi.Name := nshi.Description + LineEnding + fDashSeparator + LineEnding;
+            nshi.Description := '';
+            RenderHint(fDestL - 10, fDestT + 30, nshi, false);
+            RenderHint(fDestL - 10, fDestT + 30 + round(2 * OpenGL_ASCII_Font.TextHeight('8') * fontscale), hi, false);
+          End
+          Else Begin
+            // Das Gebäude ist maximal ausgebaut
+            hi.Name := LineEnding + hi.Name;
+            RenderHint(fDestL - 10, fDestT + 30, hi, false);
+          End;
+          // Das muss nach den "Cost" Infos gerendert werden, da diese sonst das "Ref" übermalt
+          RenderToolTipp(Sell_Image.Left - 15, fDestT + 30, 'Refund: ' + inttostr(Sellrefund), false);
+        End
+        Else Begin
+          // Das Gebäude wird gerade "geupdated" -> da geht nix nur ne kurze Info anzeigen
+          hi.Name := 'Refund: ' + inttostr(TBuilding(FSideMenuObject).CalcSellRefund(fMap.Difficulty));
+          hi.Stage := 0;
+          RenderHint(fDestL - 10, fDestT + 30, hi, false);
+        End;
+      End
+      Else Begin
+        // Das Gebäude gehört uns nicht, also zeigen wir an was es gerade hat.
+        If (TBuilding(FSideMenuObject).Owner >= 0) And (TBuilding(FSideMenuObject).Owner <= high(fPlayerInfos)) Then Begin
+          // Wenn das Geb kein Placement ist, dann zeigen wir an wem es gehört.
+          hi.Name := 'Owner: ' + fPlayerInfos[TBuilding(FSideMenuObject).Owner].Name + LineEnding + LineEnding +
+            'Cost: ' + inttostr(TBuilding(FSideMenuObject).CalculateCost) + LineEnding + hi.Name;
+        End;
+        RenderHint(fDestL - 10, fDestT + 30, hi, false);
+      End;
+    End;
+    If (fSideMenuObject Is THero) Then Begin
+      // Anzeigen der Ranges der Helden
+      If HintShowHeroRange Then Begin
+        For i := 0 To high(fSelectedHeroes) Do Begin
+          fSelectedHeroes[i].RenderRange(v3(fSelectedHeroes[i].Position.x * MapBlockSize - fsx + fMapL, fSelectedHeroes[i].Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON));
+        End;
+      End;
+      // Alle nachfolgenden Element sind Menü Elemente und müssen in das MenüLayer gerendert werden
+      If (fDestL >= fwold - 1) Or (fDestT >= fhold - 1) Then exit; // Wenn das SideMenu ausgeblendet ist dürfen keine Hints gerendert werden !
+      Sell_Image.Hint := '';
+      Level_Up_Image.Hint := '';
+      hi := FSideMenuObject.GetHint();
+      // Das Gebäude gehört uns, also Zeigen wir an was es als nächstes Gibt
+      If (THero(FSideMenuObject).Owner = fPlayerIndex) Then Begin
+        // Das Gebäude gehört uns
+        If (THero(FSideMenuObject).Level >= 0) Then Begin // Nicht in Update Mode
+          // Die 7 Strategien
+          For i := 0 To 6 Do Begin
+            BuildingStrategyButtons[i].Selected := BuildingStrategyButtons[i].Strategy = THero(FSideMenuObject).strategy;
+            BuildingStrategyButtons[i].Render();
+          End;
+          // Differenzierung Präveriert Luft Präferiert Boden
+          BuildingStrategyButtons[7].Selected := THero(FSideMenuObject).PreverAir;
+          BuildingStrategyButtons[7].Render();
+          If (THero(FSideMenuObject).Level < high(THero(FSideMenuObject).Levels)) Then Begin
+            // Das Gebäude kann noch geupt werden
+            nshi := THero(FSideMenuObject).GetNextLevelHint();
+            nshi.Stage := -2;
+            nshi.Name := Level_Up_Image.Hint;
+            hi.Name := nshi.Description + LineEnding + fDashSeparator + LineEnding;
+            nshi.Description := '';
+            RenderHint(fDestL - 10, fDestT + 30, nshi, false);
+            RenderHint(fDestL - 10, fDestT + 30 + round(2 * OpenGL_ASCII_Font.TextHeight('8') * fontscale), hi, false);
+          End
+          Else Begin
+            // Das Gebäude ist maximal ausgebaut
+            hi.Name := LineEnding + hi.Name;
+            RenderHint(fDestL - 10, fDestT + 30, hi, false);
+          End;
+        End
+        Else Begin
+          // Das Gebäude wird gerade "geupdated" -> da geht nix nur ne kurze Info anzeigen
+          hi.Name := 'Building...';
+          hi.Stage := 0;
+          RenderHint(fDestL - 10, fDestT + 30, hi, false);
+        End;
+      End
+      Else Begin
+        // Das Gebäude gehört uns nicht, also zeigen wir an was es gerade hat.
+        If (THero(FSideMenuObject).Owner >= 0) And (THero(FSideMenuObject).Owner <= high(fPlayerInfos)) Then Begin
+          // Wenn das Geb kein Placement ist, dann zeigen wir an wem es gehört.
+          hi.Name := 'Owner: ' + fPlayerInfos[THero(FSideMenuObject).Owner].Name + LineEnding + LineEnding +
+            'Cost: ' + inttostr(THero(FSideMenuObject).Cost) + LineEnding + hi.Name;
+        End;
+        RenderHint(fDestL - 10, fDestT + 30, hi, false);
+      End;
+    End;
+  End;
+{$ENDIF}
 End;
 
 Procedure Tctd.UpdatePausing(Value: Boolean);
@@ -3374,7 +3766,7 @@ Begin
   fmap.ResetAllUpdateBuildings;
   fmap.CreateDamageClassTextures;
   fmap.EditTerrain := false;
-  If GetValue('Global', 'ShowOppoentsPathOnWaveStart', '1') = '1' Then Begin
+  If GetValue('Global', 'ShowOpponentsPathOnWaveStart', '1') = '1' Then Begin
     fmap.CreateWavePreviewPath(fAktualWave, PlayerIndex);
     fmap.CreateAirWavePreviewPath(fAktualWave, PlayerIndex);
     fmap.CalculateWavePreviewOffsets;
@@ -3765,7 +4157,11 @@ Begin
     b2.Height := b1.Height;
     b2.Canvas.Brush.Color := clWhite;
     b2.Canvas.Rectangle(-1, -1, b2.Width + 1, b2.Height + 1);
-    fSplashMarks.Texture := OpenGL_GraphikEngine.LoadAlphaGraphik(b2, b1, 'SplashMarkTex', smStretchHard);
+{$IFDEF LEGACYMODE}
+    fSplashMarks.Texture := OpenGL_GraphikEngine.GetInfo(OpenGL_GraphikEngine.LoadAlphaGraphik(b2, b1, 'SplashMarkTex', smStretchHard));
+{$ELSE}
+    fSplashMarks.Texture := OpenGL_GraphikEngine.GetInfo(OpenGL_GraphikEngine.LoadAlphaGraphik(b2, b1, 'SplashMarkTex', smClamp));
+{$ENDIF}
     b2.free;
     b1.free;
   End
@@ -3863,7 +4259,17 @@ Begin
   BuildingStrategyButtons[7].Name := 'Prefer air/land creeps [F8]';
 
   fWaypointDirectionTexs := OpenGL_GraphikEngine.LoadAlphaGraphikItem(p + 'waydirections.png', smClamp);
-
+{$IFNDEF LEGACYMODE}
+  Level_Up_Image.Depth := ctd_Menu_Layer;
+  fTargetsInfo.Depth := ctd_Menu_Layer;
+  fCoinsInfo.Depth := ctd_Menu_Layer;
+  fLivesInfo.Depth := ctd_Menu_Layer;
+  fWaveinfo.Depth := ctd_Menu_Layer;
+  Sell_Image.Depth := ctd_Menu_Layer;
+  For i := 0 To high(BuildingStrategyButtons) Do Begin
+    BuildingStrategyButtons[i].Depth := ctd_Menu_Layer;
+  End;
+{$ENDIF}
   LogLeave(EnterID);
 End;
 
@@ -3954,10 +4360,13 @@ Procedure Tctd.Render(w, h: integer);
       (x: - 1; y: + 1)
       );
   Var
+    l, t, d: Single;
+    s: single;
     c, x, y, i, DirectionIndex: integer;
     gi: TGraphikItem;
     OffsetP: TPoint;
   Begin
+{$IFDEF LEGACYMODE}
     c := 0;
     For i := 0 To high(WaypointPreview.Points) Do Begin
       DirectionIndex := WaypointDirectionsToIndex(WaypointPreview.Points[i].Directions);
@@ -3995,6 +4404,48 @@ Procedure Tctd.Render(w, h: integer);
       End;
       glPopMatrix;
     End;
+{$ELSE}
+    c := 0;
+    For i := 0 To high(WaypointPreview.Points) Do Begin
+      DirectionIndex := WaypointDirectionsToIndex(WaypointPreview.Points[i].Directions);
+      x := WaypointPreview.Points[i].Location.x;
+      y := WaypointPreview.Points[i].Location.y;
+      OffsetP := point(0, 0);
+      If WaypointPreview.Points[i].Offsetted Then Begin
+        OffsetP := DirectionsRotated[DirectionIndex] * Offset;
+      End;
+      l := x * MapBlockSize - fsx + fMapL;
+      t := y * MapBlockSize - fsy + fMapT;
+      d := ctd_Buy_Preview_Layer + ctd_EPSILON;
+      s := MapBlockSize / 10;
+      l := l + OffsetP.x * s;
+      t := t + OffsetP.Y * s;
+      If i Mod 2 = 0 Then Begin // Nur jeden 2. Rendern, sieht gleich viel besser aus ;)
+        // Die Pfeile sind kleiner
+        l := l + 2.5 * s;
+        t := t + 2.5 * s;
+        s := s * 0.5;
+        RenderAlphaTiledQuad(
+          l, t, d,
+          s * fWaypointDirectionTexs.OrigWidth / 8, s * fWaypointDirectionTexs.OrigHeight,
+          DirectionIndex, 8, 1, fWaypointDirectionTexs);
+      End
+      Else Begin
+        // Die Klassen genau eine Kachel Groß
+        d := d + ctd_EPSILON;
+        c := c Mod length(WayPointPreview.DamageClasses);
+        gi := fMap.OpenGLArrowDamageClassTex[WayPointPreview.DamageClasses[c]];
+        s := s * 10 / gi.OrigWidth;
+        If gi.IsAlphaImage Then Begin
+          RenderAlphaQuad(l, t, d, s * gi.OrigWidth, s * gi.OrigHeight, gi);
+        End
+        Else Begin
+          RenderQuad(l, t, d, s * gi.OrigWidth, s * gi.OrigHeight, gi);
+        End;
+        inc(c);
+      End;
+    End;
+{$ENDIF}
   End;
 
 Var
@@ -4003,6 +4454,10 @@ Var
   hi: THint;
   s: String;
   t: Int64;
+{$IFNDEF LEGACYMODE}
+  m: TMatrix4x4;
+  tl: TVector3;
+{$ENDIF}
 Begin
   If (fwold <> w) Or (fhold <> h) Then Begin
     fwold := w;
@@ -4028,6 +4483,7 @@ Begin
   End;
   Case fgameState Of
     gs_WaitForJoin: Begin
+{$IFDEF LEGACYMODE}
         glColor4f(1, 1, 1, 1);
         glPushMatrix;
         glTranslatef(0, 0, -0.1);
@@ -4041,6 +4497,20 @@ Begin
         If VersionInfoString <> '' Then Begin
           RenderToolTipp(w - 10, h - 10, VersionInfoString);
         End;
+{$ELSE}
+        m := IdentityMatrix4x4;
+        m := ScaleMatrix4x4(m, w / fHostJoinBackTex.OrigWidth, h / fHostJoinBackTex.OrigHeight, 1);
+        SetShaderTransform(m);
+        RenderQuad(0, 0, -0.1, fHostJoinBackTex);
+        ResetShaderTransform;
+        OpenGL_ASCII_Font.Color := clWhite;
+        fHostButton.Render();
+        fJoinButton.Render();
+        CenterTextOut(w, h, 'Please host or join a session.');
+        If VersionInfoString <> '' Then Begin
+          RenderToolTipp(w - 10, h - 10, VersionInfoString);
+        End;
+{$ENDIF}
       End;
     gs_Gaming: Begin
         If form4.Visible Then form4.Close;
@@ -4068,39 +4538,71 @@ Begin
         If assigned(FBuyingObject) Then Begin
           x := (fsx + fCursorPos.x - fMapL) Div MapBlockSize;
           y := (fsy + fCursorPos.y - fMapT) Div MapBlockSize;
+{$IFDEF LEGACYMODE}
           glPushMatrix;
           glTranslatef(x * MapBlockSize - fsx + fMapL, y * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer);
           FBuyingObject.Render(false);
+{$ELSE}
+          FBuyingObject.Render(x * MapBlockSize - fsx + fMapL, y * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer, false);
+{$ENDIF}
           If fBuyingObject Is TBuilding Then Begin // Bei gebäuden zusätzlich noch den Radius und die überdeckten Kacheln
-            TBuilding(FBuyingObject).RenderRange;
+{$IFDEF LEGACYMODE}
+            TBuilding(FBuyingObject).RenderRange(v3(0, 0, 0));
             glTranslatef(0, 0, ctd_EPSILON);
+            glBindTexture(GL_TEXTURE_2D, 0);
+{$ELSE}
+            TBuilding(FBuyingObject).RenderRange(v3(x * MapBlockSize - fsx + fMapL, y * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer));
+            UseColorShader;
+{$ENDIF}
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-            glBindTexture(GL_TEXTURE_2D, 0);
             For i := 0 To round(FBuyingObject.Width) - 1 Do Begin
               For j := 0 To round(FBuyingObject.Height) - 1 Do Begin
                 If fMap.CoordIsBuildable2(x + i, y - j) Then Begin
+{$IFDEF LEGACYMODE}
                   glColor4f(0, 0.25, 0, 0.75); // Baubar
+{$ELSE}
+                  SetShaderColor(0, 0.25, 0, 0.75); // Baubar
+{$ENDIF}
                 End
                 Else Begin
+{$IFDEF LEGACYMODE}
                   glColor4f(1, 0, 0, 0.5); // Nicht Baubar
+{$ELSE}
+                  SetShaderColor(1, 0, 0, 0.5); // Nicht Baubar
+{$ENDIF}
                 End;
+{$IFDEF LEGACYMODE}
                 glBegin(GL_QUADS);
                 glVertex2f(i * MapBlockSize, -j * MapBlockSize + MapBlockSize);
                 glVertex2f((i + 1) * MapBlockSize, -j * MapBlockSize + MapBlockSize);
                 glVertex2f((i + 1) * MapBlockSize, -(j + 1) * MapBlockSize + MapBlockSize);
                 glVertex2f(i * MapBlockSize, -(j + 1) * MapBlockSize + MapBlockSize);
                 glend;
+{$ELSE}
+                glShaderBegin(GL_TRIANGLE_FAN);
+                glShaderVertex(x * MapBlockSize - fsx + fMapL + i * MapBlockSize, y * MapBlockSize - fsy + fMapT + -j * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                glShaderVertex(x * MapBlockSize - fsx + fMapL + (i + 1) * MapBlockSize, y * MapBlockSize - fsy + fMapT + -j * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                glShaderVertex(x * MapBlockSize - fsx + fMapL + (i + 1) * MapBlockSize, y * MapBlockSize - fsy + fMapT + -(j + 1) * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                glShaderVertex(x * MapBlockSize - fsx + fMapL + i * MapBlockSize, y * MapBlockSize - fsy + fMapT + -(j + 1) * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                glShaderEnd();
+{$ENDIF}
               End;
             End;
             glDisable(GL_BLEND);
+{$IFNDEF LEGACYMODE}
+            UseTextureShader();
+{$ENDIF}
           End;
+{$IFDEF LEGACYMODE}
           glPopMatrix;
+{$ENDIF}
         End;
         If fShowBuildableTiles Or (ShowBuildableTilesDuringBuild And (assigned(fBuyingObject))) Then Begin
           For i := 0 To fMap.Width - 1 Do Begin
             For j := 0 To fMap.Height - 1 Do Begin
               If Not fMap.CoordIsBuildable2(i, j) Then Begin
+{$IFDEF LEGACYMODE}
                 glPushMatrix;
                 glTranslatef(i * MapBlockSize - fsx + fMapL, j * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer);
                 glTranslatef(0, 0, ctd_EPSILON);
@@ -4116,6 +4618,21 @@ Begin
                 glend;
                 glDisable(GL_BLEND);
                 glPopMatrix;
+{$ELSE}
+                UseColorShader;
+                tl := v3(i * MapBlockSize - fsx + fMapL, j * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+                SetShaderColor(1, 0, 0, 0.5); // Nicht Baubar
+                glShaderBegin(GL_TRIANGLE_FAN);
+                glShaderVertex(tl + v3(0, MapBlockSize, 0));
+                glShaderVertex(tl + v3((0 + 1) * MapBlockSize, -0 * MapBlockSize + MapBlockSize, 0));
+                glShaderVertex(tl + v3((0 + 1) * MapBlockSize, -(0 + 1) * MapBlockSize + MapBlockSize, 0));
+                glShaderVertex(tl + v3(0 * MapBlockSize, -(0 + 1) * MapBlockSize + MapBlockSize, 0));
+                glShaderEnd();
+                glDisable(GL_BLEND);
+                UseTextureShader();
+{$ENDIF}
               End;
             End;
           End;
@@ -4123,16 +4640,24 @@ Begin
         RenderGameInfos;
         // Anzeigen Tooltip für Obj unter Mausposition
         If fBuyMenuToolTipp <> '' Then Begin
+{$IFDEF LEGACYMODE}
           glPushMatrix;
           glTranslatef(0, 0, 1.25 * ctd_EPSILON);
           RenderToolTipp(fCursorPos.x, fCursorPos.y, fBuyMenuToolTipp);
           glPopMatrix;
+{$ELSE}
+          RenderToolTipp(fCursorPos.x, fCursorPos.y, fBuyMenuToolTipp);
+{$ENDIF}
         End;
         If fStrategyToolTipp <> '' Then Begin
+{$IFDEF LEGACYMODE}
           glPushMatrix;
           glTranslatef(0, 0, 1.25 * ctd_EPSILON);
           RenderToolTipp(fStrategyToolTippPos.x, fStrategyToolTippPos.y, fStrategyToolTipp);
           glPopMatrix;
+{$ELSE}
+          RenderToolTipp(fStrategyToolTippPos.x, fStrategyToolTippPos.y, fStrategyToolTipp);
+{$ENDIF}
         End;
         If assigned(FHintObject.Obj) Then Begin
           If GetTick() - FHintObject.Time > DefaultShowToolTippTime Then Begin
@@ -4142,22 +4667,29 @@ Begin
               hi.Name := 'Owner: ' + fPlayerInfos[i].Name + LineEnding + LineEnding + hi.Name;
             End;
             RenderHint(fCursorPos.x, fCursorPos.y, hi);
-
             If FHintObject.Obj Is TBuilding Then Begin
               If HintShowBuildingRange Then Begin
+{$IFDEF LEGACYMODE}
                 glPushMatrix;
                 glTranslatef(FHintObject.Obj.Position.x * MapBlockSize - fsx + fMapL, FHintObject.Obj.Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
-                TBuilding(FHintObject.Obj).RenderRange();
+                TBuilding(FHintObject.Obj).RenderRange(v3(0, 0, 0));
                 glPopMatrix;
+{$ELSE}
+                TBuilding(FHintObject.Obj).RenderRange(v3(FHintObject.Obj.Position.x * MapBlockSize - fsx + fMapL, FHintObject.Obj.Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON));
+{$ENDIF}
               End;
             End
             Else Begin
               If FHintObject.Obj Is THero Then Begin
                 If HintShowHeroRange Then Begin
+{$IFDEF LEGACYMODE}
                   glPushMatrix;
                   glTranslatef(FHintObject.Obj.Position.x * MapBlockSize - fsx + fMapL, FHintObject.Obj.Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
                   THero(FHintObject.Obj).RenderRange();
                   glPopMatrix;
+{$ELSE}
+                  THero(FHintObject.Obj).RenderRange(v3(FHintObject.Obj.Position.x * MapBlockSize - fsx + fMapL, FHintObject.Obj.Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON));
+{$ENDIF}
                 End;
               End
               Else Begin
@@ -4168,6 +4700,7 @@ Begin
         End;
         // Anzeigen der Spielernamen an den Spawnpunkten
         If ShowPlayerStartNames Or (GetTick() < fStartRoundTick + PlayerDisplayTimeOnStartGame) Then Begin
+{$IFDEF LEGACYMODE}
           glPushMatrix;
           glTranslatef(-fsx, -fsy, 0);
           For i := 0 To high(fPlayerInfos) Do Begin
@@ -4177,10 +4710,20 @@ Begin
               );
           End;
           glPopMatrix;
+{$ELSE}
+          For i := 0 To high(fPlayerInfos) Do Begin
+            RenderToolTipp(
+              -fsx +
+              map.Waypoints[i, 0].Point.x * MapBlockSize - integer(round(OpenGL_ASCII_Font.TextWidth(fPlayerInfos[i].Name) * fontscale / 2)) + fMapL, -fsy + map.Waypoints[i, 0].Point.y * MapBlockSize + fMapT,
+              fPlayerInfos[i].Name
+              );
+          End;
+{$ENDIF}
         End;
         If fMap.heroCount <> 0 Then Begin
           If fLeftMousePressed Then Begin
             glDisable(GL_DEPTH_TEST);
+{$IFDEF LEGACYMODE}
             glBindTexture(GL_TEXTURE_2D, 0);
             glcolor3f(1, 1, 1);
             glbegin(GL_LINE_LOOP);
@@ -4189,11 +4732,23 @@ Begin
             glvertex2f(max(fmDownPos.x, fCursorPos.X), max(fmDownPos.y, fCursorPos.y));
             glvertex2f(max(fmDownPos.x, fCursorPos.X), min(fmDownPos.y, fCursorPos.y));
             glend;
+{$ELSE}
+            UseColorShader;
+            SetShaderColor(1, 1, 1);
+            glShaderBegin(GL_LINE_LOOP);
+            glShaderVertex(min(fmDownPos.x, fCursorPos.X), min(fmDownPos.y, fCursorPos.y), 0);
+            glShaderVertex(min(fmDownPos.x, fCursorPos.X), max(fmDownPos.y, fCursorPos.y), 0);
+            glShaderVertex(max(fmDownPos.x, fCursorPos.X), max(fmDownPos.y, fCursorPos.y), 0);
+            glShaderVertex(max(fmDownPos.x, fCursorPos.X), min(fmDownPos.y, fCursorPos.y), 0);
+            glShaderEnd();
+            UseTextureShader();
+{$ENDIF}
             glEnable(GL_DEPTH_TEST);
           End;
         End;
       End;
     gs_Loading: Begin
+{$IFDEF LEGACYMODE}
         OpenGL_ASCII_Font.Color := clYellow;
         CenterTextOut(w, h, 'Loading, please wait..');
         // Anzeige eines kleinen Fortschrittsbalken
@@ -4229,6 +4784,45 @@ Begin
         If (fFileReceivingGoalCount <= fFileReceivingCount) Then Begin
           fgameState := fstatebeforeloading;
         End;
+{$ELSE}
+        OpenGL_ASCII_Font.Color := clYellow;
+        CenterTextOut(w, h, 'Loading, please wait..');
+        // Anzeige eines kleinen Fortschrittsbalken
+        If (fFileReceivingGoalCount >= fFileReceivingCount) And (fFileReceivingGoalCount <> 0) Then Begin
+          glBindTexture(GL_TEXTURE_2D, 0);
+          UseColorShader;
+          f := 199 * fFileReceivingCount / fFileReceivingGoalCount;
+          If f < 100 Then Begin
+            SetShaderColor(1, 0.25, 0.25);
+          End
+          Else Begin
+            If f < 175 Then Begin
+              SetShaderColor(1, 1, 0.25);
+            End
+            Else Begin
+              SetShaderColor(0.25, 1, 0.25);
+            End;
+          End;
+          glshaderBegin(GL_TRIANGLE_FAN);
+          glShaderVertex(w Div 2 - 100, h Div 2 + 15, 0);
+          glShaderVertex(w Div 2 - 100, h Div 2 + 15 + 24, 0);
+          glShaderVertex(w Div 2 - 100 + f, h Div 2 + 15 + 24, 0);
+          glShaderVertex(w Div 2 - 100 + f, h Div 2 + 15, 0);
+          glShaderEnd();
+          SetShaderColor(1, 0.5, 0.5);
+          glshaderBegin(GL_LINE_LOOP);
+          glShaderVertex(w Div 2 - 100, h Div 2 + 14, 0);
+          glShaderVertex(w Div 2 - 100, h Div 2 + 15 + 25, 0);
+          glShaderVertex(w Div 2 + 100, h Div 2 + 15 + 25, 0);
+          glShaderVertex(w Div 2 + 100, h Div 2 + 15, 0);
+          glShaderEnd();
+          UseTextureShader;
+        End;
+        // Laden ist Fertig, wir wechseln mal in den Vorherigen State
+        If (fFileReceivingGoalCount <= fFileReceivingCount) Then Begin
+          fgameState := fstatebeforeloading;
+        End;
+{$ENDIF}
       End;
     gs_WaitToStart,
       gs_EditMode: Begin
@@ -4246,11 +4840,12 @@ Begin
           If form4.CheckBox2.Checked Then Begin // Cursor für Terrain Modifikationen
             x := (fsx + fCursorPos.x) Div MapBlockSize;
             y := (fsy + fCursorPos.y) Div MapBlockSize;
+            i := form4.ScrollBar1.Position;
+            glEnable(GL_BLEND);
+{$IFDEF LEGACYMODE}
             glPushMatrix;
             glTranslatef(x * MapBlockSize - fsx, y * MapBlockSize - fsy, ctd_Buy_Preview_Layer);
-            i := form4.ScrollBar1.Position;
             glTranslatef(0, 0, ctd_EPSILON);
-            glEnable(GL_BLEND);
             glColor4f(1, 0, 0, 0.5);
             glBindTexture(GL_TEXTURE_2D, 0);
             glScalef(MapBlockSize, MapBlockSize, 1);
@@ -4266,19 +4861,39 @@ Begin
             glVertex2f(i + 1, i + 1);
             glVertex2f(0, i + 1);
             glend;
-            glDisable(GL_BLEND);
             glPopMatrix;
+{$ELSE}
+            UseColorShader;
+            SetShaderColor(1, 0, 0, 0.5);
+            If i Mod 2 = 0 Then Begin
+              x := x * MapBlockSize - fsx - i * MapBlockSize Div 2;
+              y := y * MapBlockSize - fsy - i * MapBlockSize Div 2;
+            End
+            Else Begin
+              x := x * MapBlockSize - fsx - (i * MapBlockSize) Div 2 - MapBlockSize Div 2;
+              y := y * MapBlockSize - fsy - (i * MapBlockSize) Div 2 - MapBlockSize Div 2;
+            End;
+            glShaderBegin(GL_TRIANGLE_FAN);
+            glShaderVertex(x, y, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderVertex(x + (i + 1) * MapBlockSize, y, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderVertex(x + (i + 1) * MapBlockSize, y + (i + 1) * MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderVertex(x, y + (i + 1) * MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderEnd();
+            UseTextureShader();
+{$ENDIF}
+            glDisable(GL_BLEND);
           End;
 
           If form4.CheckBox7.Checked Then Begin // Waypoint Flächen Modifikationen
             // Cursor
             x := (fsx + fCursorPos.x) Div MapBlockSize;
             y := (fsy + fCursorPos.y) Div MapBlockSize;
+            glEnable(GL_BLEND);
+            i := form4.ScrollBar2.Position;
+{$IFDEF LEGACYMODE}
             glPushMatrix;
             glTranslatef(x * MapBlockSize - fsx, y * MapBlockSize - fsy, ctd_Buy_Preview_Layer);
-            i := form4.ScrollBar2.Position;
             glTranslatef(0, 0, ctd_EPSILON);
-            glEnable(GL_BLEND);
             glColor4f(0, 1, 0, 0.5);
             glBindTexture(GL_TEXTURE_2D, 0);
             glBegin(GL_QUADS);
@@ -4287,12 +4902,24 @@ Begin
             glVertex2f((i + 1) * MapBlockSize, (i + 1) * MapBlockSize);
             glVertex2f(-i * MapBlockSize, (i + 1) * MapBlockSize);
             glend;
-            glDisable(GL_BLEND);
             glPopMatrix;
+{$ELSE}
+            UseColorShader;
+            SetShaderColor(0, 1, 0, 0.5);
+            glShaderBegin(GL_TRIANGLE_FAN);
+            glShaderVertex(x * MapBlockSize - fsx - i * MapBlockSize, y * MapBlockSize - fsy - i * MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderVertex(x * MapBlockSize - fsx + (i + 1) * MapBlockSize, y * MapBlockSize - fsy - i * MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderVertex(x * MapBlockSize - fsx + (i + 1) * MapBlockSize, y * MapBlockSize - fsy + (i + 1) * MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderVertex(x * MapBlockSize - fsx - i * MapBlockSize, y * MapBlockSize - fsy + (i + 1) * MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+            glShaderEnd();
+            UseTextureShader();
+{$ENDIF}
+            glDisable(GL_BLEND);
             // Die Karten Ansicht
             For i := 0 To fMap.Width - 1 Do Begin
               For j := 0 To fMap.Height - 1 Do Begin
                 If fMap.fTerrain[i, j].WArea Then Begin
+{$IFDEF LEGACYMODE}
                   glPushMatrix;
                   glTranslatef(i * MapBlockSize - fsx + fMapL, j * MapBlockSize - fsy + fMapT, ctd_Buy_Preview_Layer);
                   glTranslatef(0, 0, ctd_EPSILON);
@@ -4308,6 +4935,21 @@ Begin
                   glend;
                   glDisable(GL_BLEND);
                   glPopMatrix;
+{$ELSE}
+                  UseColorShader;
+                  glEnable(GL_BLEND);
+                  glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+                  glBindTexture(GL_TEXTURE_2D, 0);
+                  SetShaderColor(0, 0.75, 0, 0.5); // Feld ist ein Flächenwegpunkt
+                  glShaderBegin(GL_TRIANGLE_FAN);
+                  glShaderVertex(i * MapBlockSize - fsx + fMapL + 0, j * MapBlockSize - fsy + fMapT + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                  glShaderVertex(i * MapBlockSize - fsx + fMapL + (0 + 1) * MapBlockSize, j * MapBlockSize - fsy + fMapT + -0 * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                  glShaderVertex(i * MapBlockSize - fsx + fMapL + (0 + 1) * MapBlockSize, j * MapBlockSize - fsy + fMapT + -(0 + 1) * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                  glShaderVertex(i * MapBlockSize - fsx + fMapL + 0 * MapBlockSize, j * MapBlockSize - fsy + fMapT + -(0 + 1) * MapBlockSize + MapBlockSize, ctd_Buy_Preview_Layer + ctd_EPSILON);
+                  glShaderEnd;
+                  glDisable(GL_BLEND);
+                  UseTextureShader();
+{$ENDIF}
                 End;
               End;
             End;
@@ -4316,10 +4958,14 @@ Begin
           If form4.CheckBox6.Checked And (assigned(PlacementeObject)) And form4.RadioButton4.Checked Then Begin // Placement preview
             x := (fsx + fCursorPos.x) Div MapBlockSize;
             y := (fsy + fCursorPos.y) Div MapBlockSize;
+{$IFDEF LEGACYMODE}
             glPushMatrix;
             glTranslatef(x * MapBlockSize - fsx, y * MapBlockSize - fsy, ctd_Buy_Preview_Layer);
             PlacementeObject.Render(false);
             glPopMatrix;
+{$ELSE}
+            PlacementeObject.Render(x * MapBlockSize - fsx, y * MapBlockSize - fsy, ctd_Buy_Preview_Layer, false);
+{$ENDIF}
           End;
 
           RenderBlackOutMapBorder;
@@ -4333,6 +4979,7 @@ Begin
           RenderMenuTabButton();
         End
         Else Begin
+{$IFDEF LEGACYMODE}
           glColor4f(1, 1, 1, 1);
           glPushMatrix;
           glTranslatef(0, 0, -0.1);
@@ -4355,6 +5002,29 @@ Begin
             s := s + '   ' + fPlayerInfos[i].Name + LineEnding;
           End;
           TextOut(0, 32, 'Online Players:' + LineEnding + s);
+{$ELSE}
+          m := IdentityMatrix4x4;
+          m := ScaleMatrix4x4(m, w / fHostJoinBackTex.OrigWidth, h / fHostJoinBackTex.OrigHeight, 1);
+          SetShaderTransform(m);
+          RenderQuad(0, 0, -0.1, fLoadMapGameBackTex);
+          ResetShaderTransform;
+          fNewMapButton.Render();
+          fLoadMapButton.Render();
+          fLoadGameButton.Render();
+          // Print instructions
+          OpenGL_ASCII_Font.Color := clWhite;
+          CenterTextOut(w, h, 'Please create or load a map, or load a old game.');
+          If VersionInfoString <> '' Then Begin
+            RenderToolTipp(w - 10, h - 10, VersionInfoString);
+          End;
+          // Print Connected Player Names
+          OpenGL_ASCII_Font.Color := clGray;
+          s := '';
+          For i := 0 To high(fPlayerInfos) Do Begin
+            s := s + '   ' + fPlayerInfos[i].Name + LineEnding;
+          End;
+          TextOut(0, 32, 'Online Players:' + LineEnding + s);
+{$ENDIF}
         End;
       End;
   End;

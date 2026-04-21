@@ -60,7 +60,11 @@ Type
 {$IFDEF Client}
     Function GetBuyCost: integer; virtual; abstract; // Für Gebs und Heroes
     Function GetHint(): THint; virtual; abstract; // Die Hint Informationen für Im Spiel
+{$IFDEF LEGACYMODE}
     Procedure Render(Grayed: Boolean); virtual; abstract; // Grayed ist optional und aktuell nur für gebäude implementiert
+{$ELSE}
+    Procedure Render(x, y, z: Single; Grayed: Boolean); virtual; abstract; // Grayed ist optional und aktuell nur für gebäude implementiert
+{$ENDIF}
 {$ENDIF}
     Procedure SetStage(value: integer); virtual; // Wird nur für TBuilding gebraucht, macht aber das Laden in Map einfacher
     Function ListOfImages(): TStringList; virtual; abstract; // Soll die Liste aller eingebundenen Bilder zurückgeben

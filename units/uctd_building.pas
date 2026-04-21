@@ -25,6 +25,8 @@ Uses
 {$IFDEF Client}
   , uopengl_graphikengine
   , uopengl_animation
+  , uopengl_shaderprimitives
+  , uvectormath
 {$ENDIF}
   ;
 
@@ -92,8 +94,12 @@ Type
     Function GetBuyCost: integer; override;
     Function GetHint(): THint; override;
     Function GetNextStageHint(): THint; // Gleich wie TBuilding.GetHint: THint; nur eben für die Stage nach der Aktuellen, wenn es keine mehr gibt alles 0
+{$IFDEF LEGACYMODE}
     Procedure Render(Grayed: Boolean); override;
-    Procedure RenderRange;
+{$ELSE}
+    Procedure Render(x, y, z: Single; Grayed: Boolean); override;
+{$ENDIF}
+    Procedure RenderRange(Const tl: Tvector3);
     Function Check(): String; // Prüft das Gebäude auf gültigkeit, '' wenn Fehlerfrei, sonst ist das der Fehlercode
     Function CalcSellRefund(Difficulty: integer): integer;
     Function CalculateCost(): integer;
@@ -118,7 +124,6 @@ Uses
   , dglOpenGL
   , Graphics
   , ugraphics
-  , uvectormath
 {$ENDIF}
   ;
 
@@ -443,12 +448,20 @@ Begin
   End;
 End;
 
+{$IFDEF LEGACYMODE}
+
 Procedure TBuilding.Render(Grayed: Boolean);
+{$ELSE}
+
+Procedure TBuilding.Render(x, y, z: Single; Grayed: Boolean);
+{$ENDIF}
 
   Procedure RenderBar(PerCent: Single);
   Var
     t, l, w, h: Single;
+    tl: TVector3;
   Begin
+{$IFDEF LEGACYMODE}
     glPushMatrix;
     // TODO: Ohne tiefentest sieht es zwar gut aus, aber leider im Menü dann doof
     // glDisable(GL_DEPTH_TEST);
@@ -479,9 +492,42 @@ Procedure TBuilding.Render(Grayed: Boolean);
     glend;
     // glenable(GL_DEPTH_TEST);
     glPopMatrix;
+{$ELSE}
+    tl := v3(x + (width * MapBlockSize) / 2, y - (height * MapBlockSize) / 2 + MapBlockSize, z);
+    // TODO: Ohne tiefentest sieht es zwar gut aus, aber leider im Menü dann doof
+    // glDisable(GL_DEPTH_TEST);
+    t := 0; //-height * MapBlockSize - LifebarOffset;
+    l := -width * MapBlockSize / 2;
+    h := LifebarHeight;
+    w := width * MapBlockSize;
+    UseColorShader;
+    glShaderBegin(GL_TRIANGLE_FAN);
+    SetShaderColor(0, 0, 0);
+    glShaderVertex(tl + v3(l - 1, t - 1, 0));
+    glShaderVertex(tl + v3(l + 1 + w, t - 1, 0));
+    glShaderVertex(tl + v3(l + 1 + w, t + h + 1, 0));
+    glShaderVertex(tl + v3(l - 1, t + h + 1, 0));
+    glShaderEnd();
+    Case round(PerCent * 100) Of
+      71..100: glColor(Good_Col);
+      31..70: glColor(Middle_Col);
+      0..30: glColor(Bad_col);
+    End;
+    w := width * MapBlockSize * PerCent;
+    tl.z := tl.z + 6 * ctd_EPSILON; // WTF: warum so viel ?
+    glShaderBegin(GL_TRIANGLE_FAN);
+    glShaderVertex(tl + v3(l, t, 0));
+    glShaderVertex(tl + v3(l + w, t, 0));
+    glShaderVertex(tl + v3(l + w, t + h, 0));
+    glShaderVertex(tl + v3(l, t + h, 0));
+    glShaderEnd;
+    // glenable(GL_DEPTH_TEST);
+    UseTextureShader();
+{$ENDIF}
   End;
 
 Begin
+{$IFDEF LEGACYMODE}
   // Wenn das Gebäude leicht Ausgegraut gerendert werden soll ;)
   If Grayed Then Begin
     glColor4f(0.5, 0.5, 0.5, 1);
@@ -516,16 +562,57 @@ Begin
     RenderObjItem(v2(0, 0), round(width * MapBlockSize), round(height * MapBlockSize), BuildBuildingTex);
   End;
   glPopMatrix;
+{$ELSE}
+  // Wenn das Gebäude leicht Ausgegraut gerendert werden soll ;)
+  If Grayed Then Begin
+    UseTextureShader(v4(0.5, 0.5, 0.5, 1));
+  End;
+
+  If fUpdating.State = usIdleInactive Then Begin
+    // nicht Updaten
+    If assigned(stages[Stage].Animation) Then Begin
+      RenderAnim(v3(x + (Stages[Stage].w * MapBlockSize) / 2, y - (Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize, z)
+        , stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Animation);
+    End
+    Else Begin
+      RenderObjItem(v3(x + (Stages[Stage].w * MapBlockSize) / 2, y - (Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize, z)
+        , stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Fimage);
+    End;
+    DeltaSinceLastUpdate := 0;
+  End
+  Else Begin
+    // Anfahren der Richtigen Position (Mittelpunkt, vom Kollisionauf der Karte)
+    // Der Progressbar
+    If FPausing Then Begin
+      RenderBar(0);
+    End
+    Else Begin
+      RenderBar(DeltaSinceLastUpdate / stages[fUpdating.FinState].BuildTime);
+    End;
+    // Die Baustelle zeichnen (ist hinterher, dass wir kein Offset in der Höhe brauchen)
+    RenderObjItem(v3(x + (width * MapBlockSize) / 2, y - (height * MapBlockSize) / 2 + MapBlockSize, z)
+      , round(width * MapBlockSize), round(height * MapBlockSize), BuildBuildingTex);
+  End;
+  If Grayed Then Begin
+    UseTextureShader(); // Rücksetzen der Shader Farbe..
+  End
+{$ENDIF}
 End;
 
-Procedure TBuilding.RenderRange;
+Procedure TBuilding.RenderRange(Const tl: Tvector3);
 Var
   i: integer;
   r: Single;
+{$IFNDEF LEGACYMODE}
+  segCount: Integer;
+  a0, a1: Single;
+  center: TVector3;
+{$ENDIF}
 Begin
   // Nen Range gibts nicht immer
   If stage < 0 Then exit;
   If Stages[Stage].range > 0 Then Begin
+{$IFDEF LEGACYMODE}
     glLineStipple(1, $00FF);
     glEnable(GL_LINE_STIPPLE);
     glColor(Building_Range_Col);
@@ -541,6 +628,27 @@ Begin
     glend;
     glPopMatrix;
     glDisable(GL_LINE_STIPPLE);
+{$ELSE}
+    UseColorShader;
+    glColor(Building_Range_Col);
+    center := tl + v3((Stages[Stage].bulletLeafPointx * MapBlockSize), -(Stages[Stage].bulletLeafPointy * MapBlockSize) + MapBlockSize, 0);
+    r := MapBlockSize * Stages[Stage].range;
+    // GL_LINE_STIPPLE existiert im Shader/Core-Pfad nicht mehr, daher emulieren wir Dashes mit einzelnen Liniensegmenten.
+    segCount := max(24, min(128, round(2 * pi * r / (MapBlockSize / 3))));
+    segCount := segCount - segCount Mod 4; // Dafür Sorgen das der Kreis immer mit einem "Leeren" segment endet, sonst siehts komisch aus.
+    glShaderBegin(GL_LINES);
+    For i := 0 To segCount - 1 Do Begin
+      // 2 Segmente sichtbar, 2 Segmente unsichtbar.
+      If ((i Mod 4) < 2) Then Begin
+        a0 := 2 * pi * i / segCount;
+        a1 := 2 * pi * (i + 1) / segCount;
+        glShaderVertex(center.x + cos(a0) * r, center.y + sin(a0) * r, center.z);
+        glShaderVertex(center.x + cos(a1) * r, center.y + sin(a1) * r, center.z);
+      End;
+    End;
+    glShaderEnd;
+    UseTextureShader();
+{$ENDIF}
   End;
 End;
 

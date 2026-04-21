@@ -103,7 +103,7 @@
         <PackageName Value="LCL"/>
       </Item7>
     </RequiredPackages>
-    <Units Count="62">
+    <Units Count="64">
       <Unit0>
         <Filename Value="config_td.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -435,6 +435,14 @@
         <Filename Value="../../Sample/OpenGL/uopengl_font_common.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit61>
+      <Unit62>
+        <Filename Value="../../Sample/OpenGL/uopengl_legacychecker.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit62>
+      <Unit63>
+        <Filename Value="../../Sample/OpenGL/uopengl_shaderprimitives.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit63>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

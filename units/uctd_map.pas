@@ -136,7 +136,7 @@ Type
 {$IFDEF Client}
     Animation: TOpenGL_Animation;
 {$ENDIF}
-    fimage: integer;
+    fimage: integer; // TODO: das sollte so schnell wie möglich durch TGraphikItem ersetzt werden !
     Width: Single;
     Height: Single;
     Speed: Single;
@@ -278,7 +278,11 @@ Type
     Procedure SortPlacementByYCoordinate;
 
 {$IFDEF Client}
+{$IFDEF LEGACYMODE}
     Procedure RenderAbstract(blockw, blockh: Single; Grid, HideLifePoints: Boolean; UserIndex, delta: integer); // Rendert alles, was auf der Großen und der Previewkarte Sichtbar ist.
+{$ELSE}
+    Procedure RenderAbstract(x, y, z: Single; blockw, blockh: Single; Grid, HideLifePoints: Boolean; UserIndex, delta: integer); // Rendert alles, was auf der Großen und der Previewkarte Sichtbar ist.
+{$ENDIF}
 {$ENDIF}
     Function getOpponentCount: integer;
     Function getFieldHeight(x, y, Player, WayPoint: integer): integer;
@@ -298,6 +302,7 @@ Type
     fBuyAbles: Array Of TBuyAble; // Die Liste der Kaufbaren Objekte
     fPlacements: Array Of tctd_mapopbject;
 {$IFDEF Client}
+    ShowWaypointRoutes: Boolean;
     WaypointPreview: TWaypointPreview;
     AirWaypointPreview: TWaypointPreview;
 {$ENDIF}
@@ -481,6 +486,11 @@ Implementation
 
 Uses Graphics, math, LCLIntf, FileUtil, LazFileUtils
   , DateUtils
+{$IFDEF Client}
+{$IFNDEF LEGACYMODE}
+  , uopengl_shaderprimitives
+{$ENDIF}
+{$ENDIF}
   ;
 
 Function JitterCoord(index, ItemCount: integer): TVector2;
@@ -825,6 +835,7 @@ Begin
   fRenderOpponents := Nil;
   WaypointPreview.Points := Nil;
   AirWaypointPreview.Points := Nil;
+  ShowWaypointRoutes := false;
 {$ELSE}
   fHighscoreEngine := TIniHighscoreEngine.create;
   fHeroes := Nil;
@@ -1986,7 +1997,7 @@ Begin
   u16 := 0;
   data.Read(u16, sizeof(u16));
   // Sobald auch nur 1 Gegner auf der Karte ist, werden die Preview Wege "gelöscht"
-  If (u16 <> 0) And (Assigned(WaypointPreview.Points) Or (assigned(AirWaypointPreview.Points))) Then Begin
+  If (u16 <> 0) And (Assigned(WaypointPreview.Points) Or (assigned(AirWaypointPreview.Points))) And (Not ShowWaypointRoutes) Then Begin
     setlength(WaypointPreview.Points, 0);
     setlength(AirWaypointPreview.Points, 0);
   End;
@@ -2063,7 +2074,9 @@ Begin
       data[t, 2] := (c Shr 16) And $FF;
       inc(t);
     End;
+{$IFDEF LEGACYMODE}
   glEnable(GL_TEXTURE_2D);
+{$ENDIF}
   glBindTexture(gl_texture_2d, fFTerrainBackTex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -2581,13 +2594,22 @@ Begin
   End;
 End;
 
-Procedure TMap.RenderAbstract(blockw, blockh: Single; Grid,
-  HideLifePoints: Boolean; UserIndex, delta: integer);
+{$IFDEF LEGACYMODE}
+
+Procedure TMap.RenderAbstract(blockw, blockh: Single; Grid, HideLifePoints: Boolean; UserIndex, delta: integer); // Rendert alles, was auf der Großen und der Previewkarte Sichtbar ist.
+{$ELSE}
+
+Procedure TMap.RenderAbstract(x, y, z: Single; blockw, blockh: Single; Grid, HideLifePoints: Boolean; UserIndex, delta: integer); // Rendert alles, was auf der Großen und der Previewkarte Sichtbar ist.
+{$ENDIF}
 Var
   i, j: integer;
-  k, l: Single;
+  d, k, l: Single;
   b: Boolean;
+  m, m2: TMatrix4x4;
+  g: TGraphikItem;
+  tl: TVector3;
 Begin
+{$IFDEF LEGACYMODE}
   glEnable(GL_DEPTH_TEST);
   glPushMatrix;
   // So Skallieren, dass alles nachfolgende in MAP_BLOCK_WIDTH koordinaten gerendert werden kann.
@@ -2758,6 +2780,163 @@ Begin
   End;
 
   glPopMatrix; // -- Pop aus der Skallierten Ansicht
+{$ELSE}
+  glEnable(GL_DEPTH_TEST);
+  m := IdentityMatrix4x4;
+  m := TranslateMatrix4x4(m, x, y, 0);
+  m := ScaleMatrix4x4(m, blockw, blockh, 1);
+  // Die Kacheln Tiefe = 0
+  If ShowBackTex And (fOpenGLBackTex.Image <> 0) Then Begin
+    m2 := ScaleMatrix4x4(m, MapBlockSize * Width / fOpenGLBackTex.OrigWidth, MapBlockSize * Height / fOpenGLBackTex.OrigHeight, 1);
+    SetShaderTransform(m2);
+    RenderQuad(0, 0, z, fOpenGLBackTex);
+  End;
+  // So Skallieren, dass alles nachfolgende in MAP_BLOCK_WIDTH koordinaten gerendert werden kann.
+  SetShaderTransform(m);
+
+  If ((Not ShowBackTex) And (fOpenGLBackTex.Image <> 0)) Or (fOpenGLBackTex.Image = 0) Or EditTerrain Then Begin
+    // Der Hintergrund
+    (*
+     * Im Designmodus gibt es den Fall, dass der Kartenersteller
+     * die Feldeigenschaften an den Hintergrund anpassen will, dann
+     * nutzen wir ein Alphablending um dies zu unterstützen ;)
+     *)
+    If ShowBackTex And (fOpenGLBackTex.Image <> 0) Then Begin
+      UseTextureShader(v4(1, 1, 1, 0.5));
+      d := ctd_EPSILON / 2;
+      B := glIsEnabled(gl_Blend);
+      If Not (b) Then glenable(gl_Blend);
+      glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    End
+    Else Begin
+      d := 0;
+    End;
+    g.Image := fFTerrainBackTex;
+    g.Stretched := smClamp;
+    g.OrigWidth := MapBlockSize * Width;
+    g.OrigHeight := MapBlockSize * Height;
+    g.StretchedWidth := MapBlockSize * fOpenGLWidth;
+    g.StretchedHeight := MapBlockSize * fOpenGLHeight;
+    RenderQuad(0, 0, z + d, g);
+    If ShowBackTex And (fOpenGLBackTex.Image <> 0) Then Begin
+      If Not b Then gldisable(gl_blend);
+      UseTextureShader();
+    End;
+  End;
+  // Grid ?
+  If Grid Then Begin // Tiefe  + Epsilon
+    UseColorShader;
+    glShaderBegin(GL_LINES);
+    glColor(Grid_color);
+    k := width * MapBlockSize;
+    l := Height * MapBlockSize;
+    For i := 1 To Width Do Begin
+      glShaderVertex(i * MapBlockSize, 0, z + ctd_EPSILON);
+      glShaderVertex(i * MapBlockSize, l, z + ctd_EPSILON);
+    End;
+    For i := 1 To Height Do Begin
+      glShaderVertex(0, i * MapBlockSize, z + ctd_EPSILON);
+      glShaderVertex(k, i * MapBlockSize, z + ctd_EPSILON);
+    End;
+    glShaderEnd;
+    UseTextureShader;
+  End;
+
+  // Die Placements
+  For i := 0 To high(fPlacements) Do Begin
+    fPlacements[i].Render(MapBlockSize * fPlacements[i].Position.x, MapBlockSize * fPlacements[i].Position.y, z + 2 * ctd_EPSILON, false);
+  End;
+
+  // Reset aller Felder Zwecks markierung durch Bodeneinheiten
+  For i := 0 To Width - 1 Do
+    For j := 0 To Height - 1 Do
+      fTerrain[i, j].DynBlocked := false;
+
+  // Alle Boden Einheiten
+  If (Not assigned(FIndexMapper)) And assigned(fRenderOpponents) Then Begin
+    log('Tmap.Render : uninitialzed FIndexMapper, deleting all opponents.', llCritical);
+    setlength(fRenderOpponents, 0);
+  End;
+
+  For i := 0 To high(fRenderOpponents) Do Begin
+    If Not FIndexMapper[fRenderOpponents[i].Index].CanFly Then Begin
+      tl := v3(0, 0, z + 3 * ctd_EPSILON);
+      // Der Gegner wird immer Zentriert an seiner Position dargestellt
+      k := (MapBlockSize - MapBlockSize * FIndexMapper[fRenderOpponents[i].Index].SizeX) / 2;
+      l := (MapBlockSize - MapBlockSize * FIndexMapper[fRenderOpponents[i].Index].Sizey) / 2;
+      fTerrain[max(0, min(width - 1, round(fRenderOpponents[i].Position.x))), max(0, min(height - 1, round(fRenderOpponents[i].Position.y)))].DynBlocked := true;
+      tl := tl + v3(fRenderOpponents[i].Position.x * MapBlockSize + k, (fRenderOpponents[i].Position.y) * MapBlockSize - l, 0);
+      If assigned(FIndexMapper[fRenderOpponents[i].Index].obj.Animation) Then Begin
+        RenderMoveableAnim(
+          tl,
+          fRenderOpponents[i].AnimationOffset,
+          FIndexMapper[fRenderOpponents[i].Index].obj.Animation,
+          fRenderOpponents[i].Angle,
+          FIndexMapper[fRenderOpponents[i].Index].SizeX,
+          FIndexMapper[fRenderOpponents[i].Index].SizeY,
+          min(1, (fRenderOpponents[i].LifePoints[0] + fRenderOpponents[i].LifePoints[1] + fRenderOpponents[i].LifePoints[2] + fRenderOpponents[i].LifePoints[3]) / FIndexMapper[fRenderOpponents[i].Index].TotalLifePoints),
+          Not HideLifePoints);
+      End
+      Else Begin
+        RenderMoveableitem(
+          tl,
+          FIndexMapper[fRenderOpponents[i].Index].Image,
+          -fRenderOpponents[i].Angle,
+          FIndexMapper[fRenderOpponents[i].Index].SizeX,
+          FIndexMapper[fRenderOpponents[i].Index].SizeY,
+          min(1, (fRenderOpponents[i].LifePoints[0] + fRenderOpponents[i].LifePoints[1] + fRenderOpponents[i].LifePoints[2] + fRenderOpponents[i].LifePoints[3]) / FIndexMapper[fRenderOpponents[i].Index].TotalLifePoints),
+          Not HideLifePoints);
+      End;
+    End;
+  End;
+
+  // Alle Gebäude
+  For i := 0 To high(Fbuildings) Do Begin
+    Fbuildings[i].Update(delta); // TODO: Das ist ein Hack, eigentlich sollten die Spieler vom Server ein Delta bekommen, damit der Progressbar auch tatsächlich stimmt (sieht man nur bei extrem hoher Server CPU Last)
+    // Todo: Umstellen auf das tl ding, das ist "scheener"
+    Fbuildings[i].Render(Fbuildings[i].Position.x * MapBlockSize, Fbuildings[i].Position.y * MapBlockSize, z + 4 * ctd_EPSILON, (UserIndex <> -1) And (UserIndex <> Fbuildings[i].Owner));
+  End;
+
+  // Alle Flug Einheiten
+  For i := 0 To high(fHeroes) Do Begin
+    fHeroes[i].ShowLifePoints := Not HideLifePoints;
+    fHeroes[i].Render(
+      fHeroes[i].Position.x * MapBlockSize, fHeroes[i].Position.y * MapBlockSize, 5 * ctd_EPSILON,
+      (UserIndex <> -1) And (UserIndex <> fHeroes[i].Owner));
+  End;
+
+  For i := 0 To high(fRenderOpponents) Do Begin
+    If FIndexMapper[fRenderOpponents[i].Index].CanFly Then Begin
+      tl := v3(0, 0, z + 5 * ctd_EPSILON);
+      // Der Gegner wird immer Zentriert an seiner Position dargestellt
+      k := (MapBlockSize - MapBlockSize * FIndexMapper[fRenderOpponents[i].Index].SizeX) / 2;
+      l := (MapBlockSize - MapBlockSize * FIndexMapper[fRenderOpponents[i].Index].Sizey) / 2;
+      tl := tl + v3(fRenderOpponents[i].Position.x * MapBlockSize + k, (fRenderOpponents[i].Position.y) * MapBlockSize - l, 0);
+      If assigned(FIndexMapper[fRenderOpponents[i].Index].obj.Animation) Then Begin
+        RenderMoveableAnim(
+          tl,
+          fRenderOpponents[i].AnimationOffset,
+          FIndexMapper[fRenderOpponents[i].Index].obj.Animation,
+          fRenderOpponents[i].Angle,
+          FIndexMapper[fRenderOpponents[i].Index].SizeX,
+          FIndexMapper[fRenderOpponents[i].Index].SizeY,
+          min(1, (fRenderOpponents[i].LifePoints[0] + fRenderOpponents[i].LifePoints[1] + fRenderOpponents[i].LifePoints[2] + fRenderOpponents[i].LifePoints[3]) / FIndexMapper[fRenderOpponents[i].Index].TotalLifePoints),
+          Not HideLifePoints);
+      End
+      Else Begin
+        RenderMoveableItem(
+          tl,
+          FIndexMapper[fRenderOpponents[i].Index].Image,
+          -fRenderOpponents[i].Angle,
+          FIndexMapper[fRenderOpponents[i].Index].SizeX,
+          FIndexMapper[fRenderOpponents[i].Index].SizeY,
+          min(1, (fRenderOpponents[i].LifePoints[0] + fRenderOpponents[i].LifePoints[1] + fRenderOpponents[i].LifePoints[2] + fRenderOpponents[i].LifePoints[3]) / FIndexMapper[fRenderOpponents[i].Index].TotalLifePoints),
+          Not HideLifePoints);
+      End;
+    End;
+  End;
+  ResetShaderTransform;
+{$ENDIF}
 End;
 
 Procedure TMap.Render(sx, sy, x, y: integer; Grid, ShowLifePoints: Boolean;
@@ -2772,7 +2951,7 @@ Procedure TMap.Render(sx, sy, x, y: integer; Grid, ShowLifePoints: Boolean;
     If ax + tw > MapBlockSize * length(fTerrain) Then Begin
       ax := ax - 2 * tw;
     End;
-    OpenGL_ASCII_Font.Textout(ax, ay, aText);
+    OpenGL_ASCII_Font.Textout(ax, ay, ctd_Map_Layer + 6 * ctd_Epsilon, aText);
   End;
 
 Var
@@ -2780,15 +2959,22 @@ Var
   os: Single;
   n: Int64;
 Begin
-  glColor4f(1, 1, 1, 1);
   glBindTexture(GL_TEXTURE_2D, 0);
+{$IFDEF LEGACYMODE}
+  glColor4f(1, 1, 1, 1);
   glPushMatrix;
   glTranslatef(x - sx, y - sy, ctd_Map_Layer);
+{$ENDIF}
   // Das Algemeine Rendern der Karte
   n := GetTick;
   delta := n - fLastRenderTime;
   fLastRenderTime := n;
+{$IFDEF LEGACYMODE}
   RenderAbstract(1, 1, grid, Not ShowLifePoints, UserIndex, delta);
+{$ELSE}
+  RenderAbstract(x - sx, y - sy, ctd_Map_Layer, 1, 1, grid, Not ShowLifePoints, UserIndex, delta);
+{$ENDIF}
+{$IFDEF LEGACYMODE}
   // Anfahren Bullet Layer
   glPushMatrix;
   glTranslatef(0, 0, 5 * ctd_Epsilon);
@@ -2896,14 +3082,112 @@ Begin
     OpenGL_ASCII_Font.Size := os;
   End; // -- Ende View Waypoints
   glPopMatrix; // -- Pop aus Map Koordinatensystem
+{$ELSE}
+  // Anfahren Bullet Layer
+  // Alle Geschosse Rendern
+  If (Not assigned(FBulletIndexes)) And (assigned(fRenderBullets)) Then Begin
+    log('Tmap.Render : uninitialzed FBulletIndexes, deleting all bullets.', llCritical);
+    setlength(fRenderBullets, 0);
+  End;
+  For i := 0 To high(fRenderBullets) Do Begin
+    If FBulletIndexes[fRenderBullets[i].Index].speed = 0 Then Begin // Alles was auf dem Boden Liegt
+      If assigned(FBulletIndexes[fRenderBullets[i].Index].Animation) Then Begin
+        FBulletIndexes[fRenderBullets[i].Index].Animation.AnimationOffset := fRenderBullets[i].AnimationOffset;
+        RenderAnim(
+          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + ctd_Epsilon),
+          round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
+          round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
+          FBulletIndexes[fRenderBullets[i].Index].Animation, fRenderBullets[i].Angle
+          );
+      End
+      Else Begin
+        RenderObj(
+          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + ctd_Epsilon),
+          round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
+          round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
+          FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
+      End;
+    End
+    Else Begin // Alles was tatsächlich fliegt
+      If assigned(FBulletIndexes[fRenderBullets[i].Index].Animation) Then Begin
+        FBulletIndexes[fRenderBullets[i].Index].Animation.AnimationOffset := fRenderBullets[i].AnimationOffset;
+        RenderAnim(
+          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + 5 * ctd_Epsilon),
+          round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
+          round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
+          FBulletIndexes[fRenderBullets[i].Index].Animation, fRenderBullets[i].Angle
+          );
+      End
+      Else Begin
+        RenderObj(
+          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + 5 * ctd_Epsilon),
+          round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
+          round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
+          FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
+      End;
+    End;
+  End;
+  If ShowWaypoints Then Begin
+    os := OpenGL_ASCII_Font.Size;
+    OpenGL_ASCII_Font.Size := MapBlockSize;
+    OpenGL_ASCII_Font.Color := clred;
+    If ViewWaypoints = -1 Then Begin // Rendern aller Wegpunkte
+      For i := 0 To high(Waypoints) Do Begin
+        If high(Waypoints[i]) <> -1 Then Begin
+          For j := 0 To high(Waypoints[i]) Do Begin
+            If j = 0 Then Begin
+              RenderObjItem(v3(x - sx + Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[i, j].Point.y * MapBlockSize, ctd_Map_Layer + 6 * ctd_Epsilon),
+                MapBlockSize, MapBlockSize,
+                OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
+              RenderVisibleText(x - sx + Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), y - sy + Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
+              UseColorShader;
+              SetShaderColor(1, 0, 0, 1);
+              glShaderBegin(GL_LINE_STRIP);
+            End;
+            glShaderVertex(x - sx + Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize / 2, ctd_Map_Layer + 6 * ctd_Epsilon);
+          End;
+          glShaderEnd();
+          UseTextureShader();
+        End;
+      End;
+    End
+    Else Begin // Rendern der Wegpunkte von Spieler ViewWaypoints
+      If (ViewWaypoints >= 0) And (ViewWaypoints <= high(Waypoints)) And (high(Waypoints[ViewWaypoints]) <> -1) Then Begin
+        // Die einzelnen Wegpunkte beschriften
+        For j := 0 To high(Waypoints[ViewWaypoints]) Do Begin
+          If j = 0 Then Begin
+            RenderObjItem(v3(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize, ctd_Map_Layer + 6 * ctd_Epsilon),
+              MapBlockSize, MapBlockSize,
+              OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
+            RenderVisibleText(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(ViewWaypoints + 1));
+          End
+          Else Begin
+            RenderVisibleText(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.0)), y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), inttostr(j + 1));
+          End;
+        End;
+        // Die Eigentliche Linie Malen
+        UseColorShader;
+        SetShaderColor(1, 0, 0, 1);
+        glShaderBegin(GL_LINE_STRIP);
+        For j := 0 To high(Waypoints[ViewWaypoints]) Do Begin
+          glShaderVertex(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize / 2, ctd_Map_Layer + 6 * ctd_Epsilon);
+        End;
+        glShaderEnd();
+        UseTextureShader();
+      End;
+    End;
+    OpenGL_ASCII_Font.Size := os;
+  End; // -- Ende View Waypoints
+{$ENDIF}
 End;
 
 Procedure TMap.RenderPreview(x, y, w, h, sx, sy, mw, mh: integer;
   UserIndex: integer);
 Var
-  t, l, b, r: Single;
+  t, l, b, r, ScaleX, ScaleY: Single;
 Begin
   If Not assigned(fTerrain) Then exit;
+{$IFDEF LEGACYMODE}
   glColor4f(1, 1, 1, 1);
   glBindTexture(GL_TEXTURE_2D, 0);
   glPushMatrix;
@@ -2933,6 +3217,31 @@ Begin
   glPopMatrix;
   glPopMatrix;
   glDisable(GL_BLEND);
+{$ELSE}
+  RenderAbstract(x, y, ctd_Menu_Layer + ctd_Epsilon, w / ((high(fTerrain) + 1) * MapBlockSize), h / ((high(fTerrain[0]) + 1) * MapBlockSize), false, true, UserIndex, 0);
+  // Rendern des Rahmens, welcher Anzeigt welchen Bildauschnitt man gerade sieht
+  // So Skallieren, dass alles nachfolgende in MAP_BLOCK_WIDTH Koordinaten gerendert werden kann.
+  ScaleX := w / ((high(fTerrain) + 1) * MapBlockSize);
+  ScaleY := h / ((high(fTerrain[0]) + 1) * MapBlockSize);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+  UseColorShader;
+  SetShaderColor(0.25, 0.25, 0.25, 0.5);
+  glShaderLineWidth(3);
+  l := sx * ScaleX;
+  t := sy * ScaleY;
+  r := l + min(((high(fTerrain) + 1) * MapBlockSize), mw) * ScaleX;
+  b := t + min(((high(fTerrain[0]) + 1) * MapBlockSize), mh) * ScaleY;
+  glShaderBegin(GL_LINE_LOOP);
+  glShaderVertex(x + l, y + t, ctd_Menu_Layer + 2 * ctd_Epsilon);
+  glShaderVertex(x + r, y + t, ctd_Menu_Layer + 2 * ctd_Epsilon);
+  glShaderVertex(x + r, y + b, ctd_Menu_Layer + 2 * ctd_Epsilon);
+  glShaderVertex(x + l, y + b, ctd_Menu_Layer + 2 * ctd_Epsilon);
+  glShaderEnd;
+  glShaderLineWidth(1);
+  UseTextureShader();
+  glDisable(GL_BLEND);
+{$ENDIF}
 End;
 
 {$ENDIF}

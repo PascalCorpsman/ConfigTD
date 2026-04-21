@@ -82,7 +82,6 @@ Var
 Begin
   fs := OpenGL_ASCII_Font.Size;
   OpenGL_ASCII_Font.Size := OpenGL_ASCII_Font.Size * 2;
-  glBindTexture(GL_TEXTURE_2D, 0);
   n := GetTick;
   // Löschen Aller Einträge Älter als
   For i := high(fSplashItems) Downto 0 Do Begin
@@ -92,14 +91,24 @@ Begin
       setlength(fSplashItems, high(fSplashItems));
     End;
   End;
-  // Rendert Alle Texte Oberhalb von Position(x,y), letzter = Jüngster
   ah := 0;
+{$IFDEF LEGACYMODE}
+  glBindTexture(GL_TEXTURE_2D, 0);
+  // Rendert Alle Texte Oberhalb von Position(x,y), letzter = Jüngster
   glTranslatef(0, 0, ctd_Tipp_Layer + ctd_EPSILON);
   For i := high(fSplashItems) Downto 0 Do Begin
     ah := ah + OpenGL_ASCII_Font.TextHeight(fSplashItems[i].Text);
     OpenGL_ASCII_Font.Colorv3 := fSplashItems[i].Color;
     OpenGL_ASCII_Font.Textout(Position.x, position.y - round(ah), fSplashItems[i].Text);
   End;
+{$ELSE}
+  // Rendert Alle Texte Oberhalb von Position(x,y), letzter = Jüngster
+  For i := high(fSplashItems) Downto 0 Do Begin
+    ah := ah + OpenGL_ASCII_Font.TextHeight(fSplashItems[i].Text);
+    OpenGL_ASCII_Font.Colorv3 := fSplashItems[i].Color;
+    OpenGL_ASCII_Font.Textout(Position.x, position.y - round(ah), ctd_Tipp_Layer + ctd_EPSILON, fSplashItems[i].Text);
+  End;
+{$ENDIF}
   OpenGL_ASCII_Font.Size := fs;
 End;
 

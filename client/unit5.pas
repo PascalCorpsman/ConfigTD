@@ -193,7 +193,7 @@ Begin
   SetValue('Global', 'ShowWaveOppHint', inttostr(ord(form5.CheckBox11.Checked)));
   SetValue('Global', 'ShowHeroRanges', inttostr(ord(form5.CheckBox12.Checked)));
   // Checkbox13 wird unten ausgewertet, die ist Speziell ;)
-  SetValue('Global', 'ShowOppoentsPathOnWaveStart', inttostr(ord(form5.CheckBox14.Checked)));
+  SetValue('Global', 'ShowOpponentsPathOnWaveStart', inttostr(ord(form5.CheckBox14.Checked)));
 
   SetValue('Global', 'MapBlockSize', form5.Edit1.text);
   SetValue('Global', 'AutoNextWaveDelay', form5.Edit2.text);

@@ -98,7 +98,11 @@ Type
     Function GetBuyCost: integer; override; // Wird für gegener nicht benötigt
 
     Function GetHint(): THint; override;
-    Procedure Render(Grayed: Boolean); override; // Ist nur wenn Placements gerendert werden, evtl, kann man das ja noch Umbauen, dass es nicht Redundant drin ist ?
+{$IFDEF LEGACYMODE}
+    Procedure Render(Grayed: Boolean); override;
+{$ELSE}
+    Procedure Render(x, y, z: Single; Grayed: Boolean); override; // Ist nur wenn Placements gerendert werden, evtl, kann man das ja noch Umbauen, dass es nicht Redundant drin ist ?
+{$ENDIF}
     Function Check(): String; // Prüft den Gegner auf gültigkeit, '' wenn Fehlerfrei, sonst ist das der Fehlercode
 {$ENDIF}
 
@@ -272,6 +276,8 @@ Begin
   End;
 End;
 
+{$IFDEF LEGACYMODE}
+
 Procedure TOpponent.Render(Grayed: Boolean);
 Begin
   glPushMatrix;
@@ -285,6 +291,20 @@ Begin
   End;
   glPopMatrix;
 End;
+{$ELSE}
+
+Procedure TOpponent.Render(x, y, z: Single; Grayed: Boolean);
+Begin
+  If assigned(Animation) Then Begin
+    RenderAnim(v3(x + (SizeX * MapBlockSize) / 2, y - (Sizey * MapBlockSize) / 2 + MapBlockSize, z)
+      , round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
+  End
+  Else Begin
+    RenderObjItem(v3(x + (SizeX * MapBlockSize) / 2, y - (Sizey * MapBlockSize) / 2 + MapBlockSize, z)
+      , round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Fimage, Direction);
+  End;
+End;
+{$ENDIF}
 
 Function TOpponent.Check: String;
 Var

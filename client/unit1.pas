@@ -7,7 +7,7 @@
 (*                                                                            *)
 (* Support     : www.Corpsman.de                                              *)
 (*                                                                            *)
-(* Description : <Module_description>                                         *)
+(* Description : Multiplayer Tower Defense clone, with max configurability.   *)
 (*                                                                            *)
 (* License     : See the file license.md, located under:                      *)
 (*  https://github.com/PascalCorpsman/Software_Licenses/blob/main/license.md  *)
@@ -225,6 +225,11 @@ Uses
   , uOpenGL_ASCII_Font
   , ucolorselectbox
   , uctd_messages
+{$IFNDEF LEGACYMODE}
+  , uopengl_shaderprimitives
+  , uopengl_legacychecker
+  , uopengl_graphikengine
+{$ENDIF}
   , unit2 // Host Join Dialog
   , unit3 // Select Map Size Dialog (New Map)
   , unit4 // Karten Eigenschaften Dialog
@@ -250,6 +255,18 @@ Var
   allowcnt: Integer = 0;
   Form1ShowOnce: Boolean = false;
   DefFormat: TFormatSettings;
+
+{$IFNDEF LEGACYMODE}
+
+Procedure OnOpenGLLegacyCall(Severity: GLuint; aMessage: String);
+Begin
+  nop();
+  //  showmessage(
+  //    format('Error, unallowed OpenGL legacy call: %d = %s', [Severity, aMessage])
+  //    );
+  //  halt;
+End;
+{$ENDIF}
 
 Procedure ShowUserMessage(Msg: String; WarnLevel: TLogLevel);
 Begin
@@ -287,6 +304,9 @@ Begin
     // Init dglOpenGL.pas , Teil 2
     ReadExtensions; // Anstatt der Extentions kann auch nur der Core geladen werden. ReadOpenGLCore;
     ReadImplementationProperties;
+{$IFNDEF LEGACYMODE}
+    RegisterLegacyCheckerCallback(@OnOpenGLLegacyCall);
+{$ENDIF}
   End;
   If allowcnt = 2 Then Begin // Dieses If Sorgt mit dem obigen dafür, dass der Code nur 1 mal ausgeführt wird.
     (*
@@ -294,17 +314,37 @@ Begin
     Bei Nutzung der TOpenGLGraphikengine, bedeutet dies, das hier ein clear durchgeführt werden mus !!
     *)
     DefaultFormatSettings.DecimalSeparator := '.'; // Eigentlich brauchts das nur 1 mal, aber anscheinend bringt der Startup Code da manchmal was durcheinander.
+{$IFDEF LEGACYMODE}
     glenable(GL_TEXTURE_2D); // Texturen
+{$ENDIF}
     glDepthFunc(gl_less);
     glEnable(GL_DEPTH_TEST); // Tiefentest
+{$IFNDEF LEGACYMODE}
+    If Not Assigned(glCreateShader) Then Begin
+      // On Windows it seems that you need to "reload" the core functions for proper function
+      ReadExtensions;
+      ReadImplementationProperties;
+      RegisterLegacyCheckerCallback(@OnOpenGLLegacyCall);
+      // if still not available, then halt
+      If Not Assigned(glCreateShader) Then Begin
+        showmessage('glCreateShader not available, use legacy mode..');
+        halt;
+      End;
+    End;
+    OpenGL_GraphikEngine_InitializeShaderSystem;
+    OpenGL_ShaderPrimitives_InitializeShaderSystem;
+{$ENDIF}
     Create_ASCII_BigFont;
-    glBlendFunc(gl_one, GL_ONE_MINUS_SRC_ALPHA);
-    // Sorgt dafür, dass Voll Transparente Pixel nicht in den Tiefenpuffer Schreiben.
-    (*
-     * Das ist so gedreht, damit der Benutzer ein "initializing" sieht
-     *)
+    //    glBlendFunc(gl_one, GL_ONE_MINUS_SRC_ALPHA);
+        // Sorgt dafür, dass Voll Transparente Pixel nicht in den Tiefenpuffer Schreiben.
+        (*
+         * Das ist so gedreht, damit der Benutzer ein "initializing" sieht
+         *)
     FPS_Counter := 0;
     Initialized := True; // Der Anwendung erlauben zu Rendern (bzw. damit das onResize Funktioniert)
+{$IFNDEF LEGACYMODE}
+    ReActivateKHRDebug; // Reenable KHRDebug
+{$ENDIF}
     // Splasch Screen das wir alles laden
     OpenGLControl1Resize(Nil);
     WidgetSetGo2d(OpenGLControl1.Width, OpenGLControl1.Height);
@@ -377,34 +417,48 @@ Begin
   // Render Szene
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT);
+  glBindTexture(GL_TEXTURE_2D, 0);
+{$IFDEF LEGACYMODE}
   glLoadIdentity();
   glcolor4f(1, 1, 1, 1);
-  glBindTexture(GL_TEXTURE_2D, 0);
+{$ENDIF}
   ctd.Render(OpenGLControl1.Width, OpenGLControl1.Height);
-  Go2d(OpenGLControl1.Width, OpenGLControl1.Height);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  OpenGL_ASCII_Font.Color := clwhite;
+  WidgetSetGo2d(OpenGLControl1.Width, OpenGLControl1.Height);
+{$IFDEF LEGACYMODE}
   glTranslatef(0, 0, 0.95);
+{$ENDIF}
   If ShowFPS Then Begin
+    OpenGL_ASCII_Font.Color := clwhite;
     s := 'FPS : ' + inttostr(LastFPS_Counter);
     offset := 0;
     If (ctd.GameState = gs_Gaming) Then Begin
       offset := 64;
     End;
+{$IFDEF LEGACYMODE}
     OpenGL_ASCII_Font.Textout(5, 5 + offset, s);
+{$ELSE}
+    OpenGL_ASCII_Font.Textout(5, 5 + offset, 0.95, s);
+{$ENDIF}
   End;
-  Exit2d();
+  WidgetSetExit2d();
   OpenGLControl1.SwapBuffers;
 End;
 
 Procedure TForm1.OpenGLControl1Resize(Sender: TObject);
 Begin
-  If Not Initialized Then Exit;
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glViewport(0, 0, OpenGLControl1.Width, OpenGLControl1.Height);
-  gluPerspective(45.0, OpenGLControl1.Width / OpenGLControl1.Height, 0.1, 100.0);
-  glMatrixMode(GL_MODELVIEW);
+  If Initialized Then Begin
+{$IFDEF LEGACYMODE}
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glViewport(0, 0, OpenGLControl1.Width, OpenGLControl1.Height);
+    gluPerspective(45.0, OpenGLControl1.Width / OpenGLControl1.Height, 0.1, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+{$ELSE}
+    If OpenGLControl1.MakeCurrent Then
+      glViewport(0, 0, OpenGLControl1.Width, OpenGLControl1.Height);
+    OpenGLControl1.Invalidate;
+{$ENDIF}
+  End;
 End;
 
 Procedure TForm1.MenuItem5Click(Sender: TObject);
@@ -520,8 +574,11 @@ Begin
       LastFPS_Counter := FPS_Counter;
       FPS_Counter := 0;
     End;
+{$IFDEF LCLGTK3}
+    OpenGLControl1.Invalidate;
+{$ELSE}
     OpenGLControl1.DoOnPaint;
-    // OpenGLControl1.Invalidate; -- Warum auch immer das nicht mehr geht ??
+{$ENDIF}
 {$IFDEF DebuggMode}
     i := glGetError();
     If i <> 0 Then Begin
@@ -1361,6 +1418,10 @@ Begin
   Generell sollte die Interval Zahl also dynamisch zum Rechenaufwand, mindestens aber immer 17 sein.
   *)
   Timer1.Interval := 17;
+{$IFNDEF LEGACYMODE}
+  OpenGLControl1.AutoResizeViewport := True; // This is crucial for GTK3, don't know why, but without it the demo does not work
+  OpenGLControl1.DebugContext := True; // Required so the GL driver actually generates KHR_debug messages
+{$ENDIF}
   OpenGLControl1.Align := alClient;
   ctd := Tctd.create;
   Load_CT_Settings;
@@ -1380,6 +1441,12 @@ Var
   EnterID: Integer;
 Begin
   EnterID := LogEnter('TForm1.FormDestroy');
+{$IFNDEF LEGACYMODE}
+  If OpenGLControl1.MakeCurrent Then Begin
+    OpenGL_GraphikEngine_FinalizeShaderSystem;
+    OpenGL_ShaderPrimitives_FinalizeShaderSystem;
+  End;
+{$ENDIF}
   If assigned(ctd) Then
     ctd.free;
   ctd := Nil;
@@ -1472,7 +1539,7 @@ Begin
   form5.CheckBox11.Checked := GetValue('Global', 'ShowWaveOppHint', '1') = '1';
   form5.CheckBox12.Checked := GetValue('Global', 'ShowHeroRanges', '1') = '1';
   form5.CheckBox13.Checked := GetValue('Global', 'DarkMode', '1') = '1';
-  form5.CheckBox14.Checked := GetValue('Global', 'ShowOppoentsPathOnWaveStart', '1') = '1';
+  form5.CheckBox14.Checked := GetValue('Global', 'ShowOpponentsPathOnWaveStart', '1') = '1';
 
   form5.Edit1.text := GetValue('Global', 'MapBlockSize', inttostr(MapBlockSize));
   form5.Edit2.text := GetValue('Global', 'AutoNextWaveDelay', '10');

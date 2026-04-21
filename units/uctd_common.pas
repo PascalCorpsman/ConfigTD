@@ -24,7 +24,7 @@ Uses
   Classes, SysUtils, Graphics, uvectormath, Dialogs, ulogger
 {$IFDEF Client}
   , uopengl_graphikengine
-  , forms, Controls, StdCtrls, uopengl_animation
+  , forms, Controls, StdCtrls, uopengl_animation, uopengl_shaderprimitives
 {$ENDIF}
   ;
 
@@ -135,7 +135,9 @@ Const
    *            0.14001 = FIX: info font color in white mode (not readable)
    * -Released- 0.14002 = ADD: Feature Show Opponent Waypoints on Wave Start
    *                      FIX: Hero control glitch
-   *            0.14003 =
+   *            0.14003 = ADD: Show Opponent Path if key "R" is pressed.
+   *                      FIX: typo in ShowOpponentsPathOnWaveStart
+   *                      ADD: use shader rendering instead of old OpenGl legacy
    * Known Bugs :
    *)
   (*
@@ -482,23 +484,38 @@ Function CRC_of_File(Const Value: TFilename): uint32;
 Function WriteAccessToDirectory(Const Dir: String): Boolean;
 
 {$IFDEF Client}
-Procedure RenderLifeBar(sizex, sizey, lifepointspercent: Single);
+Procedure RenderLifeBar(
+{$IFNDEF LEGACYMODE}
+  Const tl: TVector3;
+{$ENDIF}
+  sizex, sizey, lifepointspercent: Single);
 
 Procedure RenderMoveableItem(
+{$IFNDEF LEGACYMODE}
+  Const TL: TVector3;
+{$ENDIF}
   Image: TGraphikItem; Direction: integer;
   Sizex, sizey, lifepointspercent: Single;
   ShowLifePoints: Boolean
   );
 Procedure RenderMoveableAnim(
+{$IFNDEF LEGACYMODE}
+  Const TL: TVector3;
+{$ENDIF}
   AnimationOffset: integer;
   Const Animation: TOpenGL_Animation; Direction: integer;
   Sizex, sizey, lifepointspercent: Single;
   ShowLifePoints: Boolean
   );
+{$IFDEF LEGACYMODE}
 Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer; Rotation: integer = 0); Deprecated 'Sollten alle durch RenderObjItem ersetzt werden.';
 Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
 Procedure RenderAnim(Middle: TVector2; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
-
+{$ELSE}
+Procedure RenderObj(Middle: TVector3; Width, Height: Integer; Texture: integer; Rotation: integer = 0); Deprecated 'Sollten alle durch RenderObjItem ersetzt werden.';
+Procedure RenderObjItem(Middle: TVector3; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
+Procedure RenderAnim(Middle: TVector3; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
+{$ENDIF}
 Function LoadFileToMyPath(FileName: String; Foldername: String = ''): Boolean;
 Procedure FixFormPosition(Const Form: TForm); // Rückt ein Formular wieder in den Screen, sollte es außerhalb des Sichtbaren sein
 {$ENDIF}
@@ -965,10 +982,16 @@ End;
 
 {$IFDEF Client}
 
-Procedure RenderLifeBar(sizex, sizey, lifepointspercent: Single);
+Procedure RenderLifeBar(
+{$IFNDEF LEGACYMODE}
+  Const tl: TVector3;
+{$ENDIF}
+  sizex, sizey, lifepointspercent: Single);
 Var
   d, t, l, w, h: Single;
+  v: TVector3;
 Begin
+{$IFDEF LEGACYMODE}
   d := max(sizex * MapBlockSize, SizeY * MapBlockSize);
   // Mehr oder weniger das selbe steht auch bei TBuilding
   glPushMatrix;
@@ -1001,11 +1024,51 @@ Begin
   glend;
   //glenable(GL_DEPTH_TEST);
   glPopMatrix;
+{$ELSE}
+  d := max(sizex * MapBlockSize, SizeY * MapBlockSize);
+  // Mehr oder weniger das selbe steht auch bei TBuilding
+  // TODO: Ohne tiefentest sieht es zwar gut aus, aber leider im Menü dann doof
+  //glDisable(GL_DEPTH_TEST);
+  t := -d * 0.5 - LifebarOffset; //-SizeY * 0.5 * MapBlockSize - LifebarOffset;
+  l := -sizex * MapBlockSize / 2;
+  h := LifebarHeight;
+  w := sizex * MapBlockSize;
+  UseColorShader;
+  glShaderBegin(GL_TRIANGLE_FAN);
+  SetShaderColor(0, 0, 0);
+  glShaderVertex(tl + v3(l - 1, t - 1, 0));
+  glShaderVertex(tl + v3(l + 1 + w, t - 1, 0));
+  glShaderVertex(tl + v3(l + 1 + w, t + h + 1, 0));
+  glShaderVertex(tl + v3(l - 1, t + h + 1, 0));
+  glShaderEnd;
+  Case round(lifepointspercent * 100) Of
+    71..100: glColor(Good_Col);
+    31..70: glColor(Middle_Col);
+    0..30: glColor(Bad_col);
+  End;
+  w := sizex * MapBlockSize * lifepointspercent;
+  v := tl + v3(0, 0, ctd_EPSILON);
+  glShaderBegin(GL_TRIANGLE_FAN);
+  glShaderVertex(v + v3(l, t, 0));
+  glShaderVertex(v + v3(l + w, t, 0));
+  glShaderVertex(v + v3(l + w, t + h, 0));
+  glShaderVertex(v + v3(l, t + h, 0));
+  glShaderEnd;
+  //glenable(GL_DEPTH_TEST);
+  UseTextureShader();
+{$ENDIF}
 End;
 
-Procedure RenderMoveableItem(Image: TGraphikItem; Direction: integer; Sizex, sizey,
+Procedure RenderMoveableItem(
+{$IFNDEF LEGACYMODE}
+  Const TL: TVector3;
+{$ENDIF}
+  Image: TGraphikItem; Direction: integer; Sizex, sizey,
   lifepointspercent: Single; ShowLifePoints: Boolean);
+Var
+  center: TVector3;
 Begin
+{$IFDEF LEGACYMODE}
   glPushMatrix;
   glTranslatef((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
   If ShowLifePoints Then Begin
@@ -1017,14 +1080,29 @@ Begin
   glColor4f(1, 1, 1, 1);
   RenderObjItem(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
   glPopMatrix;
+{$ELSE}
+  center := TL + v3((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
+  center.x := round(center.x); // Das ist eigentlich quatsch, aber "gefühlt" glitchen so die Graphiken weniger
+  center.y := round(center.y);
+  If ShowLifePoints Then Begin
+    RenderLifeBar(center + v3(0, 0, ctd_EPSILON), SizeX, SizeY, lifepointspercent);
+  End;
+  RenderObjItem(center, round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
+{$ENDIF}
 End;
 
-Procedure RenderMoveableAnim(AnimationOffset: integer;
+Procedure RenderMoveableAnim(
+{$IFNDEF LEGACYMODE}
+  Const TL: TVector3;
+{$ENDIF}
+  AnimationOffset: integer;
   Const Animation: TOpenGL_Animation; Direction: integer; Sizex, sizey,
   lifepointspercent: Single; ShowLifePoints: Boolean);
 Var
   ao: integer;
+  center: TVector3;
 Begin
+{$IFDEF LEGACYMODE}
   glPushMatrix;
   glTranslatef((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
   If ShowLifePoints Then Begin
@@ -1039,22 +1117,66 @@ Begin
   RenderAnim(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
   Animation.AnimationOffset := ao;
   glPopMatrix;
+{$ELSE}
+  center := tl + v3((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
+  center.x := round(center.x); // Das ist eigentlich quatsch, aber "gefühlt" glitchen so die Graphiken weniger
+  center.y := round(center.y);
+  If ShowLifePoints Then Begin
+    RenderLifeBar(center + v3(0, 0, ctd_EPSILON), SizeX, SizeY, lifepointspercent);
+  End;
+  ao := Animation.AnimationOffset;
+  Animation.AnimationOffset := AnimationOffset;
+  RenderAnim(center, round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
+  Animation.AnimationOffset := ao;
+{$ENDIF}
 End;
+
+{$IFDEF LEGACYMODE}
 
 Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer;
   Rotation: integer);
+{$ELSE}
+
+Procedure RenderObj(Middle: TVector3; Width, Height: Integer; Texture: integer;
+  Rotation: integer);
+Var
+  gi: TGraphikItem;
+{$ENDIF}
+
 Begin
+{$IFDEF LEGACYMODE}
   // Alles was einen Alpha Kanal von > 0.5 hat, wird weggeschnitten
   // --> Harte Transparenz möglich, ohne das der Tiefenpuffer von Transparenten Teilen überschrieben wird
   glAlphaFunc(GL_LESS, 0.5);
   glEnable(GL_ALPHA_TEST);
-  uopengl_graphikengine.RenderQuad(Middle, Width, -height, Rotation, texture);
+  uopengl_graphikengine.RenderQuad(Middle, Width, height, -Rotation + 180, texture);
   gldisable(GL_ALPHA_TEST);
+{$ELSE}
+  // TODO: Ja das ist mega Ineffizient, es soll ja auch nicht mehr genutzt werden !
+  gi := OpenGL_GraphikEngine.GetInfo(texture);
+  If gi.IsAlphaImage Then
+    SetShaderAlphaThreshold(0.5);
+  RenderObjItem(Middle, Width, Height, gi, Rotation);
+  If gi.IsAlphaImage Then
+    SetShaderAlphaThreshold(0.0);
+{$ENDIF}
 End;
+
+{$IFDEF LEGACYMODE}
 
 Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer;
   Texture: TGraphikItem; Rotation: integer);
+{$ELSE}
+
+Procedure RenderObjItem(Middle: TVector3; Width, Height: Integer;
+  Texture: TGraphikItem; Rotation: integer);
+{$ENDIF}
+{$IFNDEF LEGACYMODE}
+Var
+  ScaledTex: TGraphikItem;
+{$ENDIF}
 Begin
+{$IFDEF LEGACYMODE}
   glAlphaFunc(GL_LESS, 0.5);
   glEnable(GL_ALPHA_TEST);
   glPushMatrix;
@@ -1063,11 +1185,34 @@ Begin
   uopengl_graphikengine.RenderQuad(v2(0, 0), Rotation, texture);
   glPopMatrix;
   gldisable(GL_ALPHA_TEST);
+{$ELSE}
+  // Lokale Kopie der Textur mit der gewünschten Rendergröße, damit RenderQuad
+  // die Skalierung (Width x Height) direkt via OrigWidth/OrigHeight berücksichtigt.
+  // Bei smClamp wird StretchedWidth/Height proportional mitskaliert, damit der
+  // UV-Quotient (OrigWidth/StretchedWidth) unverändert bleibt.
+  ScaledTex := Texture;
+  ScaledTex.StretchedWidth := Round(Texture.StretchedWidth * Width / Texture.OrigWidth);
+  ScaledTex.StretchedHeight := Round(Texture.StretchedHeight * Height / Texture.OrigHeight);
+  ScaledTex.OrigWidth := Width;
+  ScaledTex.OrigHeight := Height;
+  If Texture.IsAlphaImage Then
+    SetShaderAlphaThreshold(0.5);
+  uopengl_graphikengine.RenderQuad(Middle, Rotation, ScaledTex);
+  If Texture.IsAlphaImage Then
+    SetShaderAlphaThreshold(0.0);
+{$ENDIF}
 End;
+{$IFDEF LEGACYMODE}
 
 Procedure RenderAnim(Middle: TVector2; Width, Height: Integer;
   Const Animation: TOpenGL_Animation; Rotation: integer);
+{$ELSE}
+
+Procedure RenderAnim(Middle: TVector3; Width, Height: Integer;
+  Const Animation: TOpenGL_Animation; Rotation: integer);
+{$ENDIF}
 Begin
+{$IFDEF LEGACYMODE}
   // Alles was einen Alpha Kanal von > 0.5 hat, wird weggeschnitten
   // --> Harte Transparenz möglich, ohne das der Tiefenpuffer von Transparenten Teilen überschrieben wird
   If Animation.Sprite[0].AlphaImage Then Begin // -> Ganz Sauber ist das ja eigentlich nicht, da die Animation ja Theoretisch aus mehreren Graphiken bestehen könnte..
@@ -1082,6 +1227,17 @@ Begin
   If Animation.Sprite[0].AlphaImage Then Begin
     gldisable(GL_ALPHA_TEST);
   End;
+{$ELSE}
+  // Alles was einen Alpha Kanal von > 0.5 hat, wird weggeschnitten
+  // --> Harte Transparenz möglich, ohne das der Tiefenpuffer von Transparenten Teilen überschrieben wird
+  If Animation.Sprite[0].AlphaImage Then // -> Ganz Sauber ist das ja eigentlich nicht, da die Animation ja Theoretisch aus mehreren Graphiken bestehen könnte..
+    SetShaderAlphaThreshold(0.5);
+  Animation.Render(
+    Middle.x - Width * 0.5, Middle.y - Height * 0.5, Middle.z,
+    Width, Height, Rotation);
+  If Animation.Sprite[0].AlphaImage Then
+    SetShaderAlphaThreshold(0.0);
+{$ENDIF}
 End;
 
 Function LoadFileToMyPath(FileName: String; Foldername: String): Boolean;

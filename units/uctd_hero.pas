@@ -31,10 +31,9 @@ Uses
   , uopengl_graphikengine
   , uopengl_animation
   , uopengl_spriteengine
+  , uopengl_shaderprimitives
 {$ENDIF}
-{$IFDEF Server}
   , uvectormath
-{$ENDIF}
   ;
 
 Type
@@ -114,8 +113,12 @@ Type
     Function GetBuyCost: integer; override;
     Function GetHint(): THint; override; // Die Hint Informationen für Im Spiel
     Function GetNextLevelHint(): Thint;
-    Procedure Render(Grayed: Boolean); override; // Grayed ist optional und aktuell nur für gebäude implementiert
-    Procedure RenderRange;
+{$IFDEF LEGACYMODE}
+    Procedure Render(Grayed: Boolean); override;
+{$ELSE}
+    Procedure Render(x, y, z: Single; Grayed: Boolean); override; // Grayed ist optional und aktuell nur für gebäude implementiert
+{$ENDIF}
+    Procedure RenderRange(Const tl: Tvector3);
     Function Check(): String; // Prüft den Gegner auf gültigkeit, '' wenn Fehlerfrei, sonst ist das der Fehlercode
     Procedure ApplyRenderData(Const Data: TRenderHero);
 {$ENDIF}
@@ -139,6 +142,7 @@ Uses IniFiles, LazFileUtils
   , dglOpenGL
   , Graphics
   , ugraphics
+  , math
 {$ENDIF}
   ;
 
@@ -457,7 +461,7 @@ Begin
   AnimationOffset := data.AnimationOffset;
   Direction := data.Angle;
   CollectedDamages := data.CollectedDamages; // Den Schaden, den der Hero in diesem Level bereits "gesammelt" hat
-  If data.level = 65535 Then Begin
+  If data.level = 32767 Then Begin
     level := -1;
   End
   Else Begin
@@ -493,7 +497,7 @@ Begin
   End;
 End;
 
-Function THero.GetNextLevelHint(): Thint;
+Function THero.GetNextLevelHint: Thint;
 Begin
   result.Kind := hkHero;
   result.StageCount := length(Levels);
@@ -514,13 +518,23 @@ Begin
   End;
 End;
 
+{$IFDEF LEGACYMODE}
+
 Procedure THero.Render(Grayed: Boolean);
+{$ELSE}
+
+Procedure THero.Render(x, y, z: Single; Grayed: Boolean);
+{$ENDIF}
 Var
   aLevel: Integer;
+  tl: TVector3;
+
   Procedure RenderBar(PerCent: Single);
   Var
     t, l, w, h: Single;
+    v: TVector3;
   Begin
+{$IFDEF LEGACYMODE}
     glPushMatrix;
     glTranslatef((Levels[aLevel].w * MapBlockSize) / 2, -(Levels[aLevel].h * MapBlockSize) / 2 + MapBlockSize, 0);
     // TODO: Ohne tiefentest sieht es zwar gut aus, aber leider im Menü dann doof
@@ -548,12 +562,42 @@ Var
     glend;
     // glenable(GL_DEPTH_TEST);
     glPopMatrix;
+{$ELSE}
+    v := tl + v3((Levels[aLevel].w * MapBlockSize) / 2, -(Levels[aLevel].h * MapBlockSize) / 2 + MapBlockSize, 0);
+    // TODO: Ohne tiefentest sieht es zwar gut aus, aber leider im Menü dann doof
+    // glDisable(GL_DEPTH_TEST);
+    t := 0; //-height * MapBlockSize - LifebarOffset;
+    l := -Levels[aLevel].w * MapBlockSize / 2;
+    h := LifebarHeight;
+    w := Levels[aLevel].w * MapBlockSize;
+    UseColorShader;
+    SetShaderColor(0, 0, 0);
+    glShaderBegin(GL_TRIANGLE_FAN);
+    glShaderVertex(v + v3(l - 1, t - 1, 0));
+    glShaderVertex(v + v3(l + 1 + w, t - 1, 0));
+    glShaderVertex(v + v3(l + 1 + w, t + h + 1, 0));
+    glShaderVertex(v + v3(l - 1, t + h + 1, 0));
+    glShaderEnd;
+    glColor(Good_Col);
+    w := Levels[aLevel].w * MapBlockSize * PerCent;
+    v := v + v3(0, 0, 6 * ctd_EPSILON); // WTF: warum 6 mal ?
+    glShaderBegin(GL_TRIANGLE_FAN);
+    glShaderVertex(v + v3(l, t, 0));
+    glShaderVertex(v + v3(l + w, t, 0));
+    glShaderVertex(v + v3(l + w, t + h, 0));
+    glShaderVertex(v + v3(l, t + h, 0));
+    glShaderEnd;
+    // glenable(GL_DEPTH_TEST);
+    UseTextureShader();
+{$ENDIF}
   End;
 
 Var
   Sprite_Engine_Enabled: Boolean;
   lps: Single;
+
 Begin
+{$IFDEF LEGACYMODE}
   // Wenn der Held leicht Ausgegraut gerendert werden soll ;)
   If Grayed Then Begin
     glColor4f(0.5, 0.5, 0.5, 1);
@@ -585,6 +629,38 @@ Begin
   DeltaSinceLastUpdate := 0;
   OpenGL_SpriteEngine.Enabled := Sprite_Engine_Enabled;
   glPopMatrix;
+{$ELSE}
+  // Wenn der Held leicht Ausgegraut gerendert werden soll ;)
+  If Grayed Then Begin
+    UseTextureShader(v4(0.5, 0.5, 0.5, 1));
+  End;
+  tl := v3(x, y, z);
+  Sprite_Engine_Enabled := OpenGL_SpriteEngine.Enabled;
+  alevel := Level;
+  lps := CollectedDamages / Levels[0].HitpointsForNextLevel;
+  If level = -1 Then Begin
+    aLevel := 0;
+  End;
+  If assigned(Levels[aLevel].Animation) Then Begin
+    (*
+     * Nur Ausschaltende sind erlaubt !!
+     *)
+    If Level = -1 Then OpenGL_SpriteEngine.Enabled := false;
+    If (Not Moving) And (Levels[aLevel].StopAnimationWhenStillStanding) Then OpenGL_SpriteEngine.Enabled := false;
+    RenderMoveableAnim(tl, AnimationOffset, Levels[aLevel].Animation, Direction, Levels[aLevel].w, Levels[aLevel].h, lps, ShowLifePoints);
+  End
+  Else Begin
+    RenderMoveableItem(tl, Levels[aLevel].Fimage, direction, Levels[aLevel].w, Levels[aLevel].h, lps, ShowLifePoints);
+  End;
+  If level = -1 Then Begin
+    RenderBar(lps);
+  End;
+  DeltaSinceLastUpdate := 0;
+  OpenGL_SpriteEngine.Enabled := Sprite_Engine_Enabled;
+  If Grayed Then Begin
+    UseTextureShader();
+  End;
+{$ENDIF}
   (*  // Debug -- Zum Austesten der Boundingbox gegen Bauskoordinaten
     glPushMatrix();
     glDisable(GL_DEPTH_TEST);
@@ -609,14 +685,20 @@ Begin
      // *)
 End;
 
-Procedure THero.RenderRange;
+Procedure THero.RenderRange(Const tl: Tvector3);
 Var
   i: integer;
   r: Single;
+{$IFNDEF LEGACYMODE}
+  segCount: Integer;
+  a0, a1: Single;
+  center: TVector3;
+{$ENDIF}
 Begin
   // Nen Range gibts nicht immer
   If Level < 0 Then exit;
   If Levels[Level].range > 0 Then Begin
+{$IFDEF LEGACYMODE}
     glLineStipple(1, $00FF);
     glEnable(GL_LINE_STIPPLE);
     glColor(Building_Range_Col);
@@ -632,6 +714,27 @@ Begin
     glend;
     glPopMatrix;
     glDisable(GL_LINE_STIPPLE);
+{$ELSE}
+    UseColorShader;
+    glColor(Building_Range_Col);
+    center := tl + v3((Levels[Level].w * MapBlockSize) / 2, -(Levels[Level].h * MapBlockSize) / 2 + MapBlockSize, 0);
+    r := MapBlockSize * Levels[Level].range;
+    // GL_LINE_STIPPLE existiert im Shader/Core-Pfad nicht mehr, daher emulieren wir Dashes mit einzelnen Liniensegmenten.
+    segCount := max(24, min(128, round(2 * pi * r / (MapBlockSize / 3))));
+    segCount := segCount - segCount Mod 4; // Dafür Sorgen das der Kreis immer mit einem "Leeren" segment endet, sonst siehts komisch aus.
+    glShaderBegin(GL_LINES);
+    For i := 0 To segCount - 1 Do Begin
+      // 2 Segmente sichtbar, 2 Segmente unsichtbar.
+      If ((i Mod 4) < 2) Then Begin
+        a0 := 2 * pi * i / segCount;
+        a1 := 2 * pi * (i + 1) / segCount;
+        glShaderVertex(center.x + cos(a0) * r, center.y + sin(a0) * r, center.z);
+        glShaderVertex(center.x + cos(a1) * r, center.y + sin(a1) * r, center.z);
+      End;
+    End;
+    glShaderEnd;
+    UseTextureShader();
+{$ENDIF}
   End;
 End;
 

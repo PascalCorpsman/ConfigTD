@@ -3086,13 +3086,13 @@ End;
 Procedure TServer.CheckSynchrons;
 Var
   n: int64;
-  i, EnterID: integer;
+  i: integer;
   b: Boolean;
   s: String;
   m: TMemoryStream;
 Begin
   If fpausing Then exit;
-  EnterID := LogEnter('TServer.CheckSynchrons');
+  // do not trace log as it is to often..
   n := gettick();
   // versenden der HeartBeat Aufforderung an die Clients
   If n - fLastHeartbeatTimestamp >= HeartBeatTime Then Begin
@@ -3126,7 +3126,6 @@ Begin
       ApplyPause(fpausing);
     End;
   End;
-  LogLeave(EnterID);
 End;
 
 Procedure TServer.Execute;
