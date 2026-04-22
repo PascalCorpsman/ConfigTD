@@ -439,7 +439,7 @@ Begin
         Stages[i].Fbulletimage := 0;
       End
       Else Begin
-        Stages[i].Fbulletimage := OpenGL_GraphikEngine.LoadAlphaGraphik(ap + stages[i].bulletimage, smStretchHard);
+        Stages[i].Fbulletimage := OpenGL_GraphikEngine.LoadAlphaGraphikItem(ap + stages[i].bulletimage, smStretchHard).Image;
       End;
     End
     Else Begin

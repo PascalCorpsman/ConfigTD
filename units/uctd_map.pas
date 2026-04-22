@@ -118,6 +118,8 @@ Type
     // Die Daten
 {$IFDEF Client}
     Image: TGraphikItem; // Statisch
+{$ELSE}
+    Image: Integer; // integer; Der Server Rechnet mit Integer weiter ..
 {$ENDIF}
     SizeX: single; // Statisch
     SizeY: single; // Statisch
@@ -135,8 +137,10 @@ Type
     Name: String;
 {$IFDEF Client}
     Animation: TOpenGL_Animation;
+    fimage: TGraphikItem; // integer;
+{$ELSE}
+    fimage: Integer; // integer; Der Server Rechnet mit Integer weiter ..
 {$ENDIF}
-    fimage: integer; // TODO: das sollte so schnell wie möglich durch TGraphikItem ersetzt werden !
     Width: Single;
     Height: Single;
     Speed: Single;
@@ -228,7 +232,7 @@ Type
 
 {$IFDEF Client}
     fOpenGLBackTex: TGraphikItem;
-    fFTerrainBackTex: integer;
+    fFTerrainBackTex: integer; // Das ist kein GraphikItem, weil es komplett "selbst" generiert und gerendert wird.
     fOpenGLDC1Tex, fOpenGLdc2Tex, fOpenGLdc3Tex, fOpenGLdc4Tex: TGraphikItem;
     fOpenGLDC1aTex, fOpenGLdc2aTex, fOpenGLdc3aTex, fOpenGLdc4aTex: TGraphikItem;
     fOpenGLWidth, fOpenGLHeight: integer;
@@ -3002,7 +3006,7 @@ Begin
           v2(fRenderBullets[i].position.x * MapBlockSize, fRenderBullets[i].position.y * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
-          FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
+          FBulletIndexes[fRenderBullets[i].Index].Fimage.Image, fRenderBullets[i].Angle);
       End;
       glPopMatrix;
     End
@@ -3021,7 +3025,7 @@ Begin
           v2(fRenderBullets[i].position.x * MapBlockSize, fRenderBullets[i].position.y * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
-          FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
+          FBulletIndexes[fRenderBullets[i].Index].Fimage.Image, fRenderBullets[i].Angle);
       End;
     End;
   End;
@@ -3101,7 +3105,7 @@ Begin
           );
       End
       Else Begin
-        RenderObj(
+        RenderObjItem(
           v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + ctd_Epsilon),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
@@ -3119,7 +3123,7 @@ Begin
           );
       End
       Else Begin
-        RenderObj(
+        RenderObjItem(
           v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + 5 * ctd_Epsilon),
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
@@ -5897,8 +5901,8 @@ Begin
           For j := 0 To high(b.Stages) Do Begin
             setlength(FBulletIndexes, high(FBulletIndexes) + 2);
             FBulletIndexes[high(FBulletIndexes)].name := fBuyAbles[i].Item + '_' + inttostr(j);
-            FBulletIndexes[high(FBulletIndexes)].fimage := b.Stages[j].fbulletimage;
 {$IFDEF Client}
+            FBulletIndexes[high(FBulletIndexes)].fimage := OpenGL_GraphikEngine.GetInfo(b.Stages[j].fbulletimage);
             If assigned(b.Stages[j].BulletAnimation) Then Begin
               FBulletIndexes[high(FBulletIndexes)].Animation := TOpenGL_Animation.create;
               FBulletIndexes[high(FBulletIndexes)].Animation.CloneFrom(b.Stages[j].BulletAnimation);
@@ -5906,6 +5910,8 @@ Begin
             Else Begin
               FBulletIndexes[high(FBulletIndexes)].Animation := Nil;
             End;
+{$ELSE}
+            FBulletIndexes[high(FBulletIndexes)].fimage := b.Stages[j].fbulletimage;
 {$ENDIF}
             FBulletIndexes[high(FBulletIndexes)].Width := b.Stages[j].bulletw;
             FBulletIndexes[high(FBulletIndexes)].Height := b.Stages[j].bulleth;
@@ -5919,8 +5925,8 @@ Begin
           For j := 0 To high(h.Levels) Do Begin
             setlength(FBulletIndexes, high(FBulletIndexes) + 2);
             FBulletIndexes[high(FBulletIndexes)].name := fBuyAbles[i].Item + '_' + inttostr(j);
-            FBulletIndexes[high(FBulletIndexes)].fimage := h.Levels[j].fbulletimage;
 {$IFDEF Client}
+            FBulletIndexes[high(FBulletIndexes)].fimage := OpenGL_GraphikEngine.GetInfo(h.Levels[j].fbulletimage);
             If assigned(h.Levels[j].BulletAnimation) Then Begin
               FBulletIndexes[high(FBulletIndexes)].Animation := TOpenGL_Animation.create;
               FBulletIndexes[high(FBulletIndexes)].Animation.CloneFrom(h.Levels[j].BulletAnimation);
@@ -5928,6 +5934,8 @@ Begin
             Else Begin
               FBulletIndexes[high(FBulletIndexes)].Animation := Nil;
             End;
+{$ELSE}
+            FBulletIndexes[high(FBulletIndexes)].fimage := h.Levels[j].fbulletimage;
 {$ENDIF}
             FBulletIndexes[high(FBulletIndexes)].Width := h.Levels[j].bulletw;
             FBulletIndexes[high(FBulletIndexes)].Height := h.Levels[j].bulleth;

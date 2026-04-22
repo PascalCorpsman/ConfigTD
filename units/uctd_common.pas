@@ -512,7 +512,6 @@ Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer; 
 Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
 Procedure RenderAnim(Middle: TVector2; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
 {$ELSE}
-Procedure RenderObj(Middle: TVector3; Width, Height: Integer; Texture: integer; Rotation: integer = 0); Deprecated 'Sollten alle durch RenderObjItem ersetzt werden.';
 Procedure RenderObjItem(Middle: TVector3; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
 Procedure RenderAnim(Middle: TVector3; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
 {$ENDIF}
@@ -1135,32 +1134,15 @@ End;
 
 Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer;
   Rotation: integer);
-{$ELSE}
-
-Procedure RenderObj(Middle: TVector3; Width, Height: Integer; Texture: integer;
-  Rotation: integer);
-Var
-  gi: TGraphikItem;
-{$ENDIF}
-
 Begin
-{$IFDEF LEGACYMODE}
   // Alles was einen Alpha Kanal von > 0.5 hat, wird weggeschnitten
   // --> Harte Transparenz möglich, ohne das der Tiefenpuffer von Transparenten Teilen überschrieben wird
   glAlphaFunc(GL_LESS, 0.5);
   glEnable(GL_ALPHA_TEST);
   uopengl_graphikengine.RenderQuad(Middle, Width, height, -Rotation + 180, texture);
   gldisable(GL_ALPHA_TEST);
-{$ELSE}
-  // TODO: Ja das ist mega Ineffizient, es soll ja auch nicht mehr genutzt werden !
-  gi := OpenGL_GraphikEngine.GetInfo(texture);
-  If gi.IsAlphaImage Then
-    SetShaderAlphaThreshold(0.5);
-  RenderObjItem(Middle, Width, Height, gi, Rotation);
-  If gi.IsAlphaImage Then
-    SetShaderAlphaThreshold(0.0);
-{$ENDIF}
 End;
+{$ENDIF}
 
 {$IFDEF LEGACYMODE}
 

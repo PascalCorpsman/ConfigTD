@@ -1162,7 +1162,6 @@ Procedure TForm4.DoUpdateMapProperty(Sender: TObject; MapProperty: Integer;
 Var
   i, j, c, EnterID: Integer;
   s: String;
-  b: Boolean;
   by: TBuyAble;
   bk: TBuyAbleKind;
 Begin

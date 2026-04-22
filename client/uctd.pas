@@ -3138,7 +3138,7 @@ Begin
         For i := 0 To high(fSelectedHeroes) Do Begin
           glPushMatrix;
           glTranslatef(fSelectedHeroes[i].Position.x * MapBlockSize - fsx + fMapL, fSelectedHeroes[i].Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
-          fSelectedHeroes[i].RenderRange();
+          fSelectedHeroes[i].RenderRange(v3(0, 0, 0));
           glPopMatrix;
         End;
       End;
@@ -4685,7 +4685,7 @@ Begin
 {$IFDEF LEGACYMODE}
                   glPushMatrix;
                   glTranslatef(FHintObject.Obj.Position.x * MapBlockSize - fsx + fMapL, FHintObject.Obj.Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON);
-                  THero(FHintObject.Obj).RenderRange();
+                  THero(FHintObject.Obj).RenderRange(v3(0, 0, 0));
                   glPopMatrix;
 {$ELSE}
                   THero(FHintObject.Obj).RenderRange(v3(FHintObject.Obj.Position.x * MapBlockSize - fsx + fMapL, FHintObject.Obj.Position.y * MapBlockSize - fsy + fMapT, ctd_MapBlackOutLayer - ctd_EPSILON));
