@@ -58,7 +58,7 @@ Type
     );
 
   TWaveOpponent = Record
-    opponent: String; // Dateiname des Gegners
+    Opponent: String; // Dateiname des Gegners
     Count: integer; // Anzahl der Gegner die gesamt emitiert werden sollen
     refund: Integer; // Geld das es für eine Vernichtete Einheit gibt
     UnitsPerSpawn: integer; // Anzahl an Gegnern die Gleichzeitig emittiert werden sollen
@@ -229,6 +229,7 @@ Type
     fMapType: TMapType;
     fMaxPlayer: integer;
     fLives: Array[0..2] Of integer;
+    fOpponentRenderIndexMap: Array Of String;
 
 {$IFDEF Client}
     fOpenGLBackTex: TGraphikItem;
@@ -261,6 +262,9 @@ Type
     Procedure FixBuyableSorting;
     Function GetHeight: integer;
     Function GetLives(Index: integer): integer;
+
+    Procedure RebuildOpponentRenderIndexMap;
+
 {$IFDEF Client}
     Function getHeroCount: integer;
     Function getOpenArrowGLDamageClassTex(index: integer): TGraphikItem;
@@ -293,6 +297,7 @@ Type
 {$IFDEF Server}
     Procedure CreateBullet(Const Target: TOpponent; Const Pos: TVector2; Const aOwner: tctd_mapopbject);
     Procedure KillOpponent(Const Opponent: TOpponent);
+    Procedure EmitOppsOnDeath(Const Opponent: TOpponent);
     Procedure ResetRating;
     Function GetRating(): Single;
     Procedure MoveAllHeroes(delta: integer);
@@ -302,6 +307,7 @@ Type
     Function getfield(x, y: integer): integer;
     Function GetListOfAllUsedFiles(IgnoreFile: String): TStringList; // Gibt eine Vollständige Liste aller Deteien die irgendwie von der Karte Geladen werden (alle Opps, Gebs , ...)
   public
+    fEmitter: TObject; // TSpawnModul; -- Das geht nicht weils sonst ne Zirkuläre Include gibt :/
     fTerrain: Array Of Array Of TFieldItem;
     fBuyAbles: Array Of TBuyAble; // Die Liste der Kaufbaren Objekte
     fPlacements: Array Of tctd_mapopbject;
@@ -426,7 +432,8 @@ Type
     Function ForceBuildingsBuildReady: TMemoryStream;
     Function ForceHeroesReady: TMemoryStream; // Die helden sind entweder Fertig gebaut, oder halten an !
 
-    Procedure AddOpponentObject(Const obj: TOpponent; Owner: integer);
+    Procedure AddOpponentObject(Const obj: TOpponent; Owner: integer; StartWayPoint: integer = 1; DeadEmitted: Boolean = false);
+    Function GetOpponentNextWayPoint(Const Opponent: TOpponent): integer;
     Procedure FrameStart; // Code zum Begin eines jeden Frames aufgerufen wird
     Procedure MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
     Procedure HandleAllBuildings(delta: integer);
@@ -474,6 +481,7 @@ Type
     Procedure CloneWave(SourceWaveNum: integer); // 0 - basiert, Clont SourceWaveNum und fügt sie als "letzte" wave hinten an.
     Procedure ExChangeWaves(w1, w2: integer);
     Procedure CreateMovableObjectList(Wave: integer); // Wird zu jeder neuen Runde aufgerufen und übernimmt auch das Init
+    Function GetOpponentRenderIndex(Const OpponentFile: String): uint16;
 
     // TODO: Wenn alle Attribute mal "Sauber" implementiert sind, dann kann Change wieder Private werden.!
     Procedure Change(ResetHighScore: Boolean); // Wird jedes mal aufgerufen wenn die Karte "Verändert" wird
@@ -494,6 +502,9 @@ Uses Graphics, math, LCLIntf, FileUtil, LazFileUtils
 {$IFNDEF LEGACYMODE}
   , uopengl_shaderprimitives
 {$ENDIF}
+{$ENDIF}
+{$IFDEF Server}
+  , uctd_spawnmodule
 {$ENDIF}
   ;
 
@@ -816,10 +827,12 @@ End;
 Constructor TMap.Create;
 Begin
   Inherited create;
+  fEmitter := Nil;
   // Start Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
   CalcOpponentPathsFifo := Nil;
   // Ende Optimierung Speed -- Eigentlich Teil von TMap.CalcOpponentPaths
   fTerrain := Nil;
+  fOpponentRenderIndexMap := Nil;
   FBulletIndexes := Nil;
   fDC1Tex := '';
   fdc2Tex := '';
@@ -988,12 +1001,70 @@ End;
 Function TMap.OpponentsEmittedInWave(Wave: integer): integer;
 Var
   j: integer;
+  Cache: TStringList;
+
+  Function GetOpponentCascadeCount(Const OpponentFile: String; Resolving: TStringList): integer;
+  Var
+    CacheIndex: Integer;
+    Key: String;
+    Opp: TOpponent;
+    OppPath: String;
+    ChildOpponent: String;
+  Begin
+    Key := lowercase(trim(OpponentFile));
+    If Key = '' Then Begin
+      result := 0;
+      exit;
+    End;
+
+    CacheIndex := Cache.IndexOfName(Key);
+    If CacheIndex <> -1 Then Begin
+      result := StrToIntDef(Cache.ValueFromIndex[CacheIndex], 0);
+      exit;
+    End;
+
+    If Resolving.IndexOf(Key) <> -1 Then Begin
+      log('TMap.OpponentsEmittedInWave: detected recursive DeadEmit cycle for "' + OpponentFile + '".', llWarning);
+      result := 1;
+      exit;
+    End;
+
+    result := 1;
+    Resolving.Add(Key);
+    OppPath := MapFolder + MapName + PathDelim + trim(OpponentFile);
+    If FileExistsUTF8(OppPath) Then Begin
+      Opp := TOpponent.create();
+      Try
+        If Opp.LoadFromFile(OppPath) Then Begin
+          ChildOpponent := trim(Opp.DeadEmit.Opponent);
+          If (ChildOpponent <> '') And (Opp.DeadEmit.Count > 0) Then Begin
+            result := result + Opp.DeadEmit.Count * GetOpponentCascadeCount(ChildOpponent, Resolving);
+          End;
+        End;
+      Finally
+        Opp.free;
+      End;
+    End;
+    Resolving.Delete(Resolving.IndexOf(Key));
+    Cache.Add(Key + '=' + IntToStr(result));
+  End;
+
+Var
+  Resolving: TStringList;
 Begin
   result := 0;
-  If (wave >= 0) And (wave <= high(Waves)) Then Begin
-    For j := 0 To high(Waves[wave].Opponents) Do Begin
-      result := result + waves[wave].Opponents[j].Count;
+  Cache := TStringList.Create();
+  Resolving := TStringList.Create();
+  Cache.NameValueSeparator := '=';
+  Try
+    If (wave >= 0) And (wave <= high(Waves)) Then Begin
+      For j := 0 To high(Waves[wave].Opponents) Do Begin
+        result := result + waves[wave].Opponents[j].Count * GetOpponentCascadeCount(waves[wave].Opponents[j].opponent, Resolving);
+      End;
     End;
+  Finally
+    Resolving.free;
+    Cache.free;
   End;
 End;
 
@@ -1150,6 +1221,7 @@ Begin
   End;
   setlength(fPlacements, 0);
   setlength(fTerrain, 0);
+  setlength(fOpponentRenderIndexMap, 0);
   ResetAllBuyedObjects; // fTerrain ist ja schon nil ;)
   Description := '';
   MapType := mtUnknown;
@@ -1506,6 +1578,7 @@ End;
 
 Procedure TMap.Change(ResetHighScore: Boolean);
 Begin
+  setlength(fOpponentRenderIndexMap, 0);
   fChanged := true;
 {$IFDEF Server}
   If ResetHighScore Then Begin
@@ -1585,6 +1658,12 @@ Var
       result.add(ap + sl[i]);
     End;
     sl.free;
+    If opp.DeadEmit.Opponent <> '' Then Begin
+      AddOppFiles(opp.DeadEmit.Opponent);
+    End;
+    If opp.CyclicEmit.Opponent <> '' Then Begin
+      AddOppFiles(opp.CyclicEmit.Opponent);
+    End;
     opp.free;
   End;
 
@@ -1681,6 +1760,7 @@ Begin
   For i := 0 To high(Waves) Do Begin
     For j := 0 To high(Waves[i].Opponents) Do Begin
       sl2.Add(Waves[i].Opponents[j].opponent);
+      // TODO: hinzufügen von ggf emitierten opps
     End;
   End;
 
@@ -1902,11 +1982,19 @@ Begin
     End;
   End;
   // TODO: Gibt es da keinen Cleveren Weg sich diese Schleife zu sparen ?
+  //       \-> Doch, der Stable Index Vektor sollte genau das können ;)
   For i := 0 To high(fOpponents) Do Begin
     If fOpponents[i].Obj = Opponent Then Begin
       fOpponents[i].Alive := false;
       break;
     End;
+  End;
+End;
+
+Procedure TMap.EmitOppsOnDeath(Const Opponent: TOpponent);
+Begin
+  If (Opponent.DeadEmit.Opponent <> '') And (Opponent.DeadEmit.Count > 0) Then Begin
+    (fEmitter As TSpawnModul).EmitAtPos(Opponent.Position, Opponent, Opponent.DeadEmit.Opponent, Opponent.DeadEmit.Count);
   End;
 End;
 
@@ -2346,7 +2434,7 @@ End;
 
 Procedure TMap.CreateWavePreviewPath(WaveNum, PlayerIndex: integer);
 Var
-  wpi, i, j, ah, mi: Integer;
+  wpi, i, j, ah, mi, OppIndex: Integer;
   p: TPoint;
   h: Array[0..high(Directions)] Of integer;
   bool: Boolean;
@@ -2356,20 +2444,26 @@ Begin
   If (PlayerIndex < 0) Or (PlayerIndex > high(Waypoints)) Then Begin
     exit;
   End;
+  If (WaveNum < 0) Or (WaveNum > high(Waves)) Then Begin
+    exit;
+  End;
   If Not CalcOpponentPaths Then exit;
   // Gibt es in dieser Wave eine Bodeneinheit ?
   bool := false;
   DamageClasses := 0;
-  For i := 0 To high(FIndexMapper) Do Begin
-    If Not FIndexMapper[i].CanFly Then Begin
+  For i := 0 To high(Waves[WaveNum].Opponents) Do Begin
+    OppIndex := GetOpponentRenderIndex(Waves[WaveNum].Opponents[i].Opponent);
+    If (OppIndex < 0) Or (OppIndex > high(FIndexMapper)) Then continue;
+    If lowercase(FIndexMapper[OppIndex].Filename) <> lowercase(Waves[WaveNum].Opponents[i].Opponent) Then continue;
+    If Not FIndexMapper[OppIndex].CanFly Then Begin
       bool := true;
-      If FIndexMapper[i].obj.LifePoints[0] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[0] <> 0 Then
         DamageClasses := DamageClasses Or 1;
-      If FIndexMapper[i].obj.LifePoints[1] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[1] <> 0 Then
         DamageClasses := DamageClasses Or 2;
-      If FIndexMapper[i].obj.LifePoints[2] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[2] <> 0 Then
         DamageClasses := DamageClasses Or 4;
-      If FIndexMapper[i].obj.LifePoints[3] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[3] <> 0 Then
         DamageClasses := DamageClasses Or 8;
     End;
   End;
@@ -2499,26 +2593,32 @@ Var
   End;
 
 Var
-  i, DamageClasses: Integer;
+  i, DamageClasses, OppIndex: Integer;
   bool: Boolean;
 Begin
   setlength(airWaypointPreview.Points, 0);
   If (PlayerIndex < 0) Or (PlayerIndex > high(Waypoints)) Then Begin
     exit;
   End;
+  If (WaveNum < 0) Or (WaveNum > high(Waves)) Then Begin
+    exit;
+  End;
   // Gibt es in dieser Wave eine Lufteinheit ?
   bool := false;
   DamageClasses := 0;
-  For i := 0 To high(FIndexMapper) Do Begin
-    If FIndexMapper[i].CanFly Then Begin
+  For i := 0 To high(Waves[WaveNum].Opponents) Do Begin
+    OppIndex := GetOpponentRenderIndex(Waves[WaveNum].Opponents[i].Opponent);
+    If (OppIndex < 0) Or (OppIndex > high(FIndexMapper)) Then continue;
+    If lowercase(FIndexMapper[OppIndex].Filename) <> lowercase(Waves[WaveNum].Opponents[i].Opponent) Then continue;
+    If FIndexMapper[OppIndex].CanFly Then Begin
       bool := true;
-      If FIndexMapper[i].obj.LifePoints[0] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[0] <> 0 Then
         DamageClasses := DamageClasses Or 1;
-      If FIndexMapper[i].obj.LifePoints[1] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[1] <> 0 Then
         DamageClasses := DamageClasses Or 2;
-      If FIndexMapper[i].obj.LifePoints[2] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[2] <> 0 Then
         DamageClasses := DamageClasses Or 4;
-      If FIndexMapper[i].obj.LifePoints[3] <> 0 Then
+      If FIndexMapper[OppIndex].obj.LifePoints[3] <> 0 Then
         DamageClasses := DamageClasses Or 8;
     End;
   End;
@@ -3098,7 +3198,7 @@ Begin
       If assigned(FBulletIndexes[fRenderBullets[i].Index].Animation) Then Begin
         FBulletIndexes[fRenderBullets[i].Index].Animation.AnimationOffset := fRenderBullets[i].AnimationOffset;
         RenderAnim(
-          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + ctd_Epsilon),
+          v2(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize), ctd_Map_Layer + ctd_Epsilon,
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Animation, fRenderBullets[i].Angle
@@ -3106,7 +3206,7 @@ Begin
       End
       Else Begin
         RenderObjItem(
-          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + ctd_Epsilon),
+          v2(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize), ctd_Map_Layer + ctd_Epsilon,
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
@@ -3116,7 +3216,7 @@ Begin
       If assigned(FBulletIndexes[fRenderBullets[i].Index].Animation) Then Begin
         FBulletIndexes[fRenderBullets[i].Index].Animation.AnimationOffset := fRenderBullets[i].AnimationOffset;
         RenderAnim(
-          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + 5 * ctd_Epsilon),
+          v2(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize), ctd_Map_Layer + 5 * ctd_Epsilon,
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Animation, fRenderBullets[i].Angle
@@ -3124,7 +3224,7 @@ Begin
       End
       Else Begin
         RenderObjItem(
-          v3(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize, ctd_Map_Layer + 5 * ctd_Epsilon),
+          v2(x - sx + fRenderBullets[i].position.x * MapBlockSize, y - sy + fRenderBullets[i].position.y * MapBlockSize), ctd_Map_Layer + 5 * ctd_Epsilon,
           round(FBulletIndexes[fRenderBullets[i].Index].Width * MapBlockSize),
           round(FBulletIndexes[fRenderBullets[i].Index].Height * MapBlockSize),
           FBulletIndexes[fRenderBullets[i].Index].Fimage, fRenderBullets[i].Angle);
@@ -3140,7 +3240,7 @@ Begin
         If high(Waypoints[i]) <> -1 Then Begin
           For j := 0 To high(Waypoints[i]) Do Begin
             If j = 0 Then Begin
-              RenderObjItem(v3(x - sx + Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[i, j].Point.y * MapBlockSize, ctd_Map_Layer + 6 * ctd_Epsilon),
+              RenderObjItem(v2(x - sx + Waypoints[i, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[i, j].Point.y * MapBlockSize), ctd_Map_Layer + 6 * ctd_Epsilon,
                 MapBlockSize, MapBlockSize,
                 OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
               RenderVisibleText(x - sx + Waypoints[i, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), y - sy + Waypoints[i, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(i + 1));
@@ -3160,7 +3260,7 @@ Begin
         // Die einzelnen Wegpunkte beschriften
         For j := 0 To high(Waypoints[ViewWaypoints]) Do Begin
           If j = 0 Then Begin
-            RenderObjItem(v3(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize, ctd_Map_Layer + 6 * ctd_Epsilon),
+            RenderObjItem(v2(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + MapBlockSize / 2, y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize), ctd_Map_Layer + 6 * ctd_Epsilon,
               MapBlockSize, MapBlockSize,
               OpenGL_GraphikEngine.FindItem(PlayerStartPointTex));
             RenderVisibleText(x - sx + Waypoints[ViewWaypoints, j].Point.x * MapBlockSize + integer(round(MapBlockSize * 1.5)), y - sy + Waypoints[ViewWaypoints, j].Point.y * MapBlockSize + MapBlockSize Div 2 - integer(round(OpenGL_ASCII_Font.TextHeight('P') / 2)), 'P' + inttostr(ViewWaypoints + 1));
@@ -3470,6 +3570,19 @@ Var
       End;
       If (op.SizeX <= 0) Or (op.SizeY <= 0) Then Begin
         LogShow('Invalid size settings for : ' + Filename, llError);
+        op.free;
+        result := false;
+        exit;
+      End;
+      // TODO: Ja das ist nicht perfect, weil eine Rekursion über 2-N unterschiedliche Opps nicht erkannt wird, aber immerhin ..
+      If op.DeadEmit.Opponent = Filename Then Begin
+        LogShow('Endless recursion for deademit : ' + Filename, llError);
+        op.free;
+        result := false;
+        exit;
+      End;
+      If op.CyclicEmit.Opponent = Filename Then Begin
+        LogShow('Endless recursion for cyclicemit : ' + Filename, llError);
         op.free;
         result := false;
         exit;
@@ -3858,10 +3971,26 @@ Begin
 End;
 {$IFDEF Server}
 
-Procedure TMap.AddOpponentObject(Const obj: TOpponent; Owner: integer);
+Function TMap.GetOpponentNextWayPoint(Const Opponent: TOpponent): integer;
+Var
+  i: Integer;
+Begin
+  result := 1;
+  For i := 0 To high(fOpponents) Do Begin
+    If fOpponents[i].Obj = Opponent Then Begin
+      result := fOpponents[i].NextWayPoint;
+      exit;
+    End;
+  End;
+End;
+
+Procedure TMap.AddOpponentObject(Const obj: TOpponent; Owner: integer;
+  StartWayPoint: integer; DeadEmitted: Boolean);
 Var
   i: integer;
+  e: TMoveOpponentQuadtree.TQuadTreeElement;
 Begin
+  obj.Pause(FPausing);
   // Den Besitzer merken, für die Livepoint Engine
   obj.Owner := Owner;
   // Die Lebenspunkte berechnen..
@@ -3875,9 +4004,12 @@ Begin
   fOpponents[high(fOpponents)].Obj := obj;
   fOpponents[high(fOpponents)].Alive := true;
   fOpponents[high(fOpponents)].NextTimeNoDiagWalk := false;
-  //fOpponents[high(fOpponents)].NextTimeNoDiagWalkPos := ?;
-  fOpponents[high(fOpponents)].NextWayPoint := 1;
-  //fOpponents[high(fOpponents)].DistanzeToGoal := ?;
+  fOpponents[high(fOpponents)].NextWayPoint := StartWayPoint;
+  If DeadEmitted Then Begin
+    e.Position := fOpponents[high(fOpponents)].Obj.Position;
+    e.Data := high(fOpponents);
+    fOpponentsQuadtree.Add(e);
+  End;
   // Für Gettarget
   MaxDimOpponents := MaxV2(MaxDimOpponents, v2(obj.SizeX, obj.SizeY));
 End;
@@ -3905,11 +4037,12 @@ Begin
   End;
 End;
 
-Procedure TMap.MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer);
+Procedure TMap.MoveAllOpponents(Const UpdateEvent: TUpdateEvent; delta: integer
+  );
 Const
   SQR_Min_Dist = MinDistanceBetweenOpponents * MinDistanceBetweenOpponents;
 Var
-  cnt, j, i: Integer;
+  cnt, j, i, EmitCount: Integer;
   steigung, wx, wy: integer;
   gx, gy, odir, oh, wh, ah, x, y, xx, yy: integer;
   ox, oy, ll, l, dx, dy: Single;
@@ -3920,6 +4053,17 @@ Begin
   // Hier lassen wir die Viecher laufen
   For i := 0 To high(fOpponents) Do Begin
     If Not fOpponents[i].Alive Then Continue;
+
+    EmitCount := fOpponents[i].Obj.Update(delta);
+    If (EmitCount > 0) And assigned(fEmitter) Then Begin
+      (fEmitter As TSpawnModul).EmitAtPos(
+        fOpponents[i].Obj.Position,
+        fOpponents[i].Obj,
+        fOpponents[i].Obj.CyclicEmit.Opponent,
+        EmitCount
+        );
+    End;
+
     If fOpponents[i].Obj.Canfly Then Begin
       // Fliegende Gegner sind deutlich einfacher ;)
       // 1. Suchen des "kürzesten" Wegpunktes im WegpunktFeld
@@ -4324,7 +4468,8 @@ Begin
   End;
 End;
 
-Procedure TMap.HandleAllBullets(Const UpdateEvent: TUpdateEvent; delta: integer);
+Procedure TMap.HandleAllBullets(Const UpdateEvent: TUpdateEvent; delta: integer
+  );
 Var
   k, i: integer;
   bool: Boolean;
@@ -4369,6 +4514,10 @@ Begin
           rfnd := tg.Refund; // merken wieviel wir beim Vernichten einnehmen würden
           If (FBullets[i].Earn > 0) Then Begin // Es gab einen Einschlag, egal ob vernichtend oder nicht, wir kriegen Kohle..
             UpdateEvent(ownr, UpdateIdBankIncrease, FBullets[i].Earn);
+          End;
+          // Der Gegner hat das nicht überlebt, aber ggf hat er nachkommen, die müssen vor Splashshaden geschossen erstellt werden !
+          If ((k And 2) = 2) Then Begin
+            EmitOppsOnDeath(tg);
           End;
           If (((k And 4) = 4) Or ((k And 2) = 2)) And ((k And 1) = 0) Then Begin // Wir müssen uns einen neuen Gegner suchen.
             If FBullets[i].Speed = 0 Then Begin // Der Bullet ist nicht beweglich, d.h. sein Target wird wieder = nil gesetzt
@@ -4438,6 +4587,7 @@ Begin
   For i := 0 To high(Waves) Do Begin
     For j := 0 To high(Waves[i].Opponents) Do Begin
       cnt := cnt + Waves[i].Opponents[j].Count * fMaxPlayer;
+      // ADD: hinzufügen der beim Tod Emerirten Opps
     End;
   End;
   setlength(fOpponentIndexBuffer, cnt);
@@ -5345,6 +5495,11 @@ Var
 Begin
 {$IFDEF Server}
   FPausing := value;
+  For j := 0 To high(fOpponents) Do Begin
+    If assigned(fOpponents[j].Obj) Then Begin
+      fOpponents[j].Obj.Pause(value);
+    End;
+  End;
 {$ENDIF}
   // Propagieren in alle Gebäude
   For j := 0 To high(Fbuildings) Do Begin
@@ -5865,6 +6020,7 @@ Var
   p: String;
 Begin
   EnterID := LogEnter('TMap.CreateMovableObjectList : ' + inttostr(wave));
+  RebuildOpponentRenderIndexMap;
 {$IFDEF Client}
   If assigned(FIndexMapper) Then Begin
     LogLeave(EnterID);
@@ -5874,11 +6030,11 @@ Begin
   setlength(fRenderOpponents, 0);
   setlength(fRenderBullets, 0);
   // Neu erstellen derIndex Listen für die Nächste Runde
-  setlength(FIndexMapper, length(Waves[Wave].Opponents));
+  setlength(FIndexMapper, length(fOpponentRenderIndexMap));
   p := MapFolder + MapName + PathDelim;
-  For i := 0 To high(Waves[wave].Opponents) Do Begin
+  For i := 0 To high(fOpponentRenderIndexMap) Do Begin
     op := TOpponent.create();
-    op.LoadFromFile(p + Waves[Wave].Opponents[i].opponent);
+    op.LoadFromFile(p + fOpponentRenderIndexMap[i]);
     If lowercase(ExtractFileExt(op.Image)) = '.ani' Then Begin
       FIndexMapper[i].Image.image := 0; // Die haben Ihre Animationen, die wiederrum vom Server gesteuert werden.
     End
@@ -5890,6 +6046,8 @@ Begin
     FIndexMapper[i].TotalLifePoints := op.TotalLivepoints;
     FIndexMapper[i].CanFly := op.Canfly;
     FIndexMapper[i].Hint := DeSerialize(op.Description);
+    FIndexMapper[i].Index := i;
+    FIndexMapper[i].Filename := fOpponentRenderIndexMap[i];
     FIndexMapper[i].Obj := op;
   End;
 {$ENDIF}
@@ -5902,7 +6060,13 @@ Begin
             setlength(FBulletIndexes, high(FBulletIndexes) + 2);
             FBulletIndexes[high(FBulletIndexes)].name := fBuyAbles[i].Item + '_' + inttostr(j);
 {$IFDEF Client}
-            FBulletIndexes[high(FBulletIndexes)].fimage := OpenGL_GraphikEngine.GetInfo(b.Stages[j].fbulletimage);
+            If b.Stages[j].fbulletimage <> 0 Then Begin
+              FBulletIndexes[high(FBulletIndexes)].fimage := OpenGL_GraphikEngine.GetInfo(b.Stages[j].fbulletimage);
+            End
+            Else Begin
+              // Der Turm hat keine Geschosse -> also auch keine Geschoss Bilder
+              FBulletIndexes[high(FBulletIndexes)].fimage.Image := 0;
+            End;
             If assigned(b.Stages[j].BulletAnimation) Then Begin
               FBulletIndexes[high(FBulletIndexes)].Animation := TOpenGL_Animation.create;
               FBulletIndexes[high(FBulletIndexes)].Animation.CloneFrom(b.Stages[j].BulletAnimation);
@@ -5975,6 +6139,72 @@ Begin
   tmp := Waves[w1];
   Waves[w1] := Waves[w2];
   Waves[w2] := tmp;
+End;
+
+Procedure TMap.RebuildOpponentRenderIndexMap;
+Var
+  i, j: Integer;
+
+  Function IsAlreadyMapped(Const OpponentFile: String): Boolean;
+  Var
+    k: Integer;
+  Begin
+    result := false;
+    For k := 0 To high(fOpponentRenderIndexMap) Do Begin
+      If lowercase(fOpponentRenderIndexMap[k]) = lowercase(OpponentFile) Then Begin
+        result := true;
+        exit;
+      End;
+    End;
+  End;
+
+  Procedure AddOpponentAndChildren(Const OpponentFile: String);
+  Var
+    OppPath: String;
+    Opp: TOpponent;
+  Begin
+    If IsAlreadyMapped(OpponentFile) Then exit;
+
+    setlength(fOpponentRenderIndexMap, high(fOpponentRenderIndexMap) + 2);
+    fOpponentRenderIndexMap[high(fOpponentRenderIndexMap)] := OpponentFile;
+
+    OppPath := MapFolder + MapName + PathDelim + OpponentFile;
+
+    Opp := TOpponent.create();
+    Try
+      If Opp.LoadFromFile(OppPath) Then Begin
+        If Opp.CyclicEmit.Opponent <> '' Then
+          AddOpponentAndChildren(Opp.CyclicEmit.Opponent);
+        If Opp.DeadEmit.Opponent <> '' Then
+          AddOpponentAndChildren(Opp.DeadEmit.Opponent);
+      End;
+    Finally
+      Opp.free;
+    End;
+  End;
+Begin
+  setlength(fOpponentRenderIndexMap, 0);
+  For i := 0 To high(Waves) Do Begin
+    For j := 0 To high(Waves[i].Opponents) Do Begin
+      AddOpponentAndChildren(Waves[i].Opponents[j].opponent);
+    End;
+  End;
+End;
+
+Function TMap.GetOpponentRenderIndex(Const OpponentFile: String): uint16;
+Var
+  i: Integer;
+  Normalized: String;
+Begin
+  Normalized := lowercase(OpponentFile);
+  For i := 0 To high(fOpponentRenderIndexMap) Do Begin
+    If lowercase(fOpponentRenderIndexMap[i]) = Normalized Then Begin
+      result := i;
+      exit;
+    End;
+  End;
+  log('TMap.GetOpponentRenderIndex: Could not map opponent "' + OpponentFile + '".', llFatal);
+  result := 0;
 End;
 
 Function TMap.GetObjUnderCursor(x, y: integer): tctd_mapopbject;

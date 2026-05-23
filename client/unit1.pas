@@ -53,6 +53,7 @@ Const
 {$ENDIF}
 
 Type
+  TLoadState = (lsundefined, lsinit, lsload);
 
 {$IFDEF AUTOMODE}
   TAutomodeData = Record
@@ -160,9 +161,11 @@ Type
       ParamCount: Integer; Const Parameters: Array Of String);
   private
     { private declarations }
+    fLoadState: TLoadState;
     fUserMessages: Array Of TUserMessages;
     fnmr: TNewMapRecord;
     fMapTransferStream: TMemorystream;
+    Procedure SetupFrame;
     Procedure CloseAllModalWindows;
     Procedure Form10GetMapListEvent(Sender: TObject; Const Data: TStringlist);
     Procedure Form1NewMapEvent(Sender: TObject; Const Data: TStringlist);
@@ -314,11 +317,7 @@ Begin
     Bei Nutzung der TOpenGLGraphikengine, bedeutet dies, das hier ein clear durchgeführt werden mus !!
     *)
     DefaultFormatSettings.DecimalSeparator := '.'; // Eigentlich brauchts das nur 1 mal, aber anscheinend bringt der Startup Code da manchmal was durcheinander.
-{$IFDEF LEGACYMODE}
-    glenable(GL_TEXTURE_2D); // Texturen
-{$ENDIF}
-    glDepthFunc(gl_less);
-    glEnable(GL_DEPTH_TEST); // Tiefentest
+    SetupFrame;
 {$IFNDEF LEGACYMODE}
     If Not Assigned(glCreateShader) Then Begin
       // On Windows it seems that you need to "reload" the core functions for proper function
@@ -345,43 +344,6 @@ Begin
 {$IFNDEF LEGACYMODE}
     ReActivateKHRDebug; // Reenable KHRDebug
 {$ENDIF}
-    // Splasch Screen das wir alles laden
-    OpenGLControl1Resize(Nil);
-    WidgetSetGo2d(OpenGLControl1.Width, OpenGLControl1.Height);
-    OpenGL_ASCII_Font.Color := clred;
-    CenterTextOut(OpenGLControl1.Width, OpenGLControl1.Height, 'Initialising...');
-    WidgetSetExit2d();
-    OpenGLControl1.SwapBuffers;
-    // Das Game Initialisieren
-    LastFPS_Counter := 0;
-    LastFPSTime := GetTick();
-    ctd.Initialize(OpenGLControl1);
-    ctd.OnHostButtonClick := @MenuItem3Click;
-    ctd.OnJoinButtonClick := @MenuItem4Click;
-    ctd.OnNewMapButtonClick := @MenuItem7Click;
-    ctd.OnLoadMapButtonClick := @MenuItem8Click;
-    ctd.OnLoadGameButtonClick := @MenuItem9Click;
-{$IFDEF Windows}
-    // Unter Windoof funktionieren sonst die Tasten nicht.
-    form1.OnKeyDown := OpenGLControl1.OnKeyDown;
-    form1.OnKeyUp := OpenGLControl1.OnKeyUp;
-{$ENDIF}
-    ctd.OnConnectToServer := @OnConnectToServer;
-    ctd.OnDisconnectFromServer := @OnDisconnectFromServer;
-    ctd.OnLoadMap := @OnLoadMap;
-    ctd.OnUpdateMapProperty := @OnUpdateMapProperty;
-    ctd.OnStartRound := @OnStartRound;
-    ctd.OnEndRound := @OnEndRound;
-    ctd.OnForceEditMode := @OnForceEditMode;
-    ctd.OnHandleLoadGameingData := @OnHandleLoadGameingData;
-    ctd.OnRefreshPlayerStats := @OnRefreshPlayerStats;
-    ctd.OnShowGameStatistics := @OnShowGameStatistics;
-    ctd.OnWaveCloneEvent := @form4.OnCTDWaveClone;
-    ctd.OnWaveExchangeEvent := @OnWaveExchangeEvent;
-    ctd.OnFileReceivedEvent := @OnFileReceivedEvent;
-
-    ctd.RegisterTCPConnection(LTCPComponent1);
-    ctd.RegisterUDPConnection(LUDPComponent1);
   End;
   Form1.Invalidate;
 End;
@@ -418,29 +380,81 @@ Begin
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT Or GL_DEPTH_BUFFER_BIT);
   glBindTexture(GL_TEXTURE_2D, 0);
-{$IFDEF LEGACYMODE}
-  glLoadIdentity();
-  glcolor4f(1, 1, 1, 1);
+{$IFDEF LCLGTK3}
+  SetupFrame;
 {$ENDIF}
-  ctd.Render(OpenGLControl1.Width, OpenGLControl1.Height);
-  WidgetSetGo2d(OpenGLControl1.Width, OpenGLControl1.Height);
-{$IFDEF LEGACYMODE}
-  glTranslatef(0, 0, 0.95);
+  Case fLoadState Of
+    lsundefined: Begin
+        // Splasch Screen das wir alles laden
+        OpenGLControl1Resize(Nil);
+        WidgetSetGo2d(OpenGLControl1.Width, OpenGLControl1.Height);
+        OpenGL_ASCII_Font.Color := clred;
+        CenterTextOut(OpenGLControl1.Width, OpenGLControl1.Height, 'Initialising...');
+        WidgetSetExit2d();
+        fLoadState := lsinit;
+      End;
+    lsinit: Begin
+        // Das Game Initialisieren
+        LastFPS_Counter := 0;
+        LastFPSTime := GetTick();
+        ctd.Initialize(OpenGLControl1);
+        ctd.OnHostButtonClick := @MenuItem3Click;
+        ctd.OnJoinButtonClick := @MenuItem4Click;
+        ctd.OnNewMapButtonClick := @MenuItem7Click;
+        ctd.OnLoadMapButtonClick := @MenuItem8Click;
+        ctd.OnLoadGameButtonClick := @MenuItem9Click;
+{$IFDEF Windows}
+        form1.OnKeyDown := OpenGLControl1.OnKeyDown;
+        form1.OnKeyUp := OpenGLControl1.OnKeyUp;
 {$ENDIF}
-  If ShowFPS Then Begin
-    OpenGL_ASCII_Font.Color := clwhite;
-    s := 'FPS : ' + inttostr(LastFPS_Counter);
-    offset := 0;
-    If (ctd.GameState = gs_Gaming) Then Begin
-      offset := 64;
-    End;
+{$IFDEF LCLGTK3}
+        form1.OnKeyDown := OpenGLControl1.OnKeyDown;
+        form1.OnKeyUp := OpenGLControl1.OnKeyUp;
+{$ENDIF}
+        ctd.OnConnectToServer := @OnConnectToServer;
+        ctd.OnDisconnectFromServer := @OnDisconnectFromServer;
+        ctd.OnLoadMap := @OnLoadMap;
+        ctd.OnUpdateMapProperty := @OnUpdateMapProperty;
+        ctd.OnStartRound := @OnStartRound;
+        ctd.OnEndRound := @OnEndRound;
+        ctd.OnForceEditMode := @OnForceEditMode;
+        ctd.OnHandleLoadGameingData := @OnHandleLoadGameingData;
+        ctd.OnRefreshPlayerStats := @OnRefreshPlayerStats;
+        ctd.OnShowGameStatistics := @OnShowGameStatistics;
+        ctd.OnWaveCloneEvent := @form4.OnCTDWaveClone;
+        ctd.OnWaveExchangeEvent := @OnWaveExchangeEvent;
+        ctd.OnFileReceivedEvent := @OnFileReceivedEvent;
+
+        ctd.RegisterTCPConnection(LTCPComponent1);
+        ctd.RegisterUDPConnection(LUDPComponent1);
+        fLoadState := lsload;
+      End;
+    lsload: Begin
 {$IFDEF LEGACYMODE}
-    OpenGL_ASCII_Font.Textout(5, 5 + offset, s);
+        glLoadIdentity();
+        glcolor4f(1, 1, 1, 1);
+{$ENDIF}
+        ctd.Render(OpenGLControl1.Width, OpenGLControl1.Height);
+        WidgetSetGo2d(OpenGLControl1.Width, OpenGLControl1.Height);
+{$IFDEF LEGACYMODE}
+        glTranslatef(0, 0, 0.95);
+{$ENDIF}
+        If ShowFPS Then Begin
+          OpenGL_ASCII_Font.Color := clwhite;
+          s := 'FPS : ' + inttostr(LastFPS_Counter);
+          offset := 0;
+          If (ctd.GameState = gs_Gaming) Then Begin
+            offset := 64;
+          End;
+{$IFDEF LEGACYMODE}
+          OpenGL_ASCII_Font.Textout(5, 5 + offset, s);
 {$ELSE}
-    OpenGL_ASCII_Font.Textout(5, 5 + offset, 0.95, s);
+          OpenGL_ASCII_Font.Textout(5, 5 + offset, 0.95, s);
 {$ENDIF}
+        End;
+        WidgetSetExit2d();
+      End;
   End;
-  WidgetSetExit2d();
   OpenGLControl1.SwapBuffers;
 End;
 
@@ -606,6 +620,15 @@ Procedure TForm1.UniqueInstance1OtherInstance(Sender: TObject;
   ParamCount: Integer; Const Parameters: Array Of String);
 Begin
   BringToFront;
+End;
+
+Procedure TForm1.SetupFrame;
+Begin
+{$IFDEF LEGACYMODE}
+  glenable(GL_TEXTURE_2D); // Texturen
+{$ENDIF}
+  glDepthFunc(gl_less);
+  glEnable(GL_DEPTH_TEST); // Tiefentest
 End;
 
 Procedure TForm1.Form10GetMapListEvent(Sender: TObject; Const Data: TStringlist
@@ -821,6 +844,7 @@ Var
   i: Integer;
   msg: String;
 Begin
+  If fLoadState <> lsload Then exit;
 {$IFDEF AUTOMODE}
   Case AutomodeData.State Of
     AM_Idle: Begin
@@ -1317,6 +1341,7 @@ Var
   i, EnterID: integer;
   dummy: Boolean;
 Begin
+  fLoadState := lsundefined;
   LclFifo := TLCLFifo.create;
   DefFormat := DefaultFormatSettings;
   DefFormat.DecimalSeparator := '.';

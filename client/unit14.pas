@@ -292,6 +292,7 @@ Begin
       End;
     dmOpponents: Begin // Opponent
         form7.ClearAll;
+        form7.UpdateEmitOps(ListBox1.Items);
         unit7.opponent.LoadFromFile(fTruncedMapfolder + s + PathDelim + s + '.opp');
         form7.opponenttolcl(ctd.Map);
         form7.ModalResult := mrNone;
@@ -336,6 +337,7 @@ Begin
       End;
     dmOpponents: Begin // Opponent
         form7.ClearAll;
+        form7.UpdateEmitOps(ListBox2.Items);
         unit7.opponent.LoadFromFile(Mapfolder + mapname + PathDelim + s + '.opp');
         form7.Opponenttolcl(ctd.Map);
         form7.ModalResult := mrNone;

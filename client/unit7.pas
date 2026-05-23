@@ -35,8 +35,12 @@ Type
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
+    ComboBox1: TComboBox;
+    ComboBox2: TComboBox;
     Edit1: TEdit;
     Edit10: TEdit;
+    Edit11: TEdit;
+    Edit12: TEdit;
     Edit2: TEdit;
     Edit3: TEdit;
     Edit4: TEdit;
@@ -45,12 +49,17 @@ Type
     Edit7: TEdit;
     Edit8: TEdit;
     Edit9: TEdit;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
     Image1: TImage;
     Image2: TImage;
     Image3: TImage;
     Image4: TImage;
     Image5: TImage;
     Label1: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
     Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
@@ -62,6 +71,7 @@ Type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    Label9: TLabel;
     Memo1: TMemo;
     OpenPictureDialog1: TOpenPictureDialog;
     Procedure Button1Click(Sender: TObject);
@@ -82,6 +92,7 @@ Type
     Procedure ClearAll;
     Procedure opponenttolcl(Const Map: TMap);
     Procedure lcltoopponent;
+    Procedure UpdateEmitOps(Const List: TStrings);
   End;
 
 Var
@@ -218,6 +229,14 @@ End;
 Procedure TForm7.opponenttolcl(Const Map: TMap);
 Var
   ap, s: String;
+
+  Function ComboBoxOpponentName(Const OpponentName: String): String;
+  Begin
+    result := trim(OpponentName);
+    If lowercase(ExtractFileExt(result)) = '.opp' Then Begin
+      result := ExtractFileNameOnly(result);
+    End;
+  End;
 Begin
   s := IncludeTrailingPathDelimiter(ExtractFilePath(Opponent.Filename)) + opponent.Image;
   If FileExistsUTF8(s) And (trim(opponent.Image) <> '') Then Begin
@@ -275,15 +294,27 @@ Begin
   edit2.text := format('%.2f', [opponent.LifeFactors[0]]);
   edit9.text := format('%.2f', [opponent.LifeFactors[1]]);
   edit10.text := format('%.2f', [opponent.LifeFactors[2]]);
+  edit11.text := inttostr(Opponent.CyclicEmit.Delay);
+  edit12.text := inttostr(Opponent.DeadEmit.Count);
   CheckBox1.Checked := opponent.Canfly;
   CheckBox2.Checked := opponent.Boss;
   CheckBox3.Checked := opponent.Bonus;
   CheckBox4.Checked := opponent.ImageRotation;
+  ComboBox1.Text := ComboBoxOpponentName(opponent.CyclicEmit.Opponent);
+  ComboBox2.Text := ComboBoxOpponentName(opponent.DeadEmit.Opponent);
 End;
 
 Procedure TForm7.lcltoopponent;
 Var
   s: String;
+
+  Function OpponentFromComboBox(Const OpponentName: String): String;
+  Begin
+    result := trim(OpponentName);
+    If (result <> '') And (lowercase(ExtractFileExt(result)) <> '.opp') Then Begin
+      result := result + '.opp';
+    End;
+  End;
 Begin
   DefaultFormatSettings.DecimalSeparator := '.';
   opponent.name := Edit1.Text;
@@ -304,6 +335,29 @@ Begin
   opponent.Bonus := CheckBox3.Checked;
   opponent.Image := ExtractFileName(img);
   opponent.ImageRotation := CheckBox4.Checked;
+  opponent.CyclicEmit.Opponent := OpponentFromComboBox(ComboBox1.Text);
+  opponent.CyclicEmit.Delay := strtointdef(edit11.text, 0);
+  opponent.DeadEmit.Opponent := OpponentFromComboBox(ComboBox2.Text);
+  opponent.DeadEmit.Count := strtointdef(edit12.text, 0);
+End;
+
+Procedure TForm7.UpdateEmitOps(Const List: TStrings);
+Var
+  i: Integer;
+  OpponentName: String;
+Begin
+  ComboBox1.Clear;
+  ComboBox2.Clear;
+  ComboBox1.Items.Add('');
+  ComboBox2.Items.Add('');
+  For i := 0 To List.Count - 1 Do Begin
+    OpponentName := trim(List[i]);
+    If lowercase(ExtractFileExt(OpponentName)) = '.opp' Then Begin
+      OpponentName := ExtractFileNameOnly(OpponentName);
+    End;
+    ComboBox1.Items.Add(OpponentName);
+    ComboBox2.Items.Add(OpponentName);
+  End;
 End;
 
 End.

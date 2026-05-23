@@ -22,6 +22,7 @@ Interface
 
 Uses
   Classes, SysUtils,
+  uvectormath,
 
   uctd_map, uctd_opp;
 
@@ -50,13 +51,14 @@ Type
     // Wird in OnRender aufgerufen und kontrolliert damit dann das Erzeugen der Gegner
     // Ergebniss = True, wenn alle für diese Runde zu erzeugenden Gegner erzeugt wurden.
     Function Update(delta: integer): Boolean;
+    Procedure EmitAtPos(Const pos: TVector2; Const Parent: TOpponent; Opp: String;
+      Count: integer);
   End;
 
 Implementation
 
 Uses
   lclintf
-  , uvectormath
   , uctd_common;
 
 { TSpawnModul }
@@ -77,6 +79,7 @@ Var
 Begin
   Clear;
   fmap := map;
+  fmap.fEmitter := self;
   fWave := wave;
   fRoundTime := 0;
   setlength(FOpponentRoundInfo, high(fmap.Waves[wave].Opponents) + 1);
@@ -127,7 +130,7 @@ Var
   op: TOpponent;
   b: Boolean;
   s: String;
-  sp: Tpoint;
+  sp: TPoint;
   x, j: Integer;
 Begin
   If fFinished Then Begin
@@ -159,7 +162,7 @@ Begin
               Else Begin
                 op.AnimationOffset := 0;
               End;
-              op.RenderIndex := i; // Der Render, damit beim Update der Clients, die Richtigen Daten gefunden werden können.
+              op.RenderIndex := fmap.GetOpponentRenderIndex(fmap.Waves[fWave].Opponents[i].opponent); // Der Render, damit beim Update der Clients die richtigen Daten gefunden werden können.
               op.Identifier := fSpawnIndex; // Damit der Client eine Eindeutige Zuordnung der Opponents hat
               op.InitDamageByPlayers(fPlayerCount);
               fSpawnIndex := fSpawnIndex + 1;
@@ -217,6 +220,102 @@ Begin
   If b Then Begin
     fFinished := true;
     result := true;
+  End;
+End;
+
+Procedure TSpawnModul.EmitAtPos(Const pos: TVector2; Const Parent: TOpponent;
+  Opp: String; Count: integer);
+Var
+  op: TOpponent;
+  s: String;
+  j: integer;
+  ParentNextWayPoint: Integer;
+
+  Function FindNearestWalkablePosition(Const StartPos: TVector2; Out WalkablePos: TVector2): Boolean;
+  Var
+    cx, cy, r, x, y: Integer;
+    MaxRadius: Integer;
+    Found: Boolean;
+    BestDist, Dist: Single;
+
+    Function HasHeightInfoForOwner(ax, ay, aOwner: Integer): Boolean;
+    Begin
+      result := false;
+      If (aOwner < 0) Or (aOwner > high(fmap.Waypoints)) Then exit;
+      If fmap.FieldHeight[ax, ay, aOwner, ParentNextWayPoint] <> Field_unreached Then Begin
+        result := true;
+        exit;
+      End;
+    End;
+
+    Procedure CheckCandidate(ax, ay: Integer);
+    Begin
+      If fmap.CoordIsWalkAble(ax, ay) And HasHeightInfoForOwner(ax, ay, Parent.Owner) Then Begin
+        Dist := sqr(StartPos.x - ax) + sqr(StartPos.y - ay);
+        If (Not Found) Or (Dist < BestDist) Then Begin
+          Found := true;
+          BestDist := Dist;
+          WalkablePos := v2(ax, ay);
+        End;
+      End;
+    End;
+
+  Begin
+    WalkablePos := StartPos;
+    cx := round(StartPos.x);
+    cy := round(StartPos.y);
+    If fmap.CoordIsWalkAble(cx, cy) And HasHeightInfoForOwner(cx, cy, Parent.Owner) Then Begin
+      WalkablePos := v2(cx, cy);
+      result := true;
+      exit;
+    End;
+
+    Found := false;
+    BestDist := 0;
+    MaxRadius := fmap.Width + fmap.Height;
+    If MaxRadius < 1 Then MaxRadius := 1;
+
+    For r := 1 To MaxRadius Do Begin
+      // Oberer und unterer Rand des Rings
+      For x := cx - r To cx + r Do Begin
+        CheckCandidate(x, cy - r);
+        CheckCandidate(x, cy + r);
+      End;
+      // Linker und rechter Rand des Rings (ohne Ecken doppelt zu prüfen)
+      For y := cy - r + 1 To cy + r - 1 Do Begin
+        CheckCandidate(cx - r, y);
+        CheckCandidate(cx + r, y);
+      End;
+      If Found Then break;
+    End;
+
+    result := Found;
+  End;
+Begin
+  s := MapFolder + MapName + PathDelim + Opp;
+  ParentNextWayPoint := fmap.GetOpponentNextWayPoint(Parent);
+  For j := 0 To Count - 1 Do Begin
+    op := TOpponent.create();
+    op.LoadFromFile(s);
+    If op.HasAnimation Then Begin
+      op.AnimationOffset := random(65536); // So sind alle Gegner mit einem "Zufälligen" Animationsstep -> es sieht nicht alles so Monoton aus...
+    End
+    Else Begin
+      op.AnimationOffset := 0;
+    End;
+    op.RenderIndex := fmap.GetOpponentRenderIndex(Opp); // Der Render, damit beim Update der Clients die richtigen Daten gefunden werden können.
+    op.Identifier := fSpawnIndex; // Damit der Client eine Eindeutige Zuordnung der Opponents hat
+    op.InitDamageByPlayers(fPlayerCount);
+    fSpawnIndex := fSpawnIndex + 1;
+    op.Position := pos + JitterCoord(j, Count);
+    If Not op.Canfly Then Begin
+      If Not FindNearestWalkablePosition(op.Position, op.Position) Then Begin
+        op.free;
+        exit; // Kein begehbarer Platz gefunden, der Spieler hat Glück, der Opp wird doch nicht erzeugt..
+      End;
+    End;
+    op.Refund := parent.refund;
+    fmap.AddOpponentObject(op, parent.Owner, ParentNextWayPoint, true); // Lassen wir den Kleinen Schatz los auf seine Welt ;)
   End;
 End;
 

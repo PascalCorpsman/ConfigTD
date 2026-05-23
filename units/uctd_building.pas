@@ -571,11 +571,11 @@ Begin
   If fUpdating.State = usIdleInactive Then Begin
     // nicht Updaten
     If assigned(stages[Stage].Animation) Then Begin
-      RenderAnim(v3(x + (Stages[Stage].w * MapBlockSize) / 2, y - (Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize, z)
+      RenderAnim(v2(x + (Stages[Stage].w * MapBlockSize) / 2, y - (Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize), z
         , stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Animation);
     End
     Else Begin
-      RenderObjItem(v3(x + (Stages[Stage].w * MapBlockSize) / 2, y - (Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize, z)
+      RenderObjItem(v2(x + (Stages[Stage].w * MapBlockSize) / 2, y - (Stages[Stage].h * MapBlockSize) / 2 + MapBlockSize), z
         , stages[Stage].w * MapBlockSize, stages[Stage].h * MapBlockSize, stages[Stage].Fimage);
     End;
     DeltaSinceLastUpdate := 0;
@@ -590,7 +590,7 @@ Begin
       RenderBar(DeltaSinceLastUpdate / stages[fUpdating.FinState].BuildTime);
     End;
     // Die Baustelle zeichnen (ist hinterher, dass wir kein Offset in der Höhe brauchen)
-    RenderObjItem(v3(x + (width * MapBlockSize) / 2, y - (height * MapBlockSize) / 2 + MapBlockSize, z)
+    RenderObjItem(v2(x + (width * MapBlockSize) / 2, y - (height * MapBlockSize) / 2 + MapBlockSize), z
       , round(width * MapBlockSize), round(height * MapBlockSize), BuildBuildingTex);
   End;
   If Grayed Then Begin

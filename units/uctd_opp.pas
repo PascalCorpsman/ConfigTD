@@ -42,12 +42,25 @@ Type
     StatValue: Single;
   End;
 
+  TCyclicEmit = Record
+    Opponent: String; // Name des Opps mit .opp
+    Delay: integer;
+  End;
+
+  TDeadEmit = Record
+    Opponent: String; // Name des Opps mit .opp
+    Count: integer;
+  End;
+
   { TOpponent }
 
   TOpponent = Class(tctd_mapopbject)
   private
     fTotalLivepoints: integer; // Summe über alle Lebenspunkte ohne Skallierung
     fStaticSlowingObjects: Array Of TSlowObject; // Eigentlich nur TBuilding
+{$IFDEF Server}
+    FPausing: Boolean;
+{$ENDIF}
   public
 {$IFDEF client}
     Animation: TOpenGL_Animation; // Nur Read Only Bitte !!
@@ -56,6 +69,7 @@ Type
     HasAnimation: Boolean; // Der Server muss nicht wissen welche Animation, nur Dass es eine ist ;)
     AnimationOffset: uInt16;
     DamageByPlayers: Array Of Integer; // Der Schaden getrennt nach Spieler -> Zur Bestimmung, wer den Benefit beim Kill bekommt !
+    DeltaSinceLastEmit: int64; // Zeit in ms seit dem letzten CyclicEmit
 {$ENDIF}
     RenderIndex: uInt16; // Index für FIndexMapper
     Description: String;
@@ -68,6 +82,8 @@ Type
     Canfly: Boolean;
     Boss: Boolean;
     Bonus: Boolean;
+    DeadEmit: TDeadEmit;
+    CyclicEmit: TCyclicEmit;
     Identifier: uint16;
     Direction: integer; // Die Richtung in die der Gegner geht (Angabe in Winkelgrad, wird von Map.MoveAllOpponents gesetzt)
     // Geld, welches der Spieler bekommt, wenn er eine Einheit platt macht,
@@ -91,6 +107,8 @@ Type
 {$IFDEF Server}
     Procedure GetMovingState(Const Stream: TSTream);
     Procedure InitDamageByPlayers(Count: integer);
+  Procedure Pause(value: Boolean);
+  Function Update(delta: integer): integer; // Anzahl der auszulösenden CyclicEmits in diesem Tick
 {$ENDIF}
 
 {$IFDEF client}
@@ -185,6 +203,8 @@ Begin
 {$IFDEF Server}
   DamageByPlayers := Nil;
   HasAnimation := false;
+  FPausing := false;
+  DeltaSinceLastEmit := 0;
 {$ENDIF}
 {$IFDEF client}
   Animation := Nil;
@@ -210,6 +230,10 @@ Begin
   ShowLifePoints := false;
   ImageRotation := true;
   fStaticSlowingObjects := Nil;
+  DeadEmit.Opponent := '';
+  DeadEmit.Count := 0;
+  CyclicEmit.Opponent := '';
+  CyclicEmit.Delay := 0;
   // Todo : Initialisierung vervollständigen (alle Variablen sauber initialisieren)
 End;
 
@@ -235,6 +259,26 @@ Begin
   setlength(DamageByPlayers, Count);
   For i := 0 To Count - 1 Do Begin
     DamageByPlayers[i] := 0;
+  End;
+End;
+
+Procedure TOpponent.Pause(value: Boolean);
+Begin
+  FPausing := value;
+End;
+
+Function TOpponent.Update(delta: integer): integer;
+Begin
+  result := 0;
+  If FPausing Then exit;
+  If (CyclicEmit.Opponent = '') Or (CyclicEmit.Delay <= 0) Then Begin
+    DeltaSinceLastEmit := 0;
+    exit;
+  End;
+  DeltaSinceLastEmit := DeltaSinceLastEmit + delta;
+  While DeltaSinceLastEmit >= CyclicEmit.Delay Do Begin
+    DeltaSinceLastEmit := DeltaSinceLastEmit - CyclicEmit.Delay;
+    inc(result);
   End;
 End;
 {$ENDIF}
@@ -296,11 +340,11 @@ End;
 Procedure TOpponent.Render(x, y, z: Single; Grayed: Boolean);
 Begin
   If assigned(Animation) Then Begin
-    RenderAnim(v3(x + (SizeX * MapBlockSize) / 2, y - (Sizey * MapBlockSize) / 2 + MapBlockSize, z)
+    RenderAnim(v2(x + (SizeX * MapBlockSize) / 2, y - (Sizey * MapBlockSize) / 2 + MapBlockSize), z
       , round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
   End
   Else Begin
-    RenderObjItem(v3(x + (SizeX * MapBlockSize) / 2, y - (Sizey * MapBlockSize) / 2 + MapBlockSize, z)
+    RenderObjItem(v2(x + (SizeX * MapBlockSize) / 2, y - (Sizey * MapBlockSize) / 2 + MapBlockSize), z
       , round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Fimage, Direction);
   End;
 End;
@@ -360,6 +404,10 @@ Begin
   Boss := ini.ReadBool('opponent', 'boss', false);
   Bonus := ini.ReadBool('opponent', 'bonus', false);
   ImageRotation := ini.ReadBool('opponent', 'imagerotation', true);
+  DeadEmit.Opponent := ini.ReadString('opponent', 'DieEmitOpponent', '');
+  DeadEmit.Count := ini.ReadInteger('opponent', 'DieEmitOpponentCount', 0);
+  CyclicEmit.Opponent := ini.ReadString('opponent', 'CyclicEmitOpponent', '');
+  CyclicEmit.Delay := ini.ReadInteger('opponent', 'CyclicEmitOpponentCount', 0);
 {$IFDEF Server}
   HasAnimation := lowercase(ExtractFileExt(Image)) = '.ani';
 {$ENDIF}
@@ -407,6 +455,10 @@ Begin
   ini.WriteBool('opponent', 'boss', Boss);
   ini.WriteBool('opponent', 'bonus', bonus);
   ini.WriteBool('opponent', 'imagerotation', ImageRotation);
+  ini.writeString('opponent', 'DieEmitOpponent', DeadEmit.Opponent);
+  ini.writeInteger('opponent', 'DieEmitOpponentCount', DeadEmit.Count);
+  ini.writeString('opponent', 'CyclicEmitOpponent', CyclicEmit.Opponent);
+  ini.writeInteger('opponent', 'CyclicEmitOpponentCount', CyclicEmit.Delay);
   ini.UpdateFile;
   ini.free;
   result := true;

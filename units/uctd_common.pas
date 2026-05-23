@@ -138,6 +138,7 @@ Const
    *            0.14003 = ADD: Show Opponent Path if key "R" is pressed.
    *                      FIX: typo in ShowOpponentsPathOnWaveStart
    *                      ADD: use shader rendering instead of old OpenGl legacy
+   *                      ADD: Opponents are now able to emit other opponents
    * Known Bugs :
    *)
   (*
@@ -512,8 +513,8 @@ Procedure RenderObj(Middle: TVector2; Width, Height: Integer; Texture: integer; 
 Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
 Procedure RenderAnim(Middle: TVector2; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
 {$ELSE}
-Procedure RenderObjItem(Middle: TVector3; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
-Procedure RenderAnim(Middle: TVector3; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
+Procedure RenderObjItem(Middle: TVector2; Depth: Single; Width, Height: Integer; Texture: TGraphikItem; Rotation: integer = 0);
+Procedure RenderAnim(Middle: TVector2; Depth: Single; Width, Height: Integer; Const Animation: TOpenGL_Animation; Rotation: integer = 0);
 {$ENDIF}
 Function LoadFileToMyPath(FileName: String; Foldername: String = ''): Boolean;
 Procedure FixFormPosition(Const Form: TForm); // Rückt ein Formular wieder in den Screen, sollte es außerhalb des Sichtbaren sein
@@ -1065,7 +1066,7 @@ Procedure RenderMoveableItem(
   Image: TGraphikItem; Direction: integer; Sizex, sizey,
   lifepointspercent: Single; ShowLifePoints: Boolean);
 Var
-  center: TVector3;
+  center: TVector2;
 Begin
 {$IFDEF LEGACYMODE}
   glPushMatrix;
@@ -1080,13 +1081,13 @@ Begin
   RenderObjItem(point(0, 0), round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
   glPopMatrix;
 {$ELSE}
-  center := TL + v3((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
+  center := v2(TL.x, tl.y) + v2((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize);
   center.x := round(center.x); // Das ist eigentlich quatsch, aber "gefühlt" glitchen so die Graphiken weniger
   center.y := round(center.y);
   If ShowLifePoints Then Begin
-    RenderLifeBar(center + v3(0, 0, ctd_EPSILON), SizeX, SizeY, lifepointspercent);
+    RenderLifeBar(v3(center, tl.z + ctd_EPSILON), SizeX, SizeY, lifepointspercent);
   End;
-  RenderObjItem(center, round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
+  RenderObjItem(center, tl.z, round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), image, Direction);
 {$ENDIF}
 End;
 
@@ -1099,7 +1100,7 @@ Procedure RenderMoveableAnim(
   lifepointspercent: Single; ShowLifePoints: Boolean);
 Var
   ao: integer;
-  center: TVector3;
+  center: TVector2;
 Begin
 {$IFDEF LEGACYMODE}
   glPushMatrix;
@@ -1117,15 +1118,15 @@ Begin
   Animation.AnimationOffset := ao;
   glPopMatrix;
 {$ELSE}
-  center := tl + v3((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize, 0);
+  center := v2(tl.x, tl.y) + v2((SizeX * MapBlockSize) / 2, -(Sizey * MapBlockSize) / 2 + MapBlockSize);
   center.x := round(center.x); // Das ist eigentlich quatsch, aber "gefühlt" glitchen so die Graphiken weniger
   center.y := round(center.y);
   If ShowLifePoints Then Begin
-    RenderLifeBar(center + v3(0, 0, ctd_EPSILON), SizeX, SizeY, lifepointspercent);
+    RenderLifeBar(v3(center, tl.z + ctd_EPSILON), SizeX, SizeY, lifepointspercent);
   End;
   ao := Animation.AnimationOffset;
   Animation.AnimationOffset := AnimationOffset;
-  RenderAnim(center, round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
+  RenderAnim(center, tl.z, round(SizeX * MapBlockSize), round(SizeY * MapBlockSize), Animation, Direction);
   Animation.AnimationOffset := ao;
 {$ENDIF}
 End;
@@ -1150,12 +1151,8 @@ Procedure RenderObjItem(Middle: TVector2; Width, Height: Integer;
   Texture: TGraphikItem; Rotation: integer);
 {$ELSE}
 
-Procedure RenderObjItem(Middle: TVector3; Width, Height: Integer;
+Procedure RenderObjItem(Middle: TVector2; Depth: Single; Width, Height: Integer;
   Texture: TGraphikItem; Rotation: integer);
-{$ENDIF}
-{$IFNDEF LEGACYMODE}
-Var
-  ScaledTex: TGraphikItem;
 {$ENDIF}
 Begin
 {$IFDEF LEGACYMODE}
@@ -1168,18 +1165,9 @@ Begin
   glPopMatrix;
   gldisable(GL_ALPHA_TEST);
 {$ELSE}
-  // Lokale Kopie der Textur mit der gewünschten Rendergröße, damit RenderQuad
-  // die Skalierung (Width x Height) direkt via OrigWidth/OrigHeight berücksichtigt.
-  // Bei smClamp wird StretchedWidth/Height proportional mitskaliert, damit der
-  // UV-Quotient (OrigWidth/StretchedWidth) unverändert bleibt.
-  ScaledTex := Texture;
-  ScaledTex.StretchedWidth := Round(Texture.StretchedWidth * Width / Texture.OrigWidth);
-  ScaledTex.StretchedHeight := Round(Texture.StretchedHeight * Height / Texture.OrigHeight);
-  ScaledTex.OrigWidth := Width;
-  ScaledTex.OrigHeight := Height;
   If Texture.IsAlphaImage Then
     SetShaderAlphaThreshold(0.5);
-  uopengl_graphikengine.RenderQuad(Middle, Rotation, ScaledTex);
+  uopengl_graphikengine.RenderQuad(Middle, Depth, width, height, -Rotation, Texture);
   If Texture.IsAlphaImage Then
     SetShaderAlphaThreshold(0.0);
 {$ENDIF}
@@ -1190,7 +1178,7 @@ Procedure RenderAnim(Middle: TVector2; Width, Height: Integer;
   Const Animation: TOpenGL_Animation; Rotation: integer);
 {$ELSE}
 
-Procedure RenderAnim(Middle: TVector3; Width, Height: Integer;
+Procedure RenderAnim(Middle: TVector2; Depth: Single; Width, Height: Integer;
   Const Animation: TOpenGL_Animation; Rotation: integer);
 {$ENDIF}
 Begin
@@ -1215,7 +1203,7 @@ Begin
   If Animation.Sprite[0].AlphaImage Then // -> Ganz Sauber ist das ja eigentlich nicht, da die Animation ja Theoretisch aus mehreren Graphiken bestehen könnte..
     SetShaderAlphaThreshold(0.5);
   Animation.Render(
-    Middle.x - Width * 0.5, Middle.y - Height * 0.5, Middle.z,
+    Middle.x - Width * 0.5, Middle.y - Height * 0.5, Depth,
     Width, Height, Rotation);
   If Animation.Sprite[0].AlphaImage Then
     SetShaderAlphaThreshold(0.0);

@@ -2820,8 +2820,8 @@ Begin
   For i := 0 To (fBuildW Div MapBlockSize) - 1 Do Begin
     For j := 0 To (fBuildH Div MapBlockSize) - 1 Do Begin
       RenderObjItem(
-        v3(fBuildL, fBuildT, ctd_BuyEditorLayer) +
-        v3(i * MapBlockSize + MapBlockSize Div 2, j * MapBlockSize + MapBlockSize Div 2, 0), MapBlockSize, MapBlockSize, fBuyKachel);
+        v2(fBuildL, fBuildT) +
+        v2(i * MapBlockSize + MapBlockSize Div 2, j * MapBlockSize + MapBlockSize Div 2), ctd_BuyEditorLayer, MapBlockSize, MapBlockSize, fBuyKachel);
     End;
   End;
   // Rendern der Kauf Items
@@ -2831,8 +2831,8 @@ Begin
     If y + MapBlockSize * FBuyMenu.MaxItemSize.y >= fBuildH Then break; // Wenn die Gebäude unten raus fallen würden...
     // Im Buy Menü gibt es keine Animationen -> Hier Reicht also RenderObj
     RenderObjItem(
-      v3(fBuildL, fBuildT, ctd_BuyEditorLayer + ctd_EPSILON) +
-      v3(x + round(FBuyMenu.Items[i].obj.Width * MapBlockSize) Div 2, y + round(FBuyMenu.Items[i].obj.Height * MapBlockSize) Div 2, 0),
+      v2(fBuildL, fBuildT) +
+      v2(x + round(FBuyMenu.Items[i].obj.Width * MapBlockSize) Div 2, y + round(FBuyMenu.Items[i].obj.Height * MapBlockSize) Div 2), ctd_BuyEditorLayer + ctd_EPSILON,
       round(FBuyMenu.Items[i].obj.Width * MapBlockSize), round(FBuyMenu.Items[i].obj.Height * MapBlockSize),
       FBuyMenu.Items[i].obj.Fimage);
   End;
@@ -3022,7 +3022,8 @@ Begin
   fCoinsInfo.Render();
   fTargetsInfo.Text := format('%4d' + LineEnding + '%4d',
     [Map.OpponentCount,
-    fOpponentsAtEndOfWave - SumKills + SumLives
+    // So ganz Sauber ist das nicht, aber so werden wenigstens keine Negativen Zahlen angezeigt, das Problem ist einfach, dass ein Opp der andere zyklisch emeriert nicht im vorraus berechenbar ist.
+    max(Map.OpponentCount, fOpponentsAtEndOfWave - SumKills + SumLives)
       ]);
   fTargetsInfo.Render();
 End;
@@ -3980,12 +3981,12 @@ Begin
    * Hier können alle möglichen Variablen Initialisiert werden, welche auf jeden Fall bei
    * Einer Serververbindung initialisiert sein sollten
    *)
+  If assigned(Fmap) Then fmap.free;
+  fmap := Nil;
   SwitchToEditMode();
   ShowPlayerStartNames := false;
   fServerUid := ServerUid;
   fPausing := false;
-  If assigned(Fmap) Then fmap.free;
-  fmap := Nil;
   MapName := '';
   setlength(FReceivingQueue, 0);
   BlockMapUpdateSending := false;

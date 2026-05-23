@@ -2890,7 +2890,7 @@ Procedure TServer.UpdateAllClients;
 Var
   m: TMemoryStream;
 Begin
-  // Sammel Aller Daten von Bewegten Objekten und Verteilen an alle Clients
+  // Sammeln aller Daten von Bewegten Objekten und Verteilen an alle Clients
   m := TMemoryStream.Create;
   fmap.GetMovingObjectsState(m);
   If m.Size <> 0 Then Begin
