@@ -43,13 +43,13 @@ Type
   End;
 
   TCyclicEmit = Record
-    Opponent: String; // Name des Opps mit .opp
-    Delay: integer;
+    Opponent: String; // Filename des Opps
+    Delay: integer; // 0 = deaktiviert
   End;
 
   TDeadEmit = Record
-    Opponent: String; // Name des Opps mit .opp
-    Count: integer;
+    Opponent: String; // Filename des Opps
+    Count: integer; // 0 = deaktiviert
   End;
 
   { TOpponent }
@@ -107,8 +107,8 @@ Type
 {$IFDEF Server}
     Procedure GetMovingState(Const Stream: TSTream);
     Procedure InitDamageByPlayers(Count: integer);
-  Procedure Pause(value: Boolean);
-  Function Update(delta: integer): integer; // Anzahl der auszulösenden CyclicEmits in diesem Tick
+    Procedure Pause(value: Boolean);
+    Function Update(delta: integer): integer; // Anzahl der auszulösenden CyclicEmits in diesem Tick
 {$ENDIF}
 
 {$IFDEF client}

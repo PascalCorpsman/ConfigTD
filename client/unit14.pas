@@ -162,9 +162,10 @@ End;
 
 Procedure TForm14.Button1Click(Sender: TObject);
 Var
-  s: String;
+  fn, s: String;
   i, EnterID: integer;
   f: Textfile;
+  obj: TItemObject;
 Begin
   EnterID := LogEnter('TForm14.Button1Click');
   // Create global
@@ -193,41 +194,51 @@ Begin
     LogLeave(EnterID);
     exit;
   End;
+  obj := Nil;
   Case fmode Of
     dmBuildings: Begin
         Building.free;
         Building := Tbuilding.create;
-        If Not FileExistsUTF8(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.geb') Then Begin
-          assignfile(f, utf8tosys(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.geb'));
+        fn := fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.geb';
+        If Not FileExistsUTF8(fn) Then Begin
+          assignfile(f, utf8tosys(fn));
           rewrite(f);
           writeln(f, '');
           CloseFile(f);
         End;
+        obj := TItemObject.Create;
+        obj.LoadGebInfo(fn);
       End;
     dmOpponents: Begin
         Opponent.free;
         Opponent := TOpponent.create;
-        If Not FileExistsUTF8(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.opp') Then Begin
-          assignfile(f, utf8tosys(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.opp'));
+        fn := fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.opp';
+        If Not FileExistsUTF8(fn) Then Begin
+          assignfile(f, utf8tosys(fn));
           rewrite(f);
           writeln(f, '');
           CloseFile(f);
         End;
+        obj := TItemObject.Create;
+        obj.LoadOppInfo(fn);
       End;
     dmHeroes: Begin
         Hero.free;
         Hero := THero.create;
-        If Not FileExistsUTF8(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.hero') Then Begin
-          assignfile(f, utf8tosys(fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.hero'));
+        fn := fTruncedMapfolder + edit1.text + PathDelim + edit1.text + '.hero';
+        If Not FileExistsUTF8(fn) Then Begin
+          assignfile(f, utf8tosys(fn));
           rewrite(f);
           writeln(f, '[Hero]');
           writeln(f, 'name=' + edit1.text);
           CloseFile(f);
         End;
+        obj := TItemObject.Create;
+        obj.LoadHeroInfo(fn);
       End;
   End;
   // Anfügen des Elementes in die Liste und Laden
-  AddSortAndSelect(ListBox1, Edit1.Text, Nil);
+  AddSortAndSelect(ListBox1, Edit1.Text, obj);
   Button4.Click; // Laden
   LogLeave(EnterID);
 End;
@@ -235,20 +246,22 @@ End;
 Procedure TForm14.Button2Click(Sender: TObject);
 Var
   obj: TItemObject;
+  s: String;
 Begin
   // Delete in Map
   If ListBox2.ItemIndex <> -1 Then Begin
+    s := ListBox2.items[ListBox2.ItemIndex];
     Case fmode Of
       dmBuildings: Begin
-          ctd.DelBuilding(ListBox2.items[ListBox2.ItemIndex] + '.geb');
+          ctd.DelBuilding(s + '.geb');
           form4.RefreshForm4Buyables;
         End;
       dmOpponents: Begin
-          ctd.DelOpponent(ListBox2.items[ListBox2.ItemIndex] + '.opp');
+          ctd.DelOpponent(s + '.opp');
           form4.RefreshOpponentsClick(Nil);
         End;
       dmHeroes: Begin
-          ctd.Delhero(ListBox2.items[ListBox2.ItemIndex] + '.hero');
+          ctd.Delhero(s + '.hero');
           form4.RefreshForm4Buyables;
         End;
     End;

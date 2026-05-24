@@ -1651,6 +1651,10 @@ Var
     If (aOpp = IgnoreFile) Or (trim(aOpp) = '') Then exit;
     If pos(ap + aopp, result.text) <> 0 Then exit;
     result.add(ap + aOpp);
+    If Not FileExists(ap + aOpp) Then Begin
+      LogShow('Error, could not open: ' + ap + aOpp, llError);
+      exit;
+    End;
     opp := TOpponent.create();
     opp.LoadFromFile(ap + aOpp);
     sl := opp.ListOfImages();
