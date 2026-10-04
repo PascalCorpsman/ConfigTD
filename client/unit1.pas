@@ -264,10 +264,10 @@ Var
 Procedure OnOpenGLLegacyCall(Severity: GLuint; aMessage: String);
 Begin
   nop();
-  //  showmessage(
-  //    format('Error, unallowed OpenGL legacy call: %d = %s', [Severity, aMessage])
-  //    );
-  //  halt;
+  showmessage(
+    format('Error, unallowed OpenGL legacy call: %d = %s', [Severity, aMessage])
+    );
+  halt;
 End;
 {$ENDIF}
 
@@ -962,7 +962,7 @@ Begin
 
   // Form2 = Connect Dialog
   If form3.Visible Then form3.Close; // Select Map Size Dialog (New Map)
-  If form4.Visible Then form4.Close; // Map Editor Dialog
+  HideForm4; // Map Editor Dialog
   // Form5 = Optionen
   If form6.Visible Then form6.Close; // Building Editor
   If form7.Visible Then form7.Close; // Opponent Editor
@@ -1133,11 +1133,7 @@ Begin
   // TODO: ggf müssen hier auch alle "edit" (Form14 ff) dialoge abgebrochen werden
   // Der Server Startet eine neue Runde
   // Schließen aller Fenster..
-  If form4.Visible Then Begin // Der Editor Dialog
-    dummy := true;
-    form4.FormCloseQuery(Nil, dummy); // Positionsdaten Speichern
-    form4.Hide;
-  End;
+  HideForm4;
   If Form8.visible Then Begin // Der Game Statistik Dialog
     Form8.Hide;
   End;
@@ -1493,7 +1489,7 @@ Begin
   EnterID := LogEnter('TForm1.FormCloseQuery');
   // Todo: Speichern der Map, oder wenigstens Nachfragen ob gespeichert werden soll
   log('Shuting down.', llInfo);
-  If Form4.Visible Then form4.Close; // Map Editor Dialog Schließen falls geöffnet
+  HideForm4; // Map Editor Dialog Schließen falls geöffnet
   If Form13.Visible Then form13.Close; // Chat Fenster Schließen falls geöffnet
 
   setValue('MainForm', 'Left', inttostr(Form1.left));
@@ -1536,7 +1532,7 @@ Begin
     End;
   End;
 {$ENDIF}
-  RestoreForm4;
+  //    RestoreForm4; -- Das macht hier gar keinen Sinn
 End;
 
 Procedure TForm1.MenuItem12Click(Sender: TObject);
@@ -1616,9 +1612,15 @@ Begin
     form11.Label3.Caption := inttostr(ctd.Map.Lives[1]);
     form11.Label4.Caption := inttostr(ctd.Map.Lives[2]);
     ctd.RequestPlayerInfos();
-    form11.Showmodal;
     // Start des Spieles
-    If form11Difficulty <> -1 Then Begin
+    If (form11.Showmodal = mrOK) And (form11Difficulty <> -1) Then Begin
+{$IFDEF LCLGTK3}
+      // Don't know why, but on GTK3 the Window "gets visible" even if it should be invisible
+      // by HideForm4, but setting visible to true and false again, fixed the issue.
+      // According AI, this is a known GTK3 Window manager issue
+      form4.visible := true;
+      form4.visible := false;
+{$ENDIF}
       ctd.InitiateNewGame(form11Difficulty);
       ctd.Splashhint('Initiated new game, ...', DefaultSplashHintColor);
     End

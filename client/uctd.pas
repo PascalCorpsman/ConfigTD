@@ -4514,7 +4514,7 @@ Begin
 {$ENDIF}
       End;
     gs_Gaming: Begin
-        If form4.Visible Then form4.Close;
+        form1.HideForm4; // TODO: Das sollte gar nicht notwendig sein !!
         fmap.ShowWaypoints := false;
         fmap.Render(fsx, fsy, fMapL, fMapT, ShowGrid, ShowLifepoints, IfThen(DarkOtherBuildings, fPlayerIndex, -1)); // -- Muss als erstes gemacht werden, da es "ungenaue" Ränder hat.
         fSplashMarks.Render(fsx, fsy, fMapL, fMapT);

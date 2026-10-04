@@ -62,6 +62,7 @@ Procedure TForm12.FormCreate(Sender: TObject);
 Begin
   panel1.Caption := '';
   caption := 'Player stats';
+  PlayerInfoFrame1.free;
 End;
 
 Procedure TForm12.CashTransferCallback(Sender: TObject; DestPlayer,

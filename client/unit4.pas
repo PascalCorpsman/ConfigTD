@@ -316,7 +316,7 @@ Begin
   setValue('MapEditorForm', 'Top', inttostr(form4.top));
   setValue('MapEditorForm', 'Width', inttostr(form4.Width));
   setValue('MapEditorForm', 'Height', inttostr(form4.Height));
-  canclose := Not ctd.IsInEditMode;
+  // canclose := Not ctd.IsInEditMode; -- Form4Hide / Show soll das steuern!
 End;
 
 Procedure TForm4.RefreshForm4Buyables;
@@ -916,8 +916,7 @@ Begin
 
   Tform(self).Constraints.MaxHeight := Tform(self).Height; // TODO: remove Limit
   Tform(self).Constraints.MinHeight := Tform(self).Height;
-  Tform(self).Constraints.Maxwidth := Tform(self).width; // TODO: remove Limit
-  Tform(self).Constraints.Minwidth := Tform(self).width;
+  Tform(self).Constraints.Minwidth := Scale96ToForm(323);
   FixFormPosition(form4);
 End;
 

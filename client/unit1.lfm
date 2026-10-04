@@ -1,14 +1,14 @@
 object Form1: TForm1
   Left = 330
-  Height = 806
+  Height = 850
   Top = 107
   Width = 1024
   Caption = 'Form1'
-  ClientHeight = 806
+  ClientHeight = 850
   ClientWidth = 1024
   Menu = MainMenu1
   Position = poScreenCenter
-  LCLVersion = '4.99.0.0'
+  LCLVersion = '5.99.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy

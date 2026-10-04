@@ -1,19 +1,20 @@
 object WaveOpponentFrame: TWaveOpponentFrame
   Left = 0
-  Height = 191
+  Height = 231
   Top = 0
-  Width = 271
-  Anchors = [akTop, akLeft, akRight, akBottom]
-  ClientHeight = 191
-  ClientWidth = 271
+  Width = 297
+  Align = alClient
+  ClientHeight = 231
+  ClientWidth = 297
+  LCLVersion = '5.99.0.0'
   TabOrder = 0
-  DesignLeft = 350
-  DesignTop = 190
+  DesignLeft = 871
+  DesignTop = 262
   object ComboBox1: TComboBox
     Left = 88
-    Height = 30
+    Height = 28
     Top = 10
-    Width = 176
+    Width = 202
     Anchors = [akTop, akLeft, akRight]
     ItemHeight = 16
     Style = csOwnerDrawFixed
@@ -34,7 +35,7 @@ object WaveOpponentFrame: TWaveOpponentFrame
   object Label5: TLabel
     Left = 9
     Height = 25
-    Top = 39
+    Top = 42
     Width = 76
     Alignment = taRightJustify
     AutoSize = False
@@ -42,9 +43,9 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit1: TEdit
     Left = 88
-    Height = 26
+    Height = 30
     Hint = 'Total number of opponents to send out '#10'(devide by units per spawn to get the number of spawns)'
-    Top = 39
+    Top = 42
     Width = 80
     NumbersOnly = True
     ParentShowHint = False
@@ -57,7 +58,7 @@ object WaveOpponentFrame: TWaveOpponentFrame
   object Label6: TLabel
     Left = 9
     Height = 32
-    Top = 64
+    Top = 78
     Width = 76
     Alignment = taRightJustify
     AutoSize = False
@@ -65,8 +66,8 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit2: TEdit
     Left = 88
-    Height = 26
-    Top = 71
+    Height = 30
+    Top = 78
     Width = 80
     NumbersOnly = True
     TabOrder = 2
@@ -77,7 +78,7 @@ object WaveOpponentFrame: TWaveOpponentFrame
   object Label7: TLabel
     Left = 9
     Height = 32
-    Top = 100
+    Top = 116
     Width = 76
     Alignment = taRightJustify
     AutoSize = False
@@ -85,8 +86,8 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit3: TEdit
     Left = 88
-    Height = 26
-    Top = 100
+    Height = 30
+    Top = 116
     Width = 80
     NumbersOnly = True
     ParentShowHint = False
@@ -98,7 +99,7 @@ object WaveOpponentFrame: TWaveOpponentFrame
   object Label8: TLabel
     Left = 9
     Height = 16
-    Top = 168
+    Top = 192
     Width = 76
     Alignment = taRightJustify
     AutoSize = False
@@ -106,9 +107,9 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit4: TEdit
     Left = 88
-    Height = 26
+    Height = 30
     Hint = 'Time in ms until the first spawn is send out'
-    Top = 130
+    Top = 155
     Width = 80
     NumbersOnly = True
     ParentShowHint = False
@@ -121,7 +122,7 @@ object WaveOpponentFrame: TWaveOpponentFrame
   object Label9: TLabel
     Left = 9
     Height = 16
-    Top = 139
+    Top = 155
     Width = 76
     Alignment = taRightJustify
     AutoSize = False
@@ -129,9 +130,9 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object Edit5: TEdit
     Left = 88
-    Height = 26
+    Height = 30
     Hint = 'Time in ms between sending two spawns'
-    Top = 160
+    Top = 192
     Width = 80
     NumbersOnly = True
     ParentShowHint = False
@@ -142,9 +143,9 @@ object WaveOpponentFrame: TWaveOpponentFrame
     OnExit = OnEditExit
   end
   object Button1: TButton
-    Left = 176
+    Left = 152
     Height = 25
-    Top = 160
+    Top = 0
     Width = 80
     Caption = '&Refresh'
     TabOrder = 6
@@ -153,9 +154,9 @@ object WaveOpponentFrame: TWaveOpponentFrame
   end
   object SpeedButton1: TSpeedButton
     Left = 176
-    Height = 145
+    Height = 185
     Top = 39
-    Width = 80
+    Width = 114
     Anchors = [akTop, akLeft, akRight, akBottom]
     OnClick = SpeedButton1Click
   end

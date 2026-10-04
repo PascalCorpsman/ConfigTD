@@ -7,9 +7,9 @@ object Form12: TForm12
   ClientHeight = 298
   ClientWidth = 512
   FormStyle = fsStayOnTop
-  OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
+  LCLVersion = '5.99.0.0'
+  OnCreate = FormCreate
   object Button1: TButton
     Left = 8
     Height = 25
@@ -17,8 +17,8 @@ object Form12: TForm12
     Width = 504
     Anchors = [akTop, akLeft, akRight]
     Caption = '&Refresh'
-    OnClick = Button1Click
     TabOrder = 0
+    OnClick = Button1Click
   end
   object Panel1: TPanel
     Left = 8
@@ -46,44 +46,44 @@ object Form12: TForm12
       Top = 8
       TabOrder = 1
       inherited Label1: TLabel
-        Height = 15
-        Width = 62
+        Height = 16
+        Width = 71
       end
       inherited Label2: TLabel
-        Height = 15
-        Width = 34
+        Height = 16
+        Width = 40
       end
       inherited Label3: TLabel
-        Height = 15
-        Width = 26
+        Height = 16
+        Width = 29
       end
       inherited Label4: TLabel
-        Height = 15
-        Width = 34
+        Height = 16
+        Width = 40
       end
       inherited Label5: TLabel
-        Height = 15
-        Width = 26
+        Height = 16
+        Width = 29
       end
       inherited Label6: TLabel
-        Height = 15
-        Width = 34
+        Height = 16
+        Width = 40
       end
       inherited Label7: TLabel
-        Height = 15
-        Width = 21
+        Height = 16
+        Width = 23
       end
       inherited Label8: TLabel
-        Height = 15
-        Width = 34
+        Height = 16
+        Width = 40
       end
       inherited Label9: TLabel
-        Height = 15
-        Width = 26
+        Height = 16
+        Width = 29
       end
       inherited ComboBox1: TComboBox
-        Height = 23
-        ItemHeight = 15
+        Height = 28
+        ItemHeight = 0
       end
     end
   end
