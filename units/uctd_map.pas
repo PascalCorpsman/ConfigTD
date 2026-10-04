@@ -2669,7 +2669,9 @@ Begin
   data[0] := c And $FF;
   data[1] := (c Shr 8) And $FF;
   data[2] := (c Shr 16) And $FF;
+{$IFDEF LEGACYMODE}
   glEnable(GL_TEXTURE_2D);
+{$ENDIF}
   glBindTexture(gl_texture_2d, fFTerrainBackTex);
   glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, @data[0]);
 End;
