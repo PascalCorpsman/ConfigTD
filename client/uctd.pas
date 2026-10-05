@@ -379,7 +379,7 @@ Type
     Procedure AddHero(x, y: integer; Name: String; Owner: integer);
     Procedure SwitchToEditMode();
     Function fGetPlayerCount: integer;
-    Procedure ModifyTerrain(kx, ky: integer);
+    Procedure ModifyTerrain(kx, ky: integer; Flood: Boolean);
     Procedure ModifyWaypointArea(kx, ky: integer);
     Procedure CreateSplashMark(x, y: integer);
 
@@ -526,7 +526,7 @@ Uses IniFiles, LazUTF8, LCLIntf, forms, LazFileUtils, math, dglOpenGL, LCLType
   , uopengl_shaderprimitives
   , uOpenGL_ASCII_Font, uopengl_spriteengine,
   unit1, unit13, unit4,
-  uctd_messages, uip;
+  uctd_messages, uip, ufifo;
 
 Var
   ini: TInifile = Nil;
@@ -1377,7 +1377,7 @@ Begin
       kx := (x + fsx) Div MapBlockSize;
       ky := (y + fsy) Div MapBlockSize;
       If form4.CheckBox2.Checked Then Begin // Boden bearbeiten
-        ModifyTerrain(kx, ky);
+        ModifyTerrain(kx, ky, form4.CheckBox9.Checked);
       End;
       If form4.CheckBox7.Checked Then Begin // Flächenwegpunkte bearbeiten
         ModifyWaypointArea(kx, ky);
@@ -1578,7 +1578,7 @@ Begin
       kx := (x + fsx) Div MapBlockSize;
       ky := (y + fsy) Div MapBlockSize;
       If form4.CheckBox2.Checked Then Begin // Modify terrain
-        ModifyTerrain(kx, ky);
+        ModifyTerrain(kx, ky, false);
       End;
       If form4.CheckBox7.Checked Then Begin // Flächenwegpunkte bearbeiten
         ModifyWaypointArea(kx, ky);
@@ -2316,35 +2316,91 @@ Begin
   LogLeave(EnterID);
 End;
 
-Procedure Tctd.ModifyTerrain(kx, ky: integer);
+Procedure Tctd.ModifyTerrain(kx, ky: integer; Flood: Boolean);
 Var
-  m: TMemoryStream;
-  o, x, y, i, j, c: integer;
+  TargetData: Integer;
+
+  Procedure UpdateCoord(x, y: integer);
+  Var
+    m: TMemoryStream;
+  Begin
+    If (x >= 0) And (x < map.Width) And
+      (y >= 0) And (y < map.Height) And
+      (Map.fTerrain[x, y].data <> TargetData) Then Begin
+      map.UpdateBackTexCoord(x, y);
+      m := TMemoryStream.Create;
+      m.write(x, sizeof(x));
+      m.write(y, sizeof(y));
+      m.write(TargetData, sizeof(TargetData));
+      UpdateMapProperty(mpCoord, m);
+    End;
+  End;
+
+Type
+  TPointFifo = specialize TBufferedFifo < Tpoint > ;
+Var
+  Fifo: TPointFifo;
+  Visited: Array Of Array Of Boolean;
+
+  Procedure Push(x, y: integer);
+  Begin
+    If visited[x, y] Then exit;
+    visited[x, y] := true;
+    fifo.Push(point(x, y));
+  End;
+
+  Procedure Pop(Out x, y: integer);
+  Var
+    p: TPoint;
+  Begin
+    p := Fifo.Pop;
+    x := p.x;
+    y := p.y;
+  End;
+
+Var
+  o, x, y, i, j: integer;
+  StartData: integer;
 Begin
-  c := 0;
+  TargetData := 0;
   If form4.CheckBox3.Checked Then
-    c := c Or Walkable;
+    TargetData := TargetData Or Walkable;
   If form4.CheckBox4.Checked Then
-    c := c Or Buildable;
+    TargetData := TargetData Or Buildable;
   If form4.ScrollBar1.Position Mod 2 = 0 Then Begin
     o := form4.ScrollBar1.Position Div 2;
   End
   Else Begin
     o := form4.ScrollBar1.Position Div 2 + 1;
   End;
-  For i := 0 To form4.ScrollBar1.Position Do Begin
-    x := kx + i - o;
-    For j := 0 To form4.ScrollBar1.Position Do Begin
-      y := ky + j - o;
-      If (x >= 0) And (x < map.Width) And
-        (y >= 0) And (y < map.Height) And
-        (Map.fTerrain[x, y].data <> c) Then Begin
-        map.UpdateBackTexCoord(x, y);
-        m := TMemoryStream.Create;
-        m.write(x, sizeof(x));
-        m.write(y, sizeof(y));
-        m.write(c, sizeof(c));
-        UpdateMapProperty(mpCoord, m);
+  If flood Then Begin
+    // Init
+    Fifo := TPointFifo.create(Map.Width * map.Height + 2);
+    Visited := Nil;
+    setlength(Visited, Map.Width, map.Height);
+    For i := 0 To high(Visited) Do
+      For j := 0 To high(Visited[i]) Do
+        Visited[i, j] := false;
+    StartData := Map.fTerrain[kx, ky].data;
+    Push(kx, ky);
+    // Floodfill
+    While Not Fifo.isempty Do Begin
+      pop(kx, ky);
+      UpdateCoord(kx, ky);
+      If (kx > 0) And (Map.fTerrain[kx - 1, ky].data = StartData) Then push(kx - 1, ky);
+      If (ky > 0) And (Map.fTerrain[kx, ky - 1].data = StartData) Then push(kx, ky - 1);
+      If (kx < high(Map.fTerrain)) And (Map.fTerrain[kx + 1, ky].data = StartData) Then push(kx + 1, ky);
+      If (ky < high(Map.fTerrain[0])) And (Map.fTerrain[kx, ky + 1].data = StartData) Then push(kx, ky + 1);
+    End;
+    setlength(Visited, 0, 0);
+    Fifo.free;
+  End
+  Else Begin
+    For i := 0 To form4.ScrollBar1.Position Do Begin
+      x := kx + i - o;
+      For j := 0 To form4.ScrollBar1.Position Do Begin
+        y := ky + j - o;
+        UpdateCoord(x, y);
       End;
     End;
   End;

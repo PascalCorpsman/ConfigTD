@@ -78,6 +78,7 @@ Type
     CheckBox6: TCheckBox;
     CheckBox7: TCheckBox;
     CheckBox8: TCheckBox;
+    CheckBox9: TCheckBox;
     ComboBox1: TComboBox;
     ComboBox2: TComboBox;
     Edit1: TEdit;

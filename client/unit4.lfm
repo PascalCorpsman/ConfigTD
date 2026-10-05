@@ -1,7 +1,7 @@
 object Form4: TForm4
-  Left = 1611
+  Left = 347
   Height = 489
-  Top = 109
+  Top = 108
   Width = 408
   BorderIcons = []
   Caption = 'Form4'
@@ -19,9 +19,9 @@ object Form4: TForm4
     Height = 489
     Top = 0
     Width = 408
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'General'
@@ -378,8 +378,8 @@ object Form4: TForm4
         Width = 384
         Anchors = [akTop, akLeft, akRight]
         Caption = ' Edit Terrain '
-        ClientHeight = 105
-        ClientWidth = 384
+        ClientHeight = 87
+        ClientWidth = 382
         TabOrder = 1
         object CheckBox2: TCheckBox
           Left = 8
@@ -417,7 +417,7 @@ object Form4: TForm4
           Left = 145
           Height = 14
           Top = 64
-          Width = 225
+          Width = 223
           Anchors = [akTop, akLeft, akRight]
           Max = 5
           PageSize = 0
@@ -433,6 +433,14 @@ object Form4: TForm4
           TabOrder = 4
           OnChange = CheckBox1Change
         end
+        object CheckBox9: TCheckBox
+          Left = 320
+          Height = 21
+          Top = 17
+          Width = 44
+          Caption = 'Fill'
+          TabOrder = 5
+        end
       end
       object GroupBox5: TGroupBox
         Left = 8
@@ -441,8 +449,8 @@ object Form4: TForm4
         Width = 384
         Anchors = [akTop, akLeft, akRight]
         Caption = ' Placements '
-        ClientHeight = 97
-        ClientWidth = 384
+        ClientHeight = 79
+        ClientWidth = 382
         TabOrder = 2
         object CheckBox6: TCheckBox
           Left = 8
@@ -475,7 +483,7 @@ object Form4: TForm4
           Left = 144
           Height = 28
           Top = 8
-          Width = 193
+          Width = 191
           Anchors = [akTop, akLeft, akRight]
           ItemHeight = 0
           Style = csDropDownList
@@ -483,7 +491,7 @@ object Form4: TForm4
           OnChange = ComboBox2Change
         end
         object Button4: TButton
-          Left = 345
+          Left = 343
           Height = 25
           Top = 10
           Width = 25
@@ -503,7 +511,7 @@ object Form4: TForm4
           Left = 192
           Height = 30
           Top = 40
-          Width = 178
+          Width = 176
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 5
           Text = 'Edit5'
@@ -825,8 +833,8 @@ object Form4: TForm4
     Enabled = False
     Interval = 250
     OnTimer = Timer1Timer
-    Left = 232
-    Top = 128
+    Left = 120
+    Top = 160
   end
   object OpenPictureDialog1: TOpenPictureDialog
     Filter = 'Graphic (*.png;*.bmp;*.jpg)|*.png;*.bmp;*.jpg|Portable Network Graphic (*.png)|*.png|Bitmaps (*.bmp)|*.bmp|Joint Picture Expert Group |*.jpg|All files (*)|*|'

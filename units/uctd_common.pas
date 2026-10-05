@@ -139,6 +139,7 @@ Const
    *                      FIX: typo in ShowOpponentsPathOnWaveStart
    *                      ADD: use shader rendering instead of old OpenGl legacy
    *                      ADD: Opponents are now able to emit other opponents
+   *                      ADD: Feature Floodfill terrain
    * Known Bugs :
    *)
   (*
