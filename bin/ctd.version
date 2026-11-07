@@ -1,85 +1,85 @@
 {
   "config_td":
   {
-    "Version":0.14002,
+    "Version":0.14003,
     "LauncherVersion":14,
-    "VersionText":"Switch to Github releases",
+    "VersionText":"ADD: Show Opponent Path if key \"R\" is pressed.\nFIX: typo in ShowOpponentsPathOnWaveStart\nADD: use shader rendering instead of old OpenGl legacy\nADD: Opponents are now able to emit other opponents\nADD: Feature Floodfill terrain",
     "Download_core":
     [
       {
         "file":
         {
-          "HASH":"88dc1ce2e0723905c802e744708b4036",
-          "SIZE":"2869760",
-          "HASH2":"129c72a096345da9e7ec630d0f2a6217",
-          "SIZE2":"7591320",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/Opponent_overview.exe",
+          "HASH":"33471dd02d7897341db8dcaaeead1d06",
+          "SIZE":"2870272",
+          "HASH2":"ab6745e2155f5ccbb7f268a1c85becd8",
+          "SIZE2":"8024144",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/Opponent_overview.exe",
           "Filename":"Opponent_overview.exe"
         }
       },
       {
         "file":
         {
-          "HASH":"fc4b9213bc5e611958504891dc5f1672",
-          "SIZE":"3089920",
-          "HASH2":"e652c6e8db9fd6b359ad2820ff8c1e3f",
-          "SIZE2":"7771704",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/Animation_Editor.exe",
+          "HASH":"9852f1e8c323e2e43f784f7b312196fd",
+          "SIZE":"3110400",
+          "HASH2":"f91383fdba24c5a5417fee790b54501c",
+          "SIZE2":"8207840",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/Animation_Editor.exe",
           "Filename":"Animation_Editor.exe"
         }
       },
       {
         "file":
         {
-          "HASH":"bba19375624f9aecafd26e0f7c671a0d",
-          "SIZE":"3049472",
-          "HASH2":"0570ea31cab83269618cd9561dc9dad0",
-          "SIZE2":"7742872",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/image_overview.exe",
+          "HASH":"4ab638923356260fb77169af9f692443",
+          "SIZE":"3050496",
+          "HASH2":"16f77eb7cb409d9bbb70a172351ea86e",
+          "SIZE2":"8149712",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/image_overview.exe",
           "Filename":"image_overview.exe"
         }
       },
       {
         "file":
         {
-          "HASH":"101c60bda173a7d904193a37f7e599d8",
-          "SIZE":"5835776",
-          "HASH2":"8dde0b4e9afb394d42ca914ce6f9d896",
-          "SIZE2":"7346072",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_launcher.exe",
+          "HASH":"9e53e23fd831b7eb13827cbe0991c47f",
+          "SIZE":"5838336",
+          "HASH2":"172178a850d6974668c3afdb55799b15",
+          "SIZE2":"7725264",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/ctd_launcher.exe",
           "Filename":"ctd_launcher.exe"
         }
       },
       {
         "file":
         {
-          "HASH":"9ba3999fae337c18b79234ac20c4e35b",
-          "SIZE":"7843328",
-          "HASH2":"d91deaa31f8da504548c9cd7a250875a",
-          "SIZE2":"12594472",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/config_td.exe",
+          "HASH":"9024f870afa284c704941f507b8517c7",
+          "SIZE":"7890432",
+          "HASH2":"a91df8a60ccd3af374d1c10d57bb492a",
+          "SIZE2":"14710352",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/config_td.exe",
           "Filename":"config_td.exe"
         }
       },
       {
         "file":
         {
-          "HASH":"5103e81d4d2dff9f6ba77a62e7c6aaaa",
+          "HASH":"6f3a540826e9431c4d492d0a4ed74419",
           "SIZE":"2673664",
-          "HASH2":"30be9dd58a8836c409688d7cb41bbc55",
-          "SIZE2":"6934904",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_updater.exe",
+          "HASH2":"235f819a7cf1aa6cfcf7df2a43402160",
+          "SIZE2":"7309680",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/ctd_updater.exe",
           "Filename":"ctd_updater.exe"
         }
       },
       {
         "file":
         {
-          "HASH":"415ba3ea709f23284535606290651599",
-          "SIZE":"3609088",
-          "HASH2":"f51d3c29a49705d518f9f50931c16766",
-          "SIZE2":"8066312",
-          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14002\/ctd_server.exe",
+          "HASH":"f4a365ba0fae3a86a322925ef8f507d8",
+          "SIZE":"3634176",
+          "HASH2":"c51609ea08595199ae90e8b9e8549e69",
+          "SIZE2":"8492192",
+          "URL":"https:\/\/github.com\/PascalCorpsman\/ConfigTD\/releases\/download\/0.14003\/ctd_server.exe",
           "Filename":"ctd_server.exe"
         }
       },
@@ -644,8 +644,8 @@
       {
         "file":
         {
-          "HASH":"9b18a7b154359e8832d36cdf342df755",
-          "SIZE":"7022",
+          "HASH":"fb6b287dd7984750dfa06c35b0f76dac",
+          "SIZE":"6929",
           "URL":"https:\/\/raw.githubusercontent.com\/PascalCorpsman\/ConfigTD\/main\/Readme.md",
           "Filename":"Readme.md"
         }
